@@ -1,0 +1,108 @@
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>REMA Control</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<body>
+	<label>Posición Comandada:</label>
+	<input type="text" id="pos_cmd" name="pos_cmd"><input type="button" id="start" name="start" value="GO">
+	<br />
+	<label>Position:</label>
+	<input type="text" id="position" name="position">
+	
+	<br />
+	<input type="button" id="reset" name="reset" value="Emergency Stop">
+	<br />
+</body>
+
+<script type="text/javascript">
+
+function update_ui() {
+    			$.ajax({
+				url : "/json/",
+				method : "POST",
+				contentType : "application/json",
+				data : JSON.stringify({
+					"commands" : [
+						{"command": "TELEMETRIA",
+					   }
+					]
+				}),
+				dataType : "json",
+				success : function(data) {
+					console.log(data);
+					$("#position").val(data.TELEMETRIA["cuentas A"]);
+				}
+			})
+
+}
+
+	$(document).ready(function() {
+		var timer;
+
+		$("#start").click(function() {
+			$.ajax({
+				url : "/json/",
+				method : "POST",
+				contentType : "application/json",
+				data : JSON.stringify({
+					"commands" : [
+						{"command": "STALL_CONTROL",
+			 			 "pars": {
+							"enabled": false
+							}					 
+						},
+					    {"command": "KP_SET_TUNINGS",
+				 			 "pars": {
+				                "axis": "x",
+								"kp": 100,
+								"update": 100,
+								"min": -125000,
+								"max": 125000,        
+								"abs_min": 10
+							}					 
+					    },
+			            {"command": "AXIS_CLOSED_LOOP",
+			 			 	"pars": {
+			                	"axis": "x",
+								"setpoint": parseInt($("#pos_cmd").val())
+							}					 
+					   }
+				]
+			}),
+				dataType : "json",
+				success : function(data) {
+					//console.log(data);					
+				}
+			})
+		});
+
+		$("#reset").click(function() {
+			$.ajax({
+				url : "/json/",
+				method : "POST",
+				contentType : "application/json",
+				data : JSON.stringify({
+					"commands" : [
+						{"command": "AXIS_STOP",
+			 			 "pars": {
+							"AXIS": "X"
+							}					 
+						},
+					]
+				}),
+				dataType : "json",
+				success : function(data) {}
+			})
+		});
+		
+		var timer = setInterval(update_ui, 1000);
+
+	});
+</script>
+
+</html>
