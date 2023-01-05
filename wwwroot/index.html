@@ -7,81 +7,69 @@
 <script
 	src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 
+<link rel="stylesheet"
+	href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.13.2/themes/smoothness/jquery-ui.css">
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"></script>
+
 <body>
-	<label>Posición Comandada:</label>
-	<input type="text" id="pos_cmd" name="pos_cmd"><input type="button" id="start" name="start" value="GO">
-	<br />
-	<label>Position:</label>
-	<input type="text" id="position" name="position">
-	
-	<br />
-	<input type="button" id="reset" name="reset" value="Emergency Stop">
-	<br />
-	
-	<img src="sheep.png" />
+
+	<div id="tabs" style="height: 88%">
+		<ul>
+			<li><a href="closed_loop.html">Closed Loop</a></li>
+			<li><a href="hx.html">HX</a></li>
+			<li><a href="config.html">Config</a></li>
+		</ul>
+	</div>
+
+	<br/>
+	<div style="text-align: center; ">
+		<label>Position X:
+			<input type="text" id="position_x" name="position X" readonly="readonly">
+		</label>
+		<label>Position Y:
+			<input type="text" id="position_y" name="position Y" readonly="readonly">
+		</label>
+		<label>Position Z:
+			<input type="text" id="position_z" name="position Z" readonly="readonly">
+		</label>		
+	</div>	
+	<br/>
+	<div style="text-align: center; ">
+		<input type="button" id="reset" name="reset" value="Emergency Stop">
+	</div>
+
 </body>
 
 <script type="text/javascript">
+	$(function() {
+		$("#tabs").tabs({
+			active : 0
+		//opens the 2d tab, since its a 0 based count
+		});
+	});
 
-function update_ui() {
-    			$.ajax({
-				url : "/json/",
-				method : "POST",
-				contentType : "application/json",
-				data : JSON.stringify({
-					"commands" : [
-						{"command": "TELEMETRIA",
-					   }
-					]
-				}),
-				dataType : "json",
-				success : function(data) {
-					console.log(data);
-					$("#position").val(data.TELEMETRIA["cuentas A"]);
-				}
-			})
+	function update_ui() {
+		$.ajax({
+			url : "/json/",
+			method : "POST",
+			contentType : "application/json",
+			data : JSON.stringify({
+				"commands" : [ {
+					"command" : "TELEMETRIA",
+				} ]
+			}),
+			dataType : "json",
+			success : function(data) {
+				console.log(data);
+				$("#position").val(data.TELEMETRIA["cuentas A"]);
+			}
+		})
 
-}
+	}
 
 	$(document).ready(function() {
 		var timer;
-
-		$("#start").click(function() {
-			$.ajax({
-				url : "/json/",
-				method : "POST",
-				contentType : "application/json",
-				data : JSON.stringify({
-					"commands" : [
-						{"command": "STALL_CONTROL",
-			 			 "pars": {
-							"enabled": false
-							}					 
-						},
-					    {"command": "KP_SET_TUNINGS",
-				 			 "pars": {
-				                "axis": "x",
-								"kp": 100,
-								"update": 100,
-								"min": -125000,
-								"max": 125000,        
-								"abs_min": 10
-							}					 
-					    },
-			            {"command": "AXIS_CLOSED_LOOP",
-			 			 	"pars": {
-			                	"axis": "x",
-								"setpoint": parseInt($("#pos_cmd").val())
-							}					 
-					   }
-				]
-			}),
-				dataType : "json",
-				success : function(data) {
-					//console.log(data);					
-				}
-			})
-		});
 
 		$("#reset").click(function() {
 			$.ajax({
@@ -89,20 +77,20 @@ function update_ui() {
 				method : "POST",
 				contentType : "application/json",
 				data : JSON.stringify({
-					"commands" : [
-						{"command": "AXIS_STOP",
-			 			 "pars": {
-							"AXIS": "X"
-							}					 
-						},
-					]
+					"commands" : [ {
+						"command" : "AXIS_STOP",
+						"pars" : {
+							"AXIS" : "X"
+						}
+					}, ]
 				}),
 				dataType : "json",
-				success : function(data) {}
+				success : function(data) {
+				}
 			})
 		});
-		
-		var timer = setInterval(update_ui, 1000);
+
+		var timer = setInterval(update_ui, 100000);
 
 	});
 </script>

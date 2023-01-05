@@ -1,0 +1,33 @@
+<br/>
+<div id="hx_tab">
+	<div id="slider" style="margin-bottom: 1%"></div>
+	<div style="overflow: scroll; text-align: center; height: 80%" id="hx_svg_div">
+	<svg id="hx_svg" style="width: 1000; height: 500;"></svg>
+	</div>
+</div>
+
+<script type="text/javascript">
+	$(function() {
+		$('#hx_svg_div').scrollLeft(50);
+		var aspectRatio = 1.5;
+		$('#hx_svg').load('tubesheet.svg', function() {
+			var svg = document.getElementById('tubesheet_svg');
+			var box = svg.viewBox.baseVal;
+
+			aspectRatio = box.width / box.height;
+			
+			
+			$("#slider").slider({
+				min : 1,
+				max : 10,
+				change : function(event, ui) {
+
+					$('#hx_svg').css("width", ui.value * 1000);
+					$('#hx_svg').css("height", ui.value * 1000 / aspectRatio);					
+					$('#hx_svg_div').scrollLeft(ui.value * 1000 / 2);
+					$('#hx_svg_div').scrollTop(50);
+				}
+			});
+		})
+	});
+</script>

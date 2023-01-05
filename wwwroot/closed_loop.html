@@ -1,0 +1,46 @@
+<div id="closed_loop_tab" style="overflow: hidden; width: 100%;">
+	<div id="x_closed_loop" data-axis="X" style="float: left; width: 33%;">
+		<fieldset><legend>Eje X</legend>
+			<label>Posición Comandada:</label>
+			<input type="text" id="pos_cmd" name="pos_cmd" size="4">
+			<input type="button" name="start" value="GO">
+		</fieldset>
+	</div>
+	<div id="y_closed_loop" data-axis="X" style="float: left; width: 33%;">
+		<fieldset><legend>Eje Y</legend>
+			<label>Posición Comandada:</label>
+			<input type="text" id="pos_cmd" name="pos_cmd" size="4">
+			<input type="button" name="start" value="GO">
+		</fieldset>
+	</div>
+	<div id="z_closed_loop" data-axis="X" style="float: left; width: 33%;">
+		<fieldset><legend>Eje Z</legend>
+			<label>Posición Comandada:</label>
+			<input type="text" id="pos_cmd" name="pos_cmd" size="4">
+			<input type="button" name="start" value="GO">
+		</fieldset>
+	</div>
+</div>
+
+<script type="text/javascript">
+	function closed_loop(btn) {
+		$.ajax({
+			url : "/json/",
+			method : "POST",
+			contentType : "application/json",
+			data : JSON.stringify({
+				"commands" : [ {
+					"command" : "AXIS_CLOSED_LOOP",
+					"pars" : {
+						"axis" : "x",
+						"setpoint" : parseInt($("#pos_cmd").val())
+					}
+				} ]
+			}),
+			dataType : "json",
+			success : function(data) {
+				//console.log(data);					
+			}
+		})
+	}	
+</script>

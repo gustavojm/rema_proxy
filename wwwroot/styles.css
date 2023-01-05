@@ -1,5 +1,10 @@
 /* Your Style */
 
 body {
-  background-color: #00AA00;
+  background-color: #ffffff;
+  font-size: 1em;
+}
+
+.ui-widget {
+    font-size:90% !important;
 }

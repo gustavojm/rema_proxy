@@ -6,12 +6,11 @@
 #include <restbed>
 #include <streambuf>
 #include <functional>
-#include <boost/variant/variant.hpp>
-#include <boost/variant/get.hpp>
 
 #include <iostream>
 #include <asio.hpp>
 #include <boost/program_options.hpp>
+#include "syslogger.hpp"
 
 using namespace std;
 using namespace restbed;
@@ -28,13 +27,16 @@ void get_method_handler(const shared_ptr<Session> session) {
 
 		string content_type = "text/html";
 
-		string extension = filename.substr(filename.length() - 4, 4);
+		string extension = filename.substr(filename.length() - 4);
 
 		if (extension == ".jpg") {
 			content_type = "image/jpg";
 		}
 		if (extension == ".png") {
 			content_type = "image/png";
+		}
+		if (extension == ".svg") {
+			content_type = "image/svg+xml";
 		}
 
 		const multimap<string, string> headers {
@@ -48,7 +50,7 @@ void get_method_handler(const shared_ptr<Session> session) {
 }
 
 asio::error_code send_to_ciaa(const asio::ip::address &ciaa_ip, int ciaa_port,
-		const Bytes &tx_buffer, shared_ptr<asio::streambuf> rx_buffer) {
+		const Bytes &tx_buffer, asio::streambuf& rx_buffer) {
 	asio::io_service io_service;
 	asio::ip::tcp::socket socket(io_service); //socket creation
 	socket.connect(asio::ip::tcp::endpoint(ciaa_ip, ciaa_port)); //connection
@@ -62,7 +64,7 @@ asio::error_code send_to_ciaa(const asio::ip::address &ciaa_ip, int ciaa_port,
 
 	// getting response from server
 	//asio::read(socket, receive_buffer, asio::transfer_all(), error);
-	asio::read_until(socket, *rx_buffer, "\0", error);
+	asio::read_until(socket, rx_buffer, "\0", error);
 	if (error && error != asio::error::eof) {
 		cout << "receive failed: " << error.message() << endl;
 		return error;
@@ -81,8 +83,7 @@ void post_json_method_handler(const shared_ptr<Session> session,
 	session->fetch(content_length,
 			[&](const shared_ptr<Session> &session, const Bytes &body) {
 
-				shared_ptr<asio::streambuf> rx_buffer = make_shared<
-						asio::streambuf>();
+				asio::streambuf rx_buffer;
 				auto ec = send_to_ciaa(ciaa_ip, ciaa_port, body, rx_buffer);
 
 				if (ec) {
@@ -95,7 +96,7 @@ void post_json_method_handler(const shared_ptr<Session> session,
 				} else {
 					std::string stream(
 							asio::buffer_cast<const char*>(
-									(*rx_buffer).data()));
+									(rx_buffer).data()));
 					cout << stream << endl;
 
 					if (!stream.empty())
@@ -172,7 +173,7 @@ int main(const int, const char**) {
 	auto resource_html_file = make_shared<Resource>();
 	//resource_html_file->set_path("/static/{filename: [a-z]*\\.html}");
 	resource_html_file->set_path(
-			"/static/{filename: ^.+\\.(html|css|jpg|png)$}");
+			"/static/{filename: ^.+\\.(html|css|jpg|png|svg)$}");
 	resource_html_file->set_method_handler("GET", get_method_handler);
 
 	auto settings = make_shared<Settings>();
@@ -182,6 +183,7 @@ int main(const int, const char**) {
 	Service service;
 	service.publish(resource_json);
 	service.publish(resource_html_file);
+	service.set_logger( make_shared< SyslogLogger >( ) );
 	service.start(settings);
 
 	return EXIT_SUCCESS;

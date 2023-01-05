@@ -1,0 +1,70 @@
+<div id="config_tab" style="overflow: hidden; width: 100%;">
+	<div id="x_axis_config" data-axis="X" style="float: left; width: 33%;" class="axis_div">
+	<fieldset><legend>Eje X</legend>
+		<label>Ganancia Proporcional: <input type="text" name="kp" size="4">%</label><br/>
+		<label>Tiempo Actualización: <input type="text"	name="update_time" size="4">ms</label><br/>
+		<label>Máxima frecuencia: <input type="text" name="max_freq" size="4">hz</label><br/>
+		<input type="button" name="start" onclick=save($(this)) value="Save">
+	</fieldset>
+	</div>
+	<div id="y_axis_config" data-axis="Y" style="float: left; width: 33%;" class="axis_div">
+	<fieldset><legend>Eje Y</legend>
+		<label>Ganancia Proporcional: <input type="text" name="kp" size="4">%</label><br/>
+		<label>Tiempo Actualización: <input type="text"	name="update_time" size="4">ms</label><br/>
+		<label>Máxima frecuencia: <input type="text" name="max_freq" size="4">hz</label><br/>
+		<input type="button" name="start" onclick=save($(this)) value="Save">
+	</fieldset>
+	</div>
+	<div id="z_axis_config" data-axis="Z" style="float: left; width: 33%;" class="axis_div">
+	<fieldset><legend>Eje Z</legend>
+		<label>Ganancia Proporcional: <input type="text" name="kp" size="4">%</label><br/>
+		<label>Tiempo Actualización: <input type="text"	name="update_time" size="4">ms</label><br/>
+		<label>Máxima frecuencia: <input type="text" name="max_freq" size="4">hz</label><br/>
+		<input type="button" name="start" onclick=save($(this)) value="Save">
+	</fieldset>
+	</div>
+</div>
+
+<script type="text/javascript">
+	function save(btn) {
+
+		console.log(btn.parent());
+		div = btn.closest(".axis_div");
+		console.log(div);
+		axis = $(div).data("axis");
+		kp = parseInt($(div).find('[name="kp"]').val()) || 100;
+		update_time = parseInt($(div).find('[name="update_time"]').val()) || 100;
+		max_freq = parseInt($(div).find('[name="max_freq"]').val()) || 125000;
+		$.ajax({
+			url : "/json/",
+			method : "POST",
+			contentType : "application/json",
+			data : JSON.stringify({
+				"commands" : [ {
+					"command" : "STALL_CONTROL",
+					"pars" : {
+						"enabled" : false
+					}
+				}, {
+					"command" : "KP_SET_TUNINGS",
+					"pars" : {
+						"axis" : axis,
+						"kp" : kp,
+						"update" : update_time,
+						"min" : -max_freq,
+						"max" : max_freq,
+						"abs_min" : 10
+					}
+				} ]
+			}),
+			dataType : "json",
+			success : function(data) {
+				//console.log(data);					
+			}
+		});
+	};
+
+	$(function() {
+//		alert("script en config.html");
+	});
+</script>
