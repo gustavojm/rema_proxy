@@ -6,6 +6,8 @@
 #include <restbed>
 #include <streambuf>
 #include <functional>
+#include <filesystem>
+#include <map>
 
 #include <iostream>
 #include <asio.hpp>
@@ -19,24 +21,23 @@ void get_method_handler(const shared_ptr<Session> session) {
 	const auto request = session->get_request();
 	const string filename = request->get_path_parameter("filename");
 
-	ifstream stream("./wwwroot/" + filename, ifstream::in);
+	std::filesystem::path f {"./wwwroot/" + request->get_path_parameter("filename")};
+
+	ifstream stream( f, ifstream::in);
 
 	if (stream.is_open()) {
 		const string body = string(istreambuf_iterator<char>(stream),
 				istreambuf_iterator<char>());
 
-		string content_type = "text/html";
+		std::map<std::string, std::string> mime_types = {{".jpg", "image/jpg"} , {".png" , "image/png"}, {"svg", "image/svg+xml"}, {".css", "text/css"}, {".js", "text/javascript"}};
 
-		string extension = filename.substr(filename.length() - 4);
 
-		if (extension == ".jpg") {
-			content_type = "image/jpg";
-		}
-		if (extension == ".png") {
-			content_type = "image/png";
-		}
-		if (extension == ".svg") {
-			content_type = "image/svg+xml";
+		std::string content_type;
+		std::string ext = f.filename().extension();
+		if (auto elem = mime_types.find(ext); elem != mime_types.end()) {
+			content_type = (*elem).second;
+		} else {
+			content_type = "text/html";
 		}
 
 		const multimap<string, string> headers {
@@ -173,7 +174,7 @@ int main(const int, const char**) {
 	auto resource_html_file = make_shared<Resource>();
 	//resource_html_file->set_path("/static/{filename: [a-z]*\\.html}");
 	resource_html_file->set_path(
-			"/static/{filename: ^.+\\.(html|css|jpg|png|svg)$}");
+			"/static/{filename: ^.+\\.(html|css|js|jpg|png|svg)$}");
 	resource_html_file->set_method_handler("GET", get_method_handler);
 
 	auto settings = make_shared<Settings>();

@@ -14,7 +14,7 @@
 
 <body>
 
-	<div id="tabs" style="height: 88%">
+	<div id="tabs" style="height: 85%">
 		<ul>
 			<li><a href="closed_loop.html">Closed Loop</a></li>
 			<li><a href="hx.html">HX</a></li>
@@ -23,17 +23,24 @@
 	</div>
 
 	<br/>
-	<div style="text-align: center; ">
-		<label>Position X:
-			<input type="text" id="position_x" name="position X" readonly="readonly">
-		</label>
-		<label>Position Y:
-			<input type="text" id="position_y" name="position Y" readonly="readonly">
-		</label>
-		<label>Position Z:
-			<input type="text" id="position_z" name="position Z" readonly="readonly">
-		</label>		
-	</div>	
+	<div style="overflow: hidden; text-align: center;">
+		<div style="float: left; width: 33%">
+			<label>Position X: <input type="text" id="position_x"
+				name="position X" readonly="readonly">
+			</label>
+		</div>
+		<div style="float: left; width: 33%">
+			<label>Position Y: <input type="text" id="position_y"
+				name="position Y" readonly="readonly">
+			</label>
+		</div>
+		<div style="float: left; width: 33%">
+			<label>Position Z: <input type="text" id="position_z"
+				name="position Z" readonly="readonly">
+			</label>
+		</div>
+	</div>
+
 	<br/>
 	<div style="text-align: center; ">
 		<input type="button" id="reset" name="reset" value="Emergency Stop">
@@ -44,7 +51,8 @@
 <script type="text/javascript">
 	$(function() {
 		$("#tabs").tabs({
-			active : 0
+			active : 0,
+			//heightStyle : "fill"
 		//opens the 2d tab, since its a 0 based count
 		});
 	});

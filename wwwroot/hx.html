@@ -1,33 +1,71 @@
-<br/>
-<div id="hx_tab">
-	<div id="slider" style="margin-bottom: 1%"></div>
-	<div style="overflow: scroll; text-align: center; height: 80%" id="hx_svg_div">
-	<svg id="hx_svg" style="width: 1000; height: 500;"></svg>
+<script src="jquery.svgdom.js"></script>
+
+<style>
+svg circle.clicked {
+	fill: #29ABE2;
+}
+</style>
+
+<br />
+<div id="hx_tab" style="position:relative; height: 90%">
+	<div id="tube_info">
+		<label>Info Tubo: X:<input type="text" id="tube_info_x"
+			size="4"> Y:<input type="text" id="tube_info_y" size="4">
+		</label>
+		<input type="button" name="start" value="GO">
+	</div>
+	<div style="position: relative; width: 100%; padding: 4px;">
+		<div style="float: left; padding-right: 10px;">zoom:</div>
+		<div id="slider" style="float: left; width: 85%;"></div>
+	</div>
+	<div
+		style="position:relative; overflow: scroll; text-align: center; height: 90%; width: 100%; align-content: center;"
+		id="hx_svg_div">
+		<svg id="hx_svg" style="position:relative; width: 1000; height: 500;"></svg>
 	</div>
 </div>
 
 <script type="text/javascript">
 	$(function() {
-		$('#hx_svg_div').scrollLeft(50);
 		var aspectRatio = 1.5;
-		$('#hx_svg').load('tubesheet.svg', function() {
-			var svg = document.getElementById('tubesheet_svg');
-			var box = svg.viewBox.baseVal;
+		$('#hx_svg').load(
+				'tubesheet.svg',
+				function() {
+					var svg = document.getElementById('tubesheet_svg');
+					var box = svg.viewBox.baseVal;
 
-			aspectRatio = box.width / box.height;
-			
-			
-			$("#slider").slider({
-				min : 1,
-				max : 10,
-				change : function(event, ui) {
+					aspectRatio = box.width / box.height;
+					$('#hx_svg').css("width", 1000);
+					$('#hx_svg').css("height", 1000 / aspectRatio);
 
-					$('#hx_svg').css("width", ui.value * 1000);
-					$('#hx_svg').css("height", ui.value * 1000 / aspectRatio);					
-					$('#hx_svg_div').scrollLeft(ui.value * 1000 / 2);
-					$('#hx_svg_div').scrollTop(50);
-				}
-			});
-		})
+					var tubes = $(
+							'#tubesheet_svg .tube_num, #tubesheet_svg circle ')
+							.click(
+									function() {
+										var clickmark = 'clicked';
+										var t = $(this).parent();
+										tubes.not(t).removeClass(clickmark);
+										t.children().addClass(clickmark);
+
+										$("#tube_info_x").val(
+												$(t).find("circle").first()
+														.attr("cx"));
+										$("#tube_info_y").val(
+												$(t).find("circle").first()
+														.attr("cy"));
+									});
+
+					$("#slider").slider(
+							{
+								min : 1,
+								max : 10,
+								change : function(event, ui) {
+
+									$('#hx_svg').css("width", ui.value * 1000);
+									$('#hx_svg').css("height",
+											ui.value * 1000 / aspectRatio);
+								}
+							});
+				})
 	});
 </script>
