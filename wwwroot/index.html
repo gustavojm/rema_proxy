@@ -19,6 +19,7 @@
 			<li><a href="closed_loop.html">Closed Loop</a></li>
 			<li><a href="hx.html">HX</a></li>
 			<li><a href="config.html">Config</a></li>
+			<li><a href="logs.html">Logs</a></li>
 		</ul>
 	</div>
 
@@ -51,7 +52,7 @@
 <script type="text/javascript">
 	$(function() {
 		$("#tabs").tabs({
-			active : 0,
+			active : 3,
 			//heightStyle : "fill"
 		//opens the 2d tab, since its a 0 based count
 		});
@@ -59,7 +60,7 @@
 
 	function update_ui() {
 		$.ajax({
-			url : "/json/",
+			url : "/CIAA/",
 			method : "POST",
 			contentType : "application/json",
 			data : JSON.stringify({
@@ -70,18 +71,19 @@
 			dataType : "json",
 			success : function(data) {
 				console.log(data);
-				$("#position").val(data.TELEMETRIA["cuentas A"]);
+				$("#position_x").val(data.TELEMETRIA["cuentas A"]);
+				$("#position_y").val(data.TELEMETRIA["cuentas B"]);
+				$("#position_z").val(data.TELEMETRIA["cuentas Z"]);
 			}
 		})
 
 	}
 
 	$(document).ready(function() {
-		var timer;
 
 		$("#reset").click(function() {
 			$.ajax({
-				url : "/json/",
+				url : "/CIAA/",
 				method : "POST",
 				contentType : "application/json",
 				data : JSON.stringify({
@@ -98,7 +100,7 @@
 			})
 		});
 
-		var timer = setInterval(update_ui, 100000);
+		var timer = setInterval(update_ui, 1000);
 
 	});
 </script>

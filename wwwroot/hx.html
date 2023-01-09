@@ -5,29 +5,40 @@ svg circle.clicked {
 	fill: #29ABE2;
 }
 </style>
-
-<br />
-<div id="hx_tab" style="position:relative; height: 90%">
+<div id="hx_tab" style="overflow: visible; height: 85%">
 	<div id="tube_info">
-		<label>Info Tubo: X:<input type="text" id="tube_info_x"
-			size="4"> Y:<input type="text" id="tube_info_y" size="4">
-		</label>
-		<input type="button" name="start" value="GO">
+		<fieldset>
+			<legend>Info Tubo</legend>
+			X:<input type="text" id="tube_info_x" size="4"> Y:<input
+				type="text" id="tube_info_y" size="4"> <input type="button"
+				name="start" value="GO">
+		</fieldset>
 	</div>
-	<div style="position: relative; width: 100%; padding: 4px;">
+	<div style="position: relative; width: 100%; padding: 8px;">
 		<div style="float: left; padding-right: 10px;">zoom:</div>
 		<div id="slider" style="float: left; width: 85%;"></div>
 	</div>
 	<div
-		style="position:relative; overflow: scroll; text-align: center; height: 90%; width: 100%; align-content: center;"
+		style="position: relative; overflow: scroll; text-align: center; height: 90%; width: 100%; align-content: center;"
 		id="hx_svg_div">
-		<svg id="hx_svg" style="position:relative; width: 1000; height: 500;"></svg>
+		<svg id="hx_svg" style="position: relative;"></svg>
 	</div>
 </div>
 
 <script type="text/javascript">
 	$(function() {
 		var aspectRatio = 1.5;
+
+		$("#slider").slider({
+			min : 3,
+			max : 10,
+			change : function(event, ui) {
+				zoom = ui.value;
+				$('#hx_svg').css("width", 100 * zoom / 2 + "%");
+				$('#hx_svg').css("height", 100 * zoom / aspectRatio + "%");
+			}
+		});
+
 		$('#hx_svg').load(
 				'tubesheet.svg',
 				function() {
@@ -35,9 +46,11 @@ svg circle.clicked {
 					var box = svg.viewBox.baseVal;
 
 					aspectRatio = box.width / box.height;
-					$('#hx_svg').css("width", 1000);
-					$('#hx_svg').css("height", 1000 / aspectRatio);
-
+					var zoom = $("#slider").slider("value");
+					$('#hx_svg').css("width", 100 * zoom /2 + "%");
+					$('#hx_svg').css("height", (100 * zoom / aspectRatio) + "%");
+					
+					
 					var tubes = $(
 							'#tubesheet_svg .tube_num, #tubesheet_svg circle ')
 							.click(
@@ -55,17 +68,6 @@ svg circle.clicked {
 														.attr("cy"));
 									});
 
-					$("#slider").slider(
-							{
-								min : 1,
-								max : 10,
-								change : function(event, ui) {
-
-									$('#hx_svg').css("width", ui.value * 1000);
-									$('#hx_svg').css("height",
-											ui.value * 1000 / aspectRatio);
-								}
-							});
 				})
 	});
 </script>

@@ -36,16 +36,11 @@
 		update_time = parseInt($(div).find('[name="update_time"]').val()) || 100;
 		max_freq = parseInt($(div).find('[name="max_freq"]').val()) || 125000;
 		$.ajax({
-			url : "/json/",
+			url : "/CIAA/",
 			method : "POST",
 			contentType : "application/json",
 			data : JSON.stringify({
-				"commands" : [ {
-					"command" : "STALL_CONTROL",
-					"pars" : {
-						"enabled" : false
-					}
-				}, {
+				"commands" : [{
 					"command" : "KP_SET_TUNINGS",
 					"pars" : {
 						"axis" : axis,

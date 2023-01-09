@@ -13,6 +13,7 @@
 #include <asio.hpp>
 #include <boost/program_options.hpp>
 #include "syslogger.hpp"
+#include "ciaa.hpp"
 
 using namespace std;
 using namespace restbed;
@@ -50,33 +51,8 @@ void get_method_handler(const shared_ptr<Session> session) {
 	}
 }
 
-asio::error_code send_to_ciaa(const asio::ip::address &ciaa_ip, int ciaa_port,
-		const Bytes &tx_buffer, asio::streambuf& rx_buffer) {
-	asio::io_service io_service;
-	asio::ip::tcp::socket socket(io_service); //socket creation
-	socket.connect(asio::ip::tcp::endpoint(ciaa_ip, ciaa_port)); //connection
-	asio::error_code error;
-	asio::write(socket,
-			asio::buffer(string(tx_buffer.begin(), tx_buffer.end())), error);
-	if (error) {
-		cout << "send failed: " << error.message() << endl;
-		return error;
-	}
-
-	// getting response from server
-	//asio::read(socket, receive_buffer, asio::transfer_all(), error);
-	asio::read_until(socket, rx_buffer, "\0", error);
-	if (error && error != asio::error::eof) {
-		cout << "receive failed: " << error.message() << endl;
-		return error;
-	}
-
-	return asio::error_code();
-}
-
-void post_json_method_handler(const shared_ptr<Session> session,
-		asio::ip::address ciaa_ip = asio::ip::address::from_string(
-				"192.168.2.20"), int ciaa_port = 1234) {
+void post_ciaa_method_handler(const shared_ptr<Session> session,
+		ciaa& ciaa) {
 	const auto request = session->get_request();
 
 	size_t content_length = request->get_header("Content-Length", 0);
@@ -85,7 +61,7 @@ void post_json_method_handler(const shared_ptr<Session> session,
 			[&](const shared_ptr<Session> &session, const Bytes &body) {
 
 				asio::streambuf rx_buffer;
-				auto ec = send_to_ciaa(ciaa_ip, ciaa_port, body, rx_buffer);
+				auto ec =  ciaa.tx_rx(body, rx_buffer);
 
 				if (ec) {
 					session->close(OK, ec.message(),
@@ -101,7 +77,7 @@ void post_json_method_handler(const shared_ptr<Session> session,
 					cout << stream << endl;
 
 					if (!stream.empty())
-						stream.pop_back(); // Erase null character at the end of stream response
+						//stream.pop_back(); // Erase null character at the end of stream response
 
 					session->close(OK, stream, { { "Content-Length",
 							::to_string(stream.length()) }, { "Content-Type",
@@ -122,18 +98,20 @@ void failed_filter_validation_handler(const shared_ptr<Session> session) {
 }
 
 int main(const int, const char**) {
-	int JSON_proxy_port;
-	std::string ciaa_ip;
-	int ciaa_port;
+	int ciaa_proxy_port;
+
+	ciaa& ciaa_instance = ciaa::get_instance();
 
 	namespace po = boost::program_options;
 
 	try {
 		po::options_description json_proxy_settings("JSON Proxy Settings");
 		json_proxy_settings.add_options()("JSON_PROXY.port",
-				po::value<int>(&JSON_proxy_port)->default_value(1980),
+				po::value<int>(&ciaa_proxy_port)->default_value(1980),
 				"Port number");
 
+		std::string ciaa_ip;
+		int ciaa_port;
 		po::options_description ciaa_settings("CIAA Settings");
 		ciaa_settings.add_options()("CIAA.ip",
 				po::value<std::string>(&ciaa_ip)->default_value("192.168.2.20"),
@@ -149,27 +127,28 @@ int main(const int, const char**) {
 				vm);
 		po::notify(vm);
 
-		std::cout << "JSON Proxy Server running on " << JSON_proxy_port
-				<< std::endl;
-		std::cout << "Connecting to CIAA on " << ciaa_ip << ":" << ciaa_port
-				<< std::endl;
+		ciaa_instance.set_ip(ciaa_ip);
+		ciaa_instance.set_port(ciaa_port);
+
+		std::cout << "JSON Proxy Server running on " << ciaa_proxy_port << "\n";
+		std::cout << "Connecting to CIAA on " << ciaa_instance.get_ip() << ":" << ciaa_instance.get_port() << "\n";
 
 	} catch (std::exception &e) {
 		std::cout << e.what() << std::endl;
 	}
 
 	using namespace std::placeholders;
-	auto post_json_method_handler_bound = std::bind(post_json_method_handler,
-			_1, asio::ip::address::from_string(ciaa_ip), ciaa_port);
+	auto post_ciaa_method_handler_bound = std::bind(post_ciaa_method_handler,
+			_1, std::ref(ciaa_instance));											// std::bind always passes by value unles std::ref
 
 	auto resource_json = make_shared<Resource>();
-	resource_json->set_path("/json");
+	resource_json->set_path("/CIAA");
 	resource_json->set_failed_filter_validation_handler(
 			failed_filter_validation_handler);
 //	resource_json->set_method_handler("POST", {
 //			{ "Accept", "application/json" }, { "Content-Type",
 //					"application/json" } }, post_json_method_handler);
-	resource_json->set_method_handler("POST", post_json_method_handler_bound);
+	resource_json->set_method_handler("POST", post_ciaa_method_handler_bound);
 
 	auto resource_html_file = make_shared<Resource>();
 	//resource_html_file->set_path("/static/{filename: [a-z]*\\.html}");
@@ -178,7 +157,7 @@ int main(const int, const char**) {
 	resource_html_file->set_method_handler("GET", get_method_handler);
 
 	auto settings = make_shared<Settings>();
-	settings->set_port(JSON_proxy_port);
+	settings->set_port(ciaa_proxy_port);
 	settings->set_default_header("Connection", "close");
 
 	Service service;

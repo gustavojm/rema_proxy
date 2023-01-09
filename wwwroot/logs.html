@@ -1,0 +1,33 @@
+<div id="closed_loop_tab" style="overflow: hidden; width: 100%;">
+	<fieldset>
+		<legend>Logs</legend>
+		<textarea id="logs" rows="10" cols="80"></textarea>
+	</fieldset>
+</div>
+
+<script type="text/javascript">
+	function get_logs() {
+		$.ajax({
+			url : "/CIAA/",
+			method : "POST",
+			contentType : "application/json",
+			data : JSON.stringify({
+				"commands" : [ {
+					"command" : "LOGS",
+					"pars" : {
+						"quantity" : 10
+					}
+				} ]
+			}),
+			dataType : "json",
+			success : function(data) {
+				$("#logs").val($("#logs").val() + data.LOGS.DEBUG_MSGS);
+			}
+		})
+	}
+
+	$(function() {
+		var timer_logs = setInterval(get_logs, 1000);
+
+	});
+</script>
