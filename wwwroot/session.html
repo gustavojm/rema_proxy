@@ -1,0 +1,117 @@
+<link rel="stylesheet" type="text/css" href="datatables.min.css" />
+
+<script type="text/javascript" src="datatables.min.js"></script>
+
+
+<div id="new_session_div" style="overflow: hidden; width: 100%;">
+	<form>
+		<div>
+			<div style="padding-bottom: 10px;">
+				<label>Nombre sessión: <input type="text" /></label>
+			</div>
+			<div>
+				<select id="heat_exchangers" name="hx">
+				</select>
+			</div>
+			<div style="padding-bottom: 10px; padding-top: 10px;">
+				<input type="text" id="new_session_logs" style="width: 100%" />
+			</div>
+		</div>
+	</form>
+</div>
+
+<div id="sessions_tab"
+	style="overflow: scroll; width: 100%; position: relative;">
+	<input type="button" value="New Session" id="new_session_btn" />
+
+	<table id="sessions-table" class="display" style="width: 100%">
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Date</th>
+				<!-- 				<th>HX</th> -->
+				<th>Options</th>
+			</tr>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
+</div>
+
+<script type="text/javascript">
+	function load_sessions() {
+		$('#sessions-table').DataTable({
+			"ajax" : {
+				method : "post",
+				url : "/json/insp_sessions_list",
+				dataSrc : '',
+			},
+			columns : [ {
+				data : 'file_name'
+			}, {
+				data : 'file_date'
+			}, {
+				data : 'file_options'
+			}, ]
+		});
+	}
+
+	$(function() {
+		load_sessions();
+		$("#new_session_btn").click(function() {
+			$("#new_session_div").dialog("open");
+		});
+	});
+</script>
+
+<script type="text/javascript">
+	function create_dialog() {
+		var dialog = $("#new_session_div").dialog({
+			autoOpen : false,
+			title : "New Session",
+			//modal : true,
+			buttons : [ {
+				text : "Create",
+				//icon: "ui-icon-heart",
+				click : function(event) {
+					$.post('/json/session_create', JSON.stringify({
+						hx : $("#heat_exchangers").val()
+					}), function(data) {
+						$("#new_session_logs").val("mennsaje del server");
+						$(event.target).hide(); // Hides the "Create" button 
+					});
+
+				}
+			}, {
+				text : "Close",
+				//icon: "ui-icon-heart",
+				click : function(event) {
+					dialog.find("form")[0].reset();
+					dialog.dialog("close");
+					dialog.dialog("destroy");
+					create_dialog();
+				}
+			} ]
+		});
+	}
+
+	$(function() {
+		create_dialog();
+
+		var hx_dropdown = $('#heat_exchangers');
+
+		hx_dropdown.empty();
+		hx_dropdown
+				.append('<option selected="true" disabled>Choose a Heat Exchanger</option>');
+		hx_dropdown.prop('selectedIndex', 0);
+
+		// Populate dropdown with list of HXs
+		$.post('/json/hx_list', JSON.stringify({}), function(data) {
+			$.each(data, function(key, entry) {
+				hx_dropdown.append($('<option></option>').attr('value',
+						entry.abreb).text(entry.name));
+			})
+		});
+
+	});
+</script>

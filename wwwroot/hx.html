@@ -28,16 +28,13 @@ svg circle.clicked {
 <script type="text/javascript">
 	$(function() {
 		var aspectRatio = 1.5;
-
-		$("#slider").slider({
-			min : 3,
-			max : 10,
-			change : function(event, ui) {
-				zoom = ui.value;
-				$('#hx_svg').css("width", 100 * zoom / 2 + "%");
-				$('#hx_svg').css("height", 100 * zoom / aspectRatio + "%");
-			}
-		});
+		
+		function zoom_svg(zoom, ar) {
+			$('#hx_svg').css("width",
+					100 * zoom / 3 + "%");
+			$('#hx_svg').css("height",
+					100 * zoom / ar + "%");
+		}
 
 		$('#hx_svg').load(
 				'tubesheet.svg',
@@ -46,13 +43,8 @@ svg circle.clicked {
 					var box = svg.viewBox.baseVal;
 
 					aspectRatio = box.width / box.height;
-					var zoom = $("#slider").slider("value");
-					$('#hx_svg').css("width", 100 * zoom /2 + "%");
-					$('#hx_svg').css("height", (100 * zoom / aspectRatio) + "%");
-					
-					
-					var tubes = $(
-							'#tubesheet_svg .tube_num, #tubesheet_svg circle ')
+
+					$('#tubesheet_svg .tube_num, #tubesheet_svg circle ')
 							.click(
 									function() {
 										var clickmark = 'clicked';
@@ -67,6 +59,17 @@ svg circle.clicked {
 												$(t).find("circle").first()
 														.attr("cy"));
 									});
+
+					$("#slider").slider(
+							{
+								min : 3,
+								max : 10,
+								change : function(event, ui) {									
+									zoom_svg(ui.value, aspectRatio);
+								}
+							});
+					
+					zoom_svg($("#slider").slider("value"), aspectRatio);					
 
 				})
 	});

@@ -1,3 +1,7 @@
+#ifndef CIAA_HPP
+#define CIAA_HPP
+
+
 #include <string>
 #include <restbed>
 #include "asio.hpp"
@@ -46,7 +50,7 @@ private:
         // We can use the better technique of deleting the methods
         // we don't want.
     public:
-        ciaa(ciaa const&)               = delete;
+        ciaa(ciaa const&)            = delete;
         void operator=(ciaa const&)  = delete;
 
         // Note: Scott Meyers mentions in his Effective Modern
@@ -55,3 +59,5 @@ private:
         //       due to the compilers behavior to check accessibility
         //       before deleted status
 };
+
+#endif 		// CIAA_HPP

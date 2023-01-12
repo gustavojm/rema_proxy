@@ -1,11 +1,14 @@
-<div id="closed_loop_tab" style="overflow: hidden; width: 100%;">
+<div id="logs_tab" style="overflow: hidden; width: 100%;" class="tabs_div">
 	<fieldset>
 		<legend>Logs</legend>
-		<textarea id="logs" rows="10" cols="80"></textarea>
+		<textarea id="logs" rows="10" cols="100" style="width: 100%"> </textarea>
 	</fieldset>
 </div>
 
 <script type="text/javascript">
+
+	var timer_logs
+	
 	function get_logs() {
 		$.ajax({
 			url : "/CIAA/",
@@ -21,13 +24,21 @@
 			}),
 			dataType : "json",
 			success : function(data) {
-				$("#logs").val($("#logs").val() + data.LOGS.DEBUG_MSGS);
+				$.each(data.LOGS.DEBUG_MSGS, function(key, entry) {
+					$("#logs").val($("#logs").val() + entry + "\r\n ");
+				})
 			}
 		})
 	}
 
 	$(function() {
-		var timer_logs = setInterval(get_logs, 1000);
-
+		timer_logs = setInterval(get_logs, 1000);
 	});
+	
+	
+	$('.tabs_div').on('unload_tab',function() {
+		clearInterval(timer_logs);
+	    timer_logs = null;		
+	});
+
 </script>

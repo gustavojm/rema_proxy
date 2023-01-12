@@ -16,10 +16,13 @@
 
 	<div id="tabs" style="height: 85%">
 		<ul>
+			<li><a href="session.html">Session</a></li>
+			<li><a href="datatables.html">Tubesheet</a></li>
 			<li><a href="closed_loop.html">Closed Loop</a></li>
 			<li><a href="hx.html">HX</a></li>
 			<li><a href="config.html">Config</a></li>
 			<li><a href="logs.html">Logs</a></li>
+			<li><a href="about.html">About</a></li>
 		</ul>
 	</div>
 
@@ -52,9 +55,11 @@
 <script type="text/javascript">
 	$(function() {
 		$("#tabs").tabs({
-			active : 3,
-			//heightStyle : "fill"
-		//opens the 2d tab, since its a 0 based count
+			active : 3,			
+			//heightStyle : "fill"			
+			activate: function( event, ui ) {
+				$(ui.oldPanel).find(".tabs_div").trigger("unload_tab");
+			}
 		});
 	});
 
@@ -100,7 +105,7 @@
 			})
 		});
 
-		var timer = setInterval(update_ui, 1000);
+		//var timer = setInterval(update_ui, 1000);
 
 	});
 </script>
