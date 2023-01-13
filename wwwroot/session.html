@@ -7,14 +7,14 @@
 	<form>
 		<div>
 			<div style="padding-bottom: 10px;">
-				<label>Nombre sessión: <input type="text" /></label>
+				<label>Nombre sessión: <input type="text" id="session_name" /></label>
 			</div>
 			<div>
 				<select id="heat_exchangers" name="hx">
 				</select>
 			</div>
 			<div style="padding-bottom: 10px; padding-top: 10px;">
-				<input type="text" id="new_session_logs" style="width: 100%" />
+				<textarea id="new_session_logs" style="width: 100%"></textarea>
 			</div>
 		</div>
 	</form>
@@ -40,20 +40,49 @@
 
 <script type="text/javascript">
 	function load_sessions() {
-		$('#sessions-table').DataTable({
-			"ajax" : {
-				method : "post",
-				url : "/json/insp_sessions_list",
-				dataSrc : '',
-			},
-			columns : [ {
-				data : 'file_name'
-			}, {
-				data : 'file_date'
-			}, {
-				data : 'file_options'
-			}, ]
-		});
+
+		$('#sessions-table').DataTable(
+				{
+					"ajax" : {
+						method : "post",
+						url : "/json/insp_sessions_list",
+						dataSrc : '',
+					},
+					columns : [
+							{
+								data : 'file_name'
+							},
+							{
+								data : 'file_date'
+							},
+							{
+								data : null,
+								render : function(data, type, row) {
+									return '<a class="ui-icon ui-icon-play" href="#" data-name="'
+											+ row.file_name + '">'
+											+ '</a>' + 
+											'<a class="ui-icon ui-icon-trash" href="#" data-name="'
+											+ row.file_name + '">' + row.file_name
+											+ '</a>';
+								}
+							}, ]
+				});
+		
+		$('#sessions-table').on('draw.dt', function(e, settings, json, xhr) {			
+			$(".ui-icon-play").on("click", function() {
+				var insp_session_file = $(this).data("name");
+				$.post('/json/session_load', JSON.stringify({
+					session_name : insp_session_file,
+				}), function(data) {
+					//$("#new_session_logs").val(data.logs);
+					if (data.success) {
+						alert("Session loaded successfully");
+					}
+				});
+
+			})
+
+		})
 	}
 
 	$(function() {
@@ -75,10 +104,13 @@
 				//icon: "ui-icon-heart",
 				click : function(event) {
 					$.post('/json/session_create', JSON.stringify({
-						hx : $("#heat_exchangers").val()
+						session_name : $("#session_name").val(),
+						hx : $("#heat_exchangers").val(),
 					}), function(data) {
-						$("#new_session_logs").val("mennsaje del server");
-						$(event.target).hide(); // Hides the "Create" button 
+						$("#new_session_logs").val(data.logs);
+						if (data.success) {
+							$(event.target).hide(); // Hides the "Create" button
+						}
 					});
 
 				}

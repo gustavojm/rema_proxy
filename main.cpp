@@ -23,7 +23,7 @@
 using namespace std;
 using namespace restbed;
 
-//inspection_session current_session;
+inspection_session current_session;
 
 void get_method_handler(const shared_ptr<Session> session) {
 	const auto request = session->get_request();

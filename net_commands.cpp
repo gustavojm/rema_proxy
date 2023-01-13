@@ -3,6 +3,7 @@
 #include <chrono>
 #include <fstream>
 #include <iostream>
+#include <exception>
 
 #include "csv.h"
 #include "json.hpp"
@@ -98,9 +99,7 @@ nlohmann::json insp_sessions_list_cmd(nlohmann::json pars) {
 			res.push_back(
 					nlohmann::json { { "file_name", filename }, { "file_date",
 							formattedFileTime },
-					//{"file_options", "<a href=\"" + filename + "\">" + filename +"</a>"}
-							{ "file_options",
-									"<a class=\"ui-icon ui-icon-play\" href=\"continuar\"></a><a class=\"ui-icon ui-icon-trash\" href=\"borrar\"></a>" } });
+			});
 		}
 	}
 	std::sort(res.begin(), res.end());
@@ -108,32 +107,75 @@ nlohmann::json insp_sessions_list_cmd(nlohmann::json pars) {
 	return res;
 }
 
+extern inspection_session current_session;
+
 
 nlohmann::json session_create_cmd(nlohmann::json pars) {
-	std::filesystem::path hx_directory = std::filesystem::path("HXs").append(std::string(pars["hx"]));
-
-	std::filesystem::path inspection_session_file = "enero_2024.json";	//pars["filename"];
-	std::filesystem::path tubesheet_csv = hx_directory;
-	tubesheet_csv /= "tubesheet.csv";
-
-	std::filesystem::path tubesheet_svg = hx_directory;
-	tubesheet_svg /= "tubesheet.svg";
-
-	inspection_session new_session(inspection_session_file, hx_directory, tubesheet_csv, tubesheet_svg);
+	std::string session_name = pars["session_name"];
 
 	nlohmann::json res;
 
+	std::filesystem::path inspection_session_file = session_name;
+	if (inspection_session_file.empty() || ! inspection_session_file.has_filename()) {
+		res["success"] = false;
+		res["logs"] = "no filename specified";
+		return res;
+	}
 
-		std::ofstream session(inspection_session_file);
-		session << nlohmann::json(new_session) << std::endl;
+	if (pars["hx"].empty()) {
+		res["success"] = false;
+		res["logs"] = "no HX selected";
+		return res;
+	}
+
+	try {
+		std::filesystem::path hx_directory = std::filesystem::path("HXs").append(std::string(pars["hx"]));
+
+		std::filesystem::path tubesheet_csv = hx_directory;
+		tubesheet_csv /= "tubesheet.csv";
+
+		std::filesystem::path tubesheet_svg = hx_directory;
+		tubesheet_svg /= "tubesheet.svg";
+
+		inspection_session new_session(inspection_session_file, hx_directory, tubesheet_csv, tubesheet_svg);
+		res["logs"] = new_session.load_plans();
+
+		std::filesystem::path complete_inspection_session_file_path = std::filesystem::path("insp_sessions").append(session_name + ".json");
+		std::ofstream session(complete_inspection_session_file_path);
+		session << nlohmann::json(new_session);
+		current_session = new_session;
+		res["success"] = true;
+		return res;
+
+	} catch (const std::exception &e) {
+		res["success"]= false;
+		res["logs"]= e.what();
+	}
 	return res;
 }
+
+nlohmann::json session_load_cmd(nlohmann::json pars) {
+	std::string session_name = pars["session_name"];
+	nlohmann::json res;
+
+	if (session_name.empty()) {
+		res["success"] = false;
+		res["logs"] = "no session selected";
+		return res;
+	}
+
+	current_session.load(std::filesystem::path("insp_sessions").append(session_name));
+	res["success"] = true;
+	return res;
+}
+
 
 std::map<std::string, std::function<nlohmann::json(nlohmann::json)>> commands =
 		{{ "hx_list", &hx_list_cmd },
 		 { "hx_load_tubesheet", &hx_load_tubesheet_cmd },
 		 { "insp_sessions_list", &insp_sessions_list_cmd },
-		 { "session_create", &session_create_cmd }
+		 { "session_create", &session_create_cmd },
+		 { "session_load", &session_load_cmd },
 		};
 
 nlohmann::json cmd_execute(std::string command, nlohmann::json par) {

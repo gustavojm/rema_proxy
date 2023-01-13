@@ -5,6 +5,7 @@
 #include <csv.h>
 #include "insp_session.hpp"
 
+extern inspection_session current_session;
 
 inspection_session::inspection_session() :loaded(false) {
 
@@ -17,12 +18,15 @@ inspection_session::inspection_session(std::filesystem::path inspection_session_
 		inspection_session_file(inspection_session_file), hx_directory(hx_directory), tubesheet_csv(
 				tubesheet_csv), tubesheet_svg(tubesheet_svg) {
 
-	for (const auto &entry : std::filesystem::directory_iterator(hx_directory.append("insp_plans"))) {
-		std::cout << "Procesando plan: " << entry.path().filename() << "\n";
+}
 
+std::string inspection_session::load_plans() {
+	std::stringstream out;
+	for (const auto &entry : std::filesystem::directory_iterator(hx_directory.append("insp_plans"))) {
 		if (!(entry.path().filename().extension() == ".csv")) {
 			continue;
 		}
+		out << "Procesando plan: " << entry.path().filename() << "\n";
 
 		// Parse the CSV file to extract the data for the plan
 		io::CSVReader<3, io::trim_chars<' ', '\t'>, io::no_quote_escape<';'> >
@@ -36,16 +40,18 @@ inspection_session::inspection_session(std::filesystem::path inspection_session_
 		}
 	}
 	loaded = true;
+	return out.str();
 }
 
-inspection_session inspection_session::inspection_session_load(std::filesystem::path inspection_session_file) {
+inspection_session inspection_session::load(std::filesystem::path inspection_session_file) {
+	this->inspection_session_file = inspection_session_file;
+	std::ifstream i(inspection_session_file);
+
 	nlohmann::json j;
-
-	std::ifstream i("enero_2024.json");
 	i >> j;
-	return inspection_session(j);
-}
 
+	return j;
+}
 
 void inspection_session::set_selected_plan(std::filesystem::path plan) {
 	last_selected_plan = plan;

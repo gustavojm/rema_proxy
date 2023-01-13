@@ -22,7 +22,11 @@ public:
 			std::filesystem::path tubesheet_csv,
 			std::filesystem::path tubesheet_svg);
 
-	inspection_session inspection_session_load(std::filesystem::path inspection_session_file);
+	std::string load_plans();
+
+	inspection_session load(std::filesystem::path inspection_session_file);
+
+
 	void set_selected_plan(std::filesystem::path plan);
 
 	std::filesystem::path get_selected_plan();
