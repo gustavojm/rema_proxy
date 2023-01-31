@@ -30,12 +30,12 @@
 	<div style="overflow: hidden; text-align: center;">
 		<div style="float: left; width: 33%">
 			<label>Position X: <input type="text" id="position_x"
-				name="position X" readonly="readonly">
+				name="position X">
 			</label>
 		</div>
 		<div style="float: left; width: 33%">
 			<label>Position Y: <input type="text" id="position_y"
-				name="position Y" readonly="readonly">
+				name="position Y">
 			</label>
 		</div>
 		<div style="float: left; width: 33%">
@@ -76,15 +76,23 @@
 			dataType : "json",
 			success : function(data) {
 				console.log(data);
-				$("#position_x").val(data.TELEMETRIA["cuentas A"]);
-				$("#position_y").val(data.TELEMETRIA["cuentas B"]);
-				$("#position_z").val(data.TELEMETRIA["cuentas Z"]);
+				var pos_x = data.TELEMETRIA["cuentas A"];
+				var pos_y = data.TELEMETRIA["cuentas B"];
+				var pos_z = data.TELEMETRIA["cuentas Z"];
+				$("#position_x").val(pos_x);
+				$("#position_y").val(pos_y);
+				$("#position_z").val(pos_z);
+			
+				if (typeof update_bulls_eye_position === "function") {
+					update_bulls_eye_position(pos_x, pos_y);
+			    }
+			
 			}
 		})
 
 	}
 
-	$(document).ready(function() {
+	$(function() {
 
 		$("#reset").click(function() {
 			$.ajax({
@@ -106,6 +114,10 @@
 		});
 
 		//var timer = setInterval(update_ui, 1000);
+		
+		$("#position_x, #position_y").on("input", function() {
+			update_bulls_eye_position($("#position_x").val(), $("#position_y").val()); 
+		});
 
 	});
 </script>

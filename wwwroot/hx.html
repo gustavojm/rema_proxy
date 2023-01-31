@@ -1,8 +1,14 @@
+<script src="jquery.svg.js"></script>
 <script src="jquery.svgdom.js"></script>
+<script src="jquery.svganim.js"></script>
 
 <style>
 svg circle.clicked {
 	fill: #29ABE2;
+}
+
+svg circle:hover {
+	stroke: lime;
 }
 </style>
 <div id="hx_tab" style="overflow: visible; height: 85%">
@@ -26,25 +32,48 @@ svg circle.clicked {
 </div>
 
 <script type="text/javascript">
+	function drawIntro(svg) {
+		var g = svg.group({
+			stroke : 'green',
+			strokeWidth : 0.02,
+			id : "bulls_eye"
+		});
+		svg.circle(g, 0, 0, 0.4, {
+			fill : 'none',
+			stroke : 'red',
+			strokeWidth : 0.03			
+		});
+		svg.line(g, -20, 0, 20, 0, {"stroke-dasharray": "0.2, 0.1"});
+		svg.line(g, 0, -20, 0, 20, {"stroke-dasharray": "0.2, 0.1"});
+	}
+
+	function update_bulls_eye_position(x, y) {
+		$("#bulls_eye").animate({svgTransform: 'translate(' + x + " " + y + ')'}, 20);
+	}
+	
+	
 	$(function() {
-		var aspectRatio = 1.5;
 		
+		$("#tubesheet_svg").svg({onLoad: drawIntro});
+		
+		var aspectRatio = 1.5;
+
 		function zoom_svg(zoom, ar) {
-			$('#hx_svg').css("width",
-					100 * zoom / 3 + "%");
-			$('#hx_svg').css("height",
-					100 * zoom / ar + "%");
+			$('#hx_svg').css("width", 100 * zoom / 3 + "%");
+			$('#hx_svg').css("height", 100 * zoom / ar + "%");
 		}
 
 		$('#hx_svg').load(
 				'tubesheet.svg',
 				function() {
-					var svg = document.getElementById('tubesheet_svg');
-					var box = svg.viewBox.baseVal;
+					var tubesheet_svg = document
+							.getElementById('tubesheet_svg');
+					var box = tubesheet_svg.viewBox.baseVal;
 
 					aspectRatio = box.width / box.height;
 
-					$('#tubesheet_svg .tube_num, #tubesheet_svg circle ')
+					var tubes = $(
+							'#tubesheet_svg .tube_num, #tubesheet_svg circle ')
 							.click(
 									function() {
 										var clickmark = 'clicked';
@@ -60,17 +89,18 @@ svg circle.clicked {
 														.attr("cy"));
 									});
 
-					$("#slider").slider(
-							{
-								min : 3,
-								max : 10,
-								change : function(event, ui) {									
-									zoom_svg(ui.value, aspectRatio);
-								}
-							});
-					
-					zoom_svg($("#slider").slider("value"), aspectRatio);					
+					$("#slider").slider({
+						min : 3,
+						max : 10,
+						change : function(event, ui) {
+							zoom_svg(ui.value, aspectRatio);
+						}
+					});
 
+					zoom_svg($("#slider").slider("value"), aspectRatio);
+					
+					$("#tubesheet_svg").svg({onLoad: drawIntro});
+					
 				})
 	});
 </script>
