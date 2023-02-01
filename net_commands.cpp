@@ -18,6 +18,7 @@ struct tube {
 	float cl_y;
 	float hl_x;
 	float hl_y;
+	int tube_id;
 	std::string color = "white";
 	std::string insp_plan = "";
 };
@@ -25,7 +26,7 @@ struct tube {
 void to_json(nlohmann::json &j, const tube &t) {
 	j = nlohmann::json { { "x_label", t.x_label }, { "y_label", t.y_label }, {
 			"cl_x", t.cl_x }, { "cl_y", t.cl_y }, { "hl_x", t.hl_x }, { "hl_y",
-			t.hl_y }, };
+			t.hl_y }, { "tube_id",	t.tube_id }, };
 }
 
 void from_json(const nlohmann::json &j, tube &t) {
@@ -35,6 +36,7 @@ void from_json(const nlohmann::json &j, tube &t) {
 	j.at("cl_y").get_to(t.cl_y);
 	j.at("hl_x").get_to(t.hl_x);
 	j.at("hl_y").get_to(t.hl_y);
+	j.at("tube_id").get_to(t.tube_id);
 }
 
 nlohmann::json hx_load_tubesheet_cmd(nlohmann::json pars) {
@@ -48,7 +50,7 @@ nlohmann::json hx_load_tubesheet_cmd(nlohmann::json pars) {
 	float cl_x, cl_y, hl_x, hl_y;
 	std::string tube_id;
 	while (in.read_row(x_label, y_label, cl_x, cl_y, hl_x, hl_y, tube_id)) {
-		tubes.push_back( { x_label, y_label, cl_x, cl_y, hl_x, hl_y });
+		tubes.push_back( { x_label, y_label, cl_x, cl_y, hl_x, hl_y, std::stoi(tube_id.substr(5))});
 	}
 
 	nlohmann::json res(tubes); //requires to_json and from_json to be defined to be able to serialize the custom object "tube"

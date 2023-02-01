@@ -14,7 +14,7 @@
 
 <body>
 
-	<div id="tabs" style="height: 85%">
+	<div id="tabs" style="height: 94%">
 		<ul>
 			<li><a href="session.html">Session</a></li>
 			<li><a href="datatables.html">Tubesheet</a></li>
@@ -28,27 +28,26 @@
 
 	<br/>
 	<div style="overflow: hidden; text-align: center;">
-		<div style="float: left; width: 33%">
+		<div style="float: left; width: 25%">
 			<label>Position X: <input type="text" id="position_x"
 				name="position X">
 			</label>
 		</div>
-		<div style="float: left; width: 33%">
+		<div style="float: left; width: 25%">
 			<label>Position Y: <input type="text" id="position_y"
 				name="position Y">
 			</label>
 		</div>
-		<div style="float: left; width: 33%">
+		<div style="float: left; width: 25%">
 			<label>Position Z: <input type="text" id="position_z"
 				name="position Z" readonly="readonly">
 			</label>
 		</div>
+		<div style="float: left; width: 25%">
+			<input type="button" id="reset" name="reset" value="Emergency Stop">
+		</div>
 	</div>
 
-	<br/>
-	<div style="text-align: center; ">
-		<input type="button" id="reset" name="reset" value="Emergency Stop">
-	</div>
 
 </body>
 
@@ -84,7 +83,11 @@
 				$("#position_z").val(pos_z);
 			
 				if (typeof update_bulls_eye_position === "function") {
-					update_bulls_eye_position(pos_x, pos_y);
+					update_bulls_eye_position(pos_x, pos_y);					
+			    }
+				
+				if (typeof update_location_pin_position === "function") {
+					update_location_pin_position(pos_x, pos_y);					
 			    }
 			
 			}
@@ -117,6 +120,7 @@
 		
 		$("#position_x, #position_y").on("input", function() {
 			update_bulls_eye_position($("#position_x").val(), $("#position_y").val()); 
+			update_location_pin_position($("#position_x").val(), $("#position_y").val());
 		});
 
 	});
