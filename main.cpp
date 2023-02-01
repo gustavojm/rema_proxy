@@ -27,10 +27,10 @@ inspection_session current_session;
 
 void get_method_handler(const shared_ptr<Session> session) {
 	const auto request = session->get_request();
+
 	const string filename = request->get_path_parameter("filename");
 
-	std::filesystem::path f { "./wwwroot/"
-			+ request->get_path_parameter("filename") };
+	std::filesystem::path f { "./wwwroot/"	+ request->get_path().substr(std::string("/static/").length()) };
 
 	ifstream stream(f, ifstream::in);
 
@@ -205,8 +205,12 @@ int main(const int, const char**) {
 
 	auto resource_html_file = make_shared<Resource>();
 	//resource_html_file->set_path("/static/{filename: [a-z]*\\.html}");
-	resource_html_file->set_path(
-			"/static/{filename: ^.+\\.(html|css|js|jpg|png|svg)$}");
+//	resource_html_file->set_path(
+//			"/static/{filename: ^.+\\.(html|css|js|jpg|png|svg)$}");
+
+	resource_html_file->set_paths({
+				"/static/{filename: ^.+\\.(html|jpg|png|svg)$}", "/static/css/{filename: ^.+\\.(css)$}", "/static/js/{filename: ^.+\\.(js)$}" });
+
 	resource_html_file->set_method_handler("GET", get_method_handler);
 
 	auto settings = make_shared<Settings>();
