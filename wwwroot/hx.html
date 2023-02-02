@@ -7,20 +7,6 @@
 <script type="text/javascript" src="js/datatables.min.js"></script>
 
 <style>
-#my-table {
-	table-layout: fixed;
-	width: 100% !important;
-}
-
-#my-table td, #my-table th {
-	width: auto !important;
-	white-space: normal;
-	text-overflow: ellipsis;
-	overflow: hidden;
-}
-</style>
-
-<style>
 svg .tube.clicked {
 	fill: #29ABE2;
 }
@@ -29,35 +15,31 @@ svg .tube:hover {
 	stroke: lime;
 }
 </style>
+
 <div id="hx_tab"
-	style="overflow: visible; height: 90%; width: 100%; float: left; position: relative;">
+	style="overflow: visible; height: 88%; width: 100%; float: left; position: relative;">
 
 	<div id="tube_info"
 		style="position: relative; width: 100%; float: left; vertical-align: middle; height: 4%">
 		<div
-			style="position: relative; width: 20%; height: 100%; float: left;">
+			style="position: relative; width: 50%; height: 100%; float: left;">
 			Tube Info X:<input type="text" id="tube_info_x" size="4"> Y:<input
 				type="text" id="tube_info_y" size="4"> <input type="button"
 				name="start" value="GO">
 		</div>
-		<div
-			style="position: relative; width: 70%; height: 100%; float: left; vertical-align: middle;">
-			<div
-				style="float: left; padding-right: 10px; width: 5%; text-align: right;">Zoom:</div>
-			<div id="slider" style="float: left; width: 90%;"></div>
-		</div>
 	</div>
 
-	<div>
+	<div style="padding-bottom: 30px; height: 98%">
 		<div
 			style="position: relative; overflow: scroll; text-align: center; height: 100%; width: 80%; align-content: center; float: left;"
 			id="hx_svg_div">
-			<svg id="hx_svg" style="position: relative;"></svg>
+			<svg id="hx_svg" style="position: relative; cursor: crosshair;"
+				onmousemove="displayCoordinates(event)"></svg>
 		</div>
 
 		<div id="tubesheet_tab"
 			style="overflow: scroll; width: 20%; height: 100%; float: left; position: relative;">
-			<table id="my-table" class="display" style="width: 100%">
+			<table id="my-table" class="datatables display" style="width: 100%">
 				<thead>
 					<tr>
 						<th>CL_X</th>
@@ -74,23 +56,48 @@ svg .tube:hover {
 			</table>
 		</div>
 	</div>
+
+	<div style="padding: 10px;">
+		<div id="coordinates" style="float: left; width: 40%">Coordinates:</div>
+		<div
+			style="position: relative; width: 60%; float: left; vertical-align: middle;">
+			<div
+				style="float: left; padding-right: 10px; width: 10%; text-align: right;">Zoom:</div>
+			<div id="slider" style="float: left; width: 70%;"></div>
+		</div>
+	</div>
 </div>
 
 <script type="text/javascript">
+	function displayCoordinates(event) {
+		var svg = document.getElementById("tubesheet_svg");
+		var point = svg.createSVGPoint();
+		point.x = event.clientX;
+		point.y = event.clientY;
+		var svgCoords = point.matrixTransform(svg.getScreenCTM().inverse());
+		var x = svgCoords.x;
+		var y = svgCoords.y;
+		document.getElementById("coordinates").innerHTML = "Coordinates: " + x
+				+ ", " + y;
+	}
+
 	function drawIntro(svg) {
 		var g = svg.group({
 			stroke : 'green',
 			strokeWidth : 0.02,
 			id : "bulls_eye"
 		});
+
 		svg.circle(g, 0, 0, 0.4, {
 			fill : 'none',
 			stroke : 'red',
 			strokeWidth : 0.03
 		});
+
 		svg.line(g, -20, 0, 20, 0, {
 			"stroke-dasharray" : "0.2, 0.1"
 		});
+
 		svg.line(g, 0, -20, 0, 20, {
 			"stroke-dasharray" : "0.2, 0.1"
 		});
@@ -154,7 +161,7 @@ svg .tube:hover {
 			}, {
 				data : 'y_label'
 			}, {
-				data : 'tube_id'				
+				data : 'tube_id'
 			}, ],
 		});
 
@@ -162,7 +169,7 @@ svg .tube:hover {
 			var data = table.row(this).data();
 			update_location_pin_position(data.hl_x, data.hl_y);
 		});
-		
+
 		$("#tubesheet_svg").svg({
 			onLoad : drawIntro
 		});
@@ -174,56 +181,72 @@ svg .tube:hover {
 			$('#hx_svg').css("height", 100 * zoom / ar + "%");
 		}
 
-		$('#hx_svg').load(
-				'tubesheet.svg',
-				function() {
-					var tubesheet_svg = document
-							.getElementById('tubesheet_svg');
-					var box = tubesheet_svg.viewBox.baseVal;
+		$('#hx_svg')
+				.load(
+						'tubesheet.svg',
+						function() {
+							var tubesheet_svg = document
+									.getElementById('tubesheet_svg');
+							var box = tubesheet_svg.viewBox.baseVal;
 
-					aspectRatio = box.width / box.height;
+							aspectRatio = box.width / box.height;
 
-					var tubes = $(
-							'#tubesheet_svg .tube_num, #tubesheet_svg circle ')
-							.click(
-									function() {
-										var clickmark = 'clicked';
-										var t = $(this).parent();
-										if (t.find("circle").hasClass(clickmark)) {
-											t.children("circle").removeClass(clickmark);
-											table.columns(6).search("").draw();
-											update_location_pin_position(0, 0);
-										} else {
-											tubes.not(t).removeClass(clickmark);
-											t.find("circle").addClass(clickmark);
-											var cx = $(t).find("circle").first().attr("cx")
-											var cy = $(t).find("circle").first().attr("cy")
-											$("#tube_info_x").val(cx);
-											$("#tube_info_y").val(cy);
-											update_location_pin_position(cx, cy);
-											
-											var val = $(t).find("text").first().text()
-											table.columns(6).search(val ? '^' + val + '$' : '', true, false).draw();
-											
-										}
-																				
-																														
-									});
+							var tubes = $(
+									'#tubesheet_svg .tube_num, #tubesheet_svg circle ')
+									.click(
+											function() {
+												var clickmark = 'clicked';
+												var t = $(this).parent();
+												if (t.find("circle").hasClass(
+														clickmark)) {
+													t.children("circle")
+															.removeClass(
+																	clickmark);
+													table.columns(6).search("")
+															.draw();
+													update_location_pin_position(
+															0, 0);
+												} else {
+													tubes.not(t).removeClass(
+															clickmark);
+													t.find("circle").addClass(
+															clickmark);
+													var cx = $(t)
+															.find("circle")
+															.first().attr("cx")
+													var cy = $(t)
+															.find("circle")
+															.first().attr("cy")
+													$("#tube_info_x").val(cx);
+													$("#tube_info_y").val(cy);
+													update_location_pin_position(
+															cx, cy);
 
-					$("#slider").slider({
-						min : 3,
-						max : 10,
-						change : function(event, ui) {
-							zoom_svg(ui.value, aspectRatio);
-						}
-					});
+													var val = $(t).find("text")
+															.first().text()
+													table.columns(6).search(
+															val ? '^' + val
+																	+ '$' : '',
+															true, false).draw();
 
-					zoom_svg($("#slider").slider("value"), aspectRatio);
+												}
 
-					$("#tubesheet_svg").svg({
-						onLoad : drawIntro
-					});
+											});
 
-				})
+							$("#slider").slider({
+								min : 3,
+								max : 10,
+								change : function(event, ui) {
+									zoom_svg(ui.value, aspectRatio);
+								}
+							});
+
+							zoom_svg($("#slider").slider("value"), aspectRatio);
+
+							$("#tubesheet_svg").svg({
+								onLoad : drawIntro
+							});
+
+						})
 	});
 </script>

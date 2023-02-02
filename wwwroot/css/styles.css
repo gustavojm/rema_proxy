@@ -8,3 +8,15 @@ body {
 .ui-widget {
     font-size:90% !important;
 }
+
+#datatables {
+	table-layout: fixed;
+	width: 100% !important;
+}
+
+#datatables td, #my-table th {
+	width: auto !important;
+	white-space: normal;
+	text-overflow: ellipsis;
+	overflow: hidden;
+}

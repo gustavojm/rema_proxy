@@ -5,12 +5,12 @@
 <link rel="stylesheet" href="css/styles.css">
 </head>
 <script
-	src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	src="js/jquery.min.js"></script>
 
 <link rel="stylesheet"
-	href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.13.2/themes/smoothness/jquery-ui.css">
+	href="css/jquery-ui.css">
 <script
-	src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"></script>
+	src="js/jquery-ui.min.js"></script>
 
 <body>
 
@@ -85,10 +85,6 @@
 				if (typeof update_bulls_eye_position === "function") {
 					update_bulls_eye_position(pos_x, pos_y);					
 			    }
-				
-				if (typeof update_location_pin_position === "function") {
-					update_location_pin_position(pos_x, pos_y);					
-			    }
 			
 			}
 		})
@@ -120,7 +116,6 @@
 		
 		$("#position_x, #position_y").on("input", function() {
 			update_bulls_eye_position($("#position_x").val(), $("#position_y").val()); 
-			update_location_pin_position($("#position_x").val(), $("#position_y").val());
 		});
 
 	});
