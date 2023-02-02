@@ -29,15 +29,15 @@ svg .tube:hover {
 		</div>
 	</div>
 
-	<div style="padding-bottom: 30px; height: 98%">
+	<div style="padding-bottom: 30px; height: 98%" class="container_div">
 		<div
 			style="position: relative; overflow: scroll; text-align: center; height: 100%; width: 80%; align-content: center; float: left;"
-			id="hx_svg_div">
+			id="hx_svg_div" class="left-side">
 			<svg id="hx_svg" style="position: relative; cursor: crosshair;"
 				onmousemove="displayCoordinates(event)"></svg>
 		</div>
 
-		<div id="tubesheet_tab"
+		<div id="tubesheet_tab" class="right-side"
 			style="overflow: scroll; width: 20%; height: 100%; float: left; position: relative;">
 			<table id="my-table" class="datatables display" style="width: 100%">
 				<thead>
@@ -57,14 +57,15 @@ svg .tube:hover {
 		</div>
 	</div>
 
-	<div style="padding: 10px;">
+	<div style="padding: 10px; width: 100%">
 		<div id="coordinates" style="float: left; width: 40%">Coordinates:</div>
 		<div
-			style="position: relative; width: 60%; float: left; vertical-align: middle;">
+			style="position: relative; width: 50%; float: left; vertical-align: middle;">
 			<div
 				style="float: left; padding-right: 10px; width: 10%; text-align: right;">Zoom:</div>
-			<div id="slider" style="float: left; width: 70%;"></div>
+			<div id="zoom-bar" style="float: left; width: 70%;"></div>
 		</div>
+		<div id="resize-bar" style="float: left; width: 8%;"></div>
 	</div>
 </div>
 
@@ -233,7 +234,7 @@ svg .tube:hover {
 
 											});
 
-							$("#slider").slider({
+							var zoom_bar = $("#zoom-bar").slider({
 								min : 3,
 								max : 10,
 								change : function(event, ui) {
@@ -241,7 +242,24 @@ svg .tube:hover {
 								}
 							});
 
-							zoom_svg($("#slider").slider("value"), aspectRatio);
+							zoom_svg(zoom_bar.slider("value"), aspectRatio);
+
+							function resize_divs(width) {								
+								$(".left-side").width(width + "%");
+								$(".right-side").width(100 - width + "%");
+							}
+
+							var resize_bar = $("#resize-bar").slider({
+								value : 80,
+								min : 30,
+								max : 90,
+								change : function(event, ui) {
+									resize_divs(ui.value);
+								}
+							});
+
+							var width = resize_bar.slider("value");
+							resize_divs(width);
 
 							$("#tubesheet_svg").svg({
 								onLoad : drawIntro
