@@ -31,7 +31,7 @@ svg .tube:hover {
 
 	<div style="padding-bottom: 30px; height: 98%" class="container_div">
 		<div
-			style="position: relative; overflow: scroll; text-align: center; height: 100%; width: 80%; align-content: center; float: left;"
+			style="position: relative; overflow: scroll; text-align: center; height: 100%; width: 80%; align-content: center; float: left; resize: horizontal; min-width: 20%; max-width: 80%"
 			id="hx_svg_div" class="left-side">
 			<svg id="hx_svg" style="position: relative; cursor: crosshair;"
 				onmousemove="displayCoordinates(event)"></svg>
@@ -65,7 +65,6 @@ svg .tube:hover {
 				style="float: left; padding-right: 10px; width: 10%; text-align: right;">Zoom:</div>
 			<div id="zoom-bar" style="float: left; width: 70%;"></div>
 		</div>
-		<div id="resize-bar" style="float: left; width: 8%;"></div>
 	</div>
 </div>
 
@@ -244,27 +243,21 @@ svg .tube:hover {
 
 							zoom_svg(zoom_bar.slider("value"), aspectRatio);
 
-							function resize_divs(width) {								
-								$(".left-side").width(width + "%");
-								$(".right-side").width(100 - width + "%");
-							}
-
-							var resize_bar = $("#resize-bar").slider({
-								value : 80,
-								min : 30,
-								max : 90,
-								change : function(event, ui) {
-									resize_divs(ui.value);
-								}
-							});
-
-							var width = resize_bar.slider("value");
-							resize_divs(width);
-
 							$("#tubesheet_svg").svg({
 								onLoad : drawIntro
 							});
 
-						})
+						});
+
+		function resize_divs() {
+			var left_div = $(".left-side");
+			var left_width = left_div.width() / left_div.parent().width() * 100;
+			
+			$(".right-side").width(99 - left_width + "%");
+			console.log($(".right-side").width());
+		}
+
+		new ResizeObserver(resize_divs).observe(hx_svg_div)
+		
 	});
 </script>
