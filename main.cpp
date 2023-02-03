@@ -25,12 +25,56 @@ using namespace restbed;
 
 inspection_session current_session;
 
+void get_HXs_method_handler(const shared_ptr<Session> session) {
+	const auto request = session->get_request();
+
+	const string filename = request->get_path_parameter("filename");
+
+	std::string path = request->get_path();
+	if (path.front() == '/') {
+		path.erase(path.begin());
+	}
+
+	std::filesystem::path f { path };
+
+	std::cout << "***PATH***; " << f << "\n";
+
+	ifstream stream(f, ifstream::in);
+
+	if (stream.is_open()) {
+		const string body = string(istreambuf_iterator<char>(stream),
+				istreambuf_iterator<char>());
+
+		std::map<std::string, std::string> mime_types = {
+				{ ".jpg", "image/jpg" }, { ".png", "image/png" }, { "svg",
+						"image/svg+xml" }, { ".css", "text/css" }, { ".js",
+						"text/javascript" } };
+
+		std::string content_type;
+		std::string ext = f.filename().extension();
+		if (auto elem = mime_types.find(ext); elem != mime_types.end()) {
+			content_type = (*elem).second;
+		} else {
+			content_type = "text/html";
+		}
+
+		const multimap<string, string> headers {
+				{ "Content-Type", content_type }, { "Content-Length",
+						::to_string(body.length()) } };
+
+		session->close(OK, body, headers);
+	} else {
+		session->close(NOT_FOUND);
+	}
+}
+
 void get_method_handler(const shared_ptr<Session> session) {
 	const auto request = session->get_request();
 
 	const string filename = request->get_path_parameter("filename");
 
-	std::filesystem::path f { "./wwwroot/"	+ request->get_path().substr(std::string("/static/").length()) };
+	std::filesystem::path f { "./wwwroot/"
+			+ request->get_path().substr(std::string("/static/").length()) };
 
 	ifstream stream(f, ifstream::in);
 
@@ -95,7 +139,6 @@ void post_ciaa_method_handler(const shared_ptr<Session> session, ciaa &ciaa) {
 			});
 }
 
-
 void post_json_method_handler(const shared_ptr<Session> session) {
 	const auto request = session->get_request();
 
@@ -113,13 +156,13 @@ void post_json_method_handler(const shared_ptr<Session> session) {
 					j = nlohmann::json::parse(b);
 
 					std::cout << std::setw(4) << j << "\n";
-				} catch (std::exception& e) {
+				} catch (std::exception &e) {
 					//cout << e << "\n";
 				}
 				const std::string command = request->get_path_parameter(
 						"command");
 
-				nlohmann::json res = cmd_execute(command ,j);
+				nlohmann::json res = cmd_execute(command, j);
 
 				std::string res_string = res.dump();
 
@@ -189,29 +232,29 @@ int main(const int, const char**) {
 	resource_ciaa->set_path("/CIAA");
 	resource_ciaa->set_failed_filter_validation_handler(
 			failed_filter_validation_handler);
-//	resource_json->set_method_handler("POST", {
-//			{ "Accept", "application/json" }, { "Content-Type",
-//					"application/json" } }, post_json_method_handler);
 	resource_ciaa->set_method_handler("POST", post_ciaa_method_handler_bound);
 
 	auto resource_json = make_shared<Resource>();
 	resource_json->set_path("/json/{command: .*}");
 	resource_json->set_failed_filter_validation_handler(
 			failed_filter_validation_handler);
-//	resource_json->set_method_handler("POST", {
-//			{ "Accept", "application/json" }, { "Content-Type",
-//					"application/json" } }, post_json_method_handler);
 	resource_json->set_method_handler("POST", post_json_method_handler);
 
 	auto resource_html_file = make_shared<Resource>();
-	//resource_html_file->set_path("/static/{filename: [a-z]*\\.html}");
-//	resource_html_file->set_path(
-//			"/static/{filename: ^.+\\.(html|css|js|jpg|png|svg)$}");
 
-	resource_html_file->set_paths({
-				"/static/{filename: ^.+\\.(html|jpg|png|svg)$}", "/static/css/{filename: ^.+\\.(css)$}", "/static/js/{filename: ^.+\\.(js)$}", "/static/css/images/{filename: ^.+\\.(jpg|png)$}" });
+	resource_html_file->set_paths( {
+			"/static/{filename: ^.+\\.(html|jpg|png|svg)$}",
+			"/static/css/{filename: ^.+\\.(css)$}",
+			"/static/js/{filename: ^.+\\.(js)$}",
+			"/static/css/images/{filename: ^.+\\.(jpg|png)$}" });
 
 	resource_html_file->set_method_handler("GET", get_method_handler);
+
+	auto resource_HXs = make_shared<Resource>();
+	resource_HXs->set_path("/HXs/{folder: .*}/{file: .*}");
+	resource_HXs->set_failed_filter_validation_handler(
+			failed_filter_validation_handler);
+	resource_HXs->set_method_handler("GET", get_HXs_method_handler);
 
 	auto settings = make_shared<Settings>();
 	settings->set_port(ciaa_proxy_port);
@@ -219,6 +262,7 @@ int main(const int, const char**) {
 
 	Service service;
 	service.publish(resource_ciaa);
+	service.publish(resource_HXs);
 	service.publish(resource_json);
 	service.publish(resource_html_file);
 	service.set_logger(make_shared<SyslogLogger>());

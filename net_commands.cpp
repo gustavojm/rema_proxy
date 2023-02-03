@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iostream>
 #include <exception>
+#include <vector>
 
 #include "csv.h"
 #include "json.hpp"
@@ -171,6 +172,24 @@ nlohmann::json session_load_cmd(nlohmann::json pars) {
 	return res;
 }
 
+nlohmann::json session_info_cmd(nlohmann::json pars) {
+	nlohmann::json res = nlohmann::json(nlohmann::json::value_t::object);
+
+	if (current_session.is_loaded()) {
+		res["tubesheet_svg_path"] = current_session.tubesheet_svg;
+		res["last_selected_plan"] = current_session.get_selected_plan();
+
+		std::vector<std::string> insp_plans;
+		for (auto &i_p : current_session.insp_plans) {
+			insp_plans.push_back(i_p.first);
+		}
+
+		res["inspection_plans"] = insp_plans;
+	}
+
+	return res;
+}
+
 
 std::map<std::string, std::function<nlohmann::json(nlohmann::json)>> commands =
 		{{ "hx_list", &hx_list_cmd },
@@ -178,6 +197,7 @@ std::map<std::string, std::function<nlohmann::json(nlohmann::json)>> commands =
 		 { "insp_sessions_list", &insp_sessions_list_cmd },
 		 { "session_create", &session_create_cmd },
 		 { "session_load", &session_load_cmd },
+		 { "session_info", &session_info_cmd },
 		};
 
 nlohmann::json cmd_execute(std::string command, nlohmann::json par) {

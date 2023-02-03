@@ -26,6 +26,8 @@ public:
 
 	inspection_session load(std::filesystem::path inspection_session_file);
 
+	inline bool is_loaded() {return loaded;};
+
 
 	void set_selected_plan(std::filesystem::path plan);
 

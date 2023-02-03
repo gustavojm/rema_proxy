@@ -4,13 +4,10 @@
 <title>REMA Control</title>
 <link rel="stylesheet" href="css/styles.css">
 </head>
-<script
-	src="js/jquery.min.js"></script>
+<script src="js/jquery.min.js"></script>
 
-<link rel="stylesheet"
-	href="css/jquery-ui.css">
-<script
-	src="js/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="css/jquery-ui.css">
+<script src="js/jquery-ui.min.js"></script>
 
 <body>
 
@@ -26,7 +23,7 @@
 		</ul>
 	</div>
 
-	<br/>
+	<br />
 	<div style="overflow: hidden; text-align: center;">
 		<div style="float: left; width: 25%">
 			<label>Position X: <input type="text" id="position_x"
@@ -52,16 +49,6 @@
 </body>
 
 <script type="text/javascript">
-	$(function() {
-		$("#tabs").tabs({
-			active : 3,			
-			//heightStyle : "fill"			
-			activate: function( event, ui ) {
-				$(ui.oldPanel).find(".tabs_div").trigger("unload_tab");
-			}
-		});
-	});
-
 	function update_ui() {
 		$.ajax({
 			url : "/CIAA/",
@@ -81,17 +68,24 @@
 				$("#position_x").val(pos_x);
 				$("#position_y").val(pos_y);
 				$("#position_z").val(pos_z);
-			
+
 				if (typeof update_bulls_eye_position === "function") {
-					update_bulls_eye_position(pos_x, pos_y);					
-			    }
-			
+					update_bulls_eye_position(pos_x, pos_y);
+				}
+
 			}
 		})
 
 	}
 
 	$(function() {
+		$("#tabs").tabs({
+			active : 3,
+			//heightStyle : "fill"			
+			activate : function(event, ui) {
+				$(ui.oldPanel).find(".tabs_div").trigger("unload_tab");
+			}
+		});
 
 		$("#reset").click(function() {
 			$.ajax({
@@ -113,10 +107,13 @@
 		});
 
 		//var timer = setInterval(update_ui, 1000);
-		
-		$("#position_x, #position_y").on("input", function() {
-			update_bulls_eye_position($("#position_x").val(), $("#position_y").val()); 
-		});
+
+		$("#position_x, #position_y").on(
+				"input",
+				function() {
+					update_bulls_eye_position($("#position_x").val(), $(
+							"#position_y").val());
+				});
 
 	});
 </script>

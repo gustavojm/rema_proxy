@@ -49,8 +49,10 @@ inspection_session inspection_session::load(std::filesystem::path inspection_ses
 
 	nlohmann::json j;
 	i >> j;
+	*this = j;
+	this->loaded = true;
 
-	return j;
+	return *this;
 }
 
 void inspection_session::set_selected_plan(std::filesystem::path plan) {
