@@ -3,11 +3,15 @@
 <script src="js/jquery.svganim.js"></script>
 
 <link rel="stylesheet" type="text/css" href="css/datatables.min.css" />
-<link rel="stylesheet" type="text/css" href="css/select.dataTables.min.css" />
+<link rel="stylesheet" type="text/css"
+	href="css/select.dataTables.min.css" />
+<link rel="stylesheet" type="text/css"
+	href="css/scroller.dataTables.min.css" />
 
 
 <script type="text/javascript" src="js/datatables.min.js"></script>
 <script type="text/javascript" src="js/dataTables.select.min.js"></script>
+<script type="text/javascript" src="js/dataTables.scroller.min.js"></script>
 
 <style>
 svg .tube.clicked {
@@ -18,38 +22,36 @@ svg .tube:hover {
 	stroke: lime;
 }
 
-tbody tr.selected {
-    color: blue;
-}
 </style>
 
 <div id="hx_tab"
 	style="overflow: visible; height: 88%; width: 100%; float: left; position: relative;">
 
 	<div id="tube_info"
-		style="position: relative; width: 100%; float: left; vertical-align: middle; height: 4%">
+		style="position: relative; width: 100%; float: left; vertical-align: middle; height: 4%" >
 		<div
-			style="position: relative; width: 50%; height: 100%; float: left;">
+			style="position: relative; width: 80%; height: 100%; float: left;" class="left-side">
 			Tube Info X:<input type="text" id="tube_info_x" size="4"> Y:<input
 				type="text" id="tube_info_y" size="4"> <input type="button"
 				name="start" value="GO">
 		</div>
-		<div style="float: right;">
+		<div style="float: right; text-align: center; " class="right-side">
 			<select id="insp_plans"></select>
 		</div>
 	</div>
 
-	<div style="padding-bottom: 30px; height: 98%" class="container_div">
+	<div style="padding-bottom: 30px; height: 95%" class="container_div">
 		<div
 			style="position: relative; overflow: scroll; text-align: center; height: 100%; width: 80%; align-content: center; float: left; resize: horizontal; min-width: 20%; max-width: 80%"
-			id="hx_svg_div" class="left-side">
+			id="left-side-resizable">
 			<svg id="hx_svg" style="position: relative; cursor: crosshair;"
 				onmousemove="displayCoordinates(event)"></svg>
 		</div>
 
 		<div id="tubesheet_tab" class="right-side"
 			style="overflow: scroll; width: 20%; height: 100%; float: left; position: relative;">
-			<table id="insp_plan-table" class="datatables display" style="width: 100%">
+			<table id="insp_plan-table" class="datatables display"
+				style="width: 100%">
 				<thead>
 					<tr>
 						<th>TUBE_ID</th>
@@ -150,78 +152,110 @@ tbody tr.selected {
 	$(function() {
 
 		var insp_plans_dropdown = $('#insp_plans');
-		
-		var table = $('#insp_plan-table').DataTable({
-			select: true,
-			"ajax" : {
-				method : "post",
-				dataType: 'json',
-				url : "/json/insp_plan_load",
-				data : function(){ return JSON.stringify({ 'insp_plan_path' : $("#insp_plans").val()}); },
-				dataSrc : '',
-			},
-			columns : [ {
-				data : 'tube_id'
-			}, {
-				data : 'row'
-			}, {
-				data : 'col'
-			}, {
-				data : 'inspected',
-				render : function(data, type, row) {
-						$("#"+row.tube_id, $("#tubesheet_svg")).children("circle").css("fill", insp_plans_dropdown.css("background-color"));	
-					
-						return '<input type="checkbox" value=' + row.tube_id + (data=='true' ? ' checked' : '') + '>';
-					}
-				},								
-			],
-		});			
 
-		
+		var table = $('#insp_plan-table')
+				.DataTable(
+						{
+							select : true,
+							scroller: true,
+							sScrollY: '500px',
+							ajax : {
+								method : "post",
+								dataType : 'json',
+								url : "/json/insp_plan_load",
+								data : function() {
+									return JSON.stringify({
+										'insp_plan_path' : $("#insp_plans")
+												.val()
+									});
+								},
+								dataSrc : '',
+							},
+							columns : [
+									{
+										data : 'tube_id'
+									},
+									{
+										data : 'row'
+									},
+									{
+										data : 'col'
+									},
+									{
+										data : 'inspected',
+										render : function(data, type, row) {
+											$("#" + row.tube_id,
+													$("#tubesheet_svg"))
+													.children("circle")
+													.css(
+															"fill",
+															insp_plans_dropdown
+																	.css("background-color"));
+
+											return '<input type="checkbox" value='
+													+ row.tube_id
+													+ (data == 'true' ? ' checked'
+															: '') + '>';
+										}
+									}, ],
+						});
+
 		function get_session_info() {
 			return $.post('/json/session_info');
 		}
 
-		get_session_info().done(function(data) {
-			tubesheet_path = 
-			svg_load("../" + (data.tubesheet_svg_path || "/static/no_session_loaded.svg"));			
+		get_session_info()
+				.done(
+						function(data) {
+							tubesheet_path = svg_load("../"
+									+ (data.tubesheet_svg_path || "/static/no_session_loaded.svg"));
 
-			insp_plans_dropdown.empty();
-			insp_plans_dropdown
-					.append('<option selected="true">Choose an Inspection Plan</option>');
-			insp_plans_dropdown.prop('selectedIndex', 0);
+							insp_plans_dropdown.empty();
+							insp_plans_dropdown
+									.append('<option selected="true">Choose an Inspection Plan</option>');
+							insp_plans_dropdown.prop('selectedIndex', 0);
 
-			// Populate dropdown with list of Inspection Plans
-			
-   	 		
-			var pastel_colors = [ "#ffadad", "#ffd6a5", "#fdffb6", "#caffbf", "#9bf6ff", "#a0c4ff", "#bdb2ff", "#ffc6ff", "#ffffbb" ];
-			var color = 0;
-			
-			$.each(data.inspection_plans, function(key, entry) {
-				insp_plans_dropdown.append($('<option style="background-color:' + pastel_colors[color] + '; "></option>').attr('value',
-						entry.value).text(entry.text));
-				color++;
-				color %= pastel_colors.length;
+							// Populate dropdown with list of Inspection Plans 		
+							var pastel_colors = [ "#ffadad", "#ffd6a5",
+									"#fdffb6", "#caffbf", "#9bf6ff", "#a0c4ff",
+									"#bdb2ff", "#ffc6ff", "#ffffbb" ];
+							var color = 0;
+							$
+									.each(
+											data.inspection_plans,
+											function(key, entry) {
+												insp_plans_dropdown
+														.append($(
+																'<option style="background-color:' + pastel_colors[color] + '; "></option>')
+																.attr(
+																		'value',
+																		entry.value)
+																.text(
+																		entry.text));
+												color++;
+												color %= pastel_colors.length;
+											});
 
-			});
-			
-			insp_plans_dropdown.change(function () {				
-				insp_plans_dropdown.css("background-color", $("option:selected", this).css("background-color"));
-				
-				table.ajax.reload();
+							insp_plans_dropdown.change(function() {
+								insp_plans_dropdown.css("background-color", $(
+										"option:selected", this).css(
+										"background-color"));
+								table.ajax.reload();
+							});
+						});
 
-			});
-		});
-		 
-	
-		$('#insp_plan-table tbody').on('click', 'tr', function() {
-			var data = table.row(this).data();
-			
-			var cx = $("#"+data.tube_id, $("#tubesheet_svg")).children("circle").first().attr("cx"); 
-			var cy = $("#"+data.tube_id, $("#tubesheet_svg")).children("circle").first().attr("cy");
-			
-			update_location_pin_position(cx, cy);
-		});
+		$('#insp_plan-table tbody').on(
+				'click',
+				'tr',
+				function() {
+					var data = table.row(this).data();
+					var cx = $("#" + data.tube_id, $("#tubesheet_svg"))
+							.children("circle").first().attr("cx");
+					var cy = $("#" + data.tube_id, $("#tubesheet_svg"))
+							.children("circle").first().attr("cy");
+
+					update_location_pin_position(cx, cy);
+				});
 
 		$("#tubesheet_svg").svg({
 			onLoad : drawIntro
@@ -260,9 +294,8 @@ tbody tr.selected {
 																		"circle")
 																.removeClass(
 																		clickmark);
-														table.columns(tube_id_column)
-																.search("")
-																.draw();
+														table.rows().deselect();
+
 														update_location_pin_position(
 																0, 0);
 													} else {
@@ -277,11 +310,11 @@ tbody tr.selected {
 														var cx = $(t).find(
 																"circle")
 																.first().attr(
-																		"cx")
+																		"cx");
 														var cy = $(t).find(
 																"circle")
 																.first().attr(
-																		"cy")
+																		"cy");
 														$("#tube_info_x").val(
 																cx);
 														$("#tube_info_y").val(
@@ -291,18 +324,16 @@ tbody tr.selected {
 
 														var val = $(t).find(
 																"text").first()
-																.text()
-														table
-																.columns(tube_id_column)
-																.search(
-																		val ? '^'
-																				+ val
-																				+ '$'
-																				: '',
-																		true,
-																		false)
-																.draw();
-
+																.text();
+																
+														table.rows().deselect();
+														table.rows().every( function ( rowIdx, tableLoop, rowLoop ) {
+														
+															var data = this.data();							
+														    if (data["tube_id"] == val) {														    	
+														    	this.select().scrollTo();
+														    } 
+														} );
 													}
 
 												});
@@ -324,13 +355,14 @@ tbody tr.selected {
 		}
 
 		function resize_divs() {
-			var left_div = $(".left-side");
+			var left_div = $("#left-side-resizable");
 			var left_width = left_div.width() / left_div.parent().width() * 100;
-
+			
+			$(".left-side").width(left_width + "%");
 			$(".right-side").width(98 - left_width + "%");
 		}
 
-		new ResizeObserver(resize_divs).observe(hx_svg_div)
+		new ResizeObserver(resize_divs).observe(document.getElementById("left-side-resizable"));
 
 	});
 </script>
