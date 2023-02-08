@@ -66,1473 +66,1473 @@
 	<text x="-0.750000" y="5.303200" class="label">I</text>
 	<text x="-0.750000" y="5.966100" class="label">J</text>
 	<text x="-0.750000" y="6.629000" class="label">K</text>
-	<g id="1">
-		<title>X=1 Y=A</title>
+	<g id="1" data-col="1" data-row="A">
+		<title>Col=1 Row=A</title>
 		<circle cx="0.000000" cy="0.000000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="0.000000" y="0.000000">1</text>
 	</g>
-	<g id="2">
-		<title>X=3 Y=A</title>
+	<g id="2" data-col="3" data-row="A">
+		<title>Col=3 Row=A</title>
 		<circle cx="1.325800" cy="0.000000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="1.325800" y="0.000000">2</text>
 	</g>
-	<g id="3">
-		<title>X=5 Y=A</title>
+	<g id="3" data-col="5" data-row="A">
+		<title>Col=5 Row=A</title>
 		<circle cx="2.651600" cy="0.000000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="2.651600" y="0.000000">3</text>
 	</g>
-	<g id="4">
-		<title>X=7 Y=A</title>
+	<g id="4" data-col="7" data-row="A">
+		<title>Col=7 Row=A</title>
 		<circle cx="3.977400" cy="0.000000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="3.977400" y="0.000000">4</text>
 	</g>
-	<g id="5">
-		<title>X=9 Y=A</title>
+	<g id="5" data-col="9" data-row="A">
+		<title>Col=9 Row=A</title>
 		<circle cx="5.303200" cy="0.000000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="5.303200" y="0.000000">5</text>
 	</g>
-	<g id="6">
-		<title>X=11 Y=A</title>
+	<g id="6" data-col="11" data-row="A">
+		<title>Col=11 Row=A</title>
 		<circle cx="6.629000" cy="0.000000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="6.629000" y="0.000000">6</text>
 	</g>
-	<g id="7">
-		<title>X=13 Y=A</title>
+	<g id="7" data-col="13" data-row="A">
+		<title>Col=13 Row=A</title>
 		<circle cx="7.954801" cy="0.000000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="7.954801" y="0.000000">7</text>
 	</g>
-	<g id="8">
-		<title>X=15 Y=A</title>
+	<g id="8" data-col="15" data-row="A">
+		<title>Col=15 Row=A</title>
 		<circle cx="9.280600" cy="0.000000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="9.280600" y="0.000000">8</text>
 	</g>
-	<g id="9">
-		<title>X=17 Y=A</title>
+	<g id="9" data-col="17" data-row="A">
+		<title>Col=17 Row=A</title>
 		<circle cx="10.606400" cy="0.000000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="10.606400" y="0.000000">9</text>
 	</g>
-	<g id="10">
-		<title>X=19 Y=A</title>
+	<g id="10" data-col="19" data-row="A">
+		<title>Col=19 Row=A</title>
 		<circle cx="11.932199" cy="0.000000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="11.932199" y="0.000000">10</text>
 	</g>
-	<g id="11">
-		<title>X=2 Y=B</title>
+	<g id="11" data-col="2" data-row="B">
+		<title>Col=2 Row=B</title>
 		<circle cx="0.662900" cy="0.662900" r="0.312500" class="tube"/>
 		<text class="tube_num" x="0.662900" y="0.662900">11</text>
 	</g>
-	<g id="12">
-		<title>X=4 Y=B</title>
+	<g id="12" data-col="4" data-row="B">
+		<title>Col=4 Row=B</title>
 		<circle cx="1.988700" cy="0.662900" r="0.312500" class="tube"/>
 		<text class="tube_num" x="1.988700" y="0.662900">12</text>
 	</g>
-	<g id="13">
-		<title>X=6 Y=B</title>
+	<g id="13" data-col="6" data-row="B">
+		<title>Col=6 Row=B</title>
 		<circle cx="3.314500" cy="0.662900" r="0.312500" class="tube"/>
 		<text class="tube_num" x="3.314500" y="0.662900">13</text>
 	</g>
-	<g id="14">
-		<title>X=8 Y=B</title>
+	<g id="14" data-col="8" data-row="B">
+		<title>Col=8 Row=B</title>
 		<circle cx="4.640300" cy="0.662900" r="0.312500" class="tube"/>
 		<text class="tube_num" x="4.640300" y="0.662900">14</text>
 	</g>
-	<g id="15">
-		<title>X=10 Y=B</title>
+	<g id="15" data-col="10" data-row="B">
+		<title>Col=10 Row=B</title>
 		<circle cx="5.966100" cy="0.662900" r="0.312500" class="tube"/>
 		<text class="tube_num" x="5.966100" y="0.662900">15</text>
 	</g>
-	<g id="16">
-		<title>X=12 Y=B</title>
+	<g id="16" data-col="12" data-row="B">
+		<title>Col=12 Row=B</title>
 		<circle cx="7.291900" cy="0.662900" r="0.312500" class="tube"/>
 		<text class="tube_num" x="7.291900" y="0.662900">16</text>
 	</g>
-	<g id="17">
-		<title>X=14 Y=B</title>
+	<g id="17" data-col="14" data-row="B">
+		<title>Col=14 Row=B</title>
 		<circle cx="8.617701" cy="0.662900" r="0.312500" class="tube"/>
 		<text class="tube_num" x="8.617701" y="0.662900">17</text>
 	</g>
-	<g id="18">
-		<title>X=16 Y=B</title>
+	<g id="18" data-col="16" data-row="B">
+		<title>Col=16 Row=B</title>
 		<circle cx="9.943500" cy="0.662900" r="0.312500" class="tube"/>
 		<text class="tube_num" x="9.943500" y="0.662900">18</text>
 	</g>
-	<g id="19">
-		<title>X=18 Y=B</title>
+	<g id="19" data-col="18" data-row="B">
+		<title>Col=18 Row=B</title>
 		<circle cx="11.269300" cy="0.662900" r="0.312500" class="tube"/>
 		<text class="tube_num" x="11.269300" y="0.662900">19</text>
 	</g>
-	<g id="20">
-		<title>X=1 Y=C</title>
+	<g id="20" data-col="1" data-row="C">
+		<title>Col=1 Row=C</title>
 		<circle cx="0.000000" cy="1.325800" r="0.312500" class="tube"/>
 		<text class="tube_num" x="0.000000" y="1.325800">20</text>
 	</g>
-	<g id="21">
-		<title>X=3 Y=C</title>
+	<g id="21" data-col="3" data-row="C">
+		<title>Col=3 Row=C</title>
 		<circle cx="1.325800" cy="1.325800" r="0.312500" class="tube"/>
 		<text class="tube_num" x="1.325800" y="1.325800">21</text>
 	</g>
-	<g id="22">
-		<title>X=5 Y=C</title>
+	<g id="22" data-col="5" data-row="C">
+		<title>Col=5 Row=C</title>
 		<circle cx="2.651600" cy="1.325800" r="0.312500" class="tube"/>
 		<text class="tube_num" x="2.651600" y="1.325800">22</text>
 	</g>
-	<g id="23">
-		<title>X=7 Y=C</title>
+	<g id="23" data-col="7" data-row="C">
+		<title>Col=7 Row=C</title>
 		<circle cx="3.977400" cy="1.325800" r="0.312500" class="tube"/>
 		<text class="tube_num" x="3.977400" y="1.325800">23</text>
 	</g>
-	<g id="24">
-		<title>X=9 Y=C</title>
+	<g id="24" data-col="9" data-row="C">
+		<title>Col=9 Row=C</title>
 		<circle cx="5.303200" cy="1.325800" r="0.312500" class="tube"/>
 		<text class="tube_num" x="5.303200" y="1.325800">24</text>
 	</g>
-	<g id="25">
-		<title>X=11 Y=C</title>
+	<g id="25" data-col="11" data-row="C">
+		<title>Col=11 Row=C</title>
 		<circle cx="6.629000" cy="1.325800" r="0.312500" class="tube"/>
 		<text class="tube_num" x="6.629000" y="1.325800">25</text>
 	</g>
-	<g id="26">
-		<title>X=13 Y=C</title>
+	<g id="26" data-col="13" data-row="C">
+		<title>Col=13 Row=C</title>
 		<circle cx="7.954801" cy="1.325800" r="0.312500" class="tube"/>
 		<text class="tube_num" x="7.954801" y="1.325800">26</text>
 	</g>
-	<g id="27">
-		<title>X=15 Y=C</title>
+	<g id="27" data-col="15" data-row="C">
+		<title>Col=15 Row=C</title>
 		<circle cx="9.280600" cy="1.325800" r="0.312500" class="tube"/>
 		<text class="tube_num" x="9.280600" y="1.325800">27</text>
 	</g>
-	<g id="28">
-		<title>X=17 Y=C</title>
+	<g id="28" data-col="17" data-row="C">
+		<title>Col=17 Row=C</title>
 		<circle cx="10.606400" cy="1.325800" r="0.312500" class="tube"/>
 		<text class="tube_num" x="10.606400" y="1.325800">28</text>
 	</g>
-	<g id="29">
-		<title>X=19 Y=C</title>
+	<g id="29" data-col="19" data-row="C">
+		<title>Col=19 Row=C</title>
 		<circle cx="11.932199" cy="1.325800" r="0.312500" class="tube"/>
 		<text class="tube_num" x="11.932199" y="1.325800">29</text>
 	</g>
-	<g id="30">
-		<title>X=2 Y=D</title>
+	<g id="30" data-col="2" data-row="D">
+		<title>Col=2 Row=D</title>
 		<circle cx="0.662900" cy="1.988700" r="0.312500" class="tube"/>
 		<text class="tube_num" x="0.662900" y="1.988700">30</text>
 	</g>
-	<g id="31">
-		<title>X=4 Y=D</title>
+	<g id="31" data-col="4" data-row="D">
+		<title>Col=4 Row=D</title>
 		<circle cx="1.988700" cy="1.988700" r="0.312500" class="tube"/>
 		<text class="tube_num" x="1.988700" y="1.988700">31</text>
 	</g>
-	<g id="32">
-		<title>X=6 Y=D</title>
+	<g id="32" data-col="6" data-row="D">
+		<title>Col=6 Row=D</title>
 		<circle cx="3.314500" cy="1.988700" r="0.312500" class="tube"/>
 		<text class="tube_num" x="3.314500" y="1.988700">32</text>
 	</g>
-	<g id="33">
-		<title>X=8 Y=D</title>
+	<g id="33" data-col="8" data-row="D">
+		<title>Col=8 Row=D</title>
 		<circle cx="4.640300" cy="1.988700" r="0.312500" class="tube"/>
 		<text class="tube_num" x="4.640300" y="1.988700">33</text>
 	</g>
-	<g id="34">
-		<title>X=10 Y=D</title>
+	<g id="34" data-col="10" data-row="D">
+		<title>Col=10 Row=D</title>
 		<circle cx="5.966100" cy="1.988700" r="0.312500" class="tube"/>
 		<text class="tube_num" x="5.966100" y="1.988700">34</text>
 	</g>
-	<g id="35">
-		<title>X=12 Y=D</title>
+	<g id="35" data-col="12" data-row="D">
+		<title>Col=12 Row=D</title>
 		<circle cx="7.291900" cy="1.988700" r="0.312500" class="tube"/>
 		<text class="tube_num" x="7.291900" y="1.988700">35</text>
 	</g>
-	<g id="36">
-		<title>X=14 Y=D</title>
+	<g id="36" data-col="14" data-row="D">
+		<title>Col=14 Row=D</title>
 		<circle cx="8.617701" cy="1.988700" r="0.312500" class="tube"/>
 		<text class="tube_num" x="8.617701" y="1.988700">36</text>
 	</g>
-	<g id="37">
-		<title>X=16 Y=D</title>
+	<g id="37" data-col="16" data-row="D">
+		<title>Col=16 Row=D</title>
 		<circle cx="9.943500" cy="1.988700" r="0.312500" class="tube"/>
 		<text class="tube_num" x="9.943500" y="1.988700">37</text>
 	</g>
-	<g id="38">
-		<title>X=18 Y=D</title>
+	<g id="38" data-col="18" data-row="D">
+		<title>Col=18 Row=D</title>
 		<circle cx="11.269300" cy="1.988700" r="0.312500" class="tube"/>
 		<text class="tube_num" x="11.269300" y="1.988700">38</text>
 	</g>
-	<g id="39">
-		<title>X=1 Y=E</title>
+	<g id="39" data-col="1" data-row="E">
+		<title>Col=1 Row=E</title>
 		<circle cx="0.000000" cy="2.651600" r="0.312500" class="tube"/>
 		<text class="tube_num" x="0.000000" y="2.651600">39</text>
 	</g>
-	<g id="40">
-		<title>X=3 Y=E</title>
+	<g id="40" data-col="3" data-row="E">
+		<title>Col=3 Row=E</title>
 		<circle cx="1.325800" cy="2.651600" r="0.312500" class="tube"/>
 		<text class="tube_num" x="1.325800" y="2.651600">40</text>
 	</g>
-	<g id="41">
-		<title>X=5 Y=E</title>
+	<g id="41" data-col="5" data-row="E">
+		<title>Col=5 Row=E</title>
 		<circle cx="2.651600" cy="2.651600" r="0.312500" class="tube"/>
 		<text class="tube_num" x="2.651600" y="2.651600">41</text>
 	</g>
-	<g id="42">
-		<title>X=7 Y=E</title>
+	<g id="42" data-col="7" data-row="E">
+		<title>Col=7 Row=E</title>
 		<circle cx="3.977400" cy="2.651600" r="0.312500" class="tube"/>
 		<text class="tube_num" x="3.977400" y="2.651600">42</text>
 	</g>
-	<g id="43">
-		<title>X=9 Y=E</title>
+	<g id="43" data-col="9" data-row="E">
+		<title>Col=9 Row=E</title>
 		<circle cx="5.303200" cy="2.651600" r="0.312500" class="tube"/>
 		<text class="tube_num" x="5.303200" y="2.651600">43</text>
 	</g>
-	<g id="44">
-		<title>X=11 Y=E</title>
+	<g id="44" data-col="11" data-row="E">
+		<title>Col=11 Row=E</title>
 		<circle cx="6.629000" cy="2.651600" r="0.312500" class="tube"/>
 		<text class="tube_num" x="6.629000" y="2.651600">44</text>
 	</g>
-	<g id="45">
-		<title>X=13 Y=E</title>
+	<g id="45" data-col="13" data-row="E">
+		<title>Col=13 Row=E</title>
 		<circle cx="7.954801" cy="2.651600" r="0.312500" class="tube"/>
 		<text class="tube_num" x="7.954801" y="2.651600">45</text>
 	</g>
-	<g id="46">
-		<title>X=15 Y=E</title>
+	<g id="46" data-col="15" data-row="E">
+		<title>Col=15 Row=E</title>
 		<circle cx="9.280600" cy="2.651600" r="0.312500" class="tube"/>
 		<text class="tube_num" x="9.280600" y="2.651600">46</text>
 	</g>
-	<g id="47">
-		<title>X=17 Y=E</title>
+	<g id="47" data-col="17" data-row="E">
+		<title>Col=17 Row=E</title>
 		<circle cx="10.606400" cy="2.651600" r="0.312500" class="tube"/>
 		<text class="tube_num" x="10.606400" y="2.651600">47</text>
 	</g>
-	<g id="48">
-		<title>X=19 Y=E</title>
+	<g id="48" data-col="19" data-row="E">
+		<title>Col=19 Row=E</title>
 		<circle cx="11.932199" cy="2.651600" r="0.312500" class="tube"/>
 		<text class="tube_num" x="11.932199" y="2.651600">48</text>
 	</g>
-	<g id="49">
-		<title>X=2 Y=F</title>
+	<g id="49" data-col="2" data-row="F">
+		<title>Col=2 Row=F</title>
 		<circle cx="0.662900" cy="3.314500" r="0.312500" class="tube"/>
 		<text class="tube_num" x="0.662900" y="3.314500">49</text>
 	</g>
-	<g id="50">
-		<title>X=4 Y=F</title>
+	<g id="50" data-col="4" data-row="F">
+		<title>Col=4 Row=F</title>
 		<circle cx="1.988700" cy="3.314500" r="0.312500" class="tube"/>
 		<text class="tube_num" x="1.988700" y="3.314500">50</text>
 	</g>
-	<g id="51">
-		<title>X=6 Y=F</title>
+	<g id="51" data-col="6" data-row="F">
+		<title>Col=6 Row=F</title>
 		<circle cx="3.314500" cy="3.314500" r="0.312500" class="tube"/>
 		<text class="tube_num" x="3.314500" y="3.314500">51</text>
 	</g>
-	<g id="52">
-		<title>X=8 Y=F</title>
+	<g id="52" data-col="8" data-row="F">
+		<title>Col=8 Row=F</title>
 		<circle cx="4.640300" cy="3.314500" r="0.312500" class="tube"/>
 		<text class="tube_num" x="4.640300" y="3.314500">52</text>
 	</g>
-	<g id="53">
-		<title>X=10 Y=F</title>
+	<g id="53" data-col="10" data-row="F">
+		<title>Col=10 Row=F</title>
 		<circle cx="5.966100" cy="3.314500" r="0.312500" class="tube"/>
 		<text class="tube_num" x="5.966100" y="3.314500">53</text>
 	</g>
-	<g id="54">
-		<title>X=12 Y=F</title>
+	<g id="54" data-col="12" data-row="F">
+		<title>Col=12 Row=F</title>
 		<circle cx="7.291900" cy="3.314500" r="0.312500" class="tube"/>
 		<text class="tube_num" x="7.291900" y="3.314500">54</text>
 	</g>
-	<g id="55">
-		<title>X=14 Y=F</title>
+	<g id="55" data-col="14" data-row="F">
+		<title>Col=14 Row=F</title>
 		<circle cx="8.617701" cy="3.314500" r="0.312500" class="tube"/>
 		<text class="tube_num" x="8.617701" y="3.314500">55</text>
 	</g>
-	<g id="56">
-		<title>X=16 Y=F</title>
+	<g id="56" data-col="16" data-row="F">
+		<title>Col=16 Row=F</title>
 		<circle cx="9.943500" cy="3.314500" r="0.312500" class="tube"/>
 		<text class="tube_num" x="9.943500" y="3.314500">56</text>
 	</g>
-	<g id="57">
-		<title>X=18 Y=F</title>
+	<g id="57" data-col="18" data-row="F">
+		<title>Col=18 Row=F</title>
 		<circle cx="11.269300" cy="3.314500" r="0.312500" class="tube"/>
 		<text class="tube_num" x="11.269300" y="3.314500">57</text>
 	</g>
-	<g id="58">
-		<title>X=3 Y=G</title>
+	<g id="58" data-col="3" data-row="G">
+		<title>Col=3 Row=G</title>
 		<circle cx="1.325800" cy="3.977400" r="0.312500" class="tube"/>
 		<text class="tube_num" x="1.325800" y="3.977400">58</text>
 	</g>
-	<g id="59">
-		<title>X=5 Y=G</title>
+	<g id="59" data-col="5" data-row="G">
+		<title>Col=5 Row=G</title>
 		<circle cx="2.651600" cy="3.977400" r="0.312500" class="tube"/>
 		<text class="tube_num" x="2.651600" y="3.977400">59</text>
 	</g>
-	<g id="60">
-		<title>X=7 Y=G</title>
+	<g id="60" data-col="7" data-row="G">
+		<title>Col=7 Row=G</title>
 		<circle cx="3.977400" cy="3.977400" r="0.312500" class="tube"/>
 		<text class="tube_num" x="3.977400" y="3.977400">60</text>
 	</g>
-	<g id="61">
-		<title>X=9 Y=G</title>
+	<g id="61" data-col="9" data-row="G">
+		<title>Col=9 Row=G</title>
 		<circle cx="5.303200" cy="3.977400" r="0.312500" class="tube"/>
 		<text class="tube_num" x="5.303200" y="3.977400">61</text>
 	</g>
-	<g id="62">
-		<title>X=11 Y=G</title>
+	<g id="62" data-col="11" data-row="G">
+		<title>Col=11 Row=G</title>
 		<circle cx="6.629000" cy="3.977400" r="0.312500" class="tube"/>
 		<text class="tube_num" x="6.629000" y="3.977400">62</text>
 	</g>
-	<g id="63">
-		<title>X=13 Y=G</title>
+	<g id="63" data-col="13" data-row="G">
+		<title>Col=13 Row=G</title>
 		<circle cx="7.954801" cy="3.977400" r="0.312500" class="tube"/>
 		<text class="tube_num" x="7.954801" y="3.977400">63</text>
 	</g>
-	<g id="64">
-		<title>X=15 Y=G</title>
+	<g id="64" data-col="15" data-row="G">
+		<title>Col=15 Row=G</title>
 		<circle cx="9.280600" cy="3.977400" r="0.312500" class="tube"/>
 		<text class="tube_num" x="9.280600" y="3.977400">64</text>
 	</g>
-	<g id="65">
-		<title>X=17 Y=G</title>
+	<g id="65" data-col="17" data-row="G">
+		<title>Col=17 Row=G</title>
 		<circle cx="10.606400" cy="3.977400" r="0.312500" class="tube"/>
 		<text class="tube_num" x="10.606400" y="3.977400">65</text>
 	</g>
-	<g id="66">
-		<title>X=19 Y=G</title>
+	<g id="66" data-col="19" data-row="G">
+		<title>Col=19 Row=G</title>
 		<circle cx="11.932199" cy="3.977400" r="0.312500" class="tube"/>
 		<text class="tube_num" x="11.932199" y="3.977400">66</text>
 	</g>
-	<g id="67">
-		<title>X=2 Y=H</title>
+	<g id="67" data-col="2" data-row="H">
+		<title>Col=2 Row=H</title>
 		<circle cx="0.662900" cy="4.640300" r="0.312500" class="tube"/>
 		<text class="tube_num" x="0.662900" y="4.640300">67</text>
 	</g>
-	<g id="68">
-		<title>X=4 Y=H</title>
+	<g id="68" data-col="4" data-row="H">
+		<title>Col=4 Row=H</title>
 		<circle cx="1.988700" cy="4.640300" r="0.312500" class="tube"/>
 		<text class="tube_num" x="1.988700" y="4.640300">68</text>
 	</g>
-	<g id="69">
-		<title>X=6 Y=H</title>
+	<g id="69" data-col="6" data-row="H">
+		<title>Col=6 Row=H</title>
 		<circle cx="3.314500" cy="4.640300" r="0.312500" class="tube"/>
 		<text class="tube_num" x="3.314500" y="4.640300">69</text>
 	</g>
-	<g id="70">
-		<title>X=8 Y=H</title>
+	<g id="70" data-col="8" data-row="H">
+		<title>Col=8 Row=H</title>
 		<circle cx="4.640300" cy="4.640300" r="0.312500" class="tube"/>
 		<text class="tube_num" x="4.640300" y="4.640300">70</text>
 	</g>
-	<g id="71">
-		<title>X=10 Y=H</title>
+	<g id="71" data-col="10" data-row="H">
+		<title>Col=10 Row=H</title>
 		<circle cx="5.966100" cy="4.640300" r="0.312500" class="tube"/>
 		<text class="tube_num" x="5.966100" y="4.640300">71</text>
 	</g>
-	<g id="72">
-		<title>X=12 Y=H</title>
+	<g id="72" data-col="12" data-row="H">
+		<title>Col=12 Row=H</title>
 		<circle cx="7.291900" cy="4.640300" r="0.312500" class="tube"/>
 		<text class="tube_num" x="7.291900" y="4.640300">72</text>
 	</g>
-	<g id="73">
-		<title>X=14 Y=H</title>
+	<g id="73" data-col="14" data-row="H">
+		<title>Col=14 Row=H</title>
 		<circle cx="8.617701" cy="4.640300" r="0.312500" class="tube"/>
 		<text class="tube_num" x="8.617701" y="4.640300">73</text>
 	</g>
-	<g id="74">
-		<title>X=16 Y=H</title>
+	<g id="74" data-col="16" data-row="H">
+		<title>Col=16 Row=H</title>
 		<circle cx="9.943500" cy="4.640300" r="0.312500" class="tube"/>
 		<text class="tube_num" x="9.943500" y="4.640300">74</text>
 	</g>
-	<g id="75">
-		<title>X=18 Y=H</title>
+	<g id="75" data-col="18" data-row="H">
+		<title>Col=18 Row=H</title>
 		<circle cx="11.269300" cy="4.640300" r="0.312500" class="tube"/>
 		<text class="tube_num" x="11.269300" y="4.640300">75</text>
 	</g>
-	<g id="76">
-		<title>X=3 Y=I</title>
+	<g id="76" data-col="3" data-row="I">
+		<title>Col=3 Row=I</title>
 		<circle cx="1.325800" cy="5.303200" r="0.312500" class="tube"/>
 		<text class="tube_num" x="1.325800" y="5.303200">76</text>
 	</g>
-	<g id="77">
-		<title>X=5 Y=I</title>
+	<g id="77" data-col="5" data-row="I">
+		<title>Col=5 Row=I</title>
 		<circle cx="2.651600" cy="5.303200" r="0.312500" class="tube"/>
 		<text class="tube_num" x="2.651600" y="5.303200">77</text>
 	</g>
-	<g id="78">
-		<title>X=7 Y=I</title>
+	<g id="78" data-col="7" data-row="I">
+		<title>Col=7 Row=I</title>
 		<circle cx="3.977400" cy="5.303200" r="0.312500" class="tube"/>
 		<text class="tube_num" x="3.977400" y="5.303200">78</text>
 	</g>
-	<g id="79">
-		<title>X=9 Y=I</title>
+	<g id="79" data-col="9" data-row="I">
+		<title>Col=9 Row=I</title>
 		<circle cx="5.303200" cy="5.303200" r="0.312500" class="tube"/>
 		<text class="tube_num" x="5.303200" y="5.303200">79</text>
 	</g>
-	<g id="80">
-		<title>X=11 Y=I</title>
+	<g id="80" data-col="11" data-row="I">
+		<title>Col=11 Row=I</title>
 		<circle cx="6.629000" cy="5.303200" r="0.312500" class="tube"/>
 		<text class="tube_num" x="6.629000" y="5.303200">80</text>
 	</g>
-	<g id="81">
-		<title>X=13 Y=I</title>
+	<g id="81" data-col="13" data-row="I">
+		<title>Col=13 Row=I</title>
 		<circle cx="7.954801" cy="5.303200" r="0.312500" class="tube"/>
 		<text class="tube_num" x="7.954801" y="5.303200">81</text>
 	</g>
-	<g id="82">
-		<title>X=15 Y=I</title>
+	<g id="82" data-col="15" data-row="I">
+		<title>Col=15 Row=I</title>
 		<circle cx="9.280600" cy="5.303200" r="0.312500" class="tube"/>
 		<text class="tube_num" x="9.280600" y="5.303200">82</text>
 	</g>
-	<g id="83">
-		<title>X=17 Y=I</title>
+	<g id="83" data-col="17" data-row="I">
+		<title>Col=17 Row=I</title>
 		<circle cx="10.606400" cy="5.303200" r="0.312500" class="tube"/>
 		<text class="tube_num" x="10.606400" y="5.303200">83</text>
 	</g>
-	<g id="84">
-		<title>X=19 Y=I</title>
+	<g id="84" data-col="19" data-row="I">
+		<title>Col=19 Row=I</title>
 		<circle cx="11.932199" cy="5.303200" r="0.312500" class="tube"/>
 		<text class="tube_num" x="11.932199" y="5.303200">84</text>
 	</g>
-	<g id="85">
-		<title>X=4 Y=J</title>
+	<g id="85" data-col="4" data-row="J">
+		<title>Col=4 Row=J</title>
 		<circle cx="1.988700" cy="5.966100" r="0.312500" class="tube"/>
 		<text class="tube_num" x="1.988700" y="5.966100">85</text>
 	</g>
-	<g id="86">
-		<title>X=6 Y=J</title>
+	<g id="86" data-col="6" data-row="J">
+		<title>Col=6 Row=J</title>
 		<circle cx="3.314500" cy="5.966100" r="0.312500" class="tube"/>
 		<text class="tube_num" x="3.314500" y="5.966100">86</text>
 	</g>
-	<g id="87">
-		<title>X=8 Y=J</title>
+	<g id="87" data-col="8" data-row="J">
+		<title>Col=8 Row=J</title>
 		<circle cx="4.640300" cy="5.966100" r="0.312500" class="tube"/>
 		<text class="tube_num" x="4.640300" y="5.966100">87</text>
 	</g>
-	<g id="88">
-		<title>X=10 Y=J</title>
+	<g id="88" data-col="10" data-row="J">
+		<title>Col=10 Row=J</title>
 		<circle cx="5.966100" cy="5.966100" r="0.312500" class="tube"/>
 		<text class="tube_num" x="5.966100" y="5.966100">88</text>
 	</g>
-	<g id="89">
-		<title>X=12 Y=J</title>
+	<g id="89" data-col="12" data-row="J">
+		<title>Col=12 Row=J</title>
 		<circle cx="7.291900" cy="5.966100" r="0.312500" class="tube"/>
 		<text class="tube_num" x="7.291900" y="5.966100">89</text>
 	</g>
-	<g id="90">
-		<title>X=14 Y=J</title>
+	<g id="90" data-col="14" data-row="J">
+		<title>Col=14 Row=J</title>
 		<circle cx="8.617701" cy="5.966100" r="0.312500" class="tube"/>
 		<text class="tube_num" x="8.617701" y="5.966100">90</text>
 	</g>
-	<g id="91">
-		<title>X=16 Y=J</title>
+	<g id="91" data-col="16" data-row="J">
+		<title>Col=16 Row=J</title>
 		<circle cx="9.943500" cy="5.966100" r="0.312500" class="tube"/>
 		<text class="tube_num" x="9.943500" y="5.966100">91</text>
 	</g>
-	<g id="92">
-		<title>X=18 Y=J</title>
+	<g id="92" data-col="18" data-row="J">
+		<title>Col=18 Row=J</title>
 		<circle cx="11.269300" cy="5.966100" r="0.312500" class="tube"/>
 		<text class="tube_num" x="11.269300" y="5.966100">92</text>
 	</g>
-	<g id="93">
-		<title>X=5 Y=K</title>
+	<g id="93" data-col="5" data-row="K">
+		<title>Col=5 Row=K</title>
 		<circle cx="2.651600" cy="6.629000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="2.651600" y="6.629000">93</text>
 	</g>
-	<g id="94">
-		<title>X=7 Y=K</title>
+	<g id="94" data-col="7" data-row="K">
+		<title>Col=7 Row=K</title>
 		<circle cx="3.977400" cy="6.629000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="3.977400" y="6.629000">94</text>
 	</g>
-	<g id="95">
-		<title>X=9 Y=K</title>
+	<g id="95" data-col="9" data-row="K">
+		<title>Col=9 Row=K</title>
 		<circle cx="5.303200" cy="6.629000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="5.303200" y="6.629000">95</text>
 	</g>
-	<g id="96">
-		<title>X=11 Y=K</title>
+	<g id="96" data-col="11" data-row="K">
+		<title>Col=11 Row=K</title>
 		<circle cx="6.629000" cy="6.629000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="6.629000" y="6.629000">96</text>
 	</g>
-	<g id="97">
-		<title>X=13 Y=K</title>
+	<g id="97" data-col="13" data-row="K">
+		<title>Col=13 Row=K</title>
 		<circle cx="7.954801" cy="6.629000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="7.954801" y="6.629000">97</text>
 	</g>
-	<g id="98">
-		<title>X=15 Y=K</title>
+	<g id="98" data-col="15" data-row="K">
+		<title>Col=15 Row=K</title>
 		<circle cx="9.280600" cy="6.629000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="9.280600" y="6.629000">98</text>
 	</g>
-	<g id="99">
-		<title>X=17 Y=K</title>
+	<g id="99" data-col="17" data-row="K">
+		<title>Col=17 Row=K</title>
 		<circle cx="10.606400" cy="6.629000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="10.606400" y="6.629000">99</text>
 	</g>
-	<g id="100">
-		<title>X=19 Y=K</title>
+	<g id="100" data-col="19" data-row="K">
+		<title>Col=19 Row=K</title>
 		<circle cx="11.932199" cy="6.629000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="11.932199" y="6.629000">100</text>
 	</g>
-	<g id="101">
-		<title>X=20 Y=A</title>
+	<g id="101" data-col="20" data-row="A">
+		<title>Col=20 Row=A</title>
 		<circle cx="13.258000" cy="0.000000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="13.258000" y="0.000000">101</text>
 	</g>
-	<g id="102">
-		<title>X=22 Y=A</title>
+	<g id="102" data-col="22" data-row="A">
+		<title>Col=22 Row=A</title>
 		<circle cx="14.583800" cy="0.000000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="14.583800" y="0.000000">102</text>
 	</g>
-	<g id="103">
-		<title>X=24 Y=A</title>
+	<g id="103" data-col="24" data-row="A">
+		<title>Col=24 Row=A</title>
 		<circle cx="15.909599" cy="0.000000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="15.909599" y="0.000000">103</text>
 	</g>
-	<g id="104">
-		<title>X=26 Y=A</title>
+	<g id="104" data-col="26" data-row="A">
+		<title>Col=26 Row=A</title>
 		<circle cx="17.235401" cy="0.000000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="17.235401" y="0.000000">104</text>
 	</g>
-	<g id="105">
-		<title>X=28 Y=A</title>
+	<g id="105" data-col="28" data-row="A">
+		<title>Col=28 Row=A</title>
 		<circle cx="18.561199" cy="0.000000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="18.561199" y="0.000000">105</text>
 	</g>
-	<g id="106">
-		<title>X=30 Y=A</title>
+	<g id="106" data-col="30" data-row="A">
+		<title>Col=30 Row=A</title>
 		<circle cx="19.886999" cy="0.000000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="19.886999" y="0.000000">106</text>
 	</g>
-	<g id="107">
-		<title>X=32 Y=A</title>
+	<g id="107" data-col="32" data-row="A">
+		<title>Col=32 Row=A</title>
 		<circle cx="21.212801" cy="0.000000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="21.212801" y="0.000000">107</text>
 	</g>
-	<g id="108">
-		<title>X=34 Y=A</title>
+	<g id="108" data-col="34" data-row="A">
+		<title>Col=34 Row=A</title>
 		<circle cx="22.538601" cy="0.000000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="22.538601" y="0.000000">108</text>
 	</g>
-	<g id="109">
-		<title>X=36 Y=A</title>
+	<g id="109" data-col="36" data-row="A">
+		<title>Col=36 Row=A</title>
 		<circle cx="23.864399" cy="0.000000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="23.864399" y="0.000000">109</text>
 	</g>
-	<g id="110">
-		<title>X=21 Y=B</title>
+	<g id="110" data-col="21" data-row="B">
+		<title>Col=21 Row=B</title>
 		<circle cx="13.920900" cy="0.662900" r="0.312500" class="tube"/>
 		<text class="tube_num" x="13.920900" y="0.662900">110</text>
 	</g>
-	<g id="111">
-		<title>X=23 Y=B</title>
+	<g id="111" data-col="23" data-row="B">
+		<title>Col=23 Row=B</title>
 		<circle cx="15.246699" cy="0.662900" r="0.312500" class="tube"/>
 		<text class="tube_num" x="15.246699" y="0.662900">111</text>
 	</g>
-	<g id="112">
-		<title>X=25 Y=B</title>
+	<g id="112" data-col="25" data-row="B">
+		<title>Col=25 Row=B</title>
 		<circle cx="16.572500" cy="0.662900" r="0.312500" class="tube"/>
 		<text class="tube_num" x="16.572500" y="0.662900">112</text>
 	</g>
-	<g id="113">
-		<title>X=27 Y=B</title>
+	<g id="113" data-col="27" data-row="B">
+		<title>Col=27 Row=B</title>
 		<circle cx="17.898298" cy="0.662900" r="0.312500" class="tube"/>
 		<text class="tube_num" x="17.898298" y="0.662900">113</text>
 	</g>
-	<g id="114">
-		<title>X=29 Y=B</title>
+	<g id="114" data-col="29" data-row="B">
+		<title>Col=29 Row=B</title>
 		<circle cx="19.224100" cy="0.662900" r="0.312500" class="tube"/>
 		<text class="tube_num" x="19.224100" y="0.662900">114</text>
 	</g>
-	<g id="115">
-		<title>X=31 Y=B</title>
+	<g id="115" data-col="31" data-row="B">
+		<title>Col=31 Row=B</title>
 		<circle cx="20.549902" cy="0.662900" r="0.312500" class="tube"/>
 		<text class="tube_num" x="20.549902" y="0.662900">115</text>
 	</g>
-	<g id="116">
-		<title>X=33 Y=B</title>
+	<g id="116" data-col="33" data-row="B">
+		<title>Col=33 Row=B</title>
 		<circle cx="21.875698" cy="0.662900" r="0.312500" class="tube"/>
 		<text class="tube_num" x="21.875698" y="0.662900">116</text>
 	</g>
-	<g id="117">
-		<title>X=35 Y=B</title>
+	<g id="117" data-col="35" data-row="B">
+		<title>Col=35 Row=B</title>
 		<circle cx="23.201500" cy="0.662900" r="0.312500" class="tube"/>
 		<text class="tube_num" x="23.201500" y="0.662900">117</text>
 	</g>
-	<g id="118">
-		<title>X=20 Y=C</title>
+	<g id="118" data-col="20" data-row="C">
+		<title>Col=20 Row=C</title>
 		<circle cx="13.258000" cy="1.325800" r="0.312500" class="tube"/>
 		<text class="tube_num" x="13.258000" y="1.325800">118</text>
 	</g>
-	<g id="119">
-		<title>X=22 Y=C</title>
+	<g id="119" data-col="22" data-row="C">
+		<title>Col=22 Row=C</title>
 		<circle cx="14.583800" cy="1.325800" r="0.312500" class="tube"/>
 		<text class="tube_num" x="14.583800" y="1.325800">119</text>
 	</g>
-	<g id="120">
-		<title>X=24 Y=C</title>
+	<g id="120" data-col="24" data-row="C">
+		<title>Col=24 Row=C</title>
 		<circle cx="15.909599" cy="1.325800" r="0.312500" class="tube"/>
 		<text class="tube_num" x="15.909599" y="1.325800">120</text>
 	</g>
-	<g id="121">
-		<title>X=26 Y=C</title>
+	<g id="121" data-col="26" data-row="C">
+		<title>Col=26 Row=C</title>
 		<circle cx="17.235401" cy="1.325800" r="0.312500" class="tube"/>
 		<text class="tube_num" x="17.235401" y="1.325800">121</text>
 	</g>
-	<g id="122">
-		<title>X=28 Y=C</title>
+	<g id="122" data-col="28" data-row="C">
+		<title>Col=28 Row=C</title>
 		<circle cx="18.561199" cy="1.325800" r="0.312500" class="tube"/>
 		<text class="tube_num" x="18.561199" y="1.325800">122</text>
 	</g>
-	<g id="123">
-		<title>X=30 Y=C</title>
+	<g id="123" data-col="30" data-row="C">
+		<title>Col=30 Row=C</title>
 		<circle cx="19.886999" cy="1.325800" r="0.312500" class="tube"/>
 		<text class="tube_num" x="19.886999" y="1.325800">123</text>
 	</g>
-	<g id="124">
-		<title>X=32 Y=C</title>
+	<g id="124" data-col="32" data-row="C">
+		<title>Col=32 Row=C</title>
 		<circle cx="21.212801" cy="1.325800" r="0.312500" class="tube"/>
 		<text class="tube_num" x="21.212801" y="1.325800">124</text>
 	</g>
-	<g id="125">
-		<title>X=34 Y=C</title>
+	<g id="125" data-col="34" data-row="C">
+		<title>Col=34 Row=C</title>
 		<circle cx="22.538601" cy="1.325800" r="0.312500" class="tube"/>
 		<text class="tube_num" x="22.538601" y="1.325800">125</text>
 	</g>
-	<g id="126">
-		<title>X=36 Y=C</title>
+	<g id="126" data-col="36" data-row="C">
+		<title>Col=36 Row=C</title>
 		<circle cx="23.864399" cy="1.325800" r="0.312500" class="tube"/>
 		<text class="tube_num" x="23.864399" y="1.325800">126</text>
 	</g>
-	<g id="127">
-		<title>X=21 Y=D</title>
+	<g id="127" data-col="21" data-row="D">
+		<title>Col=21 Row=D</title>
 		<circle cx="13.920900" cy="1.988700" r="0.312500" class="tube"/>
 		<text class="tube_num" x="13.920900" y="1.988700">127</text>
 	</g>
-	<g id="128">
-		<title>X=23 Y=D</title>
+	<g id="128" data-col="23" data-row="D">
+		<title>Col=23 Row=D</title>
 		<circle cx="15.246699" cy="1.988700" r="0.312500" class="tube"/>
 		<text class="tube_num" x="15.246699" y="1.988700">128</text>
 	</g>
-	<g id="129">
-		<title>X=25 Y=D</title>
+	<g id="129" data-col="25" data-row="D">
+		<title>Col=25 Row=D</title>
 		<circle cx="16.572500" cy="1.988700" r="0.312500" class="tube"/>
 		<text class="tube_num" x="16.572500" y="1.988700">129</text>
 	</g>
-	<g id="130">
-		<title>X=27 Y=D</title>
+	<g id="130" data-col="27" data-row="D">
+		<title>Col=27 Row=D</title>
 		<circle cx="17.898298" cy="1.988700" r="0.312500" class="tube"/>
 		<text class="tube_num" x="17.898298" y="1.988700">130</text>
 	</g>
-	<g id="131">
-		<title>X=29 Y=D</title>
+	<g id="131" data-col="29" data-row="D">
+		<title>Col=29 Row=D</title>
 		<circle cx="19.224100" cy="1.988700" r="0.312500" class="tube"/>
 		<text class="tube_num" x="19.224100" y="1.988700">131</text>
 	</g>
-	<g id="132">
-		<title>X=31 Y=D</title>
+	<g id="132" data-col="31" data-row="D">
+		<title>Col=31 Row=D</title>
 		<circle cx="20.549902" cy="1.988700" r="0.312500" class="tube"/>
 		<text class="tube_num" x="20.549902" y="1.988700">132</text>
 	</g>
-	<g id="133">
-		<title>X=33 Y=D</title>
+	<g id="133" data-col="33" data-row="D">
+		<title>Col=33 Row=D</title>
 		<circle cx="21.875698" cy="1.988700" r="0.312500" class="tube"/>
 		<text class="tube_num" x="21.875698" y="1.988700">133</text>
 	</g>
-	<g id="134">
-		<title>X=35 Y=D</title>
+	<g id="134" data-col="35" data-row="D">
+		<title>Col=35 Row=D</title>
 		<circle cx="23.201500" cy="1.988700" r="0.312500" class="tube"/>
 		<text class="tube_num" x="23.201500" y="1.988700">134</text>
 	</g>
-	<g id="135">
-		<title>X=20 Y=E</title>
+	<g id="135" data-col="20" data-row="E">
+		<title>Col=20 Row=E</title>
 		<circle cx="13.258000" cy="2.651600" r="0.312500" class="tube"/>
 		<text class="tube_num" x="13.258000" y="2.651600">135</text>
 	</g>
-	<g id="136">
-		<title>X=22 Y=E</title>
+	<g id="136" data-col="22" data-row="E">
+		<title>Col=22 Row=E</title>
 		<circle cx="14.583800" cy="2.651600" r="0.312500" class="tube"/>
 		<text class="tube_num" x="14.583800" y="2.651600">136</text>
 	</g>
-	<g id="137">
-		<title>X=24 Y=E</title>
+	<g id="137" data-col="24" data-row="E">
+		<title>Col=24 Row=E</title>
 		<circle cx="15.909599" cy="2.651600" r="0.312500" class="tube"/>
 		<text class="tube_num" x="15.909599" y="2.651600">137</text>
 	</g>
-	<g id="138">
-		<title>X=26 Y=E</title>
+	<g id="138" data-col="26" data-row="E">
+		<title>Col=26 Row=E</title>
 		<circle cx="17.235401" cy="2.651600" r="0.312500" class="tube"/>
 		<text class="tube_num" x="17.235401" y="2.651600">138</text>
 	</g>
-	<g id="139">
-		<title>X=28 Y=E</title>
+	<g id="139" data-col="28" data-row="E">
+		<title>Col=28 Row=E</title>
 		<circle cx="18.561199" cy="2.651600" r="0.312500" class="tube"/>
 		<text class="tube_num" x="18.561199" y="2.651600">139</text>
 	</g>
-	<g id="140">
-		<title>X=30 Y=E</title>
+	<g id="140" data-col="30" data-row="E">
+		<title>Col=30 Row=E</title>
 		<circle cx="19.886999" cy="2.651600" r="0.312500" class="tube"/>
 		<text class="tube_num" x="19.886999" y="2.651600">140</text>
 	</g>
-	<g id="141">
-		<title>X=32 Y=E</title>
+	<g id="141" data-col="32" data-row="E">
+		<title>Col=32 Row=E</title>
 		<circle cx="21.212801" cy="2.651600" r="0.312500" class="tube"/>
 		<text class="tube_num" x="21.212801" y="2.651600">141</text>
 	</g>
-	<g id="142">
-		<title>X=34 Y=E</title>
+	<g id="142" data-col="34" data-row="E">
+		<title>Col=34 Row=E</title>
 		<circle cx="22.538601" cy="2.651600" r="0.312500" class="tube"/>
 		<text class="tube_num" x="22.538601" y="2.651600">142</text>
 	</g>
-	<g id="143">
-		<title>X=36 Y=E</title>
+	<g id="143" data-col="36" data-row="E">
+		<title>Col=36 Row=E</title>
 		<circle cx="23.864399" cy="2.651600" r="0.312500" class="tube"/>
 		<text class="tube_num" x="23.864399" y="2.651600">143</text>
 	</g>
-	<g id="144">
-		<title>X=21 Y=F</title>
+	<g id="144" data-col="21" data-row="F">
+		<title>Col=21 Row=F</title>
 		<circle cx="13.920900" cy="3.314500" r="0.312500" class="tube"/>
 		<text class="tube_num" x="13.920900" y="3.314500">144</text>
 	</g>
-	<g id="145">
-		<title>X=23 Y=F</title>
+	<g id="145" data-col="23" data-row="F">
+		<title>Col=23 Row=F</title>
 		<circle cx="15.246699" cy="3.314500" r="0.312500" class="tube"/>
 		<text class="tube_num" x="15.246699" y="3.314500">145</text>
 	</g>
-	<g id="146">
-		<title>X=25 Y=F</title>
+	<g id="146" data-col="25" data-row="F">
+		<title>Col=25 Row=F</title>
 		<circle cx="16.572500" cy="3.314500" r="0.312500" class="tube"/>
 		<text class="tube_num" x="16.572500" y="3.314500">146</text>
 	</g>
-	<g id="147">
-		<title>X=27 Y=F</title>
+	<g id="147" data-col="27" data-row="F">
+		<title>Col=27 Row=F</title>
 		<circle cx="17.898298" cy="3.314500" r="0.312500" class="tube"/>
 		<text class="tube_num" x="17.898298" y="3.314500">147</text>
 	</g>
-	<g id="148">
-		<title>X=29 Y=F</title>
+	<g id="148" data-col="29" data-row="F">
+		<title>Col=29 Row=F</title>
 		<circle cx="19.224100" cy="3.314500" r="0.312500" class="tube"/>
 		<text class="tube_num" x="19.224100" y="3.314500">148</text>
 	</g>
-	<g id="149">
-		<title>X=31 Y=F</title>
+	<g id="149" data-col="31" data-row="F">
+		<title>Col=31 Row=F</title>
 		<circle cx="20.549902" cy="3.314500" r="0.312500" class="tube"/>
 		<text class="tube_num" x="20.549902" y="3.314500">149</text>
 	</g>
-	<g id="150">
-		<title>X=33 Y=F</title>
+	<g id="150" data-col="33" data-row="F">
+		<title>Col=33 Row=F</title>
 		<circle cx="21.875698" cy="3.314500" r="0.312500" class="tube"/>
 		<text class="tube_num" x="21.875698" y="3.314500">150</text>
 	</g>
-	<g id="151">
-		<title>X=35 Y=F</title>
+	<g id="151" data-col="35" data-row="F">
+		<title>Col=35 Row=F</title>
 		<circle cx="23.201500" cy="3.314500" r="0.312500" class="tube"/>
 		<text class="tube_num" x="23.201500" y="3.314500">151</text>
 	</g>
-	<g id="152">
-		<title>X=20 Y=G</title>
+	<g id="152" data-col="20" data-row="G">
+		<title>Col=20 Row=G</title>
 		<circle cx="13.258000" cy="3.977400" r="0.312500" class="tube"/>
 		<text class="tube_num" x="13.258000" y="3.977400">152</text>
 	</g>
-	<g id="153">
-		<title>X=22 Y=G</title>
+	<g id="153" data-col="22" data-row="G">
+		<title>Col=22 Row=G</title>
 		<circle cx="14.583800" cy="3.977400" r="0.312500" class="tube"/>
 		<text class="tube_num" x="14.583800" y="3.977400">153</text>
 	</g>
-	<g id="154">
-		<title>X=24 Y=G</title>
+	<g id="154" data-col="24" data-row="G">
+		<title>Col=24 Row=G</title>
 		<circle cx="15.909599" cy="3.977400" r="0.312500" class="tube"/>
 		<text class="tube_num" x="15.909599" y="3.977400">154</text>
 	</g>
-	<g id="155">
-		<title>X=26 Y=G</title>
+	<g id="155" data-col="26" data-row="G">
+		<title>Col=26 Row=G</title>
 		<circle cx="17.235401" cy="3.977400" r="0.312500" class="tube"/>
 		<text class="tube_num" x="17.235401" y="3.977400">155</text>
 	</g>
-	<g id="156">
-		<title>X=28 Y=G</title>
+	<g id="156" data-col="28" data-row="G">
+		<title>Col=28 Row=G</title>
 		<circle cx="18.561199" cy="3.977400" r="0.312500" class="tube"/>
 		<text class="tube_num" x="18.561199" y="3.977400">156</text>
 	</g>
-	<g id="157">
-		<title>X=30 Y=G</title>
+	<g id="157" data-col="30" data-row="G">
+		<title>Col=30 Row=G</title>
 		<circle cx="19.886999" cy="3.977400" r="0.312500" class="tube"/>
 		<text class="tube_num" x="19.886999" y="3.977400">157</text>
 	</g>
-	<g id="158">
-		<title>X=32 Y=G</title>
+	<g id="158" data-col="32" data-row="G">
+		<title>Col=32 Row=G</title>
 		<circle cx="21.212801" cy="3.977400" r="0.312500" class="tube"/>
 		<text class="tube_num" x="21.212801" y="3.977400">158</text>
 	</g>
-	<g id="159">
-		<title>X=34 Y=G</title>
+	<g id="159" data-col="34" data-row="G">
+		<title>Col=34 Row=G</title>
 		<circle cx="22.538601" cy="3.977400" r="0.312500" class="tube"/>
 		<text class="tube_num" x="22.538601" y="3.977400">159</text>
 	</g>
-	<g id="160">
-		<title>X=36 Y=G</title>
+	<g id="160" data-col="36" data-row="G">
+		<title>Col=36 Row=G</title>
 		<circle cx="23.864399" cy="3.977400" r="0.312500" class="tube"/>
 		<text class="tube_num" x="23.864399" y="3.977400">160</text>
 	</g>
-	<g id="161">
-		<title>X=21 Y=H</title>
+	<g id="161" data-col="21" data-row="H">
+		<title>Col=21 Row=H</title>
 		<circle cx="13.920900" cy="4.640300" r="0.312500" class="tube"/>
 		<text class="tube_num" x="13.920900" y="4.640300">161</text>
 	</g>
-	<g id="162">
-		<title>X=23 Y=H</title>
+	<g id="162" data-col="23" data-row="H">
+		<title>Col=23 Row=H</title>
 		<circle cx="15.246699" cy="4.640300" r="0.312500" class="tube"/>
 		<text class="tube_num" x="15.246699" y="4.640300">162</text>
 	</g>
-	<g id="163">
-		<title>X=25 Y=H</title>
+	<g id="163" data-col="25" data-row="H">
+		<title>Col=25 Row=H</title>
 		<circle cx="16.572500" cy="4.640300" r="0.312500" class="tube"/>
 		<text class="tube_num" x="16.572500" y="4.640300">163</text>
 	</g>
-	<g id="164">
-		<title>X=27 Y=H</title>
+	<g id="164" data-col="27" data-row="H">
+		<title>Col=27 Row=H</title>
 		<circle cx="17.898298" cy="4.640300" r="0.312500" class="tube"/>
 		<text class="tube_num" x="17.898298" y="4.640300">164</text>
 	</g>
-	<g id="165">
-		<title>X=29 Y=H</title>
+	<g id="165" data-col="29" data-row="H">
+		<title>Col=29 Row=H</title>
 		<circle cx="19.224100" cy="4.640300" r="0.312500" class="tube"/>
 		<text class="tube_num" x="19.224100" y="4.640300">165</text>
 	</g>
-	<g id="166">
-		<title>X=31 Y=H</title>
+	<g id="166" data-col="31" data-row="H">
+		<title>Col=31 Row=H</title>
 		<circle cx="20.549902" cy="4.640300" r="0.312500" class="tube"/>
 		<text class="tube_num" x="20.549902" y="4.640300">166</text>
 	</g>
-	<g id="167">
-		<title>X=33 Y=H</title>
+	<g id="167" data-col="33" data-row="H">
+		<title>Col=33 Row=H</title>
 		<circle cx="21.875698" cy="4.640300" r="0.312500" class="tube"/>
 		<text class="tube_num" x="21.875698" y="4.640300">167</text>
 	</g>
-	<g id="168">
-		<title>X=35 Y=H</title>
+	<g id="168" data-col="35" data-row="H">
+		<title>Col=35 Row=H</title>
 		<circle cx="23.201500" cy="4.640300" r="0.312500" class="tube"/>
 		<text class="tube_num" x="23.201500" y="4.640300">168</text>
 	</g>
-	<g id="169">
-		<title>X=20 Y=I</title>
+	<g id="169" data-col="20" data-row="I">
+		<title>Col=20 Row=I</title>
 		<circle cx="13.258000" cy="5.303200" r="0.312500" class="tube"/>
 		<text class="tube_num" x="13.258000" y="5.303200">169</text>
 	</g>
-	<g id="170">
-		<title>X=22 Y=I</title>
+	<g id="170" data-col="22" data-row="I">
+		<title>Col=22 Row=I</title>
 		<circle cx="14.583800" cy="5.303200" r="0.312500" class="tube"/>
 		<text class="tube_num" x="14.583800" y="5.303200">170</text>
 	</g>
-	<g id="171">
-		<title>X=24 Y=I</title>
+	<g id="171" data-col="24" data-row="I">
+		<title>Col=24 Row=I</title>
 		<circle cx="15.909599" cy="5.303200" r="0.312500" class="tube"/>
 		<text class="tube_num" x="15.909599" y="5.303200">171</text>
 	</g>
-	<g id="172">
-		<title>X=26 Y=I</title>
+	<g id="172" data-col="26" data-row="I">
+		<title>Col=26 Row=I</title>
 		<circle cx="17.235401" cy="5.303200" r="0.312500" class="tube"/>
 		<text class="tube_num" x="17.235401" y="5.303200">172</text>
 	</g>
-	<g id="173">
-		<title>X=28 Y=I</title>
+	<g id="173" data-col="28" data-row="I">
+		<title>Col=28 Row=I</title>
 		<circle cx="18.561199" cy="5.303200" r="0.312500" class="tube"/>
 		<text class="tube_num" x="18.561199" y="5.303200">173</text>
 	</g>
-	<g id="174">
-		<title>X=30 Y=I</title>
+	<g id="174" data-col="30" data-row="I">
+		<title>Col=30 Row=I</title>
 		<circle cx="19.886999" cy="5.303200" r="0.312500" class="tube"/>
 		<text class="tube_num" x="19.886999" y="5.303200">174</text>
 	</g>
-	<g id="175">
-		<title>X=32 Y=I</title>
+	<g id="175" data-col="32" data-row="I">
+		<title>Col=32 Row=I</title>
 		<circle cx="21.212801" cy="5.303200" r="0.312500" class="tube"/>
 		<text class="tube_num" x="21.212801" y="5.303200">175</text>
 	</g>
-	<g id="176">
-		<title>X=34 Y=I</title>
+	<g id="176" data-col="34" data-row="I">
+		<title>Col=34 Row=I</title>
 		<circle cx="22.538601" cy="5.303200" r="0.312500" class="tube"/>
 		<text class="tube_num" x="22.538601" y="5.303200">176</text>
 	</g>
-	<g id="177">
-		<title>X=36 Y=I</title>
+	<g id="177" data-col="36" data-row="I">
+		<title>Col=36 Row=I</title>
 		<circle cx="23.864399" cy="5.303200" r="0.312500" class="tube"/>
 		<text class="tube_num" x="23.864399" y="5.303200">177</text>
 	</g>
-	<g id="178">
-		<title>X=21 Y=J</title>
+	<g id="178" data-col="21" data-row="J">
+		<title>Col=21 Row=J</title>
 		<circle cx="13.920900" cy="5.966100" r="0.312500" class="tube"/>
 		<text class="tube_num" x="13.920900" y="5.966100">178</text>
 	</g>
-	<g id="179">
-		<title>X=23 Y=J</title>
+	<g id="179" data-col="23" data-row="J">
+		<title>Col=23 Row=J</title>
 		<circle cx="15.246699" cy="5.966100" r="0.312500" class="tube"/>
 		<text class="tube_num" x="15.246699" y="5.966100">179</text>
 	</g>
-	<g id="180">
-		<title>X=25 Y=J</title>
+	<g id="180" data-col="25" data-row="J">
+		<title>Col=25 Row=J</title>
 		<circle cx="16.572500" cy="5.966100" r="0.312500" class="tube"/>
 		<text class="tube_num" x="16.572500" y="5.966100">180</text>
 	</g>
-	<g id="181">
-		<title>X=27 Y=J</title>
+	<g id="181" data-col="27" data-row="J">
+		<title>Col=27 Row=J</title>
 		<circle cx="17.898298" cy="5.966100" r="0.312500" class="tube"/>
 		<text class="tube_num" x="17.898298" y="5.966100">181</text>
 	</g>
-	<g id="182">
-		<title>X=29 Y=J</title>
+	<g id="182" data-col="29" data-row="J">
+		<title>Col=29 Row=J</title>
 		<circle cx="19.224100" cy="5.966100" r="0.312500" class="tube"/>
 		<text class="tube_num" x="19.224100" y="5.966100">182</text>
 	</g>
-	<g id="183">
-		<title>X=31 Y=J</title>
+	<g id="183" data-col="31" data-row="J">
+		<title>Col=31 Row=J</title>
 		<circle cx="20.549902" cy="5.966100" r="0.312500" class="tube"/>
 		<text class="tube_num" x="20.549902" y="5.966100">183</text>
 	</g>
-	<g id="184">
-		<title>X=33 Y=J</title>
+	<g id="184" data-col="33" data-row="J">
+		<title>Col=33 Row=J</title>
 		<circle cx="21.875698" cy="5.966100" r="0.312500" class="tube"/>
 		<text class="tube_num" x="21.875698" y="5.966100">184</text>
 	</g>
-	<g id="185">
-		<title>X=35 Y=J</title>
+	<g id="185" data-col="35" data-row="J">
+		<title>Col=35 Row=J</title>
 		<circle cx="23.201500" cy="5.966100" r="0.312500" class="tube"/>
 		<text class="tube_num" x="23.201500" y="5.966100">185</text>
 	</g>
-	<g id="186">
-		<title>X=20 Y=K</title>
+	<g id="186" data-col="20" data-row="K">
+		<title>Col=20 Row=K</title>
 		<circle cx="13.258000" cy="6.629000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="13.258000" y="6.629000">186</text>
 	</g>
-	<g id="187">
-		<title>X=22 Y=K</title>
+	<g id="187" data-col="22" data-row="K">
+		<title>Col=22 Row=K</title>
 		<circle cx="14.583800" cy="6.629000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="14.583800" y="6.629000">187</text>
 	</g>
-	<g id="188">
-		<title>X=24 Y=K</title>
+	<g id="188" data-col="24" data-row="K">
+		<title>Col=24 Row=K</title>
 		<circle cx="15.909599" cy="6.629000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="15.909599" y="6.629000">188</text>
 	</g>
-	<g id="189">
-		<title>X=26 Y=K</title>
+	<g id="189" data-col="26" data-row="K">
+		<title>Col=26 Row=K</title>
 		<circle cx="17.235401" cy="6.629000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="17.235401" y="6.629000">189</text>
 	</g>
-	<g id="190">
-		<title>X=28 Y=K</title>
+	<g id="190" data-col="28" data-row="K">
+		<title>Col=28 Row=K</title>
 		<circle cx="18.561199" cy="6.629000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="18.561199" y="6.629000">190</text>
 	</g>
-	<g id="191">
-		<title>X=30 Y=K</title>
+	<g id="191" data-col="30" data-row="K">
+		<title>Col=30 Row=K</title>
 		<circle cx="19.886999" cy="6.629000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="19.886999" y="6.629000">191</text>
 	</g>
-	<g id="192">
-		<title>X=32 Y=K</title>
+	<g id="192" data-col="32" data-row="K">
+		<title>Col=32 Row=K</title>
 		<circle cx="21.212801" cy="6.629000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="21.212801" y="6.629000">192</text>
 	</g>
-	<g id="193">
-		<title>X=34 Y=K</title>
+	<g id="193" data-col="34" data-row="K">
+		<title>Col=34 Row=K</title>
 		<circle cx="22.538601" cy="6.629000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="22.538601" y="6.629000">193</text>
 	</g>
-	<g id="194">
-		<title>X=36 Y=K</title>
+	<g id="194" data-col="36" data-row="K">
+		<title>Col=36 Row=K</title>
 		<circle cx="23.864399" cy="6.629000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="23.864399" y="6.629000">194</text>
 	</g>
-	<g id="195">
-		<title>X=37 Y=A</title>
+	<g id="195" data-col="37" data-row="A">
+		<title>Col=37 Row=A</title>
 		<circle cx="25.190201" cy="0.000000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="25.190201" y="0.000000">195</text>
 	</g>
-	<g id="196">
-		<title>X=39 Y=A</title>
+	<g id="196" data-col="39" data-row="A">
+		<title>Col=39 Row=A</title>
 		<circle cx="26.516001" cy="0.000000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="26.516001" y="0.000000">196</text>
 	</g>
-	<g id="197">
-		<title>X=41 Y=A</title>
+	<g id="197" data-col="41" data-row="A">
+		<title>Col=41 Row=A</title>
 		<circle cx="27.841799" cy="0.000000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="27.841799" y="0.000000">197</text>
 	</g>
-	<g id="198">
-		<title>X=43 Y=A</title>
+	<g id="198" data-col="43" data-row="A">
+		<title>Col=43 Row=A</title>
 		<circle cx="29.167601" cy="0.000000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="29.167601" y="0.000000">198</text>
 	</g>
-	<g id="199">
-		<title>X=45 Y=A</title>
+	<g id="199" data-col="45" data-row="A">
+		<title>Col=45 Row=A</title>
 		<circle cx="30.493401" cy="0.000000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="30.493401" y="0.000000">199</text>
 	</g>
-	<g id="200">
-		<title>X=47 Y=A</title>
+	<g id="200" data-col="47" data-row="A">
+		<title>Col=47 Row=A</title>
 		<circle cx="31.819201" cy="0.000000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="31.819201" y="0.000000">200</text>
 	</g>
-	<g id="201">
-		<title>X=49 Y=A</title>
+	<g id="201" data-col="49" data-row="A">
+		<title>Col=49 Row=A</title>
 		<circle cx="33.145000" cy="0.000000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="33.145000" y="0.000000">201</text>
 	</g>
-	<g id="202">
-		<title>X=51 Y=A</title>
+	<g id="202" data-col="51" data-row="A">
+		<title>Col=51 Row=A</title>
 		<circle cx="34.470802" cy="0.000000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="34.470802" y="0.000000">202</text>
 	</g>
-	<g id="203">
-		<title>X=53 Y=A</title>
+	<g id="203" data-col="53" data-row="A">
+		<title>Col=53 Row=A</title>
 		<circle cx="35.796600" cy="0.000000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="35.796600" y="0.000000">203</text>
 	</g>
-	<g id="204">
-		<title>X=55 Y=A</title>
+	<g id="204" data-col="55" data-row="A">
+		<title>Col=55 Row=A</title>
 		<circle cx="37.122398" cy="0.000000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="37.122398" y="0.000000">204</text>
 	</g>
-	<g id="205">
-		<title>X=38 Y=B</title>
+	<g id="205" data-col="38" data-row="B">
+		<title>Col=38 Row=B</title>
 		<circle cx="25.853098" cy="0.662900" r="0.312500" class="tube"/>
 		<text class="tube_num" x="25.853098" y="0.662900">205</text>
 	</g>
-	<g id="206">
-		<title>X=40 Y=B</title>
+	<g id="206" data-col="40" data-row="B">
+		<title>Col=40 Row=B</title>
 		<circle cx="27.178900" cy="0.662900" r="0.312500" class="tube"/>
 		<text class="tube_num" x="27.178900" y="0.662900">206</text>
 	</g>
-	<g id="207">
-		<title>X=42 Y=B</title>
+	<g id="207" data-col="42" data-row="B">
+		<title>Col=42 Row=B</title>
 		<circle cx="28.504700" cy="0.662900" r="0.312500" class="tube"/>
 		<text class="tube_num" x="28.504700" y="0.662900">207</text>
 	</g>
-	<g id="208">
-		<title>X=44 Y=B</title>
+	<g id="208" data-col="44" data-row="B">
+		<title>Col=44 Row=B</title>
 		<circle cx="29.830500" cy="0.662900" r="0.312500" class="tube"/>
 		<text class="tube_num" x="29.830500" y="0.662900">208</text>
 	</g>
-	<g id="209">
-		<title>X=46 Y=B</title>
+	<g id="209" data-col="46" data-row="B">
+		<title>Col=46 Row=B</title>
 		<circle cx="31.156300" cy="0.662900" r="0.312500" class="tube"/>
 		<text class="tube_num" x="31.156300" y="0.662900">209</text>
 	</g>
-	<g id="210">
-		<title>X=48 Y=B</title>
+	<g id="210" data-col="48" data-row="B">
+		<title>Col=48 Row=B</title>
 		<circle cx="32.482101" cy="0.662900" r="0.312500" class="tube"/>
 		<text class="tube_num" x="32.482101" y="0.662900">210</text>
 	</g>
-	<g id="211">
-		<title>X=50 Y=B</title>
+	<g id="211" data-col="50" data-row="B">
+		<title>Col=50 Row=B</title>
 		<circle cx="33.807899" cy="0.662900" r="0.312500" class="tube"/>
 		<text class="tube_num" x="33.807899" y="0.662900">211</text>
 	</g>
-	<g id="212">
-		<title>X=52 Y=B</title>
+	<g id="212" data-col="52" data-row="B">
+		<title>Col=52 Row=B</title>
 		<circle cx="35.133698" cy="0.662900" r="0.312500" class="tube"/>
 		<text class="tube_num" x="35.133698" y="0.662900">212</text>
 	</g>
-	<g id="213">
-		<title>X=54 Y=B</title>
+	<g id="213" data-col="54" data-row="B">
+		<title>Col=54 Row=B</title>
 		<circle cx="36.459499" cy="0.662900" r="0.312500" class="tube"/>
 		<text class="tube_num" x="36.459499" y="0.662900">213</text>
 	</g>
-	<g id="214">
-		<title>X=37 Y=C</title>
+	<g id="214" data-col="37" data-row="C">
+		<title>Col=37 Row=C</title>
 		<circle cx="25.190201" cy="1.325800" r="0.312500" class="tube"/>
 		<text class="tube_num" x="25.190201" y="1.325800">214</text>
 	</g>
-	<g id="215">
-		<title>X=39 Y=C</title>
+	<g id="215" data-col="39" data-row="C">
+		<title>Col=39 Row=C</title>
 		<circle cx="26.516001" cy="1.325800" r="0.312500" class="tube"/>
 		<text class="tube_num" x="26.516001" y="1.325800">215</text>
 	</g>
-	<g id="216">
-		<title>X=41 Y=C</title>
+	<g id="216" data-col="41" data-row="C">
+		<title>Col=41 Row=C</title>
 		<circle cx="27.841799" cy="1.325800" r="0.312500" class="tube"/>
 		<text class="tube_num" x="27.841799" y="1.325800">216</text>
 	</g>
-	<g id="217">
-		<title>X=43 Y=C</title>
+	<g id="217" data-col="43" data-row="C">
+		<title>Col=43 Row=C</title>
 		<circle cx="29.167601" cy="1.325800" r="0.312500" class="tube"/>
 		<text class="tube_num" x="29.167601" y="1.325800">217</text>
 	</g>
-	<g id="218">
-		<title>X=45 Y=C</title>
+	<g id="218" data-col="45" data-row="C">
+		<title>Col=45 Row=C</title>
 		<circle cx="30.493401" cy="1.325800" r="0.312500" class="tube"/>
 		<text class="tube_num" x="30.493401" y="1.325800">218</text>
 	</g>
-	<g id="219">
-		<title>X=47 Y=C</title>
+	<g id="219" data-col="47" data-row="C">
+		<title>Col=47 Row=C</title>
 		<circle cx="31.819201" cy="1.325800" r="0.312500" class="tube"/>
 		<text class="tube_num" x="31.819201" y="1.325800">219</text>
 	</g>
-	<g id="220">
-		<title>X=49 Y=C</title>
+	<g id="220" data-col="49" data-row="C">
+		<title>Col=49 Row=C</title>
 		<circle cx="33.145000" cy="1.325800" r="0.312500" class="tube"/>
 		<text class="tube_num" x="33.145000" y="1.325800">220</text>
 	</g>
-	<g id="221">
-		<title>X=51 Y=C</title>
+	<g id="221" data-col="51" data-row="C">
+		<title>Col=51 Row=C</title>
 		<circle cx="34.470802" cy="1.325800" r="0.312500" class="tube"/>
 		<text class="tube_num" x="34.470802" y="1.325800">221</text>
 	</g>
-	<g id="222">
-		<title>X=53 Y=C</title>
+	<g id="222" data-col="53" data-row="C">
+		<title>Col=53 Row=C</title>
 		<circle cx="35.796600" cy="1.325800" r="0.312500" class="tube"/>
 		<text class="tube_num" x="35.796600" y="1.325800">222</text>
 	</g>
-	<g id="223">
-		<title>X=55 Y=C</title>
+	<g id="223" data-col="55" data-row="C">
+		<title>Col=55 Row=C</title>
 		<circle cx="37.122398" cy="1.325800" r="0.312500" class="tube"/>
 		<text class="tube_num" x="37.122398" y="1.325800">223</text>
 	</g>
-	<g id="224">
-		<title>X=38 Y=D</title>
+	<g id="224" data-col="38" data-row="D">
+		<title>Col=38 Row=D</title>
 		<circle cx="25.853098" cy="1.988700" r="0.312500" class="tube"/>
 		<text class="tube_num" x="25.853098" y="1.988700">224</text>
 	</g>
-	<g id="225">
-		<title>X=40 Y=D</title>
+	<g id="225" data-col="40" data-row="D">
+		<title>Col=40 Row=D</title>
 		<circle cx="27.178900" cy="1.988700" r="0.312500" class="tube"/>
 		<text class="tube_num" x="27.178900" y="1.988700">225</text>
 	</g>
-	<g id="226">
-		<title>X=42 Y=D</title>
+	<g id="226" data-col="42" data-row="D">
+		<title>Col=42 Row=D</title>
 		<circle cx="28.504700" cy="1.988700" r="0.312500" class="tube"/>
 		<text class="tube_num" x="28.504700" y="1.988700">226</text>
 	</g>
-	<g id="227">
-		<title>X=44 Y=D</title>
+	<g id="227" data-col="44" data-row="D">
+		<title>Col=44 Row=D</title>
 		<circle cx="29.830500" cy="1.988700" r="0.312500" class="tube"/>
 		<text class="tube_num" x="29.830500" y="1.988700">227</text>
 	</g>
-	<g id="228">
-		<title>X=46 Y=D</title>
+	<g id="228" data-col="46" data-row="D">
+		<title>Col=46 Row=D</title>
 		<circle cx="31.156300" cy="1.988700" r="0.312500" class="tube"/>
 		<text class="tube_num" x="31.156300" y="1.988700">228</text>
 	</g>
-	<g id="229">
-		<title>X=48 Y=D</title>
+	<g id="229" data-col="48" data-row="D">
+		<title>Col=48 Row=D</title>
 		<circle cx="32.482101" cy="1.988700" r="0.312500" class="tube"/>
 		<text class="tube_num" x="32.482101" y="1.988700">229</text>
 	</g>
-	<g id="230">
-		<title>X=50 Y=D</title>
+	<g id="230" data-col="50" data-row="D">
+		<title>Col=50 Row=D</title>
 		<circle cx="33.807899" cy="1.988700" r="0.312500" class="tube"/>
 		<text class="tube_num" x="33.807899" y="1.988700">230</text>
 	</g>
-	<g id="231">
-		<title>X=52 Y=D</title>
+	<g id="231" data-col="52" data-row="D">
+		<title>Col=52 Row=D</title>
 		<circle cx="35.133698" cy="1.988700" r="0.312500" class="tube"/>
 		<text class="tube_num" x="35.133698" y="1.988700">231</text>
 	</g>
-	<g id="232">
-		<title>X=54 Y=D</title>
+	<g id="232" data-col="54" data-row="D">
+		<title>Col=54 Row=D</title>
 		<circle cx="36.459499" cy="1.988700" r="0.312500" class="tube"/>
 		<text class="tube_num" x="36.459499" y="1.988700">232</text>
 	</g>
-	<g id="233">
-		<title>X=37 Y=E</title>
+	<g id="233" data-col="37" data-row="E">
+		<title>Col=37 Row=E</title>
 		<circle cx="25.190201" cy="2.651600" r="0.312500" class="tube"/>
 		<text class="tube_num" x="25.190201" y="2.651600">233</text>
 	</g>
-	<g id="234">
-		<title>X=39 Y=E</title>
+	<g id="234" data-col="39" data-row="E">
+		<title>Col=39 Row=E</title>
 		<circle cx="26.516001" cy="2.651600" r="0.312500" class="tube"/>
 		<text class="tube_num" x="26.516001" y="2.651600">234</text>
 	</g>
-	<g id="235">
-		<title>X=41 Y=E</title>
+	<g id="235" data-col="41" data-row="E">
+		<title>Col=41 Row=E</title>
 		<circle cx="27.841799" cy="2.651600" r="0.312500" class="tube"/>
 		<text class="tube_num" x="27.841799" y="2.651600">235</text>
 	</g>
-	<g id="236">
-		<title>X=43 Y=E</title>
+	<g id="236" data-col="43" data-row="E">
+		<title>Col=43 Row=E</title>
 		<circle cx="29.167601" cy="2.651600" r="0.312500" class="tube"/>
 		<text class="tube_num" x="29.167601" y="2.651600">236</text>
 	</g>
-	<g id="237">
-		<title>X=45 Y=E</title>
+	<g id="237" data-col="45" data-row="E">
+		<title>Col=45 Row=E</title>
 		<circle cx="30.493401" cy="2.651600" r="0.312500" class="tube"/>
 		<text class="tube_num" x="30.493401" y="2.651600">237</text>
 	</g>
-	<g id="238">
-		<title>X=47 Y=E</title>
+	<g id="238" data-col="47" data-row="E">
+		<title>Col=47 Row=E</title>
 		<circle cx="31.819201" cy="2.651600" r="0.312500" class="tube"/>
 		<text class="tube_num" x="31.819201" y="2.651600">238</text>
 	</g>
-	<g id="239">
-		<title>X=49 Y=E</title>
+	<g id="239" data-col="49" data-row="E">
+		<title>Col=49 Row=E</title>
 		<circle cx="33.145000" cy="2.651600" r="0.312500" class="tube"/>
 		<text class="tube_num" x="33.145000" y="2.651600">239</text>
 	</g>
-	<g id="240">
-		<title>X=51 Y=E</title>
+	<g id="240" data-col="51" data-row="E">
+		<title>Col=51 Row=E</title>
 		<circle cx="34.470802" cy="2.651600" r="0.312500" class="tube"/>
 		<text class="tube_num" x="34.470802" y="2.651600">240</text>
 	</g>
-	<g id="241">
-		<title>X=53 Y=E</title>
+	<g id="241" data-col="53" data-row="E">
+		<title>Col=53 Row=E</title>
 		<circle cx="35.796600" cy="2.651600" r="0.312500" class="tube"/>
 		<text class="tube_num" x="35.796600" y="2.651600">241</text>
 	</g>
-	<g id="242">
-		<title>X=55 Y=E</title>
+	<g id="242" data-col="55" data-row="E">
+		<title>Col=55 Row=E</title>
 		<circle cx="37.122398" cy="2.651600" r="0.312500" class="tube"/>
 		<text class="tube_num" x="37.122398" y="2.651600">242</text>
 	</g>
-	<g id="243">
-		<title>X=38 Y=F</title>
+	<g id="243" data-col="38" data-row="F">
+		<title>Col=38 Row=F</title>
 		<circle cx="25.853098" cy="3.314500" r="0.312500" class="tube"/>
 		<text class="tube_num" x="25.853098" y="3.314500">243</text>
 	</g>
-	<g id="244">
-		<title>X=40 Y=F</title>
+	<g id="244" data-col="40" data-row="F">
+		<title>Col=40 Row=F</title>
 		<circle cx="27.178900" cy="3.314500" r="0.312500" class="tube"/>
 		<text class="tube_num" x="27.178900" y="3.314500">244</text>
 	</g>
-	<g id="245">
-		<title>X=42 Y=F</title>
+	<g id="245" data-col="42" data-row="F">
+		<title>Col=42 Row=F</title>
 		<circle cx="28.504700" cy="3.314500" r="0.312500" class="tube"/>
 		<text class="tube_num" x="28.504700" y="3.314500">245</text>
 	</g>
-	<g id="246">
-		<title>X=44 Y=F</title>
+	<g id="246" data-col="44" data-row="F">
+		<title>Col=44 Row=F</title>
 		<circle cx="29.830500" cy="3.314500" r="0.312500" class="tube"/>
 		<text class="tube_num" x="29.830500" y="3.314500">246</text>
 	</g>
-	<g id="247">
-		<title>X=46 Y=F</title>
+	<g id="247" data-col="46" data-row="F">
+		<title>Col=46 Row=F</title>
 		<circle cx="31.156300" cy="3.314500" r="0.312500" class="tube"/>
 		<text class="tube_num" x="31.156300" y="3.314500">247</text>
 	</g>
-	<g id="248">
-		<title>X=48 Y=F</title>
+	<g id="248" data-col="48" data-row="F">
+		<title>Col=48 Row=F</title>
 		<circle cx="32.482101" cy="3.314500" r="0.312500" class="tube"/>
 		<text class="tube_num" x="32.482101" y="3.314500">248</text>
 	</g>
-	<g id="249">
-		<title>X=50 Y=F</title>
+	<g id="249" data-col="50" data-row="F">
+		<title>Col=50 Row=F</title>
 		<circle cx="33.807899" cy="3.314500" r="0.312500" class="tube"/>
 		<text class="tube_num" x="33.807899" y="3.314500">249</text>
 	</g>
-	<g id="250">
-		<title>X=52 Y=F</title>
+	<g id="250" data-col="52" data-row="F">
+		<title>Col=52 Row=F</title>
 		<circle cx="35.133698" cy="3.314500" r="0.312500" class="tube"/>
 		<text class="tube_num" x="35.133698" y="3.314500">250</text>
 	</g>
-	<g id="251">
-		<title>X=54 Y=F</title>
+	<g id="251" data-col="54" data-row="F">
+		<title>Col=54 Row=F</title>
 		<circle cx="36.459499" cy="3.314500" r="0.312500" class="tube"/>
 		<text class="tube_num" x="36.459499" y="3.314500">251</text>
 	</g>
-	<g id="252">
-		<title>X=37 Y=G</title>
+	<g id="252" data-col="37" data-row="G">
+		<title>Col=37 Row=G</title>
 		<circle cx="25.190201" cy="3.977400" r="0.312500" class="tube"/>
 		<text class="tube_num" x="25.190201" y="3.977400">252</text>
 	</g>
-	<g id="253">
-		<title>X=39 Y=G</title>
+	<g id="253" data-col="39" data-row="G">
+		<title>Col=39 Row=G</title>
 		<circle cx="26.516001" cy="3.977400" r="0.312500" class="tube"/>
 		<text class="tube_num" x="26.516001" y="3.977400">253</text>
 	</g>
-	<g id="254">
-		<title>X=41 Y=G</title>
+	<g id="254" data-col="41" data-row="G">
+		<title>Col=41 Row=G</title>
 		<circle cx="27.841799" cy="3.977400" r="0.312500" class="tube"/>
 		<text class="tube_num" x="27.841799" y="3.977400">254</text>
 	</g>
-	<g id="255">
-		<title>X=43 Y=G</title>
+	<g id="255" data-col="43" data-row="G">
+		<title>Col=43 Row=G</title>
 		<circle cx="29.167601" cy="3.977400" r="0.312500" class="tube"/>
 		<text class="tube_num" x="29.167601" y="3.977400">255</text>
 	</g>
-	<g id="256">
-		<title>X=45 Y=G</title>
+	<g id="256" data-col="45" data-row="G">
+		<title>Col=45 Row=G</title>
 		<circle cx="30.493401" cy="3.977400" r="0.312500" class="tube"/>
 		<text class="tube_num" x="30.493401" y="3.977400">256</text>
 	</g>
-	<g id="257">
-		<title>X=47 Y=G</title>
+	<g id="257" data-col="47" data-row="G">
+		<title>Col=47 Row=G</title>
 		<circle cx="31.819201" cy="3.977400" r="0.312500" class="tube"/>
 		<text class="tube_num" x="31.819201" y="3.977400">257</text>
 	</g>
-	<g id="258">
-		<title>X=49 Y=G</title>
+	<g id="258" data-col="49" data-row="G">
+		<title>Col=49 Row=G</title>
 		<circle cx="33.145000" cy="3.977400" r="0.312500" class="tube"/>
 		<text class="tube_num" x="33.145000" y="3.977400">258</text>
 	</g>
-	<g id="259">
-		<title>X=51 Y=G</title>
+	<g id="259" data-col="51" data-row="G">
+		<title>Col=51 Row=G</title>
 		<circle cx="34.470802" cy="3.977400" r="0.312500" class="tube"/>
 		<text class="tube_num" x="34.470802" y="3.977400">259</text>
 	</g>
-	<g id="260">
-		<title>X=53 Y=G</title>
+	<g id="260" data-col="53" data-row="G">
+		<title>Col=53 Row=G</title>
 		<circle cx="35.796600" cy="3.977400" r="0.312500" class="tube"/>
 		<text class="tube_num" x="35.796600" y="3.977400">260</text>
 	</g>
-	<g id="261">
-		<title>X=38 Y=H</title>
+	<g id="261" data-col="38" data-row="H">
+		<title>Col=38 Row=H</title>
 		<circle cx="25.853098" cy="4.640300" r="0.312500" class="tube"/>
 		<text class="tube_num" x="25.853098" y="4.640300">261</text>
 	</g>
-	<g id="262">
-		<title>X=40 Y=H</title>
+	<g id="262" data-col="40" data-row="H">
+		<title>Col=40 Row=H</title>
 		<circle cx="27.178900" cy="4.640300" r="0.312500" class="tube"/>
 		<text class="tube_num" x="27.178900" y="4.640300">262</text>
 	</g>
-	<g id="263">
-		<title>X=42 Y=H</title>
+	<g id="263" data-col="42" data-row="H">
+		<title>Col=42 Row=H</title>
 		<circle cx="28.504700" cy="4.640300" r="0.312500" class="tube"/>
 		<text class="tube_num" x="28.504700" y="4.640300">263</text>
 	</g>
-	<g id="264">
-		<title>X=44 Y=H</title>
+	<g id="264" data-col="44" data-row="H">
+		<title>Col=44 Row=H</title>
 		<circle cx="29.830500" cy="4.640300" r="0.312500" class="tube"/>
 		<text class="tube_num" x="29.830500" y="4.640300">264</text>
 	</g>
-	<g id="265">
-		<title>X=46 Y=H</title>
+	<g id="265" data-col="46" data-row="H">
+		<title>Col=46 Row=H</title>
 		<circle cx="31.156300" cy="4.640300" r="0.312500" class="tube"/>
 		<text class="tube_num" x="31.156300" y="4.640300">265</text>
 	</g>
-	<g id="266">
-		<title>X=48 Y=H</title>
+	<g id="266" data-col="48" data-row="H">
+		<title>Col=48 Row=H</title>
 		<circle cx="32.482101" cy="4.640300" r="0.312500" class="tube"/>
 		<text class="tube_num" x="32.482101" y="4.640300">266</text>
 	</g>
-	<g id="267">
-		<title>X=50 Y=H</title>
+	<g id="267" data-col="50" data-row="H">
+		<title>Col=50 Row=H</title>
 		<circle cx="33.807899" cy="4.640300" r="0.312500" class="tube"/>
 		<text class="tube_num" x="33.807899" y="4.640300">267</text>
 	</g>
-	<g id="268">
-		<title>X=52 Y=H</title>
+	<g id="268" data-col="52" data-row="H">
+		<title>Col=52 Row=H</title>
 		<circle cx="35.133698" cy="4.640300" r="0.312500" class="tube"/>
 		<text class="tube_num" x="35.133698" y="4.640300">268</text>
 	</g>
-	<g id="269">
-		<title>X=54 Y=H</title>
+	<g id="269" data-col="54" data-row="H">
+		<title>Col=54 Row=H</title>
 		<circle cx="36.459499" cy="4.640300" r="0.312500" class="tube"/>
 		<text class="tube_num" x="36.459499" y="4.640300">269</text>
 	</g>
-	<g id="270">
-		<title>X=37 Y=I</title>
+	<g id="270" data-col="37" data-row="I">
+		<title>Col=37 Row=I</title>
 		<circle cx="25.190201" cy="5.303200" r="0.312500" class="tube"/>
 		<text class="tube_num" x="25.190201" y="5.303200">270</text>
 	</g>
-	<g id="271">
-		<title>X=39 Y=I</title>
+	<g id="271" data-col="39" data-row="I">
+		<title>Col=39 Row=I</title>
 		<circle cx="26.516001" cy="5.303200" r="0.312500" class="tube"/>
 		<text class="tube_num" x="26.516001" y="5.303200">271</text>
 	</g>
-	<g id="272">
-		<title>X=41 Y=I</title>
+	<g id="272" data-col="41" data-row="I">
+		<title>Col=41 Row=I</title>
 		<circle cx="27.841799" cy="5.303200" r="0.312500" class="tube"/>
 		<text class="tube_num" x="27.841799" y="5.303200">272</text>
 	</g>
-	<g id="273">
-		<title>X=43 Y=I</title>
+	<g id="273" data-col="43" data-row="I">
+		<title>Col=43 Row=I</title>
 		<circle cx="29.167601" cy="5.303200" r="0.312500" class="tube"/>
 		<text class="tube_num" x="29.167601" y="5.303200">273</text>
 	</g>
-	<g id="274">
-		<title>X=45 Y=I</title>
+	<g id="274" data-col="45" data-row="I">
+		<title>Col=45 Row=I</title>
 		<circle cx="30.493401" cy="5.303200" r="0.312500" class="tube"/>
 		<text class="tube_num" x="30.493401" y="5.303200">274</text>
 	</g>
-	<g id="275">
-		<title>X=47 Y=I</title>
+	<g id="275" data-col="47" data-row="I">
+		<title>Col=47 Row=I</title>
 		<circle cx="31.819201" cy="5.303200" r="0.312500" class="tube"/>
 		<text class="tube_num" x="31.819201" y="5.303200">275</text>
 	</g>
-	<g id="276">
-		<title>X=49 Y=I</title>
+	<g id="276" data-col="49" data-row="I">
+		<title>Col=49 Row=I</title>
 		<circle cx="33.145000" cy="5.303200" r="0.312500" class="tube"/>
 		<text class="tube_num" x="33.145000" y="5.303200">276</text>
 	</g>
-	<g id="277">
-		<title>X=51 Y=I</title>
+	<g id="277" data-col="51" data-row="I">
+		<title>Col=51 Row=I</title>
 		<circle cx="34.470802" cy="5.303200" r="0.312500" class="tube"/>
 		<text class="tube_num" x="34.470802" y="5.303200">277</text>
 	</g>
-	<g id="278">
-		<title>X=53 Y=I</title>
+	<g id="278" data-col="53" data-row="I">
+		<title>Col=53 Row=I</title>
 		<circle cx="35.796600" cy="5.303200" r="0.312500" class="tube"/>
 		<text class="tube_num" x="35.796600" y="5.303200">278</text>
 	</g>
-	<g id="279">
-		<title>X=38 Y=J</title>
+	<g id="279" data-col="38" data-row="J">
+		<title>Col=38 Row=J</title>
 		<circle cx="25.853098" cy="5.966100" r="0.312500" class="tube"/>
 		<text class="tube_num" x="25.853098" y="5.966100">279</text>
 	</g>
-	<g id="280">
-		<title>X=40 Y=J</title>
+	<g id="280" data-col="40" data-row="J">
+		<title>Col=40 Row=J</title>
 		<circle cx="27.178900" cy="5.966100" r="0.312500" class="tube"/>
 		<text class="tube_num" x="27.178900" y="5.966100">280</text>
 	</g>
-	<g id="281">
-		<title>X=42 Y=J</title>
+	<g id="281" data-col="42" data-row="J">
+		<title>Col=42 Row=J</title>
 		<circle cx="28.504700" cy="5.966100" r="0.312500" class="tube"/>
 		<text class="tube_num" x="28.504700" y="5.966100">281</text>
 	</g>
-	<g id="282">
-		<title>X=44 Y=J</title>
+	<g id="282" data-col="44" data-row="J">
+		<title>Col=44 Row=J</title>
 		<circle cx="29.830500" cy="5.966100" r="0.312500" class="tube"/>
 		<text class="tube_num" x="29.830500" y="5.966100">282</text>
 	</g>
-	<g id="283">
-		<title>X=46 Y=J</title>
+	<g id="283" data-col="46" data-row="J">
+		<title>Col=46 Row=J</title>
 		<circle cx="31.156300" cy="5.966100" r="0.312500" class="tube"/>
 		<text class="tube_num" x="31.156300" y="5.966100">283</text>
 	</g>
-	<g id="284">
-		<title>X=48 Y=J</title>
+	<g id="284" data-col="48" data-row="J">
+		<title>Col=48 Row=J</title>
 		<circle cx="32.482101" cy="5.966100" r="0.312500" class="tube"/>
 		<text class="tube_num" x="32.482101" y="5.966100">284</text>
 	</g>
-	<g id="285">
-		<title>X=50 Y=J</title>
+	<g id="285" data-col="50" data-row="J">
+		<title>Col=50 Row=J</title>
 		<circle cx="33.807899" cy="5.966100" r="0.312500" class="tube"/>
 		<text class="tube_num" x="33.807899" y="5.966100">285</text>
 	</g>
-	<g id="286">
-		<title>X=52 Y=J</title>
+	<g id="286" data-col="52" data-row="J">
+		<title>Col=52 Row=J</title>
 		<circle cx="35.133698" cy="5.966100" r="0.312500" class="tube"/>
 		<text class="tube_num" x="35.133698" y="5.966100">286</text>
 	</g>
-	<g id="287">
-		<title>X=37 Y=K</title>
+	<g id="287" data-col="37" data-row="K">
+		<title>Col=37 Row=K</title>
 		<circle cx="25.190201" cy="6.629000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="25.190201" y="6.629000">287</text>
 	</g>
-	<g id="288">
-		<title>X=39 Y=K</title>
+	<g id="288" data-col="39" data-row="K">
+		<title>Col=39 Row=K</title>
 		<circle cx="26.516001" cy="6.629000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="26.516001" y="6.629000">288</text>
 	</g>
-	<g id="289">
-		<title>X=41 Y=K</title>
+	<g id="289" data-col="41" data-row="K">
+		<title>Col=41 Row=K</title>
 		<circle cx="27.841799" cy="6.629000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="27.841799" y="6.629000">289</text>
 	</g>
-	<g id="290">
-		<title>X=43 Y=K</title>
+	<g id="290" data-col="43" data-row="K">
+		<title>Col=43 Row=K</title>
 		<circle cx="29.167601" cy="6.629000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="29.167601" y="6.629000">290</text>
 	</g>
-	<g id="291">
-		<title>X=45 Y=K</title>
+	<g id="291" data-col="45" data-row="K">
+		<title>Col=45 Row=K</title>
 		<circle cx="30.493401" cy="6.629000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="30.493401" y="6.629000">291</text>
 	</g>
-	<g id="292">
-		<title>X=47 Y=K</title>
+	<g id="292" data-col="47" data-row="K">
+		<title>Col=47 Row=K</title>
 		<circle cx="31.819201" cy="6.629000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="31.819201" y="6.629000">292</text>
 	</g>
-	<g id="293">
-		<title>X=49 Y=K</title>
+	<g id="293" data-col="49" data-row="K">
+		<title>Col=49 Row=K</title>
 		<circle cx="33.145000" cy="6.629000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="33.145000" y="6.629000">293</text>
 	</g>
-	<g id="294">
-		<title>X=51 Y=K</title>
+	<g id="294" data-col="51" data-row="K">
+		<title>Col=51 Row=K</title>
 		<circle cx="34.470802" cy="6.629000" r="0.312500" class="tube"/>
 		<text class="tube_num" x="34.470802" y="6.629000">294</text>
 	</g>

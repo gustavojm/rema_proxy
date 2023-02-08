@@ -22,6 +22,8 @@ svg .tube:hover {
 	stroke: lime;
 }
 
+.dataTables_filter input { width: 80px }
+
 </style>
 
 <div id="hx_tab"
@@ -31,8 +33,11 @@ svg .tube:hover {
 		style="position: relative; width: 100%; float: left; vertical-align: middle; height: 4%" >
 		<div
 			style="position: relative; width: 80%; height: 100%; float: left;" class="left-side">
-			Tube Info X:<input type="text" id="tube_info_x" size="4"> Y:<input
-				type="text" id="tube_info_y" size="4"> <input type="button"
+			Tube Info Col:<input type="text" id="tube_info_col" size="4"> 
+			Row:<input type="text" id="tube_info_row" size="4">
+			X:<input type="text" id="tube_info_x" size="4"> 
+			Y:<input type="text" id="tube_info_y" size="4"> 
+			<input type="button"
 				name="start" value="GO">
 		</div>
 		<div style="float: right; text-align: center; " class="right-side">
@@ -320,6 +325,12 @@ svg .tube:hover {
 																"circle")
 																.first().attr(
 																		"cy");
+														var col = $(t).data("col");
+														var row = $(t).data("row");
+														$("#tube_info_col").val(
+																col);
+														$("#tube_info_row").val(
+																row);
 														$("#tube_info_x").val(
 																cx);
 														$("#tube_info_y").val(
