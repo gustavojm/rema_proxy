@@ -40,23 +40,23 @@ svg .tube:hover {
 		</div>
 	</div>
 
-	<div style="padding-bottom: 30px; height: 95%" class="container_div">
+	<div style="padding-bottom: 30px; height: 95%">
 		<div
 			style="position: relative; overflow: scroll; text-align: center; height: 100%; width: 80%; align-content: center; float: left; resize: horizontal; min-width: 20%; max-width: 80%"
-			id="left-side-resizable">
+			id="left_side_resizable">
 			<svg id="hx_svg" style="position: relative; cursor: crosshair;"
 				onmousemove="displayCoordinates(event)"></svg>
 		</div>
 
 		<div id="tubesheet_tab" class="right-side"
 			style="overflow: scroll; width: 20%; height: 100%; float: left; position: relative;">
-			<table id="insp_plan-table" class="datatables display"
+			<table id="insp_plan_table" class="datatables display"
 				style="width: 100%">
 				<thead>
 					<tr>
 						<th>TUBE_ID</th>
-						<th>ROW</th>
 						<th>COL</th>
+						<th>ROW</th>
 						<th>INSPECTED</th>
 					</tr>
 				</thead>
@@ -72,7 +72,7 @@ svg .tube:hover {
 			style="position: relative; width: 50%; float: left; vertical-align: middle;">
 			<div
 				style="float: left; padding-right: 10px; width: 10%; text-align: right;">Zoom:</div>
-			<div id="zoom-bar" style="float: left; width: 70%;"></div>
+			<div id="zoom_bar" style="float: left; width: 70%;"></div>
 		</div>
 	</div>
 </div>
@@ -153,11 +153,12 @@ svg .tube:hover {
 
 		var insp_plans_dropdown = $('#insp_plans');
 
-		var table = $('#insp_plan-table')
+		var table = $('#insp_plan_table')
 				.DataTable(
 						{
 							select : true,
 							scroller: true,
+							scrollX: true,
 							sScrollY: '500px',
 							ajax : {
 								method : "post",
@@ -176,10 +177,10 @@ svg .tube:hover {
 										data : 'tube_id'
 									},
 									{
-										data : 'row'
+										data : 'col'
 									},
 									{
-										data : 'col'
+										data : 'row'
 									},
 									{
 										data : 'inspected',
@@ -244,7 +245,7 @@ svg .tube:hover {
 							});
 						});
 
-		$('#insp_plan-table tbody').on(
+		$('#insp_plan_table tbody').on(
 				'click',
 				'tr',
 				function() {
@@ -338,7 +339,7 @@ svg .tube:hover {
 
 												});
 
-								var zoom_bar = $("#zoom-bar").slider({
+								var zoom_bar = $("#zoom_bar").slider({
 									min : 3,
 									max : 10,
 									change : function(event, ui) {
@@ -355,14 +356,14 @@ svg .tube:hover {
 		}
 
 		function resize_divs() {
-			var left_div = $("#left-side-resizable");
+			var left_div = $("#left_side_resizable");
 			var left_width = left_div.width() / left_div.parent().width() * 100;
 			
 			$(".left-side").width(left_width + "%");
 			$(".right-side").width(98 - left_width + "%");
 		}
 
-		new ResizeObserver(resize_divs).observe(document.getElementById("left-side-resizable"));
+		new ResizeObserver(resize_divs).observe(document.getElementById("left_side_resizable"));
 
 	});
 </script>

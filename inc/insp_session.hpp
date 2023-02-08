@@ -19,6 +19,7 @@ public:
 	inspection_session();
 	inspection_session(std::filesystem::path inspection_session_file,
 			std::filesystem::path hx_directory,
+			std::filesystem::path hx,
 			std::filesystem::path tubesheet_csv,
 			std::filesystem::path tubesheet_svg);
 
@@ -42,6 +43,7 @@ public:
 //public:
 	std::filesystem::path inspection_session_file;
 	std::filesystem::path hx_directory;
+	std::filesystem::path hx;
 	std::filesystem::path tubesheet_csv;
 	std::filesystem::path tubesheet_svg;
 	std::filesystem::path last_selected_plan;

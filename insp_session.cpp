@@ -13,16 +13,18 @@ inspection_session::inspection_session() :loaded(false) {
 
 inspection_session::inspection_session(std::filesystem::path inspection_session_file,
 		std::filesystem::path hx_directory,
+		std::filesystem::path hx,
 		std::filesystem::path tubesheet_csv,
 		std::filesystem::path tubesheet_svg) :
-		inspection_session_file(inspection_session_file), hx_directory(hx_directory), tubesheet_csv(
+		inspection_session_file(inspection_session_file), hx_directory(hx_directory), hx(hx), tubesheet_csv(
 				tubesheet_csv), tubesheet_svg(tubesheet_svg) {
 
 }
 
 std::string inspection_session::load_plans() {
 	std::stringstream out;
-	for (const auto &entry : std::filesystem::directory_iterator(hx_directory.append("insp_plans"))) {
+	std::filesystem::path insp_plans_path = hx_directory / hx / "insp_plans";
+	for (const auto &entry : std::filesystem::directory_iterator(insp_plans_path)) {
 		if (!(entry.path().filename().extension() == ".csv")) {
 			continue;
 		}
@@ -82,6 +84,7 @@ void to_json(nlohmann::json &j, const inspection_session &is) {
 	j = nlohmann::json {
 			{ "inspection_session_file", is.inspection_session_file },
 			{ "hx_directory", is.hx_directory },
+			{ "hx", is.hx },
 			{ "tubesheet_csv", is.tubesheet_csv },
 			{ "tubesheet_svg", is.tubesheet_svg },
 			{ "last_selected_plan", is.last_selected_plan },
@@ -92,6 +95,7 @@ void to_json(nlohmann::json &j, const inspection_session &is) {
 void from_json(const nlohmann::json &j, inspection_session &is) {
 	j.at( "inspection_session_file").get_to(is.inspection_session_file);
 	j.at("hx_directory").get_to(is.hx_directory);
+	j.at("hx").get_to(is.hx);
 	j.at("tubesheet_csv").get_to(is.tubesheet_csv);
 	j.at("tubesheet_svg").get_to(is.tubesheet_svg);
 	j.at("last_selected_plan").get_to(is.last_selected_plan);

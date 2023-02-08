@@ -4,7 +4,7 @@
 
 <div id="tubesheet_tab"
 	style="overflow: scroll; width: 100%; height:90%; position: relative;">
-	<table id="tubesheet-table" class="datatables display"
+	<table id="tubesheet_table" class="datatables display"
 		style="width: 100%">
 		<thead>
 			<tr>
@@ -25,8 +25,8 @@
 <script type="text/javascript">
 	$(function() {
 
-		$('#tubesheet-table').DataTable({
-			"ajax" : {
+		$('#tubesheet_table').DataTable({
+			ajax : {
 				method : "post",
 				url : "/json/hx_tubesheet_load",
 				dataSrc : '',

@@ -1,7 +1,8 @@
-<div id="logs_tab" style="overflow: hidden; width: 100%;" class="tabs_div">
+<div id="logs_tab" style="overflow: hidden; width: 100%;" class="tabs-div">
 	<fieldset>
 		<legend>Logs</legend>
 		<textarea id="logs" rows="10" cols="100" style="width: 100%"> </textarea>
+		<input type="button" id="clear_logs" value="Clear Logs">
 	</fieldset>
 </div>
 
@@ -33,10 +34,15 @@
 
 	$(function() {
 		timer_logs = setInterval(get_logs, 1000);
+		
+		$("#clear_logs").click(function(){
+			$("#logs").val("");
+		})
+		
 	});
 	
 	
-	$('.tabs_div').on('unload_tab',function() {
+	$('.tabs-div').on('unload_tab',function() {
 		clearInterval(timer_logs);
 	    timer_logs = null;		
 	});

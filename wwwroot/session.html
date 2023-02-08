@@ -24,12 +24,12 @@
 	style="overflow: scroll; width: 100%; position: relative;">
 	<input type="button" value="New Session" id="new_session_btn" />
 
-	<table id="sessions-table" class="datatables display" style="width: 100%">
+	<table id="sessions_table" class="datatables display" style="width: 100%">
 		<thead>
 			<tr>
 				<th>Name</th>
+				<th>HX</th>
 				<th>Date</th>
-				<!-- 				<th>HX</th> -->
 				<th>Options</th>
 			</tr>
 		</thead>
@@ -39,11 +39,13 @@
 </div>
 
 <script type="text/javascript">
+	var table;
+	
 	function load_sessions() {
 
-		$('#sessions-table').DataTable(
+		table = $('#sessions_table').DataTable(
 				{
-					"ajax" : {
+					ajax : {
 						method : "post",
 						url : "/json/insp_sessions_list",
 						dataSrc : '',
@@ -51,6 +53,9 @@
 					columns : [
 							{
 								data : 'file_name'
+							},
+							{
+								data : 'hx'
 							},
 							{
 								data : 'file_date'
@@ -68,19 +73,36 @@
 							}, ]
 				});
 		
-		$('#sessions-table').on('draw.dt', function(e, settings, json, xhr) {			
+		table.on('draw.dt', function(e, settings, json, xhr) {			
 			$(".ui-icon-play").on("click", function() {
 				var insp_session_file = $(this).data("name");
 				$.post('/json/session_load', JSON.stringify({
 					session_name : insp_session_file,
 				}), function(data) {
-					//$("#new_session_logs").val(data.logs);
 					if (data.success) {
 						alert("Session loaded successfully");
 					}
 				});
 
 			})
+			
+			$(".ui-icon-trash").on("click", function() {
+				var insp_session_file = $(this).data("name");
+				
+				var confirm_action = confirm("Are you sure you want to delete " + insp_session_file + " ?");
+		        if (confirm_action) {
+					$.post('/json/session_delete', JSON.stringify({
+						session_name : insp_session_file,
+					}), function(data) {
+						//$("#new_session_logs").val(data.logs);
+						if (data.success) {
+							table.ajax.reload();
+						} else {
+								alert("data.logs");					
+						}
+					});
+		        }
+			});
 
 		})
 	}
@@ -91,9 +113,7 @@
 			$("#new_session_div").dialog("open");
 		});
 	});
-</script>
 
-<script type="text/javascript">
 	function create_dialog() {
 		var dialog = $("#new_session_div").dialog({
 			autoOpen : false,
@@ -122,6 +142,7 @@
 					dialog.dialog("close");
 					dialog.dialog("destroy");
 					create_dialog();
+					table.ajax.reload();
 				}
 			} ]
 		});
