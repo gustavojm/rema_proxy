@@ -246,7 +246,9 @@ int main(const int, const char**) {
 			"/static/{filename: ^.+\\.(html|jpg|png|svg)$}",
 			"/static/css/{filename: ^.+\\.(css)$}",
 			"/static/js/{filename: ^.+\\.(js)$}",
-			"/static/css/images/{filename: ^.+\\.(jpg|png)$}" });
+			"/static/css/images/{filename: ^.+\\.(jpg|png)$}",
+			"/static/images/{filename: ^.+\\.(jpg|png)$}",
+	});
 
 	resource_html_file->set_method_handler("GET", get_method_handler);
 

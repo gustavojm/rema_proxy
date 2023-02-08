@@ -47,22 +47,24 @@ svg .tube:hover {
 			<svg id="hx_svg" style="position: relative; cursor: crosshair;"
 				onmousemove="displayCoordinates(event)"></svg>
 		</div>
-
-		<div id="tubesheet_tab" class="right-side"
-			style="overflow: scroll; width: 20%; height: 100%; float: left; position: relative;">
-			<table id="insp_plan_table" class="datatables display"
-				style="width: 100%">
-				<thead>
-					<tr>
-						<th>TUBE_ID</th>
-						<th>COL</th>
-						<th>ROW</th>
-						<th>INSPECTED</th>
-					</tr>
-				</thead>
-				<tbody>
-				</tbody>
-			</table>
+		<div id="tubesheet_tab" class="right-side" style="overflow: scroll; width: 20%; height: 100%; float: left; position: relative;">
+			<div>				
+				<table id="insp_plan_table" class="datatables display"
+					style="width: 100%">
+					<thead>
+						<tr>
+							<th>TUBE_ID</th>
+							<th>COL</th>
+							<th>ROW</th>
+							<th>INSPECTED</th>
+						</tr>
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+			</div>
+			<div id="joystick" style="margin: 0px;"></div>
+			
 		</div>
 	</div>
 
@@ -150,6 +152,8 @@ svg .tube:hover {
 	}
 
 	$(function() {
+		
+		$("#joystick").load("joystick2.html")
 
 		var insp_plans_dropdown = $('#insp_plans');
 
@@ -159,7 +163,7 @@ svg .tube:hover {
 							select : true,
 							scroller: true,
 							scrollX: true,
-							sScrollY: '500px',
+							sScrollY: '380px',
 							ajax : {
 								method : "post",
 								dataType : 'json',
