@@ -14,42 +14,145 @@
 }
 
 .joystick-arrow {
+
 	width: 50px;
 	height: 50px;
 	margin: 5px;
 	max-width: 50%;
 	height: auto;
 }
+
+.joystick-arrow-disabled {
+	opacity: 0.5;
+}
+
 </style>
 </head>
 <body>
 	<div class="container">
 		<div class="row">
-			<img alt="" src="images/up_left.png" class="joystick-arrow"
+			<img alt="" src="images/up_left.png" class="joystick-arrow up left joystick-arrow-disabled"
 				data-dir="up_left"> <img alt="" src="images/up.png"
-				class="joystick-arrow" data-dir="up"> <img alt=""
-				src="images/up_right.png" class="joystick-arrow" data-dir="up_right">
+				class="joystick-arrow up" data-dir="up"> <img alt=""
+				src="images/up_right.png" class="joystick-arrow up right" data-dir="up_right">
 		</div>
 		<div class="row">
-			<img alt="" src="images/left.png" class="joystick-arrow"
+			<img alt="" src="images/left.png" class="joystick-arrow left"
 				data-dir="left"> <img alt="" src="images/nothing.png"
 				class="joystick-arrow" data-dir="none"> <img alt=""
-				src="images/right.png" class="joystick-arrow" data-dir="right">
+				src="images/right.png" class="joystick-arrow rigth" data-dir="right">
 		</div>
 		<div class="row">
-			<img alt="" src="images/down_left.png" class="joystick-arrow"
+			<img alt="" src="images/down_left.png" class="joystick-arrow down left"
 				data-dir="down_left"> <img alt="" src="images/down.png"
-				class="joystick-arrow" data-dir="down"> <img alt=""
-				src="images/down_right.png" class="joystick-arrow"
+				class="joystick-arrow down" data-dir="down"> <img alt=""
+				src="images/down_right.png" class="joystick-arrow down right"
 				data-dir="down_right">
 		</div>
 	</div>
 </body>
 
 <script type="text/javascript">
-	$(".joystick-arrow").click(function() {
-		console.log($(this).data("dir"));
+var moving_x = false;
+var moving_y = false;
+	
+	function stop() {
+		var cmds = [];
+		var moving = moving_x | moving_y;
+		
+		if (moving) {
+			if (moving_x) {
+				command_x = {
+						command : "AXIS_STOP",
+						pars : {
+							axis : "X",
+						}
+					};	
+				cmds.push(command_x);
+				moving_x = false;
+			}
+			
+			if (moving_y) {
+				command_y = {
+						command : "AXIS_STOP",
+						pars : {
+							axis : "Y",
+						}
+					};	
+				cmds.push(command_y);
+				moving_y = false;
+			}
+			
+			$.ajax({
+				url : "/CIAA/",
+				method : "POST",
+				contentType : "application/json",
+				data : JSON.stringify({
+					commands : cmds,
+				}),
+				dataType : "json",
+				success : function(data) {
+							
+				}
+			});
+		}
+	}
+
+
+	$(".joystick-arrow").mousedown(function() {
+		var dir = $(this).data("dir");
+		var moving = true;
+
+		var command_x = {};
+		var command_y = {};
+		var cmds = [];
+		
+		if (dir.includes("left") | dir.includes("right") ) {
+			command_x = {
+					command : "AXIS_FREE_RUN",
+					pars : {
+						axis : "X",
+						dir : dir.includes("left") ? "CW" : "CCW",
+					}
+				};	
+			cmds.push(command_x);
+			moving_x = true;
+		}
+		
+		if (dir.includes("up") | dir.includes("down") ) {
+			command_y = {
+					command : "AXIS_FREE_RUN",
+					pars : {
+						axis : "Y",
+						dir : dir.includes("up") ? "CW" : "CCW",
+					}
+				};
+			cmds.push(command_y);
+			moving_y = true;
+		}
+		
+		$.ajax({
+			url : "/CIAA/",
+			method : "POST",
+			contentType : "application/json",
+			data : JSON.stringify({
+				commands : cmds,
+			}),
+			dataType : "json",
+			success : function(data) {
+				console.log(data);					
+			}
+		});
+		
+		
 	});
+	
+	$(".joystick-arrow").mouseup(function() {
+		stop();
+	}).mouseout(function() {
+		stop();
+	});
+
 </script>
 
 </html>

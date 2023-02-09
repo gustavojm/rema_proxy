@@ -44,8 +44,7 @@ void from_json(const nlohmann::json &j, tube &t) {
 nlohmann::json hx_tubesheet_load_cmd(nlohmann::json pars) {
 	// Parse the CSV file to extract the data for each tube
 	std::vector<tube> tubes;
-	io::CSVReader<7, io::trim_chars<' ', '\t'>, io::no_quote_escape<';'>> in(
-			"tubesheet.csv");
+	io::CSVReader<7, io::trim_chars<' ', '\t'>, io::no_quote_escape<';'>> in(current_session.tubesheet_csv);
 	in.read_header(io::ignore_extra_column, "x_label", "y_label", "cl_x",
 			"cl_y", "hl_x", "hl_y", "tube_id");
 	std::string x_label, y_label;
@@ -99,6 +98,24 @@ nlohmann::json insp_plan_load_cmd(nlohmann::json pars) {
 	}
 	return res;
 }
+
+
+nlohmann::json tube_set_status_cmd(nlohmann::json pars) {
+	nlohmann::json res; //requires to_json and from_json to be defined to be able to serialize the custom object "tube"
+
+	try {
+		std::string insp_plan_path = pars["insp_plan_path"];
+		std::string tube_id = pars["tube_id"];
+		bool checked = pars["checked"];
+
+		current_session.insp_plans.at(insp_plan_path).at(tube_id).inspected = checked;
+		res[tube_id] = checked;
+
+	} catch (nlohmann::json::exception &e) {
+	}
+	return res;
+}
+
 
 namespace fs = std::filesystem;
 
@@ -243,6 +260,7 @@ std::map<std::string, std::function<nlohmann::json(nlohmann::json)>> commands =
 		  { "session_info", &session_info_cmd },
 		  { "session_delete", &session_delete_cmd },
 		  { "insp_plan_load", &insp_plan_load_cmd },
+		  { "tube_set_status", &tube_set_status_cmd },
 		};
 // @formatter:on
 

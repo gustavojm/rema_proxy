@@ -41,15 +41,15 @@
 			method : "POST",
 			contentType : "application/json",
 			data : JSON.stringify({
-				"commands" : [{
-					"command" : "KP_SET_TUNINGS",
-					"pars" : {
-						"axis" : axis,
-						"kp" : kp,
-						"update" : update_time,
-						"min" : -max_freq,
-						"max" : max_freq,
-						"abs_min" : 10
+				commands : [{
+					command : "KP_SET_TUNINGS",
+					pars : {
+						axis : axis,
+						kp : kp,
+						update : update_time,
+						min : -max_freq,
+						max : max_freq,
+						abs_min : 10
 					}
 				} ]
 			}),

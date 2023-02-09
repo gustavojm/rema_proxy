@@ -29,11 +29,11 @@
 			method : "POST",
 			contentType : "application/json",
 			data : JSON.stringify({
-				"commands" : [ {
-					"command" : "AXIS_CLOSED_LOOP",
-					"pars" : {
-						"axis" : "x",
-						"setpoint" : parseInt($("#pos_cmd").val())
+				commands : [ {
+					command : "AXIS_CLOSED_LOOP",
+					pars : {
+						axis : "x",
+						setpoint : parseInt($("#pos_cmd").val())
 					}
 				} ]
 			}),
@@ -41,6 +41,6 @@
 			success : function(data) {
 				//console.log(data);					
 			}
-		})
+		});
 	}	
 </script>
