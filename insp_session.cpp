@@ -57,17 +57,30 @@ inspection_session inspection_session::load(std::filesystem::path inspection_ses
 	return *this;
 }
 
-void inspection_session::set_selected_plan(std::filesystem::path plan) {
-	last_selected_plan = plan;
+void inspection_session::save_to_disk() {
+	std::ofstream file(inspection_session_file);
+	file << nlohmann::json(*this);
 }
 
-std::filesystem::path inspection_session::get_selected_plan() {
+void inspection_session::set_selected_plan(std::filesystem::path plan) {
+	last_selected_plan = plan;
+	changed = true;
+}
+
+std::filesystem::path inspection_session::get_selected_plan() const {
 	 return last_selected_plan;
 }
 
 void inspection_session::set_tube_inspected(std::string tube_id, bool state) {
 	insp_plans[last_selected_plan][tube_id].inspected = state;
+	changed = true;
 }
+
+void inspection_session::set_tube_inspected(std::filesystem::path insp_plan_path, std::string tube_id, bool state) {
+	insp_plans[insp_plan_path][tube_id].inspected = state;
+	changed = true;
+}
+
 
 void to_json(nlohmann::json &j, const insp_plan_entry &ipe) {
 	j = nlohmann::json { { "row", ipe.row }, { "col", ipe.col }, { "inspected",

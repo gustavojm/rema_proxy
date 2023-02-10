@@ -27,14 +27,21 @@ public:
 
 	inspection_session load(std::filesystem::path inspection_session_file);
 
+	void save_to_disk();
+
 	inline bool is_loaded() {return loaded;};
 
+	inline bool is_changed() const {return changed;};
+
+	inline void set_changed(bool changed) {this->changed = changed;};
 
 	void set_selected_plan(std::filesystem::path plan);
 
-	std::filesystem::path get_selected_plan();
+	std::filesystem::path get_selected_plan() const;
 
 	void set_tube_inspected(std::string tube_id, bool state);
+
+	void set_tube_inspected(std::filesystem::path insp_plan_path, std::string tube_id, bool state);
 
 	//<inspection plan path,          <tube_id,   , tube_entry>>
 	std::map<std::filesystem::path,
@@ -48,6 +55,7 @@ public:
 	std::filesystem::path tubesheet_svg;
 	std::filesystem::path last_selected_plan;
 	bool loaded = false;
+	bool changed = false;
 };
 
 void to_json(nlohmann::json &j, const inspection_session &is);

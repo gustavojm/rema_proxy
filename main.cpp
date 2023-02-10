@@ -19,6 +19,7 @@
 #include "csv.h"
 #include "net_commands.hpp"
 #include "insp_session.hpp"
+#include "timer.hpp"
 
 using namespace std;
 using namespace restbed;
@@ -36,9 +37,6 @@ void get_HXs_method_handler(const shared_ptr<Session> session) {
 	}
 
 	std::filesystem::path f { path };
-
-	std::cout << "***PATH***; " << f << "\n";
-
 	ifstream stream(f, ifstream::in);
 
 	if (stream.is_open()) {
@@ -151,13 +149,12 @@ void post_json_method_handler(const shared_ptr<Session> session) {
 
 				nlohmann::json j;
 
-				//std::cout << b << "\n";
 				try {
 					j = nlohmann::json::parse(b);
 
 					std::cout << std::setw(4) << j << "\n";
 				} catch (std::exception &e) {
-					//cout << e << "\n";
+					std::cout << e.what() << "\n";
 				}
 				const std::string command = request->get_path_parameter(
 						"command");
@@ -181,6 +178,15 @@ void failed_filter_validation_handler(const shared_ptr<Session> session) {
 	}
 
 	session->close(400);
+}
+
+void timerFunction() {
+  std::cout << "Timer fired" << "\n";
+  if (current_session.is_changed()) {
+	  std::cout << "Saving because changed to " << current_session.inspection_session_file << "\n";
+	  current_session.save_to_disk();
+	  current_session.set_changed(false);
+  }
 }
 
 int main(const int, const char**) {
@@ -261,6 +267,8 @@ int main(const int, const char**) {
 	auto settings = make_shared<Settings>();
 	settings->set_port(ciaa_proxy_port);
 	settings->set_default_header("Connection", "close");
+
+	Timer timer(timerFunction, 10);
 
 	Service service;
 	service.publish(resource_ciaa);

@@ -31,7 +31,7 @@
 <body>
 	<div class="container">
 		<div class="row">
-			<img alt="" src="images/up_left.png" class="joystick-arrow up left joystick-arrow-disabled"
+			<img alt="" src="images/up_left.png" class="joystick-arrow up left"
 				data-dir="up_left"> <img alt="" src="images/up.png"
 				class="joystick-arrow up" data-dir="up"> <img alt=""
 				src="images/up_right.png" class="joystick-arrow up right" data-dir="up_right">
@@ -98,7 +98,6 @@ var moving_y = false;
 		}
 	}
 
-
 	$(".joystick-arrow").mousedown(function() {
 		var dir = $(this).data("dir");
 		var moving = true;
@@ -142,9 +141,7 @@ var moving_y = false;
 			success : function(data) {
 				console.log(data);					
 			}
-		});
-		
-		
+		});				
 	});
 	
 	$(".joystick-arrow").mouseup(function() {

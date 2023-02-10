@@ -13,6 +13,10 @@
 using namespace std::chrono_literals;
 extern inspection_session current_session;
 
+std::filesystem::path loaded_session_path;
+
+std::filesystem::path insp_sessions_dir = std::filesystem::path("insp_sessions");
+
 struct tube {
 	std::string x_label;
 	std::string y_label;
@@ -79,7 +83,7 @@ nlohmann::json insp_plan_load_cmd(nlohmann::json pars) {
 	nlohmann::json res; //requires to_json and from_json to be defined to be able to serialize the custom object "tube"
 
 	try {
-		std::string insp_plan_path = pars["insp_plan_path"];
+		std::filesystem::path insp_plan_path = std::filesystem::path(pars["insp_plan_path"]);
 		current_session.last_selected_plan = std::filesystem::path(
 				insp_plan_path);
 
@@ -89,35 +93,26 @@ nlohmann::json insp_plan_load_cmd(nlohmann::json pars) {
 		}
 
 	} catch (nlohmann::json::exception &e) {
-//		for (const auto& [path, insp_plan] : current_session.insp_plans) {
-//			for (const auto& [key, value] : insp_plan) {
-//				res.push_back({ { "tube_id", key }, { "col", value.col }, { "row", value.row }, { "inspected", value.inspected } });
-//			}
-//		}
-//		return res;
 	}
 	return res;
 }
 
 
 nlohmann::json tube_set_status_cmd(nlohmann::json pars) {
-	nlohmann::json res; //requires to_json and from_json to be defined to be able to serialize the custom object "tube"
+	nlohmann::json res;
 
 	try {
-		std::string insp_plan_path = pars["insp_plan_path"];
+		std::filesystem::path insp_plan_path = std::filesystem::path(pars["insp_plan_path"]);
 		std::string tube_id = pars["tube_id"];
 		bool checked = pars["checked"];
 
-		current_session.insp_plans.at(insp_plan_path).at(tube_id).inspected = checked;
+		current_session.set_tube_inspected(insp_plan_path, tube_id, checked);
 		res[tube_id] = checked;
-
 	} catch (nlohmann::json::exception &e) {
+		res["logs"] = e.what();
 	}
 	return res;
 }
-
-
-namespace fs = std::filesystem;
 
 template<typename TP>
 std::time_t to_time_t(TP tp) {
@@ -130,8 +125,7 @@ std::time_t to_time_t(TP tp) {
 nlohmann::json insp_sessions_list_cmd(nlohmann::json pars) {
 	nlohmann::json res;
 
-	std::string path = "./insp_sessions/";
-	for (const auto &entry : std::filesystem::directory_iterator(path)) {
+	for (const auto &entry : std::filesystem::directory_iterator(insp_sessions_dir)) {
 		if (entry.is_regular_file()) {
 
 			std::time_t tt = to_time_t(entry.last_write_time());
@@ -156,13 +150,11 @@ nlohmann::json insp_sessions_list_cmd(nlohmann::json pars) {
 }
 
 nlohmann::json session_create_cmd(nlohmann::json pars) {
-	std::string session_name = pars["session_name"];
+	std::filesystem::path session_name = std::filesystem::path(pars["session_name"]);
 
 	nlohmann::json res;
 
-	std::filesystem::path inspection_session_file = session_name;
-	if (inspection_session_file.empty()
-			|| !inspection_session_file.has_filename()) {
+	if (session_name.empty() && !session_name.has_filename()) {
 		res["success"] = false;
 		res["logs"] = "no filename specified";
 		return res;
@@ -175,6 +167,8 @@ nlohmann::json session_create_cmd(nlohmann::json pars) {
 	}
 
 	try {
+
+		std::filesystem::path inspection_session_file = insp_sessions_dir / session_name.concat(".json");
 		std::filesystem::path hx_directory = std::filesystem::path("HXs");
 		std::filesystem::path hx = std::filesystem::path(pars["hx"]);
 
@@ -184,12 +178,8 @@ nlohmann::json session_create_cmd(nlohmann::json pars) {
 		inspection_session new_session(inspection_session_file, hx_directory, hx,
 				tubesheet_csv, tubesheet_svg);
 		res["logs"] = new_session.load_plans();
+		new_session.save_to_disk();
 
-		std::filesystem::path complete_inspection_session_file_path =
-				std::filesystem::path("insp_sessions").append(
-						session_name + ".json");
-		std::ofstream session(complete_inspection_session_file_path);
-		session << nlohmann::json(new_session);
 		current_session = new_session;
 		res["success"] = true;
 		return res;
@@ -202,7 +192,7 @@ nlohmann::json session_create_cmd(nlohmann::json pars) {
 }
 
 nlohmann::json session_load_cmd(nlohmann::json pars) {
-	std::string session_name = pars["session_name"];
+	std::filesystem::path session_name = std::filesystem::path(pars["session_name"]);
 	nlohmann::json res;
 
 	if (session_name.empty()) {
@@ -211,8 +201,8 @@ nlohmann::json session_load_cmd(nlohmann::json pars) {
 		return res;
 	}
 
-	current_session.load(
-			std::filesystem::path("insp_sessions").append(session_name));
+	std::filesystem::path session_path = insp_sessions_dir / session_name;
+	current_session.load(session_path);
 	res["success"] = true;
 	return res;
 }
@@ -237,11 +227,11 @@ nlohmann::json session_info_cmd(nlohmann::json pars) {
 }
 
 nlohmann::json session_delete_cmd(nlohmann::json pars) {
-	std::string session_name = pars["session_name"];
+	std::filesystem::path session_name = std::filesystem::path(pars["session_name"]);
 	nlohmann::json res = nlohmann::json(nlohmann::json::value_t::object);
 
 	try {
-		std::filesystem::remove("./insp_sessions/" + session_name);
+		std::filesystem::remove(insp_sessions_dir / session_name);
 		res["success"] = true;
 	} catch (const std::filesystem::filesystem_error &e) {
 		res["logs"] = std::string("filesystem error: ") + e.what();

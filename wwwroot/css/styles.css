@@ -6,17 +6,27 @@ body {
 }
 
 .ui-widget {
-    font-size:90% !important;
+    font-size:80% !important;
 }
 
-#datatables {
+.table.dataTable {
 	table-layout: fixed;
 	width: 100% !important;
 }
 
-#datatables td, #my-table th {
+.table.dataTable td, .table.dataTable th {
 	width: auto !important;
 	white-space: normal;
 	text-overflow: ellipsis;
 	overflow: hidden;
 }
+
+table.dataTable  {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 13px;
+}
+
+table.my-table tbody tr td {
+    padding: 4px 8px 4px 8px;
+}
+
