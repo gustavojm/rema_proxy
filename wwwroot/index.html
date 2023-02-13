@@ -2,9 +2,11 @@
 <head>
 <meta charset="UTF-8">
 <title>REMA Control</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
 <link rel="stylesheet" href="css/styles.css">
 </head>
 <script src="js/jquery.min.js"></script>
+<script src="js/jquery.sse.min.js"></script>
 
 <link rel="stylesheet" href="css/jquery-ui.css">
 <script src="js/jquery-ui.min.js"></script>
@@ -27,21 +29,22 @@
 	<div style="overflow: hidden; text-align: center;">
 		<div style="float: left; width: 25%">
 			<label>Position X: <input type="text" id="position_x"
-				name="position X">
+				name="position X" size="6">
 			</label>
 		</div>
 		<div style="float: left; width: 25%">
 			<label>Position Y: <input type="text" id="position_y"
-				name="position Y">
+				name="position Y" size="6">
 			</label>
 		</div>
 		<div style="float: left; width: 25%">
 			<label>Position Z: <input type="text" id="position_z"
-				name="position Z" readonly="readonly">
+				name="position Z" readonly="readonly" size="6">
 			</label>
 		</div>
 		<div style="float: left; width: 25%">
-			<input type="button" id="reset" name="reset" value="Emergency Stop">
+			<input style="float: left;" type="button" id="reset" name="reset" value="Emergency Stop">
+			<span style="float: right;" id="sse"></span>
 		</div>
 	</div>
 
@@ -114,6 +117,13 @@
 					update_bulls_eye_position($("#position_x").val(), $(
 							"#position_y").val());
 				});
+		
+		var sse = $.SSE('/sse',{
+		    onMessage: function(e){ 
+		        $("#sse").text(e.data).animate({opacity: 1}, 2000).animate({opacity: 0}, 2000)		        
+		    },
+		});
+		sse.start();
 
 	});
 </script>

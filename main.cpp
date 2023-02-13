@@ -9,6 +9,7 @@
 #include <filesystem>
 #include <map>
 #include <exception>
+#include <chrono>
 
 #include <iostream>
 #include <asio.hpp>
@@ -19,12 +20,54 @@
 #include "csv.h"
 #include "net_commands.hpp"
 #include "insp_session.hpp"
-#include "timer.hpp"
 
 using namespace std;
 using namespace restbed;
 
 inspection_session current_session;
+
+vector<shared_ptr<Session> > sessions;
+
+std::map<std::string, std::string> mime_types = {
+		{ ".jpg", "image/jpg" }, { ".png", "image/png" }, { "svg",
+				"image/svg+xml" }, { ".css", "text/css" }, { ".js",
+				"text/javascript" }, {".ico", "image/x-icon" }};
+
+
+void register_event_source_handler(const shared_ptr<Session> session) {
+	const auto headers = multimap<string, string> {
+			{ "Connection", "keep-alive" }, { "Cache-Control", "no-cache" }, {
+					"Content-Type", "text/event-stream" }, {
+					"Access-Control-Allow-Origin", "*" } //Only required for demo purposes.
+	};
+
+	session->yield(OK, headers, [](const shared_ptr<Session> session) {
+		sessions.push_back(session);
+	});
+}
+
+void event_stream_handler(void) {
+
+	if (current_session.is_changed()) {
+		current_session.save_to_disk();
+		current_session.set_changed(false);
+
+		const auto message = "data: Session Saved\n\n";
+
+		sessions.erase(
+				std::remove_if(sessions.begin(), sessions.end(),
+						[](const shared_ptr<Session> &a) {
+							return a->is_closed();
+						}),
+				sessions.end());
+
+		for (auto session : sessions) {
+			session->yield(message);
+		}
+
+	}
+
+}
 
 void get_HXs_method_handler(const shared_ptr<Session> session) {
 	const auto request = session->get_request();
@@ -42,11 +85,6 @@ void get_HXs_method_handler(const shared_ptr<Session> session) {
 	if (stream.is_open()) {
 		const string body = string(istreambuf_iterator<char>(stream),
 				istreambuf_iterator<char>());
-
-		std::map<std::string, std::string> mime_types = {
-				{ ".jpg", "image/jpg" }, { ".png", "image/png" }, { "svg",
-						"image/svg+xml" }, { ".css", "text/css" }, { ".js",
-						"text/javascript" } };
 
 		std::string content_type;
 		std::string ext = f.filename().extension();
@@ -79,11 +117,6 @@ void get_method_handler(const shared_ptr<Session> session) {
 	if (stream.is_open()) {
 		const string body = string(istreambuf_iterator<char>(stream),
 				istreambuf_iterator<char>());
-
-		std::map<std::string, std::string> mime_types = {
-				{ ".jpg", "image/jpg" }, { ".png", "image/png" }, { "svg",
-						"image/svg+xml" }, { ".css", "text/css" }, { ".js",
-						"text/javascript" } };
 
 		std::string content_type;
 		std::string ext = f.filename().extension();
@@ -151,8 +184,6 @@ void post_json_method_handler(const shared_ptr<Session> session) {
 
 				try {
 					j = nlohmann::json::parse(b);
-
-					std::cout << std::setw(4) << j << "\n";
 				} catch (std::exception &e) {
 					std::cout << e.what() << "\n";
 				}
@@ -178,15 +209,6 @@ void failed_filter_validation_handler(const shared_ptr<Session> session) {
 	}
 
 	session->close(400);
-}
-
-void timerFunction() {
-  std::cout << "Timer fired" << "\n";
-  if (current_session.is_changed()) {
-	  std::cout << "Saving because changed to " << current_session.inspection_session_file << "\n";
-	  current_session.save_to_disk();
-	  current_session.set_changed(false);
-  }
 }
 
 int main(const int, const char**) {
@@ -249,12 +271,11 @@ int main(const int, const char**) {
 	auto resource_html_file = make_shared<Resource>();
 
 	resource_html_file->set_paths( {
-			"/static/{filename: ^.+\\.(html|jpg|png|svg)$}",
+			"/static/{filename: ^.+\\.(html|jpg|png|svg|ico)$}",
 			"/static/css/{filename: ^.+\\.(css)$}",
 			"/static/js/{filename: ^.+\\.(js)$}",
 			"/static/css/images/{filename: ^.+\\.(jpg|png)$}",
-			"/static/images/{filename: ^.+\\.(jpg|png)$}",
-	});
+			"/static/images/{filename: ^.+\\.(jpg|png)$}", });
 
 	resource_html_file->set_method_handler("GET", get_method_handler);
 
@@ -268,13 +289,19 @@ int main(const int, const char**) {
 	settings->set_port(ciaa_proxy_port);
 	settings->set_default_header("Connection", "close");
 
-	Timer timer(timerFunction, 10);
+	auto resource_server_side_events = make_shared<Resource>();
+	resource_server_side_events->set_path("/sse");
+	resource_server_side_events->set_method_handler("GET",
+			register_event_source_handler);
 
 	Service service;
 	service.publish(resource_ciaa);
 	service.publish(resource_HXs);
 	service.publish(resource_json);
 	service.publish(resource_html_file);
+	service.publish(resource_server_side_events);
+	service.schedule(event_stream_handler, std::chrono::seconds(2));
+
 	service.set_logger(make_shared<SyslogLogger>());
 	service.start(settings);
 
