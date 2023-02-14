@@ -47,21 +47,27 @@ void from_json(const nlohmann::json &j, tube &t) {
 
 nlohmann::json hx_tubesheet_load_cmd(nlohmann::json pars) {
 	// Parse the CSV file to extract the data for each tube
-	std::vector<tube> tubes;
-	io::CSVReader<7, io::trim_chars<' ', '\t'>, io::no_quote_escape<';'>> in(current_session.tubesheet_csv);
-	in.read_header(io::ignore_extra_column, "x_label", "y_label", "cl_x",
-			"cl_y", "hl_x", "hl_y", "tube_id");
-	std::string x_label, y_label;
-	float cl_x, cl_y, hl_x, hl_y;
-	std::string tube_id;
-	while (in.read_row(x_label, y_label, cl_x, cl_y, hl_x, hl_y, tube_id)) {
-		tubes.push_back(
-				{ x_label, y_label, cl_x, cl_y, hl_x, hl_y, std::stoi(
-						tube_id.substr(5)) });
+	try {
+		std::vector<tube> tubes;
+		io::CSVReader<7, io::trim_chars<' ', '\t'>, io::no_quote_escape<';'>> in(current_session.tubesheet_csv);
+		in.read_header(io::ignore_extra_column, "x_label", "y_label", "cl_x",
+				"cl_y", "hl_x", "hl_y", "tube_id");
+		std::string x_label, y_label;
+		float cl_x, cl_y, hl_x, hl_y;
+		std::string tube_id;
+		while (in.read_row(x_label, y_label, cl_x, cl_y, hl_x, hl_y, tube_id)) {
+			tubes.push_back(
+					{ x_label, y_label, cl_x, cl_y, hl_x, hl_y, std::stoi(
+							tube_id.substr(5)) });
+		}
+
+		nlohmann::json res(tubes); //requires to_json and from_json to be defined to be able to serialize the custom object "tube"
+		return res;
+	}catch (std::exception &e) {
+		nlohmann::json res(nlohmann::json::value_t::object);
+		return res;
 	}
 
-	nlohmann::json res(tubes); //requires to_json and from_json to be defined to be able to serialize the custom object "tube"
-	return res;
 }
 
 nlohmann::json hx_list_cmd(nlohmann::json pars) {

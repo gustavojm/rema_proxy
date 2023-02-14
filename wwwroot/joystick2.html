@@ -2,11 +2,20 @@
 <html>
 <head>
 <style>
-.container {
+.container-x-y {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	margin-top: 5px;
+	background-color: #F3F3F3;
+}
+
+.container-z {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin-top: 5px;
+	background-color: #F3F3F3;
 }
 
 .row {
@@ -14,75 +23,130 @@
 }
 
 .joystick-arrow {
-
 	width: 50px;
 	height: 50px;
-	margin: 5px;
-	max-width: 50%;
+	margin: 0px;
+	/* 	max-width: 50%; */
 	height: auto;
+}
+
+.slider {
+	margin-top: 10px;
+	margin-bottom: 10px;
+	margin-right: 5px;
+	margin-left: 5px;
+	/* 	width: 80%; */
 }
 
 .joystick-arrow-disabled {
 	opacity: 0.5;
 }
-
 </style>
 </head>
 <body>
-	<div class="container">
-		<div class="row">
-			<img alt="" src="images/up_left.png" class="joystick-arrow up left"
-				data-dir="up_left"> <img alt="" src="images/up.png"
-				class="joystick-arrow up" data-dir="up"> <img alt=""
-				src="images/up_right.png" class="joystick-arrow up right" data-dir="up_right">
+	<div id="outer">
+		<div id="up" style="display: flex; justify-content: center; align-items: center;">
+			<div id="left" style="display: flex; background-color: #F3F3F3; margin: 2px; padding: 3px;" >
+				<div class="container-x-y">
+					<div id="speed_x_y_slider" class="slider row" style="float: left"></div>
+					<div id="speed_x_y" style="float: left" class="row"></div>
+				</div>
+				<div class="container-x-y" style="float: left;">
+					<div class="row">
+						<img alt="" src="images/up_left.png"
+							class="joystick-arrow up left" data-dir="up_left"> <img
+							alt="" src="images/up.png" class="joystick-arrow up"
+							data-dir="up"> <img alt="" src="images/up_right.png"
+							class="joystick-arrow up right" data-dir="up_right">
+					</div>
+					<div class="row">
+						<img alt="" src="images/left.png" class="joystick-arrow left"
+							data-dir="left"> <img alt="" src="images/x-y.png"
+							class="joystick-arrow" data-dir="none"> <img alt=""
+							src="images/right.png" class="joystick-arrow rigth"
+							data-dir="right">
+					</div>
+					<div class="row">
+						<img alt="" src="images/down_left.png"
+							class="joystick-arrow down left" data-dir="down_left"> <img
+							alt="" src="images/down.png" class="joystick-arrow down"
+							data-dir="down"> <img alt="" src="images/down_right.png"
+							class="joystick-arrow down right" data-dir="down_right">
+					</div>
+				</div>
+			</div>
+			<div id="right" style="display: flex; background-color: #F3F3F3; margin: 2px; padding: 3px;" >
+				<div class="container-z" style="float: left;">
+					<div class="row">
+						<img alt="" src="images/z_up.png" class="joystick-arrow"
+							data-dir="z_up">
+					</div>
+					<img alt="" src="images/z.png"
+							class="joystick-arrow" data-dir="none">
+					<div class="row">
+						<img alt="" src="images/z_down.png" class="joystick-arrow"
+							data-dir="z_down">
+					</div>
+				</div>
+				<div class="container-x-y">
+					<div id="speed_z_slider" class="slider row" style="float: left"></div>
+					<div id="speed_z" style="float: left" class="row"></div>
+				</div>
+			</div>
 		</div>
-		<div class="row">
-			<img alt="" src="images/left.png" class="joystick-arrow left"
-				data-dir="left"> <img alt="" src="images/nothing.png"
-				class="joystick-arrow" data-dir="none"> <img alt=""
-				src="images/right.png" class="joystick-arrow rigth" data-dir="right">
+		<div>
+			<hr>
 		</div>
-		<div class="row">
-			<img alt="" src="images/down_left.png" class="joystick-arrow down left"
-				data-dir="down_left"> <img alt="" src="images/down.png"
-				class="joystick-arrow down" data-dir="down"> <img alt=""
-				src="images/down_right.png" class="joystick-arrow down right"
-				data-dir="down_right">
+		<div id="down"
+			style="float: left; width: 100%; display: flex; justify-content: center; align-items: center;">
+			<div style=" float: left; padding: 5px;">
+				<img alt="Emergency Stop" src="images/target.png"
+					width="48px" height="48px">
+			</div>
+			<div style="float: left; padding: 5px;">
+				<img alt="Power" src="images/power_green_crop.png" width="48px"
+					height="48px">
+			</div>
+			<div style=" float: left; padding: 5px;">
+				<img alt="Emergency Stop" src="images/stop_red_crop.png"
+					width="48px" height="48px">
+			</div>			
 		</div>
 	</div>
+
 </body>
 
 <script type="text/javascript">
-var moving_x = false;
-var moving_y = false;
-	
+	var moving_x = false;
+	var moving_y = false;
+
 	function stop() {
 		var cmds = [];
 		var moving = moving_x | moving_y;
-		
+
 		if (moving) {
 			if (moving_x) {
 				command_x = {
-						command : "AXIS_STOP",
-						pars : {
-							axis : "X",
-						}
-					};	
+					command : "AXIS_STOP",
+					pars : {
+						axis : "X",
+					}
+				};
 				cmds.push(command_x);
 				moving_x = false;
 			}
-			
+
 			if (moving_y) {
 				command_y = {
-						command : "AXIS_STOP",
-						pars : {
-							axis : "Y",
-						}
-					};	
+					command : "AXIS_STOP",
+					pars : {
+						axis : "Y",
+					}
+				};
 				cmds.push(command_y);
 				moving_y = false;
 			}
-			
+
 			$.ajax({
 				url : "/CIAA/",
 				method : "POST",
@@ -92,7 +156,7 @@ var moving_y = false;
 				}),
 				dataType : "json",
 				success : function(data) {
-							
+
 				}
 			});
 		}
@@ -105,31 +169,31 @@ var moving_y = false;
 		var command_x = {};
 		var command_y = {};
 		var cmds = [];
-		
-		if (dir.includes("left") | dir.includes("right") ) {
+
+		if (dir.includes("left") | dir.includes("right")) {
 			command_x = {
-					command : "AXIS_FREE_RUN",
-					pars : {
-						axis : "X",
-						dir : dir.includes("left") ? "CW" : "CCW",
-					}
-				};	
+				command : "AXIS_FREE_RUN",
+				pars : {
+					axis : "X",
+					dir : dir.includes("left") ? "CW" : "CCW",
+				}
+			};
 			cmds.push(command_x);
 			moving_x = true;
 		}
-		
-		if (dir.includes("up") | dir.includes("down") ) {
+
+		if (dir.includes("up") | dir.includes("down")) {
 			command_y = {
-					command : "AXIS_FREE_RUN",
-					pars : {
-						axis : "Y",
-						dir : dir.includes("up") ? "CW" : "CCW",
-					}
-				};
+				command : "AXIS_FREE_RUN",
+				pars : {
+					axis : "Y",
+					dir : dir.includes("up") ? "CW" : "CCW",
+				}
+			};
 			cmds.push(command_y);
 			moving_y = true;
 		}
-		
+
 		$.ajax({
 			url : "/CIAA/",
 			method : "POST",
@@ -139,17 +203,43 @@ var moving_y = false;
 			}),
 			dataType : "json",
 			success : function(data) {
-				console.log(data);					
+				console.log(data);
 			}
-		});				
-	});
-	
-	$(".joystick-arrow").mouseup(function() {
-		stop();
-	}).mouseout(function() {
-		stop();
+		});
 	});
 
+	
+	$(function (){
+		$(".joystick-arrow").mouseup(function() {
+			stop();
+		}).mouseout(function() {
+			stop();
+		});
+
+		var speed_x_y_slider = $("#speed_x_y_slider").slider({
+			min : 1,
+			max : 5,
+			orientation : "vertical",
+			change : function(event, ui) {
+				$("#speed_x_y").text(ui.value);
+			}
+		});
+
+		var speed_z_slider = $("#speed_z_slider").slider({
+			min : 1,
+			max : 5,
+			orientation : "vertical",
+			change : function(event, ui) {
+				$("#speed_z").text(ui.value);
+			}
+		});
+
+		$("#speed_x_y").text(speed_x_y_slider.slider("value"));
+		$("#speed_z").text(speed_z_slider.slider("value"));
+
+	});
+	
+	
 </script>
 
 </html>
