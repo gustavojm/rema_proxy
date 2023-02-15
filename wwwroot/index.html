@@ -59,8 +59,8 @@
 			method : "POST",
 			contentType : "application/json",
 			data : JSON.stringify({
-				"commands" : [ {
-					"command" : "TELEMETRIA",
+				commands : [ {
+					command : "TELEMETRIA",
 				} ]
 			}),
 			dataType : "json",
@@ -78,10 +78,35 @@
 				}
 
 			}
-		})
-
+		});
 	}
 
+	function set_cal_point() {
+		var pos_x = parseFloat($("#tube_info_x").val());
+		var pos_y = parseFloat($("#tube_info_y").val());
+
+		$.ajax({
+			url : "/CIAA/",
+			method : "POST",
+			contentType : "application/json",
+			data : JSON.stringify({
+				commands : [ {
+					command : "SET_CAL_POINT",
+					pars : {
+						position_x : pos_x,
+						position_y : pos_y,
+					}
+				} ]
+			}),
+			dataType : "json",
+			success : function(data) {
+				console.log(data);
+				update_ui();
+			}
+		});		
+	}
+
+	
 	$(function() {
 		$("#tabs").tabs({
 			active : 3,
@@ -97,10 +122,10 @@
 				method : "POST",
 				contentType : "application/json",
 				data : JSON.stringify({
-					"commands" : [ {
-						"command" : "AXIS_STOP",
-						"pars" : {
-							"AXIS" : "X"
+					commands : [ {
+						command : "AXIS_STOP",
+						pars : {
+							AXIS : "X"
 						}
 					}, ]
 				}),
@@ -110,7 +135,7 @@
 			})
 		});
 
-		//var timer = setInterval(update_ui, 1000);
+		var timer = setInterval(update_ui, 1000);
 
 		$("#position_x, #position_y").on(
 				"input",

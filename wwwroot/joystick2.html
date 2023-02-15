@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
+	<link rel="stylesheet" href="css/rcswitcher.min.css" type="text/css" media="all" />
+
+	<script type="text/javascript" src="js/rcswitcher-4.0.min.js"></script>	
 <style>
 .container-x-y {
 	display: flex;
@@ -100,17 +103,16 @@
 		<div id="down"
 			style="float: left; width: 100%; display: flex; justify-content: center; align-items: center;">
 			<div style=" float: left; padding: 5px;">
-				<img alt="Emergency Stop" src="images/target.png"
-					width="48px" height="48px">
+				<img alt="Set Calibration Point" src="images/target.png"
+					width="48px" height="48px" id="calibration_button">
 			</div>
+<!-- 			<div style=" float: left; padding: 5px;"> -->
+<!-- 				<img alt="Emergency Stop" src="images/stop_red_crop.png" -->
+<!-- 					width="48px" height="48px"> -->
+<!-- 			</div>			 -->
 			<div style="float: left; padding: 5px;">
-				<img alt="Power" src="images/power_green_crop.png" width="48px"
-					height="48px">
+				<input type="checkbox" name="power_switch" id="power_switch">			
 			</div>
-			<div style=" float: left; padding: 5px;">
-				<img alt="Emergency Stop" src="images/stop_red_crop.png"
-					width="48px" height="48px">
-			</div>			
 		</div>
 	</div>
 
@@ -208,6 +210,33 @@
 		});
 	});
 
+	function control_enable(enable) {
+	
+		var parameters = {};
+		if (enable !== null) { 
+			var parameters = {enabled: enable};
+		}
+		
+		$.ajax({
+			url : "/CIAA/",
+			method : "POST",
+			contentType : "application/json",
+			data : JSON.stringify({
+				commands : [ {
+					command : "CONTROL_ENABLE",
+					pars : parameters,
+				} ]
+			}),
+			dataType : "json",
+			success : function(data) {
+				console.log(data.CONTROL_ENABLE.ACK);
+				var power_switch = $('#power_switch');
+				power_switch.prop('checked', data.CONTROL_ENABLE.ACK);
+				power_switch.change();
+			}
+		});
+	}
+
 	
 	$(function (){
 		$(".joystick-arrow").mouseup(function() {
@@ -236,9 +265,32 @@
 
 		$("#speed_x_y").text(speed_x_y_slider.slider("value"));
 		$("#speed_z").text(speed_z_slider.slider("value"));
+		
+		var power_switch = $('#power_switch').rcSwitcher({
+			// reverse: true,
+			// inputs: true,
+			width: 96,
+			height: 48,
+			blobOffset: 1,
+			onText: 'ON',
+			offText: 'OFF',
+			theme: 'flat',
+			// autoFontSize: true,
+			autoStick: true,
+		}).on( 'toggle.rcSwitcher', function( e, data, type ){
+			console.log( type );
+			control_enable(power_switch.is(':checked'));
+		});
+		
+		control_enable();		// brings current status from CIAA
 
+		$("#calibration_button").click(function() {
+			if (typeof set_cal_point === "function") {
+				set_cal_point();
+			}			
+		});
+		
 	});
-	
 	
 </script>
 
