@@ -4,12 +4,29 @@
 <title>REMA Control</title>
 <link rel="icon" type="image/x-icon" href="favicon.ico">
 <link rel="stylesheet" href="css/styles.css">
-</head>
+
+<style type="text/css">
+.row {
+	display: flex;
+}
+
+.col {
+	display: flex;
+	flex: 1;
+	justify-content: center;
+	align-items: center;
+}
+</style>
+
 <script src="js/jquery.min.js"></script>
 <script src="js/jquery.sse.min.js"></script>
 
 <link rel="stylesheet" href="css/jquery-ui.css">
 <script src="js/jquery-ui.min.js"></script>
+
+
+</head>
+
 
 <body>
 
@@ -24,27 +41,26 @@
 			<li><a href="about.html">About</a></li>
 		</ul>
 	</div>
-
-	<br />
-	<div style="overflow: hidden; text-align: center;">
-		<div style="float: left; width: 25%">
+	<div style="overflow: hidden; padding-top: 5px;"
+		class="row">
+		<div style="float: left; justify-content: left;"
+			class="col">
+			<div>
+				<img alt="" src="images/logo nasa.png">
+			</div>
+		</div>
+		<div style="float: left;" class="col">
 			<label>Position X: <input type="text" id="position_x"
 				name="position X" size="6">
-			</label>
-		</div>
-		<div style="float: left; width: 25%">
-			<label>Position Y: <input type="text" id="position_y"
+			</label> <label>Y: <input type="text" id="position_y"
 				name="position Y" size="6">
-			</label>
-		</div>
-		<div style="float: left; width: 25%">
-			<label>Position Z: <input type="text" id="position_z"
+			</label> <label>Z: <input type="text" id="position_z"
 				name="position Z" readonly="readonly" size="6">
 			</label>
 		</div>
-		<div style="float: left; width: 25%">						
-<!-- 			<img alt="Power" src="images/power_green_crop.png" width="50px" height="50px"> -->
-<!-- 			<img alt="Emergency Stop" src="images/stop_red_crop.png" width="50px" height="50px"> -->
+		<div style="float: left;" class="col">
+			<!-- 			<img alt="Power" src="images/power_green_crop.png" width="50px" height="50px"> -->
+			<!-- 			<img alt="Emergency Stop" src="images/stop_red_crop.png" width="50px" height="50px"> -->
 			<span style="float: right;" id="sse"></span>
 		</div>
 	</div>
@@ -103,10 +119,9 @@
 				console.log(data);
 				update_ui();
 			}
-		});		
+		});
 	}
 
-	
 	$(function() {
 		$("#tabs").tabs({
 			active : 3,
@@ -135,7 +150,7 @@
 			})
 		});
 
-		var timer = setInterval(update_ui, 1000);
+		//var timer = setInterval(update_ui, 1000);
 
 		$("#position_x, #position_y").on(
 				"input",
@@ -143,11 +158,15 @@
 					update_bulls_eye_position($("#position_x").val(), $(
 							"#position_y").val());
 				});
-		
-		var sse = $.SSE('/sse',{
-		    onMessage: function(e){ 
-		        $("#sse").text(e.data).animate({opacity: 1}, 2000).animate({opacity: 0}, 2000)		        
-		    },
+
+		var sse = $.SSE('/sse', {
+			onMessage : function(e) {
+				$("#sse").text(e.data).animate({
+					opacity : 1
+				}, 2000).animate({
+					opacity : 0
+				}, 2000)
+			},
 		});
 		sse.start();
 
