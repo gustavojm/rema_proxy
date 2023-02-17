@@ -6,15 +6,7 @@
 
 <script type="text/javascript" src="js/rcswitcher-4.0.min.js"></script>
 <style>
-.container-x-y {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	margin-top: 5px;
-	background-color: #F3F3F3;
-}
-
-.container-z {
+.joystick-container {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -49,11 +41,11 @@
 			style="display: flex; justify-content: center; align-items: center;">
 			<div id="left"
 				style="display: flex; background-color: #F3F3F3; margin: 2px; padding: 3px;">
-				<div class="container-x-y">
+				<div class="joystick-container">
 					<div id="speed_x_y_slider" class="slider row" style="float: left"></div>
 					<div id="speed_x_y" style="float: left" class="row"></div>
 				</div>
-				<div class="container-x-y" style="float: left;">
+				<div class="joystick-container" style="float: left;">
 					<div class="row">
 						<img alt="" src="images/up_left.png"
 							class="joystick-arrow up left" data-dir="up_left"> <img
@@ -79,19 +71,19 @@
 			</div>
 			<div id="right"
 				style="display: flex; background-color: #F3F3F3; margin: 2px; padding: 3px;">
-				<div class="container-z" style="float: left;">
+				<div class="joystick-container" style="float: left;">
 					<div class="row">
 						<img alt="" src="images/z_up.png" class="joystick-arrow"
-							data-dir="z_up">
+							data-dir="z_in">
 					</div>
 					<img alt="" src="images/z.png" class="joystick-arrow"
 						data-dir="none">
 					<div class="row">
 						<img alt="" src="images/z_down.png" class="joystick-arrow"
-							data-dir="z_down">
+							data-dir="z_out">
 					</div>
 				</div>
-				<div class="container-x-y">
+				<div class="joystick-container">
 					<div id="speed_z_slider" class="slider row" style="float: left"></div>
 					<div id="speed_z" style="float: left" class="row"></div>
 				</div>
@@ -132,10 +124,11 @@
 <script type="text/javascript">
 	var moving_x = false;
 	var moving_y = false;
+	var moving_z = false;
 
 	function stop() {
 		var cmds = [];
-		var moving = moving_x | moving_y;
+		var moving = moving_x | moving_y | moving_z;
 
 		if (moving) {
 			if (moving_x) {
@@ -160,6 +153,17 @@
 				moving_y = false;
 			}
 
+			if (moving_z) {
+				command_z = {
+					command : "AXIS_STOP",
+					pars : {
+						axis : "Z",
+					}
+				};
+				cmds.push(command_z);
+				moving_z = false;
+			}
+			
 			$.ajax({
 				url : "/CIAA/",
 				method : "POST",
@@ -177,10 +181,14 @@
 
 	$(".joystick-arrow").mousedown(function() {
 		var dir = $(this).data("dir");
+		var speed_x_y = $("#speed_x_y_slider").slider("value");  
+		var speed_z = $("#speed_z_slider").slider("value");
 		var moving = true;
 
 		var command_x = {};
 		var command_y = {};
+		var command_z = {};
+
 		var cmds = [];
 
 		if (dir.includes("left") | dir.includes("right")) {
@@ -189,6 +197,7 @@
 				pars : {
 					axis : "X",
 					dir : dir.includes("left") ? "CW" : "CCW",
+					speed : speed_x_y,
 				}
 			};
 			cmds.push(command_x);
@@ -201,12 +210,26 @@
 				pars : {
 					axis : "Y",
 					dir : dir.includes("up") ? "CW" : "CCW",
+					speed : speed_x_y,
 				}
 			};
 			cmds.push(command_y);
 			moving_y = true;
 		}
 
+		if (dir.includes("z_")) {
+			command_z = {
+				command : "AXIS_FREE_RUN",
+				pars : {
+					axis : "Z",
+					dir : dir.includes("in") ? "CW" : "CCW",
+					speed : speed_z,
+				}
+			};
+			cmds.push(command_z);
+			moving_z = true;			
+		}
+		
 		$.ajax({
 			url : "/CIAA/",
 			method : "POST",
@@ -306,7 +329,6 @@
 			// autoFontSize: true,
 			autoStick : true,
 		}).on('toggle.rcSwitcher', function(e, data, type) {
-			console.log(type);			
 			update_switches(null, stall_switch.is(':checked'));
 		});
 
@@ -322,7 +344,6 @@
 			// autoFontSize: true,
 			autoStick : true,
 		}).on('toggle.rcSwitcher', function(e, data, type) {
-			console.log(type);
 			update_switches(power_switch.is(':checked'));
 		});
 
