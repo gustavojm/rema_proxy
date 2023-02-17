@@ -94,22 +94,23 @@
 		</div>
 		<div id="down"
 			style="float: left; width: 100%; display: flex; justify-content: center; align-items: center;">
-			<div style="float: left; padding: 15px; ">
+			<div style="float: left; padding: 15px;">
 				<div style="text-align: center;">
 					<div>Calibration Point</div>
 					<div style="padding-top: 5px;">
-						<img alt="" src="images/target.png" height="40" width="40" id="calibration_button">
+						<img alt="" src="images/target.png" height="40" width="40"
+							id="calibration_button">
 					</div>
 				</div>
 			</div>
 			<div style="float: left; padding: 15px;">
-				<div >
+				<div>
 					<div>Stall Control</div>
 					<div>
 						<input type="checkbox" name="stall_switch" id="stall_switch">
 					</div>
 				</div>
-				<div >
+				<div>
 					<div>Power</div>
 					<div>
 						<input type="checkbox" name="power_switch" id="power_switch">
@@ -122,68 +123,35 @@
 </body>
 
 <script type="text/javascript">
-	var moving_x = false;
-	var moving_y = false;
-	var moving_z = false;
+	var moving = false;
 
 	function stop() {
 		var cmds = [];
-		var moving = moving_x | moving_y | moving_z;
 
 		if (moving) {
-			if (moving_x) {
-				command_x = {
-					command : "AXIS_STOP",
-					pars : {
-						axis : "X",
-					}
-				};
-				cmds.push(command_x);
-				moving_x = false;
-			}
 
-			if (moving_y) {
-				command_y = {
-					command : "AXIS_STOP",
-					pars : {
-						axis : "Y",
-					}
-				};
-				cmds.push(command_y);
-				moving_y = false;
-			}
-
-			if (moving_z) {
-				command_z = {
-					command : "AXIS_STOP",
-					pars : {
-						axis : "Z",
-					}
-				};
-				cmds.push(command_z);
-				moving_z = false;
-			}
-			
 			$.ajax({
 				url : "/CIAA/",
 				method : "POST",
 				contentType : "application/json",
 				data : JSON.stringify({
-					commands : cmds,
+					commands : [ {
+						command : "AXIS_STOP_ALL",						
+					}, ]
 				}),
 				dataType : "json",
 				success : function(data) {
 
 				}
 			});
+			moving = false;
 		}
 	}
 
 	$(".joystick-arrow").mousedown(function() {
 		var dir = $(this).data("dir");
-		var speed_x_y = $("#speed_x_y_slider").slider("value");  
+		var speed_x_y = $("#speed_x_y_slider").slider("value");
 		var speed_z = $("#speed_z_slider").slider("value");
-		var moving = true;
 
 		var command_x = {};
 		var command_y = {};
@@ -201,7 +169,7 @@
 				}
 			};
 			cmds.push(command_x);
-			moving_x = true;
+			moving = true;
 		}
 
 		if (dir.includes("up") | dir.includes("down")) {
@@ -214,10 +182,10 @@
 				}
 			};
 			cmds.push(command_y);
-			moving_y = true;
+			moving = true;
 		}
 
-		if (dir.includes("z_")) {
+		if ((dir == "z_in") | (dir == "z_out")) {
 			command_z = {
 				command : "AXIS_FREE_RUN",
 				pars : {
@@ -227,9 +195,9 @@
 				}
 			};
 			cmds.push(command_z);
-			moving_z = true;			
+			moving = true;
 		}
-		
+
 		$.ajax({
 			url : "/CIAA/",
 			method : "POST",
@@ -248,7 +216,7 @@
 
 		var control_pars = {};
 		var stall_pars = {};
-		
+
 		if (control !== null) {
 			control_pars = {
 				enabled : control
@@ -260,7 +228,7 @@
 				enabled : stall
 			};
 		}
-		
+
 		$.ajax({
 			url : "/CIAA/",
 			method : "POST",
@@ -269,18 +237,17 @@
 				commands : [ {
 					command : "CONTROL_ENABLE",
 					pars : control_pars,
-				},
-				{
+				}, {
 					command : "STALL_CONTROL",
 					pars : stall_pars,
-				}]
+				} ]
 			}),
 			dataType : "json",
 			success : function(data) {
 				var power_switch = $('#power_switch');
 				power_switch.prop('checked', data.CONTROL_ENABLE.STATUS);
 				power_switch.change();
-				
+
 				var stall_switch = $('#stall_switch');
 				stall_switch.prop('checked', data.STALL_CONTROL.STATUS);
 				stall_switch.change();
