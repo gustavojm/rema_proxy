@@ -38,7 +38,7 @@
 		$blob: $( '<span>', {'class': 'sblob'} ),
 
 		// Allowed Themes
-		themes: [ 'light', 'modern', 'dark', 'flat', 'yellowish-green' ],
+		themes: [ 'light', 'modern', 'dark', 'flat', 'yellowish-green', 'water-tap' ],
 
 	};
 

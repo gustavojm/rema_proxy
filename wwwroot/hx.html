@@ -7,11 +7,13 @@
 	href="css/select.dataTables.min.css" />
 <link rel="stylesheet" type="text/css"
 	href="css/scroller.dataTables.min.css" />
-
+<link rel="stylesheet" href="css/rcswitcher.css" type="text/css"
+	media="all" />
 
 <script type="text/javascript" src="js/datatables.min.js"></script>
 <script type="text/javascript" src="js/dataTables.select.min.js"></script>
 <script type="text/javascript" src="js/dataTables.scroller.min.js"></script>
+<script type="text/javascript" src="js/rcswitcher.js"></script>
 
 <style>
 svg .tube.clicked {
@@ -43,6 +45,7 @@ svg .tube:hover {
 				value="GO" id="go_button">
 		</div>
 		<div style="float: right; text-align: center;" class="right-side">
+			<input type="checkbox" name="leg_switch" id="leg_switch">			
 			<select id="insp_plans"></select>
 		</div>
 	</div>
@@ -159,8 +162,104 @@ svg .tube:hover {
 		}, 500);
 	}
 
+	function show_tube_info(g, from_table = false) {
+		var table = $('#insp_plan_table').DataTable();
+		var tubes = $(
+				'#tubesheet_svg .tube_num, #tubesheet_svg circle ');
+		var clickmark = 'clicked';
+
+		if ((g
+				.find("circle")
+				.hasClass(clickmark)) & !from_table) {
+			g
+					.children(
+							"circle")
+					.removeClass(
+							clickmark);
+			table.rows().deselect();
+			$("input[type=text]")
+					.val("");
+			update_location_pin_position(
+					0, 0);
+		} else {
+			tubes
+					.not(g)
+					.removeClass(
+							clickmark);
+			g
+					.find("circle")
+					.addClass(
+							clickmark);
+			var cx = $(g).find(
+					"circle")
+					.first().attr(
+							"cx");
+			var cy = $(g).find(
+					"circle")
+					.first().attr(
+							"cy");
+			var id = $(g)
+					.attr("id");
+			var col = $(g).data(
+					"col");
+			var row = $(g).data(
+					"row");
+			$("#tube_info_id").val(
+					id);
+			$("#tube_info_col")
+					.val(col);
+			$("#tube_info_row")
+					.val(row);
+			$("#tube_info_x").val(
+					cx);
+			$("#tube_info_y").val(
+					cy);
+			update_location_pin_position(
+					cx, cy);
+
+			var val = $(g).find(
+					"text").first()
+					.text();
+			
+			if (!from_table) {
+				table.rows().deselect();
+				table
+						.rows()
+						.every(
+								function(
+										rowIdx,
+										tableLoop,
+										rowLoop) {
+	
+									var data = this
+											.data();
+									if (data["tube_id"] == val) {
+										this
+												.select()
+												.scrollTo();
+									}
+								});
+			}
+		}
+	}
+	
 	$(function() {
-		
+
+		var leg_switch = $('#leg_switch').rcSwitcher({
+			// reverse: true,
+			// inputs: true,
+			width : 60,
+			height : 18,
+			blobOffset : 1,
+			onText : 'HOT',
+			offText : 'COLD',
+			theme : 'water-tap',
+			autoFontSize: true,
+			autoStick : true,
+		}).on('toggle.rcSwitcher', function(e, data, type) {
+			
+		});
+
 		$("#go_button").click(function() {
 			var pos_x = parseFloat($("#tube_info_x").val());
 			var pos_y = parseFloat($("#tube_info_y").val());
@@ -228,7 +327,7 @@ svg .tube:hover {
 									{
 										data : 'inspected',
 										render : function(data, type, row) {
-											$("#" + row.tube_id,
+											$("#hl" + row.tube_id + ", #cl" + row.tube_id,
 													$("#tubesheet_svg"))
 													.children("circle")
 													.css(
@@ -292,18 +391,14 @@ svg .tube:hover {
 				'click',
 				'tr',
 				function() {
-					var data = table.row(this).data();
-					var cx = $("#" + data.tube_id, $("#tubesheet_svg"))
-							.children("circle").first().attr("cx");
-					var cy = $("#" + data.tube_id, $("#tubesheet_svg"))
-							.children("circle").first().attr("cy");
-
-					update_location_pin_position(cx, cy);
+					var data = table.row(this).data();					
+					var leg = $("#leg_switch").is(':checked') ? "hl": "cl";	
+					var g = $("#"+ leg + data.tube_id, $("#tubesheet_svg"));
+					show_tube_info(g, true);
 				});
 
 		$("#insp_plan_table").on('change', "input[type='checkbox']", function(e) {			// Using Event Delegates
 		    
-			console.log($(this).prop("checked"));			
 			$.ajax({
 				method : "POST",
 				dataType : 'json',
@@ -322,11 +417,11 @@ svg .tube:hover {
 			onLoad : drawIntro
 		});
 
-		var aspectRatio = 1.5;
+		var aspectRatio = 1;
 
 		function zoom_svg(zoom, ar) {
-			$('#hx_svg').css("width", 100 * zoom / 3 + "%");
-			$('#hx_svg').css("height", 100 * zoom / ar + "%");
+			$('#hx_svg').css("width", 100 * zoom + "%");
+			$('#hx_svg').css("height", 100 * zoom * ar + "%");
 		}
 
 		function svg_load(path) {
@@ -344,85 +439,13 @@ svg .tube:hover {
 										'#tubesheet_svg .tube_num, #tubesheet_svg circle ')
 										.click(
 												function() {
-													var tube_id_column = 0
-													var clickmark = 'clicked';
-													var t = $(this).parent();
-													if (t
-															.find("circle")
-															.hasClass(clickmark)) {
-														t
-																.children(
-																		"circle")
-																.removeClass(
-																		clickmark);
-														table.rows().deselect();
-														$("input[type=text]")
-																.val("");
-														update_location_pin_position(
-																0, 0);
-													} else {
-														tubes
-																.not(t)
-																.removeClass(
-																		clickmark);
-														t
-																.find("circle")
-																.addClass(
-																		clickmark);
-														var cx = $(t).find(
-																"circle")
-																.first().attr(
-																		"cx");
-														var cy = $(t).find(
-																"circle")
-																.first().attr(
-																		"cy");
-														var id = $(t)
-																.attr("id");
-														var col = $(t).data(
-																"col");
-														var row = $(t).data(
-																"row");
-														$("#tube_info_id").val(
-																id);
-														$("#tube_info_col")
-																.val(col);
-														$("#tube_info_row")
-																.val(row);
-														$("#tube_info_x").val(
-																cx);
-														$("#tube_info_y").val(
-																cy);
-														update_location_pin_position(
-																cx, cy);
-
-														var val = $(t).find(
-																"text").first()
-																.text();
-
-														table.rows().deselect();
-														table
-																.rows()
-																.every(
-																		function(
-																				rowIdx,
-																				tableLoop,
-																				rowLoop) {
-
-																			var data = this
-																					.data();
-																			if (data["tube_id"] == val) {
-																				this
-																						.select()
-																						.scrollTo();
-																			}
-																		});
-													}
+													var g = $(this).parent();
+													show_tube_info(g);
 
 												});
 
 								var zoom_bar = $("#zoom_bar").slider({
-									min : 3,
+									min : 1,
 									max : 10,
 									change : function(event, ui) {
 										zoom_svg(ui.value, aspectRatio);
