@@ -299,6 +299,7 @@ svg .tube:hover {
 		var table = $('#insp_plan_table')
 				.DataTable(
 						{
+							deferRender: true,
 							select : true,
 							scroller : true,
 							scrollX : true,
@@ -326,8 +327,16 @@ svg .tube:hover {
 									},
 									{
 										data : 'inspected',
-										render : function(data, type, row) {
-											$("#hl" + row.tube_id + ", #cl" + row.tube_id,
+										render : function(data, type, row) {											
+											$("#hl" + row.tube_id,
+													$("#tubesheet_svg"))
+													.children("circle")
+													.css(
+															"fill",
+															insp_plans_dropdown
+																	.css("background-color"));
+
+											$("#cl" + row.tube_id,							// This selector could be combined with the previous but execution turns too slow
 													$("#tubesheet_svg"))
 													.children("circle")
 													.css(
