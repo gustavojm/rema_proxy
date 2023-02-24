@@ -12,7 +12,7 @@
 #include <chrono>
 
 #include <iostream>
-#include <asio.hpp>
+#include <boost/asio.hpp>
 #include <boost/program_options.hpp>
 #include "syslogger.hpp"
 #include "ciaa.hpp"
@@ -28,11 +28,10 @@ inspection_session current_session;
 
 vector<shared_ptr<Session> > sessions;
 
-std::map<std::string, std::string> mime_types = {
-		{ ".jpg", "image/jpg" }, { ".png", "image/png" }, { "svg",
-				"image/svg+xml" }, { ".css", "text/css" }, { ".js",
-				"text/javascript" }, {".ico", "image/x-icon" }};
-
+std::map<std::string, std::string> mime_types = { { ".jpg", "image/jpg" }, {
+		".png", "image/png" }, { "svg", "image/svg+xml" },
+		{ ".css", "text/css" }, { ".js", "text/javascript" }, { ".ico",
+				"image/x-icon" } };
 
 void register_event_source_handler(const shared_ptr<Session> session) {
 	const auto headers = multimap<string, string> {
@@ -144,19 +143,11 @@ void post_ciaa_method_handler(const shared_ptr<Session> session, ciaa &ciaa) {
 	session->fetch(content_length,
 			[&](const shared_ptr<Session> &session, const Bytes &body) {
 
-				asio::streambuf rx_buffer;
-				auto ec = ciaa.tx_rx(body, rx_buffer);
-
-				if (ec) {
-					session->close(OK, ec.message(),
-							{ { "Content-Length", ::to_string(
-									ec.message().length()) }, { "Content-Type",
-									"application/json; charset=utf-8" } });
-					//std::string stream ( (std::istreambuf_iterator<char>(&receive_buffer)), std::istreambuf_iterator<char>() );
-
-				} else {
+				boost::asio::streambuf rx_buffer;
+				try {
+					ciaa.tx_rx(body, rx_buffer);
 					std::string stream(
-							asio::buffer_cast<const char*>((rx_buffer).data()));
+							boost::asio::buffer_cast<const char*>((rx_buffer).data()));
 					cout << stream << endl;
 
 					if (!stream.empty())
@@ -166,6 +157,12 @@ void post_ciaa_method_handler(const shared_ptr<Session> session, ciaa &ciaa) {
 								::to_string(stream.length()) }, {
 								"Content-Type",
 								"application/json; charset=utf-8" } });
+
+				} catch (std::exception &e) {
+					std::string message = std::string(e.what());
+					session->close(OK, message, { { "Content-Length",
+							::to_string(message.length()) }, { "Content-Type",
+							"application/json; charset=utf-8" } });
 				}
 			});
 }
@@ -247,6 +244,12 @@ int main(const int, const char**) {
 		std::cout << "JSON Proxy Server running on " << ciaa_proxy_port << "\n";
 		std::cout << "Connecting to CIAA on " << ciaa_instance.get_ip() << ":"
 				<< ciaa_instance.get_port() << "\n";
+
+		try	{
+				ciaa_instance.connect();
+		} catch (std::exception &e) {
+				std::cout << e.what() << std::endl;
+		}
 
 	} catch (std::exception &e) {
 		std::cout << e.what() << std::endl;
