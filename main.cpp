@@ -10,6 +10,7 @@
 #include <map>
 #include <exception>
 #include <chrono>
+#include <thread>
 
 #include <iostream>
 #include <boost/asio.hpp>
@@ -46,13 +47,32 @@ void register_event_source_handler(const shared_ptr<Session> session) {
 }
 
 void event_stream_handler(void) {
+	ciaa &ciaa_instance = ciaa::get_instance();
+	static bool hide_sent = false;
+	bool send_sse = false;
+	nlohmann::json res;
+
+	if (!ciaa_instance.isConnected) {
+		res["SHOW_CONNECT"] = true;
+		send_sse = true;
+		hide_sent = false;
+	} else {
+		if (!hide_sent) {
+			res["SHOW_CONNECT"] = false;
+			send_sse = true;
+			hide_sent = true;
+		}
+	}
 
 	if (current_session.is_changed()) {
 		current_session.save_to_disk();
 		current_session.set_changed(false);
 
-		const auto message = "data: Session Saved\n\n";
+		res["SESSION_MSG"] = "Session Saved";
+		send_sse = true;
+	}
 
+	if (send_sse) {
 		sessions.erase(
 				std::remove_if(sessions.begin(), sessions.end(),
 						[](const shared_ptr<Session> &a) {
@@ -60,12 +80,11 @@ void event_stream_handler(void) {
 						}),
 				sessions.end());
 
+		const auto message = "data: " + nlohmann::to_string(res) + "\n\n";
 		for (auto session : sessions) {
 			session->yield(message);
 		}
-
 	}
-
 }
 
 void get_HXs_method_handler(const shared_ptr<Session> session) {
@@ -160,6 +179,7 @@ void post_ciaa_method_handler(const shared_ptr<Session> session, ciaa &ciaa) {
 
 				} catch (std::exception &e) {
 					std::string message = std::string(e.what());
+					std::cerr << "COMMUNICATIONS ERROR " << message << "\n";
 					session->close(OK, message, { { "Content-Length",
 							::to_string(message.length()) }, { "Content-Type",
 							"application/json; charset=utf-8" } });
@@ -169,7 +189,6 @@ void post_ciaa_method_handler(const shared_ptr<Session> session, ciaa &ciaa) {
 
 void post_json_method_handler(const shared_ptr<Session> session) {
 	const auto request = session->get_request();
-
 	size_t content_length = request->get_header("Content-Length", 0);
 
 	session->fetch(content_length,
@@ -245,11 +264,7 @@ int main(const int, const char**) {
 		std::cout << "Connecting to CIAA on " << ciaa_instance.get_ip() << ":"
 				<< ciaa_instance.get_port() << "\n";
 
-		try	{
-				ciaa_instance.connect();
-		} catch (std::exception &e) {
-				std::cout << e.what() << std::endl;
-		}
+		ciaa_instance.connect();
 
 	} catch (std::exception &e) {
 		std::cout << e.what() << std::endl;
@@ -291,6 +306,7 @@ int main(const int, const char**) {
 	auto settings = make_shared<Settings>();
 	settings->set_port(ciaa_proxy_port);
 	settings->set_default_header("Connection", "close");
+	settings->set_worker_limit(std::thread::hardware_concurrency());
 
 	auto resource_server_side_events = make_shared<Resource>();
 	resource_server_side_events->set_path("/sse");

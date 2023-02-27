@@ -23,8 +23,6 @@
 
 <link rel="stylesheet" href="css/jquery-ui.css">
 <script src="js/jquery-ui.min.js"></script>
-
-
 </head>
 
 
@@ -61,7 +59,8 @@
 		<div style="float: left;" class="col">
 			<!-- 			<img alt="Power" src="images/power_green_crop.png" width="50px" height="50px"> -->
 			<!-- 			<img alt="Emergency Stop" src="images/stop_red_crop.png" width="50px" height="50px"> -->
-			<span style="float: right;" id="sse"></span>
+			<span style="float: right; padding-right: 10px;" id="sse"></span>
+			<span style="float: right; color: red; opacity: 0;" id="reconnect">Sin Conexión... <a href="#" id="reconnect_ciaa">Reconectar CIAA</a></span>
 		</div>
 	</div>
 
@@ -122,7 +121,23 @@
 		});
 	}
 
+	function ciaa_connect() {
+		$.ajax({
+			method : "POST",
+			dataType : 'json',
+			url : "/json/ciaa_connect",
+			contentType : "application/json",
+			data : JSON.stringify({
+				}),
+		});			
+	}
+	
 	$(function() {
+	
+		$("#reconnect_ciaa").click(function(){
+			ciaa_connect();			
+		});
+		
 		$("#tabs").tabs({
 			active : 3,
 			//heightStyle : "fill"			
@@ -161,11 +176,25 @@
 
 		var sse = $.SSE('/sse', {
 			onMessage : function(e) {
-				$("#sse").text(e.data).animate({
-					opacity : 1
-				}, 2000).animate({
-					opacity : 0
-				}, 2000)
+				jdata = JSON.parse(e.data);
+				if ("SESSION_MSG" in jdata) {
+					$("#sse").text(jdata.SESSION_MSG).animate({
+						opacity : 1
+					}, 2000).animate({
+						opacity : 0
+					}, 2000);
+				}
+				if ("SHOW_CONNECT" in jdata) {
+					if (jdata.SHOW_CONNECT) {
+						$("#reconnect").animate({
+							opacity : 1
+						}, 2000);						
+					} else {
+						$("#reconnect").animate({
+							opacity : 0
+						}, 2000);						
+					}					
+				}
 			},
 		});
 		sse.start();

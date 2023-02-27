@@ -9,6 +9,7 @@
 #include "csv.h"
 #include "json.hpp"
 #include "insp_session.hpp"
+#include "ciaa.hpp"
 
 using namespace std::chrono_literals;
 extern inspection_session current_session;
@@ -43,6 +44,19 @@ void from_json(const nlohmann::json &j, tube &t) {
 	j.at("hl_x").get_to(t.hl_x);
 	j.at("hl_y").get_to(t.hl_y);
 	j.at("tube_id").get_to(t.tube_id);
+}
+
+nlohmann::json ciaa_connect_cmd(nlohmann::json pars) {
+	nlohmann::json res;
+	try	{
+		ciaa &ciaa_instance = ciaa::get_instance();
+		ciaa_instance.connect();
+		res["ACK"] = true;
+	} catch (std::exception &e) {
+			std::cout << e.what() << std::endl;
+			res["ERROR"] = e.what();
+	}
+	return res;
 }
 
 nlohmann::json hx_tubesheet_load_cmd(nlohmann::json pars) {
@@ -248,7 +262,8 @@ nlohmann::json session_delete_cmd(nlohmann::json pars) {
 
 // @formatter:off
 std::map<std::string, std::function<nlohmann::json(nlohmann::json)>> commands =
-		{ { "hx_list", &hx_list_cmd },
+		{ { "ciaa_connect", &ciaa_connect_cmd },
+		  { "hx_list", &hx_list_cmd },
 		  { "hx_tubesheet_load", &hx_tubesheet_load_cmd },
 		  { "insp_sessions_list", &insp_sessions_list_cmd },
 		  { "session_create", &session_create_cmd },

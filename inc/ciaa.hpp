@@ -77,6 +77,7 @@ private:
     	struct IO_Service serv;
     	std::unique_ptr<tcp::socket> socket;
 
+
         ciaa() {}                    // Constructor? (the {} brackets) are needed here.
 
         // C++ 11
@@ -84,6 +85,7 @@ private:
         // We can use the better technique of deleting the methods
         // we don't want.
     public:
+        bool isConnected = false;
         ciaa(ciaa const&)            = delete;
         void operator=(ciaa const&)  = delete;
 
