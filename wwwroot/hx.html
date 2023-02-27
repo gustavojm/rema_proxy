@@ -45,8 +45,8 @@ svg .tube:hover {
 				value="GO" id="go_button">
 		</div>
 		<div style="float: right; text-align: center;" class="right-side">
-			<input type="checkbox" name="leg_switch" id="leg_switch">			
-			<select id="insp_plans"></select>
+			<input type="checkbox" name="leg_switch" id="leg_switch"> <select
+				id="insp_plans"></select>
 		</div>
 	</div>
 
@@ -103,11 +103,11 @@ svg .tube:hover {
 				+ ", " + y;
 	}
 
-	function drawIntro(svg) {
+	function drawBullseye(svg) {
 		var g = svg.group({
 			stroke : 'green',
 			strokeWidth : 0.02,
-			id : "bulls_eye"
+			id : "bullseye"
 		});
 
 		svg.circle(g, 0, 0, 0.4, {
@@ -123,7 +123,9 @@ svg .tube:hover {
 		svg.line(g, 0, -20, 0, 20, {
 			"stroke-dasharray" : "0.2, 0.1"
 		});
-
+	}
+	
+	function drawLocationPin(svg) {
 		var pin = svg.group({
 			stroke : 'red',
 			strokeWidth : 0.02,
@@ -150,8 +152,8 @@ svg .tube:hover {
 		});
 	}
 
-	function update_bulls_eye_position(x, y) {
-		$("#bulls_eye").animate({
+	function update_bullseye_position(x, y) {
+		$("#bullseye").animate({
 			svgTransform : 'translate(' + x + " " + y + ')'
 		}, 20);
 	}
@@ -162,6 +164,7 @@ svg .tube:hover {
 		}, 500);
 	}
 
+	//Shows information of the selected tube either on the datatables or the HX itself
 	function show_tube_info(g, from_table = false) {
 		var table = $('#insp_plan_table').DataTable();
 		var tubes = $(
@@ -243,11 +246,108 @@ svg .tube:hover {
 		}
 	}
 	
+	function resize_divs() {
+		var left_div = $("#left_side_resizable");
+		var left_width = left_div.width() / left_div.parent().width() * 100;
+
+		$(".left-side").width(left_width + "%");
+		$(".right-side").width(98 - left_width + "%");
+	}
+
+	function zoom_svg(zoom, ar) {
+		$('#hx_svg').css("width", 100 * zoom + "%");
+		$('#hx_svg').css("height", 100 * zoom * ar + "%");
+	}
+
+	function svg_load(path) {
+		$('#hx_svg')
+				.load(
+						path,
+						function() {
+							var tubesheet_svg = document
+									.getElementById('tubesheet_svg');
+							var box = tubesheet_svg.viewBox.baseVal;
+
+							aspectRatio = box.width / box.height;
+
+							var tubes = $(
+									'#tubesheet_svg .tube_num, #tubesheet_svg circle ')
+									.click(
+											function() {
+												var g = $(this).parent();
+												show_tube_info(g);
+
+											});
+
+							var zoom_bar = $("#zoom_bar").slider({
+								min : 1,
+								max : 10,
+								change : function(event, ui) {
+									zoom_svg(ui.value, aspectRatio);
+								}
+							});
+
+							zoom_svg(zoom_bar.slider("value"), aspectRatio);
+
+							$("#tubesheet_svg").svg({
+								onLoad : function (svg) {
+									drawBullseye(svg);
+									drawLocationPin(svg);
+									
+								}
+							});
+						});
+	}
+
+	function get_session_info() {
+		return $.post('/json/session_info');
+	}
+
+	get_session_info()
+			.done(
+					function(data) {
+						tubesheet_path = svg_load("../"
+								+ (data.tubesheet_svg_path || "/static/no_session_loaded.svg"));
+
+						var insp_plans_dropdown = $('#insp_plans');
+						var table = $('#insp_plan_table').DataTable();
+						insp_plans_dropdown.empty();
+						insp_plans_dropdown
+								.append('<option selected="true">Choose an Inspection Plan</option>');
+						insp_plans_dropdown.prop('selectedIndex', 0);
+
+						// Populate dropdown with list of Inspection Plans 		
+						var pastel_colors = [ "#ffadad", "#ffd6a5",
+								"#fdffb6", "#caffbf", "#9bf6ff", "#a0c4ff",
+								"#bdb2ff", "#ffc6ff", "#ffffbb" ];
+						var color = 0;
+						$
+								.each(
+										data.inspection_plans,
+										function(key, entry) {
+											insp_plans_dropdown
+													.append($(
+															'<option style="background-color:' + pastel_colors[color] + '; "></option>')
+															.attr(
+																	'value',
+																	entry.value)
+															.text(
+																	entry.text));
+											color++;
+											color %= pastel_colors.length;
+										});
+
+						insp_plans_dropdown.change(function() {
+							insp_plans_dropdown.css("background-color", $(
+									"option:selected", this).css(
+									"background-color"));
+							table.ajax.reload();
+						});
+					});
+
 	$(function() {
 
 		var leg_switch = $('#leg_switch').rcSwitcher({
-			// reverse: true,
-			// inputs: true,
 			width : 60,
 			height : 18,
 			blobOffset : 1,
@@ -256,8 +356,6 @@ svg .tube:hover {
 			theme : 'water-tap',
 			autoFontSize: true,
 			autoStick : true,
-		}).on('toggle.rcSwitcher', function(e, data, type) {
-			
 		});
 
 		$("#go_button").click(function() {
@@ -352,49 +450,6 @@ svg .tube:hover {
 									}, ],
 						});
 
-		function get_session_info() {
-			return $.post('/json/session_info');
-		}
-
-		get_session_info()
-				.done(
-						function(data) {
-							tubesheet_path = svg_load("../"
-									+ (data.tubesheet_svg_path || "/static/no_session_loaded.svg"));
-
-							insp_plans_dropdown.empty();
-							insp_plans_dropdown
-									.append('<option selected="true">Choose an Inspection Plan</option>');
-							insp_plans_dropdown.prop('selectedIndex', 0);
-
-							// Populate dropdown with list of Inspection Plans 		
-							var pastel_colors = [ "#ffadad", "#ffd6a5",
-									"#fdffb6", "#caffbf", "#9bf6ff", "#a0c4ff",
-									"#bdb2ff", "#ffc6ff", "#ffffbb" ];
-							var color = 0;
-							$
-									.each(
-											data.inspection_plans,
-											function(key, entry) {
-												insp_plans_dropdown
-														.append($(
-																'<option style="background-color:' + pastel_colors[color] + '; "></option>')
-																.attr(
-																		'value',
-																		entry.value)
-																.text(
-																		entry.text));
-												color++;
-												color %= pastel_colors.length;
-											});
-
-							insp_plans_dropdown.change(function() {
-								insp_plans_dropdown.css("background-color", $(
-										"option:selected", this).css(
-										"background-color"));
-								table.ajax.reload();
-							});
-						});
 
 		$('#insp_plan_table tbody').on(
 				'click',
@@ -406,6 +461,7 @@ svg .tube:hover {
 					show_tube_info(g, true);
 				});
 
+		// Mark/unmark a tube as inspected
 		$("#insp_plan_table").on('change', "input[type='checkbox']", function(e) {			// Using Event Delegates
 		    
 			$.ajax({
@@ -423,59 +479,11 @@ svg .tube:hover {
 		})
 			
 		$("#tubesheet_svg").svg({
-			onLoad : drawIntro
+			onLoad : function (svg) {
+				drawBullseye(svg);
+				drawLocationPin(svg);
+			}
 		});
-
-		var aspectRatio = 1;
-
-		function zoom_svg(zoom, ar) {
-			$('#hx_svg').css("width", 100 * zoom + "%");
-			$('#hx_svg').css("height", 100 * zoom * ar + "%");
-		}
-
-		function svg_load(path) {
-			$('#hx_svg')
-					.load(
-							path,
-							function() {
-								var tubesheet_svg = document
-										.getElementById('tubesheet_svg');
-								var box = tubesheet_svg.viewBox.baseVal;
-
-								aspectRatio = box.width / box.height;
-
-								var tubes = $(
-										'#tubesheet_svg .tube_num, #tubesheet_svg circle ')
-										.click(
-												function() {
-													var g = $(this).parent();
-													show_tube_info(g);
-
-												});
-
-								var zoom_bar = $("#zoom_bar").slider({
-									min : 1,
-									max : 10,
-									change : function(event, ui) {
-										zoom_svg(ui.value, aspectRatio);
-									}
-								});
-
-								zoom_svg(zoom_bar.slider("value"), aspectRatio);
-
-								$("#tubesheet_svg").svg({
-									onLoad : drawIntro
-								});
-							});
-		}
-
-		function resize_divs() {
-			var left_div = $("#left_side_resizable");
-			var left_width = left_div.width() / left_div.parent().width() * 100;
-
-			$(".left-side").width(left_width + "%");
-			$(".right-side").width(98 - left_width + "%");
-		}
 
 		new ResizeObserver(resize_divs).observe(document
 				.getElementById("left_side_resizable"));

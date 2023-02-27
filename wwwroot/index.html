@@ -88,8 +88,8 @@
 				$("#position_y").val(pos_y);
 				$("#position_z").val(pos_z);
 
-				if (typeof update_bulls_eye_position === "function") {
-					update_bulls_eye_position(pos_x, pos_y);
+				if (typeof update_bullseye_position === "function") {
+					update_bullseye_position(pos_x, pos_y);
 				}
 
 			}
@@ -121,21 +121,17 @@
 		});
 	}
 
-	function ciaa_connect() {
-		$.ajax({
-			method : "POST",
-			dataType : 'json',
-			url : "/json/ciaa_connect",
-			contentType : "application/json",
-			data : JSON.stringify({
-				}),
-		});			
-	}
-	
 	$(function() {
 	
 		$("#reconnect_ciaa").click(function(){
-			ciaa_connect();			
+			$.ajax({
+				method : "POST",
+				dataType : 'json',
+				url : "/json/ciaa_connect",
+				contentType : "application/json",
+				data : JSON.stringify({
+					}),
+			});			
 		});
 		
 		$("#tabs").tabs({
@@ -146,34 +142,18 @@
 			}
 		});
 
-		$("#reset").click(function() {
-			$.ajax({
-				url : "/CIAA/",
-				method : "POST",
-				contentType : "application/json",
-				data : JSON.stringify({
-					commands : [ {
-						command : "AXIS_STOP",
-						pars : {
-							AXIS : "X"
-						}
-					}, ]
-				}),
-				dataType : "json",
-				success : function(data) {
-				}
-			})
-		});
+		var timer = setInterval(update_ui, 1000);
 
-		//var timer = setInterval(update_ui, 1000);
-
+		// Only for debug purposes 
 		$("#position_x, #position_y").on(
 				"input",
 				function() {
-					update_bulls_eye_position($("#position_x").val(), $(
+					update_bullseye_position($("#position_x").val(), $(
 							"#position_y").val());
 				});
+		// 
 
+		// Handle Server Side Events
 		var sse = $.SSE('/sse', {
 			onMessage : function(e) {
 				jdata = JSON.parse(e.data);
