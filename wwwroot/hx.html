@@ -126,6 +126,7 @@ svg .tube:hover {
 	}
 	
 	function drawLocationPin(svg) {
+		var offset_up = -0.1 	// Not to cover the tube numbers
 		var pin = svg.group({
 			stroke : 'red',
 			strokeWidth : 0.02,
@@ -133,19 +134,19 @@ svg .tube:hover {
 			transform : "rotate(45, 0, 0)"
 		});
 
-		svg.rect(pin, -0.3, -0.3, 0.3, 0.3, {
+		svg.rect(pin, -0.3 + offset_up, -0.3 + offset_up, 0.3, 0.3, {
 			fill : 'red',
 			stroke : 'red',
 			strokeWidth : 0.02
 		});
 
-		svg.circle(pin, -0.3, -0.3, 0.3, {
+		svg.circle(pin, -0.3 + offset_up, -0.3 + offset_up, 0.3, {
 			fill : 'red',
 			stroke : 'red',
 			strokeWidth : 0.02
 		});
 
-		svg.circle(pin, -0.3, -0.3, 0.15, {
+		svg.circle(pin, -0.3 + offset_up, -0.3 + offset_up, 0.15, {
 			fill : 'white',
 			stroke : 'red',
 			strokeWidth : 0.02
@@ -208,7 +209,7 @@ svg .tube:hover {
 			var row = $(g).data(
 					"row");
 			$("#tube_info_id").val(
-					id);
+					id.substring(2));
 			$("#tube_info_col")
 					.val(col);
 			$("#tube_info_row")
@@ -426,6 +427,7 @@ svg .tube:hover {
 									{
 										data : 'inspected',
 										render : function(data, type, row) {											
+											// Highlight the tubes belonging to this inspection plan on the HX 
 											$("#hl" + row.tube_id,
 													$("#tubesheet_svg"))
 													.children("circle")

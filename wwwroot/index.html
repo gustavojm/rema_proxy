@@ -80,7 +80,6 @@
 			}),
 			dataType : "json",
 			success : function(data) {
-				console.log(data);
 				var pos_x = data.TELEMETRIA["cuentas A"];
 				var pos_y = data.TELEMETRIA["cuentas B"];
 				var pos_z = data.TELEMETRIA["cuentas Z"];
@@ -115,7 +114,6 @@
 			}),
 			dataType : "json",
 			success : function(data) {
-				console.log(data);
 				update_ui();
 			}
 		});

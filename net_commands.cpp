@@ -6,15 +6,13 @@
 #include <exception>
 #include <vector>
 
-#include "csv.h"
-#include "json.hpp"
-#include "insp_session.hpp"
-#include "ciaa.hpp"
+#include "inc/csv.h"
+#include "inc/json.hpp"
+#include "inc/insp_session.hpp"
+#include "inc/ciaa.hpp"
 
 using namespace std::chrono_literals;
 extern inspection_session current_session;
-
-std::filesystem::path loaded_session_path;
 
 std::filesystem::path insp_sessions_dir = std::filesystem::path("insp_sessions");
 
@@ -81,7 +79,6 @@ nlohmann::json hx_tubesheet_load_cmd(nlohmann::json pars) {
 		nlohmann::json res(nlohmann::json::value_t::object);
 		return res;
 	}
-
 }
 
 nlohmann::json hx_list_cmd(nlohmann::json pars) {
@@ -117,7 +114,6 @@ nlohmann::json insp_plan_load_cmd(nlohmann::json pars) {
 	return res;
 }
 
-
 nlohmann::json tube_set_status_cmd(nlohmann::json pars) {
 	nlohmann::json res;
 
@@ -136,10 +132,9 @@ nlohmann::json tube_set_status_cmd(nlohmann::json pars) {
 
 template<typename TP>
 std::time_t to_time_t(TP tp) {
-	using namespace std::chrono;
-	auto sctp = time_point_cast<system_clock::duration>(
-			tp - TP::clock::now() + system_clock::now());
-	return system_clock::to_time_t(sctp);
+	auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
+			tp - TP::clock::now() + std::chrono::system_clock::now());
+	return std::chrono::system_clock::to_time_t(sctp);
 }
 
 nlohmann::json insp_sessions_list_cmd(nlohmann::json pars) {
@@ -153,9 +148,6 @@ nlohmann::json insp_sessions_list_cmd(nlohmann::json pars) {
 			std::stringstream buffer;
 			buffer << std::put_time(gmt, "%A, %d %B %Y %H:%M");
 			std::string formattedFileTime = buffer.str();
-
-			//res.push_back( std::make_pair(std::make_pair( "file_name", entry.path().filename()), std::make_pair(
-			//		"file_date", formattedFileTime)));
 			std::string filename = entry.path().filename();
 			std::ifstream session_file {entry.path()};
 			nlohmann::json j;
@@ -239,7 +231,6 @@ nlohmann::json session_info_cmd(nlohmann::json pars) {
 			insp_plans_json.push_back(
 					{ { "value", i_p.first }, { "text", i_p.first.filename() } });
 		}
-
 		res["inspection_plans"] = insp_plans_json;
 	}
 

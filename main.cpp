@@ -11,37 +11,34 @@
 #include <exception>
 #include <chrono>
 #include <thread>
-
 #include <iostream>
+
 #include <boost/asio.hpp>
 #include <boost/program_options.hpp>
-#include "syslogger.hpp"
-#include "ciaa.hpp"
-#include "json.hpp"
-#include "csv.h"
-#include "net_commands.hpp"
-#include "insp_session.hpp"
-
-using namespace std;
-using namespace restbed;
+#include "inc/syslogger.hpp"
+#include "inc/ciaa.hpp"
+#include "inc/json.hpp"
+#include "inc/csv.h"
+#include "inc/net_commands.hpp"
+#include "inc/insp_session.hpp"
 
 inspection_session current_session;
 
-vector<shared_ptr<Session> > sessions;
+vector<shared_ptr<restbed::Session>> sessions;
 
 std::map<std::string, std::string> mime_types = { { ".jpg", "image/jpg" }, {
 		".png", "image/png" }, { "svg", "image/svg+xml" },
 		{ ".css", "text/css" }, { ".js", "text/javascript" }, { ".ico",
 				"image/x-icon" } };
 
-void register_event_source_handler(const shared_ptr<Session> session) {
+void register_event_source_handler(const shared_ptr<restbed::Session> session) {
 	const auto headers = multimap<string, string> {
 			{ "Connection", "keep-alive" }, { "Cache-Control", "no-cache" }, {
 					"Content-Type", "text/event-stream" }, {
 					"Access-Control-Allow-Origin", "*" } //Only required for demo purposes.
 	};
 
-	session->yield(OK, headers, [](const shared_ptr<Session> session) {
+	session->yield(OK, headers, [](const shared_ptr<restbed::Session> session) {
 		sessions.push_back(session);
 	});
 }
@@ -154,13 +151,13 @@ void get_method_handler(const shared_ptr<Session> session) {
 	}
 }
 
-void post_ciaa_method_handler(const shared_ptr<Session> session, ciaa &ciaa) {
+void post_ciaa_method_handler(const shared_ptr<restbed::Session> session, ciaa &ciaa) {
 	const auto request = session->get_request();
 
 	size_t content_length = request->get_header("Content-Length", 0);
 
 	session->fetch(content_length,
-			[&](const shared_ptr<Session> &session, const Bytes &body) {
+			[&](const shared_ptr<restbed::Session> &session, const Bytes &body) {
 
 				boost::asio::streambuf rx_buffer;
 				try {
@@ -187,12 +184,12 @@ void post_ciaa_method_handler(const shared_ptr<Session> session, ciaa &ciaa) {
 			});
 }
 
-void post_json_method_handler(const shared_ptr<Session> session) {
+void post_json_method_handler(const shared_ptr<restbed::Session> session) {
 	const auto request = session->get_request();
 	size_t content_length = request->get_header("Content-Length", 0);
 
 	session->fetch(content_length,
-			[&](const shared_ptr<Session> &session, const Bytes &body) {
+			[&](const shared_ptr<restbed::Session> &session, const Bytes &body) {
 
 				std::string b = { body.begin(), body.end() };
 
@@ -216,7 +213,7 @@ void post_json_method_handler(const shared_ptr<Session> session) {
 			});
 }
 
-void failed_filter_validation_handler(const shared_ptr<Session> session) {
+void failed_filter_validation_handler(const shared_ptr<restbed::Session> session) {
 	const auto request = session->get_request();
 	auto headers = request->get_headers();
 	std::cout << "invalid: " << std::endl;
@@ -274,19 +271,19 @@ int main(const int, const char**) {
 	auto post_ciaa_method_handler_bound = std::bind(post_ciaa_method_handler,
 			_1, std::ref(ciaa_instance)); // std::bind always passes by value unles std::ref
 
-	auto resource_ciaa = make_shared<Resource>();
+	auto resource_ciaa = make_shared<restbed::Resource>();
 	resource_ciaa->set_path("/CIAA");
 	resource_ciaa->set_failed_filter_validation_handler(
 			failed_filter_validation_handler);
 	resource_ciaa->set_method_handler("POST", post_ciaa_method_handler_bound);
 
-	auto resource_json = make_shared<Resource>();
+	auto resource_json = make_shared<restbed::Resource>();
 	resource_json->set_path("/json/{command: .*}");
 	resource_json->set_failed_filter_validation_handler(
 			failed_filter_validation_handler);
 	resource_json->set_method_handler("POST", post_json_method_handler);
 
-	auto resource_html_file = make_shared<Resource>();
+	auto resource_html_file = make_shared<restbed::Resource>();
 
 	resource_html_file->set_paths( {
 			"/static/{filename: ^.+\\.(html|jpg|png|svg|ico)$}",
@@ -297,23 +294,23 @@ int main(const int, const char**) {
 
 	resource_html_file->set_method_handler("GET", get_method_handler);
 
-	auto resource_HXs = make_shared<Resource>();
+	auto resource_HXs = make_shared<restbed::Resource>();
 	resource_HXs->set_path("/HXs/{folder: .*}/{file: .*}");
 	resource_HXs->set_failed_filter_validation_handler(
 			failed_filter_validation_handler);
 	resource_HXs->set_method_handler("GET", get_HXs_method_handler);
 
-	auto settings = make_shared<Settings>();
+	auto settings = make_shared<restbed::Settings>();
 	settings->set_port(ciaa_proxy_port);
 	settings->set_default_header("Connection", "close");
 	settings->set_worker_limit(std::thread::hardware_concurrency());
 
-	auto resource_server_side_events = make_shared<Resource>();
+	auto resource_server_side_events = make_shared<restbed::Resource>();
 	resource_server_side_events->set_path("/sse");
 	resource_server_side_events->set_method_handler("GET",
 			register_event_source_handler);
 
-	Service service;
+	restbed::Service service;
 	service.publish(resource_ciaa);
 	service.publish(resource_HXs);
 	service.publish(resource_json);
