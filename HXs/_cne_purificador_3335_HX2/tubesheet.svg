@@ -1,83 +1,137 @@
-<svg height="auto" id="tubesheet_svg" version="1.1" viewBox="-1 -6.000000 39.000000 24.000000" width="auto" xmlns="http://www.w3.org/2000/svg">
+<svg height="auto" id="tubesheet_svg" version="1.1" viewBox="-1.000000 -6.000000 39.000000 24.000000" width="auto" xmlns="http://www.w3.org/2000/svg">
 	<style type="text/css">.tube {stroke: black; stroke-width: 0.02; fill: white;} .tube_num { text-anchor: middle; alignment-baseline: middle; font-family: sans-serif; font-size: 0.25px; fill: black;}.label { text-anchor: middle; alignment-baseline: middle; font-family: sans-serif; font-size: 0.25px; fill: red;}</style>
 	<line stroke="gray" stroke-dasharray="0.2, 0.1" stroke-width="0.02" x1="-1.000000" x2="39.000000" y1="0.000000" y2="0.000000"/>
 	<line stroke="gray" stroke-dasharray="0.2, 0.1" stroke-width="0.02" x1="0.000000" x2="0.000000" y1="-6.000000" y2="13.000000"/>
 	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">1</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">10</text>
 	<text class="label" x="5.966100" y="-0.750000" transform="rotate(270,5.966100, -0.750000)">10</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">11</text>
 	<text class="label" x="6.629000" y="-0.750000" transform="rotate(270,6.629000, -0.750000)">11</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">12</text>
 	<text class="label" x="7.291900" y="-0.750000" transform="rotate(270,7.291900, -0.750000)">12</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">13</text>
 	<text class="label" x="7.954801" y="-0.750000" transform="rotate(270,7.954801, -0.750000)">13</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">14</text>
 	<text class="label" x="8.617701" y="-0.750000" transform="rotate(270,8.617701, -0.750000)">14</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">15</text>
 	<text class="label" x="9.280600" y="-0.750000" transform="rotate(270,9.280600, -0.750000)">15</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">16</text>
 	<text class="label" x="9.943500" y="-0.750000" transform="rotate(270,9.943500, -0.750000)">16</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">17</text>
 	<text class="label" x="10.606400" y="-0.750000" transform="rotate(270,10.606400, -0.750000)">17</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">18</text>
 	<text class="label" x="11.269300" y="-0.750000" transform="rotate(270,11.269300, -0.750000)">18</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">19</text>
 	<text class="label" x="11.932199" y="-0.750000" transform="rotate(270,11.932199, -0.750000)">19</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">2</text>
 	<text class="label" x="0.662900" y="-0.750000" transform="rotate(270,0.662900, -0.750000)">2</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">20</text>
 	<text class="label" x="13.258000" y="-0.750000" transform="rotate(270,13.258000, -0.750000)">20</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">21</text>
 	<text class="label" x="13.920900" y="-0.750000" transform="rotate(270,13.920900, -0.750000)">21</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">22</text>
 	<text class="label" x="14.583800" y="-0.750000" transform="rotate(270,14.583800, -0.750000)">22</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">23</text>
 	<text class="label" x="15.246699" y="-0.750000" transform="rotate(270,15.246699, -0.750000)">23</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">24</text>
 	<text class="label" x="15.909599" y="-0.750000" transform="rotate(270,15.909599, -0.750000)">24</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">25</text>
 	<text class="label" x="16.572500" y="-0.750000" transform="rotate(270,16.572500, -0.750000)">25</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">26</text>
 	<text class="label" x="17.235401" y="-0.750000" transform="rotate(270,17.235401, -0.750000)">26</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">27</text>
 	<text class="label" x="17.898298" y="-0.750000" transform="rotate(270,17.898298, -0.750000)">27</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">28</text>
 	<text class="label" x="18.561199" y="-0.750000" transform="rotate(270,18.561199, -0.750000)">28</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">29</text>
 	<text class="label" x="19.224100" y="-0.750000" transform="rotate(270,19.224100, -0.750000)">29</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">3</text>
 	<text class="label" x="1.325800" y="-0.750000" transform="rotate(270,1.325800, -0.750000)">3</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">30</text>
 	<text class="label" x="19.886999" y="-0.750000" transform="rotate(270,19.886999, -0.750000)">30</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">31</text>
 	<text class="label" x="20.549902" y="-0.750000" transform="rotate(270,20.549902, -0.750000)">31</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">32</text>
 	<text class="label" x="21.212801" y="-0.750000" transform="rotate(270,21.212801, -0.750000)">32</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">33</text>
 	<text class="label" x="21.875698" y="-0.750000" transform="rotate(270,21.875698, -0.750000)">33</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">34</text>
 	<text class="label" x="22.538601" y="-0.750000" transform="rotate(270,22.538601, -0.750000)">34</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">35</text>
 	<text class="label" x="23.201500" y="-0.750000" transform="rotate(270,23.201500, -0.750000)">35</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">36</text>
 	<text class="label" x="23.864399" y="-0.750000" transform="rotate(270,23.864399, -0.750000)">36</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">37</text>
 	<text class="label" x="25.190201" y="-0.750000" transform="rotate(270,25.190201, -0.750000)">37</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">38</text>
 	<text class="label" x="25.853098" y="-0.750000" transform="rotate(270,25.853098, -0.750000)">38</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">39</text>
 	<text class="label" x="26.516001" y="-0.750000" transform="rotate(270,26.516001, -0.750000)">39</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">4</text>
 	<text class="label" x="1.988700" y="-0.750000" transform="rotate(270,1.988700, -0.750000)">4</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">40</text>
 	<text class="label" x="27.178900" y="-0.750000" transform="rotate(270,27.178900, -0.750000)">40</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">41</text>
 	<text class="label" x="27.841799" y="-0.750000" transform="rotate(270,27.841799, -0.750000)">41</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">42</text>
 	<text class="label" x="28.504700" y="-0.750000" transform="rotate(270,28.504700, -0.750000)">42</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">43</text>
 	<text class="label" x="29.167601" y="-0.750000" transform="rotate(270,29.167601, -0.750000)">43</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">44</text>
 	<text class="label" x="29.830500" y="-0.750000" transform="rotate(270,29.830500, -0.750000)">44</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">45</text>
 	<text class="label" x="30.493401" y="-0.750000" transform="rotate(270,30.493401, -0.750000)">45</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">46</text>
 	<text class="label" x="31.156300" y="-0.750000" transform="rotate(270,31.156300, -0.750000)">46</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">47</text>
 	<text class="label" x="31.819201" y="-0.750000" transform="rotate(270,31.819201, -0.750000)">47</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">48</text>
 	<text class="label" x="32.482101" y="-0.750000" transform="rotate(270,32.482101, -0.750000)">48</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">49</text>
 	<text class="label" x="33.145000" y="-0.750000" transform="rotate(270,33.145000, -0.750000)">49</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">5</text>
 	<text class="label" x="2.651600" y="-0.750000" transform="rotate(270,2.651600, -0.750000)">5</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">50</text>
 	<text class="label" x="33.807899" y="-0.750000" transform="rotate(270,33.807899, -0.750000)">50</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">51</text>
 	<text class="label" x="34.470802" y="-0.750000" transform="rotate(270,34.470802, -0.750000)">51</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">52</text>
 	<text class="label" x="35.133698" y="-0.750000" transform="rotate(270,35.133698, -0.750000)">52</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">53</text>
 	<text class="label" x="35.796600" y="-0.750000" transform="rotate(270,35.796600, -0.750000)">53</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">54</text>
 	<text class="label" x="36.459499" y="-0.750000" transform="rotate(270,36.459499, -0.750000)">54</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">55</text>
 	<text class="label" x="37.122398" y="-0.750000" transform="rotate(270,37.122398, -0.750000)">55</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">6</text>
 	<text class="label" x="3.314500" y="-0.750000" transform="rotate(270,3.314500, -0.750000)">6</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">7</text>
 	<text class="label" x="3.977400" y="-0.750000" transform="rotate(270,3.977400, -0.750000)">7</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">8</text>
 	<text class="label" x="4.640300" y="-0.750000" transform="rotate(270,4.640300, -0.750000)">8</text>
+	<text class="label" x="0.000000" y="-0.750000" transform="rotate(270,0.000000, -0.750000)">9</text>
 	<text class="label" x="5.303200" y="-0.750000" transform="rotate(270,5.303200, -0.750000)">9</text>
 	<text class="label" x="-0.750000" y="-4.500000">A</text>
 	<text class="label" x="-0.750000" y="4.500000">A</text>
-	<text class="label" x="-0.750000" y="-5.162900">B</text>
+	<text class="label" x="-0.750000" y="-4.500000">B</text>
 	<text class="label" x="-0.750000" y="5.162900">B</text>
-	<text class="label" x="-0.750000" y="-5.825800">C</text>
+	<text class="label" x="-0.750000" y="-4.500000">C</text>
 	<text class="label" x="-0.750000" y="5.825800">C</text>
-	<text class="label" x="-0.750000" y="-6.488700">D</text>
+	<text class="label" x="-0.750000" y="-4.500000">D</text>
 	<text class="label" x="-0.750000" y="6.488700">D</text>
-	<text class="label" x="-0.750000" y="-7.151600">E</text>
+	<text class="label" x="-0.750000" y="-4.500000">E</text>
 	<text class="label" x="-0.750000" y="7.151600">E</text>
-	<text class="label" x="-0.750000" y="-7.814500">F</text>
+	<text class="label" x="-0.750000" y="-4.500000">F</text>
 	<text class="label" x="-0.750000" y="7.814500">F</text>
-	<text class="label" x="-0.750000" y="-8.477400">G</text>
+	<text class="label" x="-0.750000" y="-4.500000">G</text>
 	<text class="label" x="-0.750000" y="8.477400">G</text>
-	<text class="label" x="-0.750000" y="-9.140300">H</text>
+	<text class="label" x="-0.750000" y="-4.500000">H</text>
 	<text class="label" x="-0.750000" y="9.140300">H</text>
-	<text class="label" x="-0.750000" y="-9.803200">I</text>
+	<text class="label" x="-0.750000" y="-4.500000">I</text>
 	<text class="label" x="-0.750000" y="9.803200">I</text>
-	<text class="label" x="-0.750000" y="-10.466101">J</text>
+	<text class="label" x="-0.750000" y="-4.500000">J</text>
 	<text class="label" x="-0.750000" y="10.466101">J</text>
-	<text class="label" x="-0.750000" y="-11.129000">K</text>
+	<text class="label" x="-0.750000" y="-4.500000">K</text>
 	<text class="label" x="-0.750000" y="11.129000">K</text>
 	<g data-col="1" data-row="A" id="cl1">
 		<title>Col=1 Row=A</title>
