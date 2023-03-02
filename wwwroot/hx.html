@@ -294,7 +294,8 @@ svg .tube:hover {
 								onLoad : function (svg) {
 									drawBullseye(svg);
 									drawLocationPin(svg);
-									
+									var objDiv = document.getElementById("left_side_resizable");									
+									objDiv.scrollTop = (objDiv.scrollHeight - objDiv.clientHeight) / 2
 								}
 							});
 						});
@@ -307,7 +308,7 @@ svg .tube:hover {
 	get_session_info()
 			.done(
 					function(data) {
-						tubesheet_path = svg_load("../"
+						svg_load("../"
 								+ (data.tubesheet_svg_path || "/static/no_session_loaded.svg"));
 
 						var insp_plans_dropdown = $('#insp_plans');
