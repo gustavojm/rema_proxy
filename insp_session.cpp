@@ -4,6 +4,7 @@
 #include <map>
 #include <csv.h>
 #include "insp_session.hpp"
+#include "boost/program_options.hpp"
 
 extern inspection_session current_session;
 
@@ -19,6 +20,27 @@ inspection_session::inspection_session(std::filesystem::path inspection_session_
 		inspection_session_file(inspection_session_file), hx_directory(hx_directory), hx(hx), tubesheet_csv(
 				tubesheet_csv), tubesheet_svg(tubesheet_svg) {
 
+    try {
+        namespace po = boost::program_options;
+        po::options_description settings_desc("HX Settings");
+        settings_desc.add_options()("leg",
+                po::value<std::string>(&leg)->default_value("both"),
+                "Leg (hot, cold, both)");
+        settings_desc.add_options()("tube_od",
+                po::value<float>(&tube_od)->default_value(1.f),
+                "Tube Outside Diameter in inches");
+
+        po::variables_map vm;
+
+        std::filesystem::path config = hx_directory / hx / "config.ini";
+        if (std::filesystem::exists(config)) {
+            std::ifstream config_is = std::ifstream(config);
+            po::store(po::parse_config_file(config_is, settings_desc, true), vm);
+        }
+        po::notify(vm);
+    }catch (std::exception &e) {
+        std::cout << e.what() << "\n";
+    }
 }
 
 std::string inspection_session::load_plans() {
@@ -102,6 +124,8 @@ void to_json(nlohmann::json &j, const inspection_session &is) {
 			{ "tubesheet_svg", is.tubesheet_svg },
 			{ "last_selected_plan", is.last_selected_plan },
 			{ "insp_plans", nlohmann::json(is.insp_plans) },
+			{ "leg", nlohmann::json(is.leg) },
+			{ "tube_od", nlohmann::json(is.tube_od) },
 	};
 }
 
@@ -113,5 +137,7 @@ void from_json(const nlohmann::json &j, inspection_session &is) {
 	j.at("tubesheet_svg").get_to(is.tubesheet_svg);
 	j.at("last_selected_plan").get_to(is.last_selected_plan);
 	j.at("insp_plans").get_to(is.insp_plans);
+	j.at("leg").get_to(is.leg);
+	j.at("tube_od").get_to(is.tube_od);
 
 }

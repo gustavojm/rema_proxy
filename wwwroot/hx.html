@@ -345,6 +345,14 @@ svg .tube:hover {
 									"background-color"));
 							table.ajax.reload();
 						});
+						
+						var leg_switch = $('#leg_switch');
+						leg_switch.prop('checked', data.leg == "cold" ? false : true);
+						if (data.leg != "both") {
+							leg_switch.prop('disabled', true);	
+						}						
+						leg_switch.change();
+
 					});
 
 	$(function() {

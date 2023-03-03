@@ -225,6 +225,8 @@ nlohmann::json session_info_cmd(nlohmann::json pars) {
 	if (current_session.is_loaded()) {
 		res["tubesheet_svg_path"] = current_session.tubesheet_svg;
 		res["last_selected_plan"] = current_session.get_selected_plan();
+		res["leg"] = current_session.leg;
+		res["tube_od"] = current_session.tube_od;
 
 		nlohmann::json insp_plans_json;
 		for (auto &i_p : current_session.insp_plans) {

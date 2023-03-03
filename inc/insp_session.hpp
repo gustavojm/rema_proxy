@@ -54,6 +54,8 @@ public:
 	std::filesystem::path tubesheet_csv;
 	std::filesystem::path tubesheet_svg;
 	std::filesystem::path last_selected_plan;
+	float tube_od;
+	std::string leg = "both";
 	bool loaded = false;
 	bool changed = false;
 };
