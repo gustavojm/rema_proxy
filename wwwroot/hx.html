@@ -59,7 +59,7 @@ svg .tube:hover {
 		</div>
 		<div id="tubesheet_tab" class="right-side"
 			style="overflow: scroll; width: 20%; height: 100%; float: left; position: relative;">
-			<div>
+			<div id="datatables_div">
 				<table id="insp_plan_table" class="datatables display my-table"
 					style="width: 100%">
 					<thead>
@@ -235,8 +235,8 @@ svg .tube:hover {
 										tableLoop,
 										rowLoop) {
 	
-									var data = this
-											.data();
+									
+									var data = this.data();
 									if (data["tube_id"] == val) {
 										this
 												.select()
@@ -355,6 +355,12 @@ svg .tube:hover {
 
 					});
 
+		
+	// Grays out inspected tubes on the SVG
+	function gray_out_tube(g, status) {
+		$(g).css("opacity", status == true ? 0.25 : 1);
+	}
+	
 	$(function() {
 
 		var leg_switch = $('#leg_switch').rcSwitcher({
@@ -409,9 +415,13 @@ svg .tube:hover {
 						{
 							deferRender: true,
 							select : true,
-							scroller : true,
-							scrollX : true,
-							sScrollY : '340px',
+							sScrollY : "360px",
+							//sScrollY : "calc(100% - 380px)",
+							scroller: {
+						        rowHeight: 28
+						    },
+							scrollX : true,						
+							//paging: false,							
 							ajax : {
 								method : "post",
 								dataType : 'json',
@@ -444,14 +454,19 @@ svg .tube:hover {
 															"fill",
 															insp_plans_dropdown
 																	.css("background-color"));
+											
+											gray_out_tube("#hl" + row.tube_id, data);
+											
 
 											$("#cl" + row.tube_id,							// This selector could be combined with the previous but execution turns too slow
-													$("#tubesheet_svg"))
+													$("#tubesheet_svg"))													
 													.children("circle")
 													.css(
 															"fill",
 															insp_plans_dropdown
 																	.css("background-color"));
+											
+											gray_out_tube("#cl" + row.tube_id, data);
 
 											return '<input type="checkbox" value='
 													+ row.tube_id
@@ -483,11 +498,13 @@ svg .tube:hover {
 				data : JSON.stringify({
 						insp_plan_path : $("#insp_plans").val(),
 						tube_id : $(this).val(),
-						checked : $(this).prop("checked"), 
-					
+						checked : $(this).prop("checked"), 					
 					}),
 			});
-		})
+
+			gray_out_tube("#hl" + $(this).val(), $(this).prop("checked"));
+			gray_out_tube("#cl" + $(this).val(), $(this).prop("checked"));								
+		});
 			
 		$("#tubesheet_svg").svg({
 			onLoad : function (svg) {
