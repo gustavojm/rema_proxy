@@ -1,4 +1,4 @@
-<svg height="auto" id="tubesheet_svg" version="1.1" viewBox="-12.000000 -12.000000 24.000000 24.000000" width="auto" xmlns="http://www.w3.org/2000/svg">
+<svg id="tubesheet_svg" version="1.1" viewBox="-12.000000 -12.000000 24.000000 24.000000" xmlns="http://www.w3.org/2000/svg">
 	<style type="text/css">.tube {stroke: black; stroke-width: 0.02; fill: white;} .tube_num { text-anchor: middle; alignment-baseline: middle; font-family: sans-serif; font-size: 0.20px; fill: black;}.label { text-anchor: middle; alignment-baseline: middle; font-family: sans-serif; font-size: 0.25px; fill: red;}</style>
 	<line stroke="gray" stroke-dasharray="0.2, 0.1" stroke-width="0.02" x1="-12.000000" x2="12.000000" y1="0.000000" y2="0.000000"/>
 	<line stroke="gray" stroke-dasharray="0.2, 0.1" stroke-width="0.02" x1="0.000000" x2="0.000000" y1="-12.000000" y2="12.000000"/>

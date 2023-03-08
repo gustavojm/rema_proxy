@@ -54,7 +54,7 @@ svg .tube:hover {
 		<div
 			style="position: relative; overflow: scroll; text-align: center; height: 100%; width: 80%; align-content: center; float: left; resize: horizontal; min-width: 20%; max-width: 80%"
 			id="left_side_resizable">
-			<svg id="hx_svg" style="position: relative; cursor: crosshair;"
+			<svg id="hx_svg" style="position: relative; cursor: crosshair;  width: 100%; height: auto"
 				onmousemove="displayCoordinates(event)"></svg>
 		</div>
 		<div id="tubesheet_tab" class="right-side"
@@ -92,15 +92,17 @@ svg .tube:hover {
 
 <script type="text/javascript">
 	function displayCoordinates(event) {
-		var svg = document.getElementById("tubesheet_svg");
-		var point = svg.createSVGPoint();
-		point.x = event.clientX;
-		point.y = event.clientY;
-		var svgCoords = point.matrixTransform(svg.getScreenCTM().inverse());
-		var x = svgCoords.x;
-		var y = svgCoords.y;
-		document.getElementById("coordinates").innerHTML = "Coordinates: " + x
-				+ ", " + y;
+		if (svg) {
+			var svg = document.getElementById("tubesheet_svg");
+			var point = svg.createSVGPoint();
+			point.x = event.clientX;
+			point.y = event.clientY;
+			var svgCoords = point.matrixTransform(svg.getScreenCTM().inverse());
+			var x = svgCoords.x;
+			var y = svgCoords.y;
+			document.getElementById("coordinates").innerHTML = "Coordinates: " + x
+					+ ", " + y;
+		}
 	}
 
 	function drawBullseye(svg) {
@@ -258,6 +260,11 @@ svg .tube:hover {
 	function zoom_svg(zoom, ar) {
 		$('#hx_svg').css("width", 100 * zoom + "%");
 		$('#hx_svg').css("height", 100 * zoom * ar + "%");
+		
+		var objDiv = document.getElementById("left_side_resizable");
+		objDiv.scrollTop = (objDiv.scrollHeight - objDiv.clientHeight) / 2;
+		objDiv.scrollLeft = (objDiv.scrollWidth - objDiv.clientWidth) / 2;
+		
 	}
 
 	function svg_load(path) {
@@ -295,7 +302,7 @@ svg .tube:hover {
 									drawBullseye(svg);
 									drawLocationPin(svg);
 									var objDiv = document.getElementById("left_side_resizable");									
-									objDiv.scrollTop = (objDiv.scrollHeight - objDiv.clientHeight) / 2
+									objDiv.scrollTop = (objDiv.scrollHeight - objDiv.clientHeight) / 2;
 								}
 							});
 						});
