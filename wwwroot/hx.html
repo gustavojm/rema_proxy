@@ -92,14 +92,14 @@ svg .tube:hover {
 
 <script type="text/javascript">
 	function displayCoordinates(event) {
+		var svg = document.getElementById("tubesheet_svg");
 		if (svg) {
-			var svg = document.getElementById("tubesheet_svg");
 			var point = svg.createSVGPoint();
 			point.x = event.clientX;
 			point.y = event.clientY;
 			var svgCoords = point.matrixTransform(svg.getScreenCTM().inverse());
 			var x = svgCoords.x;
-			var y = svgCoords.y;
+			var y = -svgCoords.y;					// Reverse the SVG Y coordinate to make it Cartesian
 			document.getElementById("coordinates").innerHTML = "Coordinates: " + x
 					+ ", " + y;
 		}
@@ -163,7 +163,7 @@ svg .tube:hover {
 
 	function update_location_pin_position(x, y) {
 		$("#location_pin").animate({
-			svgTransform : 'translate(' + x + " " + y + ') rotate(45 0 0)'
+			svgTransform : 'translate(' + x + " " + -y + ') rotate(45 0 0)'
 		}, 500);
 	}
 
@@ -204,6 +204,7 @@ svg .tube:hover {
 					"circle")
 					.first().attr(
 							"cy");
+			cy = -cy					// Reverse Y coordinate of SVG to make it cartesian
 			var id = $(g)
 					.attr("id");
 			var col = $(g).data(
