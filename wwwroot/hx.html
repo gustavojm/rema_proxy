@@ -157,13 +157,13 @@ svg .tube:hover {
 
 	function update_bullseye_position(x, y) {
 		$("#bullseye").animate({
-			svgTransform : 'translate(' + x + " " + -y + ')'
+			svgTransform : 'scale(1 -1) translate(' + x + " " + y + ')'
 		}, 20);
 	}
 
 	function update_location_pin_position(x, y) {
 		$("#location_pin").animate({
-			svgTransform : 'translate(' + x + " " + -y + ') rotate(45 0 0)'
+			svgTransform : 'scale(1 -1) translate(' + x + " " + y + ') rotate(225 0 0)'
 		}, 500);
 	}
 
