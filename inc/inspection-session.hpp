@@ -5,19 +5,17 @@
 #include <filesystem>
 #include <json.hpp>
 
-	struct insp_plan_entry {
+	struct InspectionPlanEntry {
 		std::string row, col;
 		bool inspected;
 	};
 
-	void to_json(nlohmann::json &j, const insp_plan_entry &ipe);
+	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(InspectionPlanEntry, row, col, inspected);
 
-	void from_json(const nlohmann::json &j, insp_plan_entry &ipe);
-
-class inspection_session {
+class InspectionSession {
 public:
-	inspection_session();
-	inspection_session(std::filesystem::path inspection_session_file,
+	InspectionSession();
+	InspectionSession(std::filesystem::path inspection_session_file,
 			std::filesystem::path hx_directory,
 			std::filesystem::path hx,
 			std::filesystem::path tubesheet_csv,
@@ -25,7 +23,7 @@ public:
 
 	std::string load_plans();
 
-	inspection_session load(std::filesystem::path inspection_session_file);
+	InspectionSession load(std::filesystem::path inspection_session_file);
 
 	void save_to_disk();
 
@@ -45,7 +43,7 @@ public:
 
 	//<inspection plan path,          <tube_id,   , tube_entry>>
 	std::map<std::filesystem::path,
-			std::map<std::string, struct insp_plan_entry::insp_plan_entry>> insp_plans;
+			std::map<std::string, struct InspectionPlanEntry::InspectionPlanEntry>> insp_plans;
 
 //public:
 	std::filesystem::path inspection_session_file;
@@ -60,8 +58,8 @@ public:
 	bool changed = false;
 };
 
-void to_json(nlohmann::json &j, const inspection_session &is);
-
-void from_json(const nlohmann::json &j, inspection_session &is);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(InspectionSession, inspection_session_file,
+        hx_directory, hx, tubesheet_csv, tubesheet_svg, last_selected_plan,
+        insp_plans, leg, tube_od);
 
 #endif 		// INSP_SESSION_HPP

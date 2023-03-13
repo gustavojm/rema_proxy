@@ -15,14 +15,14 @@
 
 #include <boost/asio.hpp>
 #include <boost/program_options.hpp>
+#include <ciaa.hpp>
 #include "inc/syslogger.hpp"
-#include "inc/ciaa.hpp"
 #include "inc/json.hpp"
 #include "inc/csv.h"
 #include "inc/net_commands.hpp"
-#include "inc/insp_session.hpp"
+#include "inc/inspection-session.hpp"
 
-inspection_session current_session;
+InspectionSession current_session;
 
 vector<shared_ptr<restbed::Session>> sessions;
 
@@ -44,7 +44,7 @@ void register_event_source_handler(const shared_ptr<restbed::Session> session) {
 }
 
 void event_stream_handler(void) {
-	ciaa &ciaa_instance = ciaa::get_instance();
+	CIAA &ciaa_instance = CIAA::get_instance();
 	static bool hide_sent = false;
 	bool send_sse = false;
 	nlohmann::json res;
@@ -151,7 +151,7 @@ void get_method_handler(const shared_ptr<Session> session) {
 	}
 }
 
-void post_ciaa_method_handler(const shared_ptr<restbed::Session> session, ciaa &ciaa) {
+void post_ciaa_method_handler(const shared_ptr<restbed::Session> session, CIAA &ciaa) {
 	const auto request = session->get_request();
 
 	size_t content_length = request->get_header("Content-Length", 0);
@@ -227,7 +227,7 @@ void failed_filter_validation_handler(const shared_ptr<restbed::Session> session
 int main(const int, const char**) {
 	int ciaa_proxy_port;
 
-	ciaa &ciaa_instance = ciaa::get_instance();
+	CIAA &ciaa_instance = CIAA::get_instance();
 
 	namespace po = boost::program_options;
 

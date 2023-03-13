@@ -1,3 +1,4 @@
+#include <ciaa.hpp>
 #include <functional>
 #include <ctime>
 #include <chrono>
@@ -8,15 +9,14 @@
 
 #include "inc/csv.h"
 #include "inc/json.hpp"
-#include "inc/insp_session.hpp"
-#include "inc/ciaa.hpp"
+#include "inc/inspection-session.hpp"
 
 using namespace std::chrono_literals;
-extern inspection_session current_session;
+extern InspectionSession current_session;
 
 std::filesystem::path insp_sessions_dir = std::filesystem::path("insp_sessions");
 
-struct tube {
+struct Tube {
 	std::string x_label;
 	std::string y_label;
 	float cl_x;
@@ -24,30 +24,14 @@ struct tube {
 	float hl_x;
 	float hl_y;
 	int tube_id;
-	std::string color = "white";
-	std::string insp_plan = "";
 };
 
-void to_json(nlohmann::json &j, const tube &t) {
-	j = nlohmann::json { { "x_label", t.x_label }, { "y_label", t.y_label }, {
-			"cl_x", t.cl_x }, { "cl_y", t.cl_y }, { "hl_x", t.hl_x }, { "hl_y",
-			t.hl_y }, { "tube_id", t.tube_id }, };
-}
-
-void from_json(const nlohmann::json &j, tube &t) {
-	j.at("x_label").get_to(t.x_label);
-	j.at("y_label").get_to(t.y_label);
-	j.at("cl_x").get_to(t.cl_x);
-	j.at("cl_y").get_to(t.cl_y);
-	j.at("hl_x").get_to(t.hl_x);
-	j.at("hl_y").get_to(t.hl_y);
-	j.at("tube_id").get_to(t.tube_id);
-}
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Tube, x_label, y_label, cl_x, cl_y, hl_x, hl_y, tube_id);
 
 nlohmann::json ciaa_connect_cmd(nlohmann::json pars) {
 	nlohmann::json res;
 	try	{
-		ciaa &ciaa_instance = ciaa::get_instance();
+		CIAA &ciaa_instance = CIAA::get_instance();
 		ciaa_instance.connect();
 		res["ACK"] = true;
 	} catch (std::exception &e) {
@@ -60,7 +44,7 @@ nlohmann::json ciaa_connect_cmd(nlohmann::json pars) {
 nlohmann::json hx_tubesheet_load_cmd(nlohmann::json pars) {
 	// Parse the CSV file to extract the data for each tube
 	try {
-		std::vector<tube> tubes;
+		std::vector<Tube> tubes;
 		io::CSVReader<7, io::trim_chars<' ', '\t'>, io::no_quote_escape<';'>> in(current_session.tubesheet_csv);
 		in.read_header(io::ignore_extra_column, "x_label", "y_label", "cl_x",
 				"cl_y", "hl_x", "hl_y", "tube_id");
@@ -187,7 +171,7 @@ nlohmann::json session_create_cmd(nlohmann::json pars) {
 		std::filesystem::path tubesheet_csv = hx_directory / hx / "tubesheet.csv";
 		std::filesystem::path tubesheet_svg = hx_directory / hx / "tubesheet.svg";
 
-		inspection_session new_session(inspection_session_file, hx_directory, hx,
+		InspectionSession new_session(inspection_session_file, hx_directory, hx,
 				tubesheet_csv, tubesheet_svg);
 		res["logs"] = new_session.load_plans();
 		new_session.save_to_disk();

@@ -39,10 +39,10 @@ struct IO_Service {
 	boost::asio::io_service ioservice;
 };
 
-class ciaa {
+class CIAA {
 public:
-	static ciaa& get_instance() {
-		static ciaa instance; // Guaranteed to be destroyed.
+	static CIAA& get_instance() {
+		static CIAA instance; // Guaranteed to be destroyed.
 							  // Instantiated on first use.
 		return instance;
 	}
@@ -80,7 +80,7 @@ private:
 	struct IO_Service serv;
 	std::unique_ptr<tcp::socket> socket;
 
-	ciaa() {}                    // Constructor? (the {} brackets) are needed here.
+	CIAA() {}                    // Constructor? (the {} brackets) are needed here.
 
 	// C++ 11
 	// =======
@@ -88,8 +88,8 @@ private:
 	// we don't want.
 public:
 	bool isConnected = false;
-	ciaa(ciaa const&) = delete;
-	void operator=(ciaa const&) = delete;
+	CIAA(CIAA const&) = delete;
+	void operator=(CIAA const&) = delete;
 
 	// Note: Scott Meyers mentions in his Effective Modern
 	//       C++ book, that deleted functions should generally

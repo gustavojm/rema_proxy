@@ -1,5 +1,3 @@
-#include "ciaa.hpp"
-
 #include <iostream>
 #include <string>
 #include <restbed>
@@ -10,11 +8,12 @@
 #include <chrono>
 #include <boost/asio.hpp>
 #include <boost/asio/high_resolution_timer.hpp>
+#include <ciaa.hpp>
 
 constexpr std::chrono::milliseconds TIMEOUT = std::chrono::milliseconds(200);
 using boost::asio::ip::tcp;
 
-void ciaa::connect() {
+void CIAA::connect() {
     if (!isConnected) {
         socket.reset(new boost::asio::ip::tcp::socket(serv.ioservice));	// Create new socket (old one is destroyed automatically)
         tcp::resolver resolver(serv.ioservice);
@@ -35,7 +34,7 @@ void ciaa::connect() {
     }
 }
 
-size_t ciaa::receive(boost::asio::streambuf &rx_buffer) {
+size_t CIAA::receive(boost::asio::streambuf &rx_buffer) {
     size_t bytes;
 
     boost::asio::async_read_until(*socket, rx_buffer, '\0',
@@ -53,7 +52,7 @@ size_t ciaa::receive(boost::asio::streambuf &rx_buffer) {
     return bytes;
 }
 
-void ciaa::send(const restbed::Bytes &tx_buffer) {
+void CIAA::send(const restbed::Bytes &tx_buffer) {
     boost::asio::async_write(*socket, boost::asio::buffer(tx_buffer),
             [&](boost::system::error_code ec, size_t /*bytes_transferred*/) {
                 if (ec) {
@@ -65,7 +64,7 @@ void ciaa::send(const restbed::Bytes &tx_buffer) {
     serv.await_operation(TIMEOUT, *socket);
 }
 
-void ciaa::tx_rx(const restbed::Bytes &tx_buffer,
+void CIAA::tx_rx(const restbed::Bytes &tx_buffer,
         boost::asio::streambuf &rx_buffer) {
     send(tx_buffer);
     receive(rx_buffer);
