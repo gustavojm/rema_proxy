@@ -79,7 +79,7 @@ InspectionSession InspectionSession::load(std::filesystem::path inspection_sessi
 	return *this;
 }
 
-void InspectionSession::save_to_disk() {
+void InspectionSession::save_to_disk() const {
 	std::ofstream file(inspection_session_file);
 	file << nlohmann::json(*this);
 }

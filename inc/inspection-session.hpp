@@ -25,7 +25,7 @@ public:
 
 	InspectionSession load(std::filesystem::path inspection_session_file);
 
-	void save_to_disk();
+	void save_to_disk() const;
 
 	inline bool is_loaded() {return loaded;};
 
@@ -45,7 +45,6 @@ public:
 	std::map<std::filesystem::path,
 			std::map<std::string, struct InspectionPlanEntry::InspectionPlanEntry>> insp_plans;
 
-//public:
 	std::filesystem::path inspection_session_file;
 	std::filesystem::path hx_directory;
 	std::filesystem::path hx;
