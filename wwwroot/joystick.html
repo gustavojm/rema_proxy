@@ -125,10 +125,10 @@
 <script type="text/javascript">
 	var moving = false;
 
-	function stop() {
+	function stop(forced) {
 		var cmds = [];
 
-		if (moving) {
+		if (moving || forced) {
 
 			$.ajax({
 				url : "/CIAA/",
@@ -150,6 +150,12 @@
 
 	$(".joystick-arrow").mousedown(function() {
 		var dir = $(this).data("dir");
+		
+		if (dir == "none") {
+			stop(forced = true);
+			return;
+		}
+		
 		var speed_x_y = $("#speed_x_y_slider").slider("value") * 1250;
 		var speed_z = $("#speed_z_slider").slider("value") * 2500;
 
