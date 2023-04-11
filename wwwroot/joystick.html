@@ -150,8 +150,8 @@
 
 	$(".joystick-arrow").mousedown(function() {
 		var dir = $(this).data("dir");
-		var speed_x_y = $("#speed_x_y_slider").slider("value");
-		var speed_z = $("#speed_z_slider").slider("value");
+		var speed_x_y = $("#speed_x_y_slider").slider("value") * 1250;
+		var speed_z = $("#speed_z_slider").slider("value") * 2500;
 
 		var command_x = {};
 		var command_y = {};
@@ -164,7 +164,7 @@
 				command : "AXIS_FREE_RUN",
 				pars : {
 					axis : "X",
-					dir : dir.includes("left") ? "CW" : "CCW",
+					dir : dir.includes("left") ? "CCW" : "CW",
 					speed : speed_x_y,
 				}
 			};
@@ -177,7 +177,7 @@
 				command : "AXIS_FREE_RUN",
 				pars : {
 					axis : "Y",
-					dir : dir.includes("up") ? "CW" : "CCW",
+					dir : dir.includes("up") ? "CCW" : "CW",
 					speed : speed_x_y,
 				}
 			};
@@ -190,7 +190,7 @@
 				command : "AXIS_FREE_RUN",
 				pars : {
 					axis : "Z",
-					dir : dir.includes("in") ? "CW" : "CCW",
+					dir : dir.includes("in") ? "CCW" : "CW",
 					speed : speed_z,
 				}
 			};

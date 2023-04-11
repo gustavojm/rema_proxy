@@ -1,0 +1,63 @@
+<link rel="stylesheet" type="text/css" href="datatables.min.css" />
+
+<script type="text/javascript" src="datatables.min.js"></script>
+
+<style>
+#my-table {
+  table-layout: fixed;
+  width: 100% !important;
+}
+#my-table td,
+#my-table th{
+  width: auto !important;
+  white-space: normal;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+</style>
+
+<div id="tubesheet_tab"
+	style="overflow: scroll; width: 100%; position: relative;">
+	<table id="my-table" class="table nowrap"
+		style="width: 100%">
+		<thead>
+			<tr>
+				<th>CL_X</th>
+				<th>CL_Y</th>
+				<th>HL_X</th>
+				<th>HL_Y</th>
+				<th>X_LABEL</th>
+				<th>Y_LABEL</th>
+			</tr>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
+</div>
+
+<script type="text/javascript">
+	$(function() {
+
+		$('#my-table').DataTable({
+			"ajax" : {
+				method : "post",
+				url : "/json/hx_load_tubesheet",
+				dataSrc : '',
+			},
+			columns : [ {
+				data : 'cl_x'
+			}, {
+				data : 'cl_y'
+			}, {
+				data : 'hl_x'
+			}, {
+				data : 'hl_y'
+			}, {
+				data : 'x_label'
+			}, {
+				data : 'y_label'
+			}, ]
+
+		});
+	});
+</script>
