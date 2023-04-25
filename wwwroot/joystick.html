@@ -22,6 +22,20 @@
 	height: auto;
 }
 
+.joystick-limit-vertical {
+	width: 5px;
+	height: 50px;
+	margin: 0px;
+	/* 	max-width: 50%; */
+}
+
+.joystick-limit-horizontal {
+	width: 50px;
+	height: 5px;
+	margin: 0px;
+	/* 	max-width: 50%; */
+}
+
 .slider {
 	margin-top: 10px;
 	margin-bottom: 10px;
@@ -42,36 +56,49 @@
 			<div id="left"
 				style="display: flex; background-color: #F3F3F3; margin: 2px; padding: 3px;">
 				<div class="joystick-container">
-					<div id="speed_x_y_slider" class="slider row" style="float: left"></div>
-					<div id="speed_x_y" style="float: left" class="row"></div>
+					<div id="speed_x_y_slider" class="slider" style="float: left"></div>
+					<div id="speed_x_y" style="float: left"></div>
 				</div>
 				<div class="joystick-container" style="float: left;">
 					<div class="row">
-						<img alt="" src="images/up_left.png"
-							class="joystick-arrow up left" data-dir="up_left"> <img
-							alt="" src="images/up.png" class="joystick-arrow up"
-							data-dir="up"> <img alt="" src="images/up_right.png"
-							class="joystick-arrow up right" data-dir="up_right">
+						<img alt="" src="images/limit_none.png" class="joystick-limit-horizontal"> 
+						<img alt="" src="images/limit.png" class="joystick-limit-horizontal" data-dir="up"> 
+						<img alt="" src="images/limit_none.png" class="joystick-limit-horizontal">
 					</div>
 					<div class="row">
-						<img alt="" src="images/left.png" class="joystick-arrow left"
-							data-dir="left"> <img alt="" src="images/stop_red.png"
-							class="joystick-arrow" data-dir="none"> <img alt=""
-							src="images/right.png" class="joystick-arrow rigth"
-							data-dir="right">
+						<img alt="" src="images/limit_none.png" class="joystick-limit-vertical">
+						<img alt="" src="images/up_left.png" class="joystick-arrow up left" data-dir="up_left"> 
+						<img alt="" src="images/up.png" class="joystick-arrow up" data-dir="up"> 
+						<img alt="" src="images/up_right.png" class="joystick-arrow up right" data-dir="up_right">
+						<img alt="" src="images/limit_none.png" class="joystick-limit-vertical">
 					</div>
 					<div class="row">
-						<img alt="" src="images/down_left.png"
-							class="joystick-arrow down left" data-dir="down_left"> <img
-							alt="" src="images/down.png" class="joystick-arrow down"
-							data-dir="down"> <img alt="" src="images/down_right.png"
-							class="joystick-arrow down right" data-dir="down_right">
+						<img alt="" src="images/limit.png" class="joystick-limit-vertical" data-dir="left">
+						<img alt="" src="images/left.png" class="joystick-arrow left" data-dir="left"> 
+						<img alt="" src="images/stop_red.png" class="joystick-arrow" data-dir="none"> 
+						<img alt="" src="images/right.png" class="joystick-arrow rigth" data-dir="right">
+						<img alt="" src="images/limit.png" class="joystick-limit-vertical" data-dir="right">
+					</div>
+					<div class="row">
+						<img alt="" src="images/limit_none.png" class="joystick-limit-vertical">
+						<img alt="" src="images/down_left.png" class="joystick-arrow down left" data-dir="down_left"> 
+						<img alt="" src="images/down.png" class="joystick-arrow down" data-dir="down"> 
+						<img alt="" src="images/down_right.png" class="joystick-arrow down right" data-dir="down_right">
+						<img alt="" src="images/limit_none.png" class="joystick-limit-vertical">
+					</div>
+					<div class="row">
+						<img alt="" src="images/limit_none.png" class="joystick-limit-horizontal">
+						<img alt="" src="images/limit.png" class="joystick-limit-horizontal" data-dir="down">
+						<img alt="" src="images/limit_none.png" class="joystick-limit-horizontal">
 					</div>
 				</div>
 			</div>
 			<div id="right"
 				style="display: flex; background-color: #F3F3F3; margin: 2px; padding: 3px;">
 				<div class="joystick-container" style="float: left;">
+					<div class="row">
+						<img alt="" src="images/up_down_limit.png" class="joystick-limit-horizontal" data-dir="in">
+					</div>
 					<div class="row">
 						<img alt="" src="images/z_up.png" class="joystick-arrow"
 							data-dir="z_in">
@@ -82,10 +109,13 @@
 						<img alt="" src="images/z_down.png" class="joystick-arrow"
 							data-dir="z_out">
 					</div>
+					<div class="row">
+						<img alt="" src="images/up_down_limit.png" class="joystick-limit-horizontal" data-dir="out">
+					</div>
 				</div>
-				<div class="joystick-container">
-					<div id="speed_z_slider" class="slider row" style="float: left"></div>
-					<div id="speed_z" style="float: left" class="row"></div>
+				<div class="joystick-container" >
+					<div id="speed_z_slider" class="slider" style="float: left"></div>
+					<div id="speed_z" style="float: left"></div>
 				</div>
 			</div>
 		</div>
@@ -183,7 +213,7 @@
 				command : "AXIS_FREE_RUN",
 				pars : {
 					axis : "Y",
-					dir : dir.includes("up") ? "CCW" : "CW",
+					dir : dir.includes("up") ? "CW" : "CCW",
 					speed : speed_x_y,
 				}
 			};
@@ -219,7 +249,6 @@
 	});
 
 	function update_switches(control, stall) {
-
 		var control_pars = {};
 		var stall_pars = {};
 
