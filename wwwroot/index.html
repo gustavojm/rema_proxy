@@ -37,7 +37,7 @@
 			<li><a href="config.html">Config</a></li>
 			<li><a href="logs.html">Logs</a></li>
 			<li><a href="about.html">About</a></li>
-			<li><a href="websocket.html">About</a></li>
+<!-- 			<li><a href="websocket.html">Websocket</a></li> -->
 		</ul>
 	</div>
 	<div style="overflow: hidden; padding-top: 5px;"
@@ -63,6 +63,11 @@
 			<span style="float: right; padding-right: 10px;" id="sse"></span>
 			<span style="float: right; color: red; opacity: 0;" id="reconnect">Sin Conexión... <a href="#" id="reconnect_ciaa">Reconectar CIAA</a></span>
 		</div>
+		<div style="float: left;" class="col"><input type="button" value="Joystick" id="joystick_btn"/></div>
+	</div>
+
+	<div id="joystick_div" style="overflow: hidden; width: 100%;">
+	aca	
 	</div>
 
 
@@ -100,12 +105,30 @@
 				} ]
 			}),
 			dataType : "json",
-			success : function(data) {
-				update_ui();
+			success : function(data) {				
 			}
 		});
 	}
 
+	function create_joystick() {
+		
+		$.when(
+			    $.get('joystick.html', function(data) {
+			        $('#joystick_div').html(data);
+			    }),
+			).done(function() {
+				var joystick = $("#joystick_div").dialog({
+					autoOpen : true,
+					title : "Joystick",
+					position: { my: "right bottom", at: "right-50 bottom-50", of: window }
+					//modal : true,
+				});	
+				$("#joystick_btn").click(function() {
+					joystick.dialog("open");
+				}) 
+			});
+	}
+	
 	$(function() {
 	
 		$("#reconnect_ciaa").click(function(){
@@ -120,14 +143,12 @@
 		});
 		
 		$("#tabs").tabs({
-			active : 7,
+			active : 0,
 			//heightStyle : "fill"			
 			activate : function(event, ui) {
 				$(ui.oldPanel).find(".tabs_div").trigger("unload_tab");
 			}
 		});
-
-		//var timer = setInterval(update_ui, 1000);
 
 		// Only for debug purposes 
 		$("#position_x, #position_y").on(
@@ -142,6 +163,7 @@
 		var sse = $.SSE('/sse', {
 			onMessage : function(e) {
 				jdata = JSON.parse(e.data);
+				
 				if ("SESSION_MSG" in jdata) {
 					$("#sse").text(jdata.SESSION_MSG).animate({
 						opacity : 1
@@ -149,17 +171,19 @@
 						opacity : 0
 					}, 2000);
 				}
+				
 				if ("SHOW_CONNECT" in jdata) {
-					if (jdata.SHOW_CONNECT) {
-						$("#reconnect").animate({
-							opacity : 1
-						}, 2000);						
-					} else {
-						$("#reconnect").animate({
-							opacity : 0
-						}, 2000);						
-					}					
+					$("#reconnect").animate({
+						opacity : 1
+					}, 0);						
 				}
+				
+				if ("HIDE_CONNECT" in jdata) {
+					$("#reconnect").animate({
+						opacity : 0
+					}, 2000);		
+				}
+				
 				if ("TELEMETRIA" in jdata) {
 					update_ui(jdata.TELEMETRIA)
 				}
@@ -167,7 +191,11 @@
 		});
 		sse.start();
 
+	    create_joystick();
+				
 	});
+		
+	
 </script>
 
 </html>

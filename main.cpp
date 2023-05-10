@@ -44,20 +44,17 @@ void register_event_source_handler(const shared_ptr<restbed::Session> session) {
     });
 }
 
-void event_stream_handler(CIAA &ciaa) {
+void event_stream_handler() {
     CIAA &ciaa_instance = CIAA::get_instance();
     static bool hide_sent = false;
-    bool send_sse = false;
     nlohmann::json res;
 
     if (!ciaa_instance.isConnected) {
         res["SHOW_CONNECT"] = true;
-        send_sse = true;
         hide_sent = false;
     } else {
         if (!hide_sent) {
-            res["SHOW_CONNECT"] = false;
-            send_sse = true;
+            res["HIDE_CONNECT"] = true;
             hide_sent = true;
         }
     }
@@ -65,9 +62,7 @@ void event_stream_handler(CIAA &ciaa) {
     if (current_session.is_changed()) {
         current_session.save_to_disk();
         current_session.set_changed(false);
-
         res["SESSION_MSG"] = "Session Saved";
-        send_sse = true;
     }
 
     boost::asio::streambuf rx_buffer;
@@ -75,21 +70,20 @@ void event_stream_handler(CIAA &ciaa) {
 
         std::string telemetry_cmd ="{\"commands\": [{\"command\": \"TELEMETRIA\" }]}";
         Bytes body(telemetry_cmd.begin(), telemetry_cmd.end());
-        ciaa.tx_rx(body, rx_buffer);
+        ciaa_instance.tx_rx(body, rx_buffer);
         std::string stream(
                 boost::asio::buffer_cast<const char*>((rx_buffer).data()));
         cout << stream << endl;
 
         if (!stream.empty()) {
             res["TELEMETRIA"] = nlohmann::json::parse(stream).at("TELEMETRIA");
-            send_sse = true;
         }
     } catch (std::exception &e) {
         std::string message = std::string(e.what());
         std::cerr << "COMMUNICATIONS ERROR " << message << "\n";
     }
 
-    if (send_sse) {
+    if (!res.empty()) {
         sessions.erase(
                 std::remove_if(sessions.begin(), sessions.end(),
                         [](const shared_ptr<Session> &a) {
@@ -342,16 +336,16 @@ int main(const int, const char**) {
     service.publish(resource_html_file);
     service.publish(resource_server_side_events);
 
-    auto event_stream_handler_bound = std::bind(event_stream_handler, std::ref(ciaa_instance)); // std::bind always passes by value unles std::ref
-
-    service.schedule(event_stream_handler_bound, std::chrono::milliseconds(100));
+    service.schedule(event_stream_handler, std::chrono::milliseconds(100));
 
     service.set_logger(make_shared<SyslogLogger>());
 
-    // Websocket
-    std::thread websocket_thread(websocket_init);
+//    // Websocket
+//    std::thread websocket_thread(websocket_init);
 
     service.start(settings);
+
+//    websocket_thread.join();
 
 }
 
