@@ -80,8 +80,12 @@
 		var pos_z = data["POS Z"];
 		$("#position_x").val(pos_x);
 		$("#position_y").val(pos_y);
-		$("#position_z").val(pos_z);
+		$("#position_z").val(pos_z);	
 
+		if (typeof update_limits === "function") {
+			update_limits(data["LIMITS"]);
+		}
+		
 		if (typeof update_bullseye_position === "function") {
 			update_bullseye_position(pos_x, pos_y);
 		}		

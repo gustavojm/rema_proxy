@@ -36,6 +36,14 @@
 	/* 	max-width: 50%; */
 }
 
+.off {
+	background-color: green;
+}
+
+.on {
+	background-color: red;
+}
+
 .slider {
 	margin-top: 10px;
 	margin-bottom: 10px;
@@ -61,35 +69,35 @@
 				</div>
 				<div class="joystick-container" style="float: left;">
 					<div class="row">
-						<img alt="" src="images/limit_none.png" class="joystick-limit-horizontal"> 
-						<img alt="" src="images/limit.png" class="joystick-limit-horizontal" data-dir="up"> 
-						<img alt="" src="images/limit_none.png" class="joystick-limit-horizontal">
+						<div class="joystick-limit-horizontal" data-limit="none"></div>
+						<div class="joystick-limit-horizontal" data-limit="up"></div>
+						<div class="joystick-limit-horizontal" data-limit="none"></div>
 					</div>
 					<div class="row">
-						<img alt="" src="images/limit_none.png" class="joystick-limit-vertical">
+						<div class="joystick-limit-vertical" data-limit="none"></div>
 						<img alt="" src="images/up_left.png" class="joystick-arrow up left" data-dir="up_left"> 
 						<img alt="" src="images/up.png" class="joystick-arrow up" data-dir="up"> 
 						<img alt="" src="images/up_right.png" class="joystick-arrow up right" data-dir="up_right">
-						<img alt="" src="images/limit_none.png" class="joystick-limit-vertical">
+						<div class="joystick-limit-vertical" data-limit="none"></div>
 					</div>
 					<div class="row">
-						<img alt="" src="images/limit.png" class="joystick-limit-vertical" data-dir="left">
+						<div class="joystick-limit-vertical" data-limit="left"></div>
 						<img alt="" src="images/left.png" class="joystick-arrow left" data-dir="left"> 
 						<img alt="" src="images/stop_red.png" class="joystick-arrow" data-dir="none"> 
 						<img alt="" src="images/right.png" class="joystick-arrow rigth" data-dir="right">
-						<img alt="" src="images/limit.png" class="joystick-limit-vertical" data-dir="right">
+						<div class="joystick-limit-vertical" data-limit="right"></div>
 					</div>
 					<div class="row">
-						<img alt="" src="images/limit_none.png" class="joystick-limit-vertical">
+						<div class="joystick-limit-vertical" data-limit="none"></div>
 						<img alt="" src="images/down_left.png" class="joystick-arrow down left" data-dir="down_left"> 
 						<img alt="" src="images/down.png" class="joystick-arrow down" data-dir="down"> 
 						<img alt="" src="images/down_right.png" class="joystick-arrow down right" data-dir="down_right">
-						<img alt="" src="images/limit_none.png" class="joystick-limit-vertical">
+						<div class="joystick-limit-vertical" data-limit="none"></div>
 					</div>
 					<div class="row">
-						<img alt="" src="images/limit_none.png" class="joystick-limit-horizontal">
-						<img alt="" src="images/limit.png" class="joystick-limit-horizontal" data-dir="down">
-						<img alt="" src="images/limit_none.png" class="joystick-limit-horizontal">
+						<div class="joystick-limit-horizontal" data-limit="none"></div>
+						<div class="joystick-limit-horizontal" data-limit="down"></div>
+						<div class="joystick-limit-horizontal" data-limit="none"></div>
 					</div>
 				</div>
 			</div>
@@ -97,7 +105,7 @@
 				style="display: flex; background-color: #F3F3F3; margin: 2px; padding: 3px;">
 				<div class="joystick-container" style="float: left;">
 					<div class="row">
-						<img alt="" src="images/up_down_limit.png" class="joystick-limit-horizontal" data-dir="in">
+						<div class="joystick-limit-horizontal" data-limit="in"></div>
 					</div>
 					<div class="row">
 						<img alt="" src="images/z_up.png" class="joystick-arrow"
@@ -110,7 +118,7 @@
 							data-dir="z_out">
 					</div>
 					<div class="row">
-						<img alt="" src="images/up_down_limit.png" class="joystick-limit-horizontal" data-dir="out">
+						<div class="joystick-limit-horizontal" data-limit="out"></div>
 					</div>
 				</div>
 				<div class="joystick-container" >
@@ -195,31 +203,32 @@
 
 		var cmds = [];
 
-		if (dir.includes("left") | dir.includes("right")) {
-			command_x = {
-				command : "AXIS_FREE_RUN",
-				pars : {
-					axis : "X",
-					dir : dir.includes("left") ? "CW" : "CCW",
-					speed : speed_x_y,
-				}
-			};
-			cmds.push(command_x);
-			moving = true;
+		var positive_big_number = 2147483647 / 2 ;
+		var negative_big_number = -positive_big_number;
+		
+		var pars_obj = {};
+		if (dir.includes("left")) {
+			pars_obj.x_setpoint = negative_big_number;			
+		}
+		
+		if (dir.includes("right")) {
+			pars_obj.x_setpoint = positive_big_number;
 		}
 
-		if (dir.includes("up") | dir.includes("down")) {
-			command_y = {
-				command : "AXIS_FREE_RUN",
-				pars : {
-					axis : "Y",
-					dir : dir.includes("up") ? "CW" : "CCW",
-					speed : speed_x_y,
-				}
-			};
-			cmds.push(command_y);
-			moving = true;
+		if (dir.includes("up")) {
+			pars_obj.y_setpoint = positive_big_number;
+		} 
+		
+		if (dir.includes("down")) {
+			pars_obj.y_setpoint = negative_big_number;
 		}
+		
+		cmds.push({
+			command : "BRESEHMAN_FREE_RUN",
+			pars : pars_obj,
+		});
+		console.dir(cmds);
+		moving = true;
 
 		if ((dir == "z_in") | (dir == "z_out")) {
 			command_z = {
@@ -290,6 +299,17 @@
 			}
 		});
 	}
+	
+	function update_limits(limits) {
+		$.each(limits, function (limit, status) {
+			$("#joystick_div").find(`[data-limit='${limit}']`).each(function() {
+				$(this).removeClass("off");
+				$(this).removeClass("on");
+				$(this).addClass(status ? "on" : "off");
+			})		
+		})
+		var limit = "out"
+	}
 
 	$(function() {
 		$(".joystick-arrow").mouseup(function() {
@@ -355,8 +375,7 @@
 			if (typeof set_cal_point === "function") {
 				set_cal_point();
 			}
-		});
-
+		});		
 	});
 </script>
 
