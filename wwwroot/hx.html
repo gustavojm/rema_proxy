@@ -43,7 +43,6 @@ svg .tube:hover {
 			  X: <input type="text" id="tube_info_x" size="4"> 
 			  Y: <input type="text" id="tube_info_y" size="4"> 
 				 <input type="button" name="start" value="GO" id="go_button">
-				 <input type="button" name="start" value="GO BRES" id="go_bresenham_button">
 				
 		</div>
 		<div style="float: right; text-align: center;" class="right-side">
@@ -382,7 +381,7 @@ svg .tube:hover {
 			autoFontSize: true,
 			autoStick : true,
 		});
-
+		
 		$("#go_button").click(function() {
 			var pos_x = parseFloat($("#tube_info_x").val());
 			var pos_y = parseFloat($("#tube_info_y").val());
@@ -393,42 +392,11 @@ svg .tube:hover {
 				contentType : "application/json",
 				data : JSON.stringify({
 					commands : [{
-						command: "AXIS_CLOSED_LOOP",
+						command: "MOVE_CLOSED_LOOP",
 			 			 pars: {
-			                axis: "x",
-			 				setpoint: pos_x,
-			 			}					 
- 			 		},
-			 		{
-						command: "AXIS_CLOSED_LOOP",
-			 			 pars: {
-			                axis: "y",
-			 				setpoint: pos_y,
-			 			}					 
-			 		},
- 				]
-				}),
-				dataType : "json",
-				success : function(data) {
-					console.log(data);
-				}
-			});						
-		});
-		
-		$("#go_bresenham_button").click(function() {
-			var pos_x = parseFloat($("#tube_info_x").val());
-			var pos_y = parseFloat($("#tube_info_y").val());
-
-			$.ajax({
-				url : "/CIAA/",
-				method : "POST",
-				contentType : "application/json",
-				data : JSON.stringify({
-					commands : [{
-						command: "BRESEHMAN_MOVE",
-			 			 pars: {
-			 				x_setpoint: pos_x,
-			 				y_setpoint: pos_y,
+			 				axes : "XY",
+			 				first_axis_setpoint: pos_x,
+			 				second_axis_setpoint: pos_y,
 			 			}					 
  			 		}
  				]

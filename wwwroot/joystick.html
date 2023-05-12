@@ -206,38 +206,46 @@
 		var positive_big_number = 2147483647 / 2 ;
 		var negative_big_number = -positive_big_number;
 		
-		var pars_obj = {};
+		var pars_obj = {};		
 		if (dir.includes("left")) {
-			pars_obj.x_setpoint = negative_big_number;			
+			pars_obj.first_axis_setpoint = negative_big_number;			
 		}
 		
 		if (dir.includes("right")) {
-			pars_obj.x_setpoint = positive_big_number;
+			pars_obj.first_axis_setpoint = positive_big_number;
 		}
 
 		if (dir.includes("up")) {
-			pars_obj.y_setpoint = positive_big_number;
+			pars_obj.second_axis_setpoint = positive_big_number;
 		} 
 		
 		if (dir.includes("down")) {
-			pars_obj.y_setpoint = negative_big_number;
+			pars_obj.second_axis_setpoint = negative_big_number;
 		}
 		
-		cmds.push({
-			command : "BRESEHMAN_FREE_RUN",
-			pars : pars_obj,
-		});
-		console.dir(cmds);
-		moving = true;
+		if (!$.isEmptyObject(pars_obj)) { 
+			pars_obj.axes = "XY"
+			cmds.push({
+				command : "MOVE_FREE_RUN",
+				pars : pars_obj,
+			});
+			moving = true;
+		}
 
-		if ((dir == "z_in") | (dir == "z_out")) {
+		var pars_obj = {};
+		if (dir == "z_in") {
+			pars_obj.first_axis_setpoint = negative_big_number;			
+		}
+			
+		if (dir == "z_out") {
+			pars_obj.first_axis_setpoint = positive_big_number;				
+		}
+		
+		if (!$.isEmptyObject(pars_obj)) {
+			pars_obj.axes = "Z"
 			command_z = {
-				command : "AXIS_FREE_RUN",
-				pars : {
-					axis : "Z",
-					dir : dir.includes("in") ? "CCW" : "CW",
-					speed : speed_z,
-				}
+				command : "MOVE_FREE_RUN",
+				pars : pars_obj,				
 			};
 			cmds.push(command_z);
 			moving = true;
@@ -252,7 +260,6 @@
 			}),
 			dataType : "json",
 			success : function(data) {
-				console.log(data);
 			}
 		});
 	});
