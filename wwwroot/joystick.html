@@ -14,11 +14,17 @@
 	background-color: #F3F3F3;
 }
 
+.joystick-stop {
+	width: 50px;
+	height: 50px;
+	margin: 0px;
+	height: auto;
+}
+
 .joystick-arrow {
 	width: 50px;
 	height: 50px;
 	margin: 0px;
-	/* 	max-width: 50%; */
 	height: auto;
 }
 
@@ -26,14 +32,12 @@
 	width: 5px;
 	height: 50px;
 	margin: 0px;
-	/* 	max-width: 50%; */
 }
 
 .joystick-limit-horizontal {
 	width: 50px;
 	height: 5px;
 	margin: 0px;
-	/* 	max-width: 50%; */
 }
 
 .off {
@@ -71,7 +75,7 @@
 					<div class="row">
 						<div class="joystick-limit-vertical" data-limit="left"></div>
 						<img alt="" src="images/left.png" class="joystick-arrow left" data-dir="left"> 
-						<img alt="" src="images/stop_red.png" class="joystick-arrow" data-dir="none"> 
+						<img alt="" src="images/stop_red.png" class="joystick-stop" data-dir="none"> 
 						<img alt="" src="images/right.png" class="joystick-arrow rigth" data-dir="right">
 						<div class="joystick-limit-vertical" data-limit="right"></div>
 					</div>
@@ -158,7 +162,7 @@
 				contentType : "application/json",
 				data : JSON.stringify({
 					commands : [ {
-						command : "AXIS_STOP_ALL",						
+						command : "AXES_SOFT_STOP_ALL",						
 					}, ]
 				}),
 				dataType : "json",
@@ -306,6 +310,24 @@
 			stop();
 		});
 
+		$(".joystick-stop").click(function() {
+			$.ajax({
+				url : "/CIAA/",
+				method : "POST",
+				contentType : "application/json",
+				data : JSON.stringify({
+					commands : [ {
+						command : "AXES_HARD_STOP_ALL",						
+					}, ]
+				}),
+				dataType : "json",
+				success : function(data) {
+	
+				}
+			});
+			moving = false;
+		});
+		
 		var stall_switch = $('#stall_switch').rcSwitcher({
 			// reverse: true,
 			// inputs: true,
