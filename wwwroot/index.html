@@ -16,6 +16,27 @@
 	justify-content: center;
 	align-items: center;
 }
+
+.temperature {
+	margin: 2px;
+	padding: 3px;
+	justify-content: center;
+	align-items: center;	
+}
+
+.normal {
+	background-color: green;
+}
+
+.danger {
+	background-color: yellow;
+}
+
+.high {
+	background-color: red;
+}
+
+
 </style>
 
 <script src="js/jquery.js"></script>
@@ -56,17 +77,18 @@
 			</label> <label>Z: <input type="text" id="position_z"
 				name="position Z" readonly="readonly" size="6">
 			</label>
-		</div>
-		<div style="float: left;" class="col">
+		</div>		
+		<div class="col">
 			<span style="float: right; padding-right: 10px;" id="sse"></span>
 			<span style="float: right; color: red; opacity: 0;" id="reconnect">Sin Conexión... <a href="#" id="reconnect_ciaa">Reconectar CIAA</a></span>
+			<div class="temperature" id="temperature_x">X</div>
+			<div class="temperature" id="temperature_y">Y</div>
+			<div class="temperature" id="temperature_z">Z</div>
+			<div style="float: left;" class="col"><input type="button" value="Joystick" id="joystick_btn"/></div>
 		</div>
-		<div style="float: left;" class="col"><input type="button" value="Joystick" id="joystick_btn"/></div>
 	</div>
-
-	<div id="joystick_div" style="overflow: hidden;">
-	aca	
-	</div>
+	
+	<div id="joystick_div" style="overflow: hidden;"></div>
 
 
 </body>
@@ -79,7 +101,7 @@
 		$("#position_x").val(pos_x);
 		$("#position_y").val(pos_y);
 		$("#position_z").val(pos_z);	
-
+		
 		if (typeof update_limits === "function") {
 			update_limits(data["LIMITS"]);
 		}
@@ -87,6 +109,33 @@
 		if (typeof update_bullseye_position === "function") {
 			update_bullseye_position(pos_x, pos_y);
 		}		
+	}
+	
+	function temp_ranges(temp) {
+		if (temp > 30) {
+			return "high";
+		}  
+		
+		if (temp > 25) {
+			return "danger";
+		}
+		
+		return "normal";		
+	}
+	
+	function update_temps(data) {
+		
+		var temp_x = (data["TEMP X"]/10).toFixed(1);
+		var temp_y = (data["TEMP Y"]/10).toFixed(1);
+		var temp_z = (data["TEMP Z"]/10).toFixed(1);
+		$("#temperature_x").text(temp_x + "ºC");
+		$("#temperature_y").text(temp_y + "ºC");
+		$("#temperature_z").text(temp_z + "ºC");
+		
+		
+		$("#temperature_x").removeClass().addClass("temperature").addClass(temp_ranges(temp_x));
+		$("#temperature_y").removeClass().addClass("temperature").addClass(temp_ranges(temp_y));
+		$("#temperature_z").removeClass().addClass("temperature").addClass(temp_ranges(temp_z));
 	}
 
 	function set_cal_point() {
@@ -122,7 +171,7 @@
 				var joystick = $("#joystick_div").dialog({
 					autoOpen : true,
 					title : "Joystick",
-					position: { my: "right bottom", at: "right-50 bottom-50", of: window }
+					position: { my: "right bottom", at: "right-30 bottom-50", of: $("#tabs") }
 					//modal : true,
 				});	
 				$("#joystick_btn").click(function() {
@@ -189,6 +238,11 @@
 				if ("TELEMETRIA" in jdata) {
 					update_ui(jdata.TELEMETRIA)
 				}
+				
+				if ("TEMP_INFO" in jdata) {
+					update_temps(jdata.TEMP_INFO)
+				}
+
 			},
 		});
 		sse.start();

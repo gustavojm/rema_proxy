@@ -27,6 +27,8 @@ InspectionSession current_session;
 
 vector<shared_ptr<restbed::Session>> sessions;
 
+using namespace std::chrono_literals;
+
 std::map<std::string, std::string> mime_types = { { ".jpg", "image/jpg" }, {
         ".png", "image/png" }, { "svg", "image/svg+xml" },
         { ".css", "text/css" }, { ".js", "text/javascript" }, { ".ico",
@@ -45,6 +47,8 @@ void register_event_source_handler(const shared_ptr<restbed::Session> session) {
 }
 
 void event_stream_handler() {
+    static auto prev = std::chrono::high_resolution_clock::now();
+
     CIAA &ciaa_instance = CIAA::get_instance();
     static bool hide_sent = false;
     nlohmann::json res;
@@ -66,17 +70,31 @@ void event_stream_handler() {
     }
 
     boost::asio::streambuf rx_buffer;
-    try {
 
-        std::string telemetry_cmd ="{\"commands\": [{\"command\": \"TELEMETRIA\" }]}";
+    auto now = std::chrono::high_resolution_clock::now();
+    auto elapsed_time = now - prev;
+
+    std::string telemetry_cmd;
+    if (elapsed_time > 1s) {
+        telemetry_cmd ="{\"commands\": [{\"command\": \"TELEMETRIA\" }, {\"command\": \"TEMPERATURE_INFO\" }]}";
+        prev = now;
+    } else {
+        telemetry_cmd ="{\"commands\": [{\"command\": \"TELEMETRIA\" }]}";
+    }
+
+    try {
         Bytes body(telemetry_cmd.begin(), telemetry_cmd.end());
         ciaa_instance.tx_rx(body, rx_buffer);
         std::string stream(
                 boost::asio::buffer_cast<const char*>((rx_buffer).data()));
         cout << stream << endl;
 
+        auto json = nlohmann::json::parse(stream);
         if (!stream.empty()) {
-            res["TELEMETRIA"] = nlohmann::json::parse(stream).at("TELEMETRIA");
+            res["TELEMETRIA"] = json.at("TELEMETRIA");
+            if (json.contains("TEMPERATURE_INFO")) {
+                res["TEMP_INFO"] = json.at("TEMPERATURE_INFO");
+            }
         }
     } catch (std::exception &e) {
         std::string message = std::string(e.what());
