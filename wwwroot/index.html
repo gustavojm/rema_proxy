@@ -63,12 +63,20 @@
 	</div>
 	<div style="overflow: hidden; padding-top: 5px;"
 		class="row">
-		<div style="float: left; justify-content: left;"
+		<div style="float: left; justify-content: left; max-width: 10%"
 			class="col">
 			<div>
 				<img alt="" src="images/logo nasa.png">
 			</div>
 		</div>
+		<div style="float: left; justify-content: left;  max-width: 20%"
+			class="col">
+			Temperaturas: 
+			<div class="temperature" id="temperature_x"></div>
+			<div class="temperature" id="temperature_y"></div>
+			<div class="temperature" id="temperature_z"></div>
+		</div>
+
 		<div style="float: left;" class="col">
 			<label>Position X: <input type="text" id="position_x"
 				name="position X" size="6">
@@ -81,9 +89,6 @@
 		<div class="col">
 			<span style="float: right; padding-right: 10px;" id="sse"></span>
 			<span style="float: right; color: red; opacity: 0;" id="reconnect">Sin Conexión... <a href="#" id="reconnect_ciaa">Reconectar CIAA</a></span>
-			<div class="temperature" id="temperature_x"></div>
-			<div class="temperature" id="temperature_y"></div>
-			<div class="temperature" id="temperature_z"></div>
 			<div style="float: left; display:none;" class="col" id="joystick_btn_div"><input type="button" value="Joystick" id="joystick_btn"/></div>
 		</div>
 	</div>
