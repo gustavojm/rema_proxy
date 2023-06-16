@@ -87,10 +87,9 @@ void event_stream_handler() {
         ciaa_instance.tx_rx(body, rx_buffer);
         std::string stream(
                 boost::asio::buffer_cast<const char*>((rx_buffer).data()));
-        cout << stream << endl;
-
-        auto json = nlohmann::json::parse(stream);
         if (!stream.empty()) {
+            cout << stream << endl;
+            auto json = nlohmann::json::parse(stream);
             res["TELEMETRIA"] = json.at("TELEMETRIA");
             if (json.contains("TEMPERATURE_INFO")) {
                 res["TEMP_INFO"] = json.at("TEMPERATURE_INFO");

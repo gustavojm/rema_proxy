@@ -10,11 +10,12 @@
 #include <boost/asio/high_resolution_timer.hpp>
 #include <ciaa.hpp>
 
-constexpr std::chrono::milliseconds TIMEOUT = std::chrono::milliseconds(200);
+constexpr std::chrono::milliseconds TIMEOUT = std::chrono::milliseconds(500);
 using boost::asio::ip::tcp;
 
+
 void CIAA::connect() {
-    socket.reset(new boost::asio::ip::tcp::socket(serv.ioservice));	// Create new socket (old one is destroyed automatically)
+    socket.reset(new tcp::socket(serv.ioservice));	// Create new socket (old one is destroyed automatically)
     tcp::resolver resolver(serv.ioservice);
     tcp::resolver::iterator endpoint_iter = resolver.resolve(ip, port);
 
