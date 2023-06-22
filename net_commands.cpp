@@ -198,8 +198,12 @@ nlohmann::json session_load_cmd(nlohmann::json pars) {
 	}
 
 	std::filesystem::path session_path = insp_sessions_dir / session_name;
-	current_session.load(session_path);
-	res["success"] = true;
+	try {
+	    current_session.load(session_path);
+	    res["success"] = true;
+    } catch (std::exception &e) {
+        res["logs"] = e.what();
+    }
 	return res;
 }
 
@@ -207,6 +211,7 @@ nlohmann::json session_info_cmd(nlohmann::json pars) {
 	nlohmann::json res = nlohmann::json(nlohmann::json::value_t::object);
 
 	if (current_session.is_loaded()) {
+	    res["is_loaded"] = current_session.is_loaded();
 		res["tubesheet_svg_path"] = current_session.tubesheet_svg;
 		res["last_selected_plan"] = current_session.get_selected_plan();
 		res["leg"] = current_session.leg;

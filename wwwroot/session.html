@@ -81,9 +81,11 @@
 				}), function(data) {
 					if (data.success) {
 						alert("Session loaded successfully");
+						window.location.reload(true);
+					} else {
+						alert(data.logs);					
 					}
 				});
-
 			})
 			
 			$(".ui-icon-trash").on("click", function() {

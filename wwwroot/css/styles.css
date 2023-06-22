@@ -2,11 +2,12 @@
 
 body {
   background-color: #ffffff;
-  font-size: 1em;
+  font-size: 0.9em;
+  font-family: Verdana,Arial,sans-serif;   
 }
 
 .ui-widget {
-    font-size:80% !important;
+    font-size:0.9em !important;
 }
 
 .table.dataTable {
