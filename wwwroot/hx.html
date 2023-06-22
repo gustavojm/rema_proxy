@@ -106,7 +106,7 @@ svg .tube:hover {
 		}
 	}
 
-	function drawBullseye(svg, scale) {
+	function drawBullseye(svg, tube_od, scale) {		
 		stroke = 0.03 * scale;
 		
 		var g = svg.group({
@@ -117,8 +117,8 @@ svg .tube:hover {
 
 		x = 0;
 		y = 0;
-		radius = 0.4 * scale;
-		
+		radius = tube_od / 2 * 1.4;
+
 		svg.circle(g, x, y, radius, {
 			fill : 'none',
 			stroke : 'red',
@@ -145,7 +145,7 @@ svg .tube:hover {
 		});
 	}
 	
-	function drawLocationPin(svg, scale) {
+	function drawLocationPin(svg, tube_od, scale) {
 		var offset_up = -0.1 * scale;	// Not to cover the tube numbers
 		stroke = 0.02 * scale;
 		
@@ -156,7 +156,7 @@ svg .tube:hover {
 			transform : "rotate(45, 0, 0)"
 		});
 
-		width = 0.3 * scale;
+		width = (tube_od / 2);
 		height = width;
 		x = -width + offset_up;
 		y = -width + offset_up;
@@ -294,7 +294,7 @@ svg .tube:hover {
 		
 	}
 
-	function svg_load(path, scale) {
+	function svg_load(path, tube_od, scale) {
 		$('#hx_svg')
 				.load(
 						path,
@@ -326,8 +326,8 @@ svg .tube:hover {
 
 							$("#tubesheet_svg").svg({
 								onLoad : function (svg) {
-									drawBullseye(svg, scale);
-									drawLocationPin(svg, scale);
+									drawBullseye(svg, tube_od, scale);
+									drawLocationPin(svg, tube_od, scale);
 									var objDiv = document.getElementById("left_side_resizable");									
 									objDiv.scrollTop = (objDiv.scrollHeight - objDiv.clientHeight) / 2;
 								}
@@ -342,10 +342,14 @@ svg .tube:hover {
 	get_session_info()
 			.done(
 					function(data) {
-						$("#unit").text(data.unit);
-						scale = data.unit == "mm" ? 25.4 : 1;						
+						tube_od = 3;
+						if (data.is_loaded) {
+							$("#unit").text(data.unit);
+							scale = data.unit == "mm" ? 25.4 : 1;
+							tube_od = data.tube_od;
+						}
 						svg_load("../"
-								+ (data.tubesheet_svg_path || "/static/no_session_loaded.svg"), scale);
+								+ (data.tubesheet_svg_path || "/static/no_session_loaded.svg"), tube_od, scale);
 
 						var insp_plans_dropdown = $('#insp_plans');
 						var table = $('#insp_plan_table').DataTable();
