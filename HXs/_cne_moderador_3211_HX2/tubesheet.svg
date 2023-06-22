@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" version="1.1" id="tubesheet_svg" viewBox="-1.156000 -29.000000 75.000000 58.000000">
-	<style type="text/css">.tube {stroke: black; stroke-width: 0.02; fill: white;} .tube_num { text-anchor: middle; alignment-baseline: middle; font-family: sans-serif; font-size: 0.25px; fill: black;}.label { text-anchor: middle; alignment-baseline: middle; font-family: sans-serif; font-size: 0.25px; fill: red;}</style>
+	<style type="text/css">.tube {stroke: black; stroke-width: 0.025000 ; fill: white;} .tube_num { text-anchor: middle; alignment-baseline: middle; font-family: sans-serif; font-size: 0.25px; fill: black;}.label { text-anchor: middle; alignment-baseline: middle; font-family: sans-serif; font-size: 0.25; fill: red;}</style>
 	<g id="cartesian" transform="scale(1,-1)">
-		<line x1="0.000000" y1="-29.000000" x2="0.000000" y2="29.000000" stroke="gray" stroke-width="0.02" stroke-dasharray="0.2, 0.1"/>
-		<line x1="-1.156000" y1="0.000000" x2="73.844002" y2="0.000000" stroke="gray" stroke-width="0.02" stroke-dasharray="0.2, 0.1"/>
+		<line x1="0.000000" y1="-29.000000" x2="0.000000" y2="29.000000" stroke="gray" stroke-width="0.025000" stroke-dasharray="0.125000, 0.062500"/>
+		<line x1="-1.156000" y1="0.000000" x2="73.844002" y2="0.000000" stroke="gray" stroke-width="0.025000" stroke-dasharray="0.125000, 0.062500"/>
 		<text x="0.406000" y="-29.500000" class="label" transform-origin="0.406000 -29.5" transform="scale(1, -1) rotate(270)">1</text>
 		<text x="4.062000" y="-29.500000" class="label" transform-origin="4.062000 -29.5" transform="scale(1, -1) rotate(270)">10</text>
 		<text x="42.281002" y="-29.500000" class="label" transform-origin="42.281002 -29.5" transform="scale(1, -1) rotate(270)">100</text>
