@@ -211,6 +211,7 @@ nlohmann::json session_info_cmd(nlohmann::json pars) {
 		res["last_selected_plan"] = current_session.get_selected_plan();
 		res["leg"] = current_session.leg;
 		res["tube_od"] = current_session.tube_od;
+		res["unit"] = current_session.unit;
 
 		nlohmann::json insp_plans_json;
 		for (auto &i_p : current_session.insp_plans) {

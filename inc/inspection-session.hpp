@@ -55,10 +55,11 @@ public:
 	std::string leg = "both";
 	bool loaded = false;
 	bool changed = false;
+	std::string unit = "inch";
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(InspectionSession, inspection_session_file,
         hx_directory, hx, tubesheet_csv, tubesheet_svg, last_selected_plan,
-        insp_plans, leg, tube_od);
+        insp_plans, leg, tube_od, unit);
 
 #endif 		// INSP_SESSION_HPP

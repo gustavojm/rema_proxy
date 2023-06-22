@@ -99,10 +99,13 @@
 </body>
 
 <script type="text/javascript">
-	function update_ui(data) {
-		var pos_x = data["POS X"];
-		var pos_y = data["POS Y"];
-		var pos_z = data["POS Z"];
+
+scale = 1;
+
+	function update_ui(data, scale) {
+		var pos_x = data["POS X"] * scale;
+		var pos_y = data["POS Y"] * scale;
+		var pos_z = data["POS Z"] * scale;
 		$("#position_x").val(pos_x);
 		$("#position_y").val(pos_y);
 		$("#position_z").val(pos_z);	

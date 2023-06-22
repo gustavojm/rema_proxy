@@ -28,7 +28,10 @@ InspectionSession::InspectionSession(std::filesystem::path inspection_session_fi
                 "Leg (hot, cold, both)");
         settings_desc.add_options()("tube_od",
                 po::value<float>(&tube_od)->default_value(1.f),
-                "Tube Outside Diameter in inches");
+                "Tube Outside Diameter");
+        settings_desc.add_options()("unit",
+                po::value<std::string>(&unit)->default_value("inch"),
+                "inch/mm");
 
         po::variables_map vm;
 

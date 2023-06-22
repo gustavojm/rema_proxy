@@ -47,7 +47,7 @@ void register_event_source_handler(const shared_ptr<restbed::Session> session) {
 }
 
 void event_stream_handler() {
-    static auto prev = std::chrono::high_resolution_clock::now();
+    static auto prev = std::chrono::high_resolution_clock::from_time_t(0);
 
     CIAA &ciaa_instance = CIAA::get_instance();
     static bool hide_sent = false;
@@ -75,8 +75,8 @@ void event_stream_handler() {
     auto elapsed_time = now - prev;
 
     std::string telemetry_cmd;
-    if (elapsed_time > 1s) {
-        telemetry_cmd ="{\"commands\": [{\"command\": \"TELEMETRIA\" }, {\"command\": \"TEMPERATURE_INFO\" }]}";
+    if (elapsed_time > 5s) {
+        telemetry_cmd ="{\"commands\": [{\"command\": \"TELEMETRIA\" }, {\"command\": \"TEMP_INFO\" }]}";
         prev = now;
     } else {
         telemetry_cmd ="{\"commands\": [{\"command\": \"TELEMETRIA\" }]}";
@@ -91,8 +91,8 @@ void event_stream_handler() {
             cout << stream << endl;
             auto json = nlohmann::json::parse(stream);
             res["TELEMETRIA"] = json.at("TELEMETRIA");
-            if (json.contains("TEMPERATURE_INFO")) {
-                res["TEMP_INFO"] = json.at("TEMPERATURE_INFO");
+            if (json.contains("TEMP_INFO")) {
+                res["TEMP_INFO"] = json.at("TEMP_INFO");
             }
         }
     } catch (std::exception &e) {

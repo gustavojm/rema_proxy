@@ -106,53 +106,81 @@ svg .tube:hover {
 		}
 	}
 
-	function drawBullseye(svg) {
+	function drawBullseye(svg, scale) {
+		scale = 25.4;
+		stroke = 0.03 * scale;
+		
 		var g = svg.group({
 			stroke : 'green',
-			strokeWidth : 0.02,
+			strokeWidth : stroke,
 			id : "bullseye"
 		});
 
-		svg.circle(g, 0, 0, 0.4, {
+		x = 0;
+		y = 0;
+		radius = 0.4 * scale;
+		
+		svg.circle(g, x, y, radius, {
 			fill : 'none',
 			stroke : 'red',
-			strokeWidth : 0.03
+			strokeWidth : stroke
+		});
+		
+		line = 0.2 * scale;
+		space = 0.1 * scale;
+
+		// Vertical dashed line (Y axis)
+		x1 = -20 * scale;
+		x2 = 20 * scale;
+		y1 = y2 = 0;	
+		svg.line(g, x1, y1, x2, y2, {
+			"stroke-dasharray" : line + " ," + space
 		});
 
-		svg.line(g, -20, 0, 20, 0, {
-			"stroke-dasharray" : "0.2, 0.1"
-		});
-
-		svg.line(g, 0, -20, 0, 20, {
-			"stroke-dasharray" : "0.2, 0.1"
+		// Horizontal dashed line (X axis)
+		x1 = x2 = 0;
+		y1 = -20 * scale;
+		y2 = 20 * scale;
+		svg.line(g, x1, y1, x2, y2, {
+			"stroke-dasharray" : line + " ," + space
 		});
 	}
 	
-	function drawLocationPin(svg) {
-		var offset_up = -0.1 	// Not to cover the tube numbers
+	function drawLocationPin(svg, scale) {
+		scale = 25.4;
+		var offset_up = -0.1 * scale;	// Not to cover the tube numbers
+		stroke = 0.02 * scale;
+		
 		var pin = svg.group({
 			stroke : 'red',
-			strokeWidth : 0.02,
+			strokeWidth : stroke,
 			id : "location_pin",
 			transform : "rotate(45, 0, 0)"
 		});
 
-		svg.rect(pin, -0.3 + offset_up, -0.3 + offset_up, 0.3, 0.3, {
+		width = 0.3 * scale;
+		height = width;
+		x = -width + offset_up;
+		y = -width + offset_up;
+		
+		svg.rect(pin, x, y, width, height, {
 			fill : 'red',
 			stroke : 'red',
-			strokeWidth : 0.02
+			strokeWidth : stroke
 		});
 
-		svg.circle(pin, -0.3 + offset_up, -0.3 + offset_up, 0.3, {
+		radius = width;
+		svg.circle(pin, x, y, radius, {
 			fill : 'red',
 			stroke : 'red',
-			strokeWidth : 0.02
+			strokeWidth : stroke
 		});
 
-		svg.circle(pin, -0.3 + offset_up, -0.3 + offset_up, 0.15, {
+		internal_circle_radius = radius / 2 
+		svg.circle(pin, x, y, internal_circle_radius, {
 			fill : 'white',
 			stroke : 'red',
-			strokeWidth : 0.02
+			strokeWidth : stroke
 		});
 	}
 
@@ -268,7 +296,7 @@ svg .tube:hover {
 		
 	}
 
-	function svg_load(path) {
+	function svg_load(path, scale) {
 		$('#hx_svg')
 				.load(
 						path,
@@ -300,8 +328,8 @@ svg .tube:hover {
 
 							$("#tubesheet_svg").svg({
 								onLoad : function (svg) {
-									drawBullseye(svg);
-									drawLocationPin(svg);
+									drawBullseye(svg, scale);
+									drawLocationPin(svg, scale);
 									var objDiv = document.getElementById("left_side_resizable");									
 									objDiv.scrollTop = (objDiv.scrollHeight - objDiv.clientHeight) / 2;
 								}
@@ -316,8 +344,9 @@ svg .tube:hover {
 	get_session_info()
 			.done(
 					function(data) {
+						scale = data.unit == "mm" ? 25.4 : 1;						
 						svg_load("../"
-								+ (data.tubesheet_svg_path || "/static/no_session_loaded.svg"));
+								+ (data.tubesheet_svg_path || "/static/no_session_loaded.svg"), scale);
 
 						var insp_plans_dropdown = $('#insp_plans');
 						var table = $('#insp_plan_table').DataTable();
@@ -383,8 +412,9 @@ svg .tube:hover {
 		});
 		
 		$("#go_button").click(function() {
-			var pos_x = parseFloat($("#tube_info_x").val());
-			var pos_y = parseFloat($("#tube_info_y").val());
+			scale = 25.4;
+			var pos_x = parseFloat($("#tube_info_x").val()) * scale;
+			var pos_y = parseFloat($("#tube_info_y").val()) * scale;
 
 			$.ajax({
 				url : "/CIAA/",
