@@ -41,12 +41,6 @@ struct IO_Service {
 
 class CIAA {
 public:
-	static CIAA& get_instance() {
-		static CIAA instance; // Guaranteed to be destroyed.
-							  // Instantiated on first use.
-		return instance;
-	}
-
 	void tx_rx(const restbed::Bytes &tx_buffer,
 			boost::asio::streambuf &rx_buffer);
 
@@ -74,28 +68,15 @@ public:
 	size_t receive(boost::asio::streambuf &rx_buffer);
 	void send(const restbed::Bytes &tx_buffer);
 
+
 private:
 	std::string ip;
 	std::string port;
 	struct IO_Service serv;
 	std::unique_ptr<tcp::socket> socket;
 
-	CIAA() {}                    // Constructor? (the {} brackets) are needed here.
-
-	// C++ 11
-	// =======
-	// We can use the better technique of deleting the methods
-	// we don't want.
 public:
 	bool isConnected = false;
-	CIAA(CIAA const&) = delete;
-	void operator=(CIAA const&) = delete;
-
-	// Note: Scott Meyers mentions in his Effective Modern
-	//       C++ book, that deleted functions should generally
-	//       be public as it results in better error messages
-	//       due to the compilers behavior to check accessibility
-	//       before deleted status
 };
 
 #endif 		// CIAA_HPP

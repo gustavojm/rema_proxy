@@ -41,7 +41,7 @@ svg .tube:hover {
 			Col:<input type="text" id="tube_info_col" size="4"> 
 			Row:<input	type="text" id="tube_info_row" size="4">
 			  X:<input type="text" id="tube_info_x" size="4"> 
-			  Y:<input type="text" id="tube_info_y" size="4"> <span id="unit">..</span>
+			  Y:<input type="text" id="tube_info_y" size="4"> <span id="unit">inch</span>
 				 <input type="button" name="start" value="GO" id="go_button" style="background-color: springgreen;">
 				
 		</div>
@@ -335,6 +335,34 @@ svg .tube:hover {
 						});
 	}
 
+	
+	function get_rema_info() {
+		return $.post('/json/rema_info');
+	}
+
+	get_rema_info()
+			.done(
+					function(data) {
+						$.each(
+								data.tools,
+								function(key, entry) {
+									tools_dropdown
+											.append($('<option></option>')
+													.attr(
+															'value',
+															entry.value)
+													.text(
+															entry.text));
+								});
+
+				tools_dropdown.change(function() {
+					alert("update offset inputs here");
+				});
+						
+						
+					}
+			);	
+	
 	function get_session_info() {
 		return $.post('/json/session_info');
 	}
@@ -342,7 +370,7 @@ svg .tube:hover {
 	get_session_info()
 			.done(
 					function(data) {
-						tube_od = 3;
+						tube_od = 1;
 						if (data.is_loaded) {
 							$("#unit").text(data.unit);
 							scale = data.unit == "mm" ? 25.4 : 1;
@@ -439,8 +467,6 @@ svg .tube:hover {
 				}
 			});						
 		});	
-
-// 		$("#joystick").load("joystick.html")
 
 		var insp_plans_dropdown = $('#insp_plans');
 

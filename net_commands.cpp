@@ -10,9 +10,12 @@
 #include "inc/csv.h"
 #include "inc/json.hpp"
 #include "inc/inspection-session.hpp"
+#include "inc/tool.hpp"
+#include "inc/rema.hpp"
 
 using namespace std::chrono_literals;
 extern InspectionSession current_session;
+extern REMA rema;
 
 std::filesystem::path insp_sessions_dir = std::filesystem::path("insp_sessions");
 
@@ -31,8 +34,8 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Tube, x_label, y_label, cl_x, cl_y, hl_x, hl_
 nlohmann::json ciaa_connect_cmd(nlohmann::json pars) {
 	nlohmann::json res;
 	try	{
-		CIAA &ciaa_instance = CIAA::get_instance();
-		ciaa_instance.connect();
+		REMA &rema_instance = REMA::get_instance();
+		rema_instance.ciaa.connect();
 		res["ACK"] = true;
 	} catch (std::exception &e) {
 			std::cout << e.what() << std::endl;
@@ -79,6 +82,11 @@ nlohmann::json hx_list_cmd(nlohmann::json pars) {
 
 	return res;
 }
+
+nlohmann::json tools_list_cmd(nlohmann::json pars) {
+    return REMA::tools_list();
+}
+
 
 nlohmann::json insp_plan_load_cmd(nlohmann::json pars) {
 	nlohmann::json res; //requires to_json and from_json to be defined to be able to serialize the custom object "tube"
@@ -229,6 +237,18 @@ nlohmann::json session_info_cmd(nlohmann::json pars) {
 	return res;
 }
 
+nlohmann::json rema_info_cmd(nlohmann::json pars) {
+    REMA &rema_instance = REMA::get_instance();
+
+    nlohmann::json res = nlohmann::json(nlohmann::json::value_t::object);
+
+    res["tools"] = REMA::tools_list();
+    res["last_selected_tool"] = rema_instance.last_selected_tool;
+
+    return res;
+}
+
+
 nlohmann::json session_delete_cmd(nlohmann::json pars) {
 	std::filesystem::path session_name = std::filesystem::path(pars["session_name"]);
 	nlohmann::json res = nlohmann::json(nlohmann::json::value_t::object);
@@ -248,6 +268,7 @@ std::map<std::string, std::function<nlohmann::json(nlohmann::json)>> commands =
 		{ { "ciaa_connect", &ciaa_connect_cmd },
 		  { "hx_list", &hx_list_cmd },
 		  { "hx_tubesheet_load", &hx_tubesheet_load_cmd },
+		  { "tools_list", &tools_list_cmd },
 		  { "insp_sessions_list", &insp_sessions_list_cmd },
 		  { "session_create", &session_create_cmd },
 		  { "session_load", &session_load_cmd },

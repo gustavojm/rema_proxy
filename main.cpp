@@ -15,13 +15,13 @@
 
 #include <boost/asio.hpp>
 #include <boost/program_options.hpp>
-#include <ciaa.hpp>
 #include "inc/syslogger.hpp"
 #include "inc/json.hpp"
 #include "inc/csv.h"
 #include "inc/net_commands.hpp"
 #include "inc/inspection-session.hpp"
 #include "websocket-server.hpp"
+#include "rema.hpp"
 
 InspectionSession current_session;
 
@@ -49,11 +49,11 @@ void register_event_source_handler(const shared_ptr<restbed::Session> session) {
 void event_stream_handler() {
     static auto prev = std::chrono::high_resolution_clock::from_time_t(0);
 
-    CIAA &ciaa_instance = CIAA::get_instance();
+    REMA &rema_instance = REMA::get_instance();
     static bool hide_sent = false;
     nlohmann::json res;
 
-    if (!ciaa_instance.isConnected) {
+    if (!rema_instance.ciaa.isConnected) {
         res["SHOW_CONNECT"] = true;
         hide_sent = false;
     } else {
@@ -84,7 +84,7 @@ void event_stream_handler() {
 
     try {
         Bytes body(telemetry_cmd.begin(), telemetry_cmd.end());
-        ciaa_instance.tx_rx(body, rx_buffer);
+        rema_instance.ciaa.tx_rx(body, rx_buffer);
         std::string stream(
                 boost::asio::buffer_cast<const char*>((rx_buffer).data()));
         if (!stream.empty()) {
@@ -183,7 +183,7 @@ void get_method_handler(const shared_ptr<Session> session) {
 }
 
 void post_ciaa_method_handler(const shared_ptr<restbed::Session> session,
-        CIAA &ciaa) {
+        REMA &rema) {
     const auto request = session->get_request();
 
     size_t content_length = request->get_header("Content-Length", 0);
@@ -194,7 +194,7 @@ void post_ciaa_method_handler(const shared_ptr<restbed::Session> session,
 
                 boost::asio::streambuf rx_buffer;
                 try {
-                    ciaa.tx_rx(body, rx_buffer);
+                    rema.ciaa.tx_rx(body, rx_buffer);
                     std::string stream(
                             boost::asio::buffer_cast<const char*>(
                                     (rx_buffer).data()));
@@ -263,7 +263,7 @@ void failed_filter_validation_handler(
 int main(const int, const char**) {
     int ciaa_proxy_port;
 
-    CIAA &ciaa_instance = CIAA::get_instance();
+    REMA &rema_instance = REMA::get_instance();
 
     namespace po = boost::program_options;
 
@@ -290,14 +290,14 @@ int main(const int, const char**) {
                 vm);
         po::notify(vm);
 
-        ciaa_instance.set_ip(ciaa_ip);
-        ciaa_instance.set_port(ciaa_port);
+        rema_instance.ciaa.set_ip(ciaa_ip);
+        rema_instance.ciaa.set_port(ciaa_port);
 
         std::cout << "JSON Proxy Server running on " << ciaa_proxy_port << "\n";
-        std::cout << "Connecting to CIAA on " << ciaa_instance.get_ip() << ":"
-                << ciaa_instance.get_port() << "\n";
+        std::cout << "Connecting to CIAA on " << rema_instance.ciaa.get_ip() << ":"
+                << rema_instance.ciaa.get_port() << "\n";
 
-        ciaa_instance.connect();
+        rema_instance.ciaa.connect();
 
     } catch (std::exception &e) {
         std::cout << e.what() << std::endl;
@@ -305,7 +305,7 @@ int main(const int, const char**) {
 
     using namespace std::placeholders;
     auto post_ciaa_method_handler_bound = std::bind(post_ciaa_method_handler,
-            _1, std::ref(ciaa_instance)); // std::bind always passes by value unles std::ref
+            _1, std::ref(rema_instance)); // std::bind always passes by value unles std::ref
 
     auto resource_ciaa = make_shared<restbed::Resource>();
     resource_ciaa->set_path("/CIAA");

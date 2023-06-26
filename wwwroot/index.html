@@ -49,7 +49,7 @@
 
 <body>
 
-	<div id="tabs" style="height: 94%">
+	<div id="tabs" style="height: 95%">
 		<ul>
 			<li><a href="session.html">Session</a></li>
 			<li><a href="tubesheet.html">Tubesheet</a></li>
@@ -59,7 +59,14 @@
 			<li><a href="logs.html">Logs</a></li>
 			<li><a href="about.html">About</a></li>
 <!-- 			<li><a href="websocket.html">Websocket</a></li> -->
-		</ul>
+			<li style="float: right;">
+			<div style="margin-top: 6; margin-right: 20">
+				Selected Tool: <select id="ss"><option>Choose a Tool</option></select>
+				 Offset X: <input type="text" id="offset_x" name="offset X" readonly="readonly" size="4">
+				 Offset X: <input type="text" id="offset_y" name="offset Y" readonly="readonly" size="4">
+			</div>
+			</li>			
+		</ul>			
 	</div>
 	<div style="overflow: hidden; padding-top: 5px;"
 		class="row">
@@ -72,16 +79,16 @@
 		<div style="float: left; justify-content: left;  max-width: 20%"
 			class="col">
 			Temperaturas: 
-			<div class="temperature normal" id="temperature_x">--.-ºC</div>
-			<div class="temperature normal" id="temperature_y">--.-ºC</div>
-			<div class="temperature normal" id="temperature_z">--.-ºC</div>
+			<div class="temperature normal" id="temperature_x">__._ºC</div>
+			<div class="temperature normal" id="temperature_y">__._ºC</div>
+			<div class="temperature normal" id="temperature_z">__._ºC</div>
 		</div>
 
 		<div style="float: left;" class="col">
 			Position X:<input type="text" id="position_x" name="position X" readonly="readonly" size="4">&nbsp;
 			  Y:<input type="text" id="position_y" name="position Y" readonly="readonly" size="4">&nbsp;
 			  Z:<input type="text" id="position_z" name="position Z" readonly="readonly" size="4">&nbsp;
-				<span id="unit">..</span>			
+				<span id="unit">inch</span>			
 		</div>		
 		<div class="col">
 			<span style="float: right; padding-right: 10px;" id="sse"></span>
@@ -98,7 +105,6 @@
 <script type="text/javascript">
 
 scale = 1;
-active_tab = 0;
 
 function get_session_info_index() {
 	return $.post('/json/session_info');
@@ -107,6 +113,7 @@ function get_session_info_index() {
 get_session_info_index()
 		.done(
 				function(data) {					
+					active_tab = 0;
 					if (data.is_loaded) {
 						$("#unit").text(data.unit);
 						scale = data.unit == "mm" ? 25.4 : 1;
@@ -229,15 +236,6 @@ get_session_info_index()
 			});			
 		});
 		
-		// Only for debug purposes 
-// 		$("#position_x, #position_y").on(
-// 				"input",
-// 				function() {
-// 					update_bullseye_position($("#position_x").val(), $(
-// 							"#position_y").val());
-// 				});
-		// 
-
 		// Handle Server Side Events
 		var sse = $.SSE('/sse', {
 			onMessage : function(e) {
