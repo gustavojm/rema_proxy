@@ -93,7 +93,7 @@
 		<div class="col">
 			<span style="float: right; padding-right: 10px;" id="sse"></span> <span
 				style="float: right; color: red; opacity: 0;" id="reconnect">Sin
-				Conexión... <a href="#" id="reconnect_ciaa">Reconectar CIAA</a>
+				Conexión... <a href="#" id="reconnect_rema">Reconectar REMA</a>
 			</span>
 			<div style="float: left; display: none;" class="col"
 				id="joystick_btn_div">
@@ -215,8 +215,7 @@ get_session_info_index()
 		$("#temperature_x").text(temp_x + "ºC");
 		$("#temperature_y").text(temp_y + "ºC");
 		$("#temperature_z").text(temp_z + "ºC");
-		
-		
+				
 		$("#temperature_x").removeClass().addClass("temperature").addClass(temp_ranges(temp_x));
 		$("#temperature_y").removeClass().addClass("temperature").addClass(temp_ranges(temp_y));
 		$("#temperature_z").removeClass().addClass("temperature").addClass(temp_ranges(temp_z));
@@ -227,7 +226,7 @@ get_session_info_index()
 		var pos_y = parseFloat($("#tube_info_y").val()) / scale;
 
 		$.ajax({
-			url : "/CIAA/",
+			url : "/REMA/",
 			method : "POST",
 			contentType : "application/json",
 			data : JSON.stringify({
@@ -273,11 +272,11 @@ get_session_info_index()
 	
 	$(function() {
 	
-		$("#reconnect_ciaa").click(function(){
+		$("#reconnect_rema").click(function(){
 			$.ajax({
 				method : "POST",
 				dataType : 'json',
-				url : "/json/ciaa_connect",
+				url : "/json/rema_connect",
 				contentType : "application/json",
 				data : JSON.stringify({
 					}),

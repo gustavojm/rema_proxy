@@ -50,7 +50,7 @@ public:
 
 	std::filesystem::path last_selected_tool;
 
-	CIAA ciaa;
+	CIAA rtu;
 
 public:
     REMA(std::filesystem::path path) {

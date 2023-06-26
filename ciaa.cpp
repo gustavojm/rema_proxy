@@ -24,16 +24,16 @@ void CIAA::connect() {
                 if (ec) {
                     isConnected = false;
                     throw std::runtime_error(
-                            "Error connecting to CIAA: " + ec.message());
+                            "Error connecting to RTU: " + ec.message());
                 } else {
                     isConnected = true;
-                    std::cout << "Connected to CIAA: " << it->endpoint()
+                    std::cout << "Connected to RTU: " << it->endpoint()
                         << std::endl;
                 }
             });
     serv.await_operation_ex(TIMEOUT, [&] {
         isConnected = false;
-        throw std::runtime_error("Error connecting to CIAA: timeout\n");
+        throw std::runtime_error("Error connecting to RTU: timeout\n");
     });
 }
 

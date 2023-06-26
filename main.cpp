@@ -53,7 +53,7 @@ void event_stream_handler() {
     static bool hide_sent = false;
     nlohmann::json res;
 
-    if (!rema_instance.ciaa.isConnected) {
+    if (!rema_instance.rtu.isConnected) {
         res["SHOW_CONNECT"] = true;
         hide_sent = false;
     } else {
@@ -84,7 +84,7 @@ void event_stream_handler() {
 
     try {
         Bytes body(telemetry_cmd.begin(), telemetry_cmd.end());
-        rema_instance.ciaa.tx_rx(body, rx_buffer);
+        rema_instance.rtu.tx_rx(body, rx_buffer);
         std::string stream(
                 boost::asio::buffer_cast<const char*>((rx_buffer).data()));
         if (!stream.empty()) {
@@ -182,7 +182,7 @@ void get_method_handler(const shared_ptr<Session> session) {
     }
 }
 
-void post_ciaa_method_handler(const shared_ptr<restbed::Session> session,
+void post_rtu_method_handler(const shared_ptr<restbed::Session> session,
         REMA &rema) {
     const auto request = session->get_request();
 
@@ -194,7 +194,7 @@ void post_ciaa_method_handler(const shared_ptr<restbed::Session> session,
 
                 boost::asio::streambuf rx_buffer;
                 try {
-                    rema.ciaa.tx_rx(body, rx_buffer);
+                    rema.rtu.tx_rx(body, rx_buffer);
                     std::string stream(
                             boost::asio::buffer_cast<const char*>(
                                     (rx_buffer).data()));
@@ -261,7 +261,7 @@ void failed_filter_validation_handler(
 }
 
 int main(const int, const char**) {
-    int ciaa_proxy_port;
+    int rtu_proxy_port;
 
     REMA &rema_instance = REMA::get_instance();
 
@@ -270,19 +270,19 @@ int main(const int, const char**) {
     try {
         po::options_description json_proxy_settings("JSON Proxy Settings");
         json_proxy_settings.add_options()("JSON_PROXY.port",
-                po::value<int>(&ciaa_proxy_port)->default_value(1980),
+                po::value<int>(&rtu_proxy_port)->default_value(1980),
                 "Port number");
 
-        std::string ciaa_ip;
-        int ciaa_port;
-        po::options_description ciaa_settings("CIAA Settings");
-        ciaa_settings.add_options()("CIAA.ip",
-                po::value<std::string>(&ciaa_ip)->default_value("192.168.2.20"),
-                "IP address")("CIAA.port",
-                po::value<int>(&ciaa_port)->default_value(5020), "Port number");
+        std::string rtu_ip;
+        int rtu_port;
+        po::options_description rtu_settings("RTU Settings");
+        rtu_settings.add_options()("RTU.ip",
+                po::value<std::string>(&rtu_ip)->default_value("192.168.2.20"),
+                "IP address")("RTU.port",
+                po::value<int>(&rtu_port)->default_value(5020), "Port number");
 
         po::options_description config_file_settings;
-        config_file_settings.add(json_proxy_settings).add(ciaa_settings);
+        config_file_settings.add(json_proxy_settings).add(rtu_settings);
 
         po::variables_map vm;
         po::store(
@@ -290,28 +290,28 @@ int main(const int, const char**) {
                 vm);
         po::notify(vm);
 
-        rema_instance.ciaa.set_ip(ciaa_ip);
-        rema_instance.ciaa.set_port(ciaa_port);
+        rema_instance.rtu.set_ip(rtu_ip);
+        rema_instance.rtu.set_port(rtu_port);
 
-        std::cout << "JSON Proxy Server running on " << ciaa_proxy_port << "\n";
-        std::cout << "Connecting to CIAA on " << rema_instance.ciaa.get_ip() << ":"
-                << rema_instance.ciaa.get_port() << "\n";
+        std::cout << "JSON Proxy Server running on " << rtu_proxy_port << "\n";
+        std::cout << "Connecting to RTU on " << rema_instance.rtu.get_ip() << ":"
+                << rema_instance.rtu.get_port() << "\n";
 
-        rema_instance.ciaa.connect();
+        rema_instance.rtu.connect();
 
     } catch (std::exception &e) {
         std::cout << e.what() << std::endl;
     }
 
     using namespace std::placeholders;
-    auto post_ciaa_method_handler_bound = std::bind(post_ciaa_method_handler,
+    auto post_rtu_method_handler_bound = std::bind(post_rtu_method_handler,
             _1, std::ref(rema_instance)); // std::bind always passes by value unles std::ref
 
-    auto resource_ciaa = make_shared<restbed::Resource>();
-    resource_ciaa->set_path("/CIAA");
-    resource_ciaa->set_failed_filter_validation_handler(
+    auto resource_rtu = make_shared<restbed::Resource>();
+    resource_rtu->set_path("/REMA");
+    resource_rtu->set_failed_filter_validation_handler(
             failed_filter_validation_handler);
-    resource_ciaa->set_method_handler("POST", post_ciaa_method_handler_bound);
+    resource_rtu->set_method_handler("POST", post_rtu_method_handler_bound);
 
     auto resource_json = make_shared<restbed::Resource>();
     resource_json->set_path("/json/{command: .*}");
@@ -337,7 +337,7 @@ int main(const int, const char**) {
     resource_HXs->set_method_handler("GET", get_HXs_method_handler);
 
     auto settings = make_shared<restbed::Settings>();
-    settings->set_port(ciaa_proxy_port);
+    settings->set_port(rtu_proxy_port);
     settings->set_default_header("Connection", "close");
     settings->set_worker_limit(std::thread::hardware_concurrency());
 
@@ -347,7 +347,7 @@ int main(const int, const char**) {
             register_event_source_handler);
 
     restbed::Service service;
-    service.publish(resource_ciaa);
+    service.publish(resource_rtu);
     service.publish(resource_HXs);
     service.publish(resource_json);
     service.publish(resource_html_file);

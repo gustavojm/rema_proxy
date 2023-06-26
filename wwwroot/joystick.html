@@ -157,7 +157,7 @@
 		if (moving || forced) {
 
 			$.ajax({
-				url : "/CIAA/",
+				url : "/REMA/",
 				method : "POST",
 				contentType : "application/json",
 				data : JSON.stringify({
@@ -237,7 +237,7 @@
 		}
 
 		$.ajax({
-			url : "/CIAA/",
+			url : "/REMA/",
 			method : "POST",
 			contentType : "application/json",
 			data : JSON.stringify({
@@ -266,7 +266,7 @@
 		}
 
 		$.ajax({
-			url : "/CIAA/",
+			url : "/REMA/",
 			method : "POST",
 			contentType : "application/json",
 			data : JSON.stringify({
@@ -312,7 +312,7 @@
 
 		$(".joystick-stop").click(function() {
 			$.ajax({
-				url : "/CIAA/",
+				url : "/REMA/",
 				method : "POST",
 				contentType : "application/json",
 				data : JSON.stringify({
@@ -358,7 +358,7 @@
 			update_switches(power_switch.is(':checked'));
 		});
 
-		update_switches(); // brings current status from CIAA
+		update_switches(); // brings current status from REMA
 
 		$("#calibration_button").click(function() {
 			if (typeof set_cal_point === "function") {

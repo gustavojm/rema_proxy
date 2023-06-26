@@ -30,11 +30,11 @@ struct Tube {
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Tube, x_label, y_label, cl_x, cl_y, hl_x,
         hl_y, tube_id)
 
-nlohmann::json ciaa_connect_cmd(nlohmann::json pars) {
+nlohmann::json rema_connect_cmd(nlohmann::json pars) {
     nlohmann::json res;
     try {
         REMA &rema_instance = REMA::get_instance();
-        rema_instance.ciaa.connect();
+        rema_instance.rtu.connect();
         res["ACK"] = true;
     } catch (std::exception &e) {
         std::cout << e.what() << std::endl;
@@ -257,7 +257,7 @@ nlohmann::json tool_delete_cmd(nlohmann::json pars) {
 
 // @formatter:off
 std::map<std::string, std::function<nlohmann::json(nlohmann::json)>> commands =
-		{ { "ciaa_connect", &ciaa_connect_cmd },
+		{ { "rema_connect", &rema_connect_cmd },
 		  { "hx_list", &hx_list_cmd },
 		  { "hx_tubesheet_load", &hx_tubesheet_load_cmd },
 		  { "tools_list", &tools_list_cmd },
