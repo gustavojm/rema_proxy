@@ -36,15 +36,15 @@ public:
         return res;
     }
 
-	void save_to_disk() const;
+    static void delete_tool(std::filesystem::path tool) {
+        std::filesystem::remove(rema_dir / tool);
+    }
 
 	void set_selected_tool(std::filesystem::path tool);
 
 	std::filesystem::path get_selected_tool() const;
 
-	static void delete_tool(std::filesystem::path tool) {
-        std::filesystem::remove(rema_dir / tool);
-	}
+    void save_to_disk() const;
 
 	bool loaded = false;
 
@@ -52,7 +52,7 @@ public:
 
 	CIAA rtu;
 
-public:
+private:
     REMA(std::filesystem::path path) {
         std::ifstream i(path);
         nlohmann::json j;

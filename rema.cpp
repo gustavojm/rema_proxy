@@ -12,6 +12,7 @@ void REMA::save_to_disk() const {
     std::ofstream file(rema_file);
     nlohmann::json j;
 
+    // Default JSON deserialization not possible because REMA is not default constructible (to enforce singleton pattern)
     j["last_selected_tool"] = last_selected_tool;
     file << j;
 }
@@ -19,7 +20,6 @@ void REMA::save_to_disk() const {
 void REMA::set_selected_tool(std::filesystem::path tool) {
     last_selected_tool = tool;
     save_to_disk();
-
 }
 
 std::filesystem::path REMA::get_selected_tool() const {

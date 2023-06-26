@@ -65,11 +65,8 @@
 							{
 								data : null,
 								render : function(data, type, row) {
-									return '<a class="ui-icon ui-icon-play" href="#" data-name="'
-											+ row.file_name + '">'
-											+ '</a>' + 
-											'<a class="ui-icon ui-icon-trash" href="#" data-name="'
-											+ row.file_name + '">' + row.file_name
+									return '<a class="ui-icon ui-icon-trash" href="#" data-name="'
+											+ row.value + '">' + row.value
 											+ '</a>';
 								}
 							}, ]
@@ -77,6 +74,7 @@
 		
 		table.on('draw.dt', function(e, settings, json, xhr) {			
 			$(".ui-icon-trash").on("click", function() {
+				console.log($(this).data);
 				var tool_file = $(this).data("name");
 				
 				var confirm_action = confirm("Are you sure you want to delete " + tool_file + " ?");
