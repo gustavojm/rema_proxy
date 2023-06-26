@@ -8,24 +8,18 @@
 #include "rema.hpp"
 #include "tool.hpp"
 
-
-REMA::REMA(std::filesystem::path rema_file) {
-    std::ifstream i(rema_file);
-
-    nlohmann::json j;
-    i >> j;
-    this->loaded = true;
-    this->last_selected_tool = std::filesystem::path(j["last_selected_tool"]);
-}
-
 void REMA::save_to_disk() const {
     std::ofstream file(rema_file);
-    file << nlohmann::json(*this);
+    nlohmann::json j;
+
+    j["last_selected_tool"] = last_selected_tool;
+    file << j;
 }
 
 void REMA::set_selected_tool(std::filesystem::path tool) {
     last_selected_tool = tool;
-    changed = true;
+    save_to_disk();
+
 }
 
 std::filesystem::path REMA::get_selected_tool() const {

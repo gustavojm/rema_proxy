@@ -3,15 +3,17 @@
 <script type="text/javascript" src="js/datatables.min.js"></script>
 
 
-<div id="new_session_div" style="overflow: hidden; width: 100%;">
+<div id="new_tool_div" style="overflow: hidden; width: 100%;">
 	<form>
 		<div>
 			<div style="padding-bottom: 10px;">
-				<label>Nombre sessión: <input type="text" id="session_name" /></label>
+				<label>Tool Name: <input type="text" id="tool_name" /></label>
 			</div>
-			<div>
-				<select id="heat_exchangers" name="hx">
-				</select>
+			<div style="padding-bottom: 10px;">
+				<label>Offset X: <input type="text" id="offset_x_" /></label>
+			</div>
+			<div style="padding-bottom: 10px;">
+				<label>Offset Y: <input type="text" id="offset_y_" /></label>
 			</div>
 			<div style="padding-bottom: 10px; padding-top: 10px;">
 				<textarea id="new_tool_logs" style="width: 100%"></textarea>
@@ -43,16 +45,16 @@
 	
 	function load_tools() {
 
-		table = $('#sessions_table').DataTable(
+		table = $('#tool_table').DataTable(
 				{
 					ajax : {
 						method : "post",
 						url : "/json/tools_list",
-						dataSrc : '',
+						dataSrc : 'tools',
 					},
 					columns : [
 							{
-								data : 'file_name'
+								data : 'text'
 							},
 							{
 								data : 'offset_x'
@@ -74,29 +76,14 @@
 				});
 		
 		table.on('draw.dt', function(e, settings, json, xhr) {			
-			$(".ui-icon-play").on("click", function() {
-				var insp_session_file = $(this).data("name");
-				$.post('/json/session_load', JSON.stringify({
-					session_name : insp_session_file,
-				}), function(data) {
-					if (data.success) {
-						alert("Tool loaded successfully");
-						window.location.reload(true);
-					} else {
-						alert(data.logs);					
-					}
-				});
-			})
-			
 			$(".ui-icon-trash").on("click", function() {
-				var insp_session_file = $(this).data("name");
+				var tool_file = $(this).data("name");
 				
-				var confirm_action = confirm("Are you sure you want to delete " + insp_session_file + " ?");
+				var confirm_action = confirm("Are you sure you want to delete " + tool_file + " ?");
 		        if (confirm_action) {
-					$.post('/json/session_delete', JSON.stringify({
-						session_name : insp_session_file,
+					$.post('/json/tool_delete', JSON.stringify({
+						tool_file : tool_file,
 					}), function(data) {
-						//$("#new_session_logs").val(data.logs);
 						if (data.success) {
 							table.ajax.reload();
 						} else {
@@ -110,26 +97,27 @@
 	}
 
 	$(function() {
-		load_sessions();
-		$("#new_session_btn").click(function() {
-			$("#new_session_div").dialog("open");
+		load_tools();
+		$("#new_tool_btn").click(function() {
+			$("#new_tool_div").dialog("open");
 		});
 	});
 
 	function create_dialog() {
-		var dialog = $("#new_session_div").dialog({
+		var dialog = $("#new_tool_div").dialog({
 			autoOpen : false,
-			title : "New Session",
+			title : "New Tool",
 			//modal : true,
 			buttons : [ {
 				text : "Create",
 				//icon: "ui-icon-heart",
 				click : function(event) {
-					$.post('/json/session_create', JSON.stringify({
-						session_name : $("#session_name").val(),
-						hx : $("#heat_exchangers").val(),
+					$.post('/json/tool_create', JSON.stringify({
+						tool_name : $("#tool_name").val(),
+						offset_x : $("#offset_x_").val(),
+						offset_y : $("#offset_y_").val(),
 					}), function(data) {
-						$("#new_session_logs").val(data.logs);
+						$("#new_tool_logs").val(data.logs);
 						if (data.success) {
 							$(event.target).hide(); // Hides the "Create" button
 						}
@@ -152,21 +140,5 @@
 
 	$(function() {
 		create_dialog();
-
-		var hx_dropdown = $('#heat_exchangers');
-
-		hx_dropdown.empty();
-		hx_dropdown
-				.append('<option selected="true" disabled>Choose a Heat Exchanger</option>');
-		hx_dropdown.prop('selectedIndex', 0);
-
-		// Populate dropdown with list of HXs
-		$.post('/json/hx_list', JSON.stringify({}), function(data) {
-			$.each(data, function(key, entry) {
-				hx_dropdown.append($('<option></option>').attr('value',
-						entry.value).text(entry.text));
-			})
-		});
-
 	});
 </script>

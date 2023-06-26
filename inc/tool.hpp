@@ -16,6 +16,6 @@ public:
     float offset_y;
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Tool, name, offset_x, offset_y);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Tool, name, offset_x, offset_y)
 
 #endif 		// TOOL_HPP

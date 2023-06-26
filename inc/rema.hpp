@@ -11,24 +11,24 @@
 
 static inline std::filesystem::path rema_dir = std::filesystem::path("rema");
 static inline std::filesystem::path rema_file = rema_dir / "rema.json";
+static inline std::string tools_dir = rema_dir / "tools";
 
 class REMA {
 public:
     static REMA& get_instance() {
-        static REMA instance(rema_file); // Guaranteed to be destroyed.
-                              // Instantiated on first use.
+        static REMA instance(rema_file);    // Guaranteed to be destroyed.
+                                            // Instantiated on first use.
         return instance;
     }
 
     static nlohmann::json tools_list() {
         nlohmann::json res;
 
-        std::string path = rema_dir / "tools";
-        for (const auto &entry : std::filesystem::directory_iterator(path)) {
+        for (const auto &entry : std::filesystem::directory_iterator(tools_dir)) {
             Tool t(entry.path());
             res.push_back(
                     { { "value", entry.path().filename() }, { "text",
-                            entry.path().filename() }, { "offset_x", t.offset_x }, {
+                            t.name }, { "offset_x", t.offset_x }, {
                             "offset_y", t.offset_y } });
         }
         std::sort(res.begin(), res.end());
@@ -42,16 +42,24 @@ public:
 
 	std::filesystem::path get_selected_tool() const;
 
-	bool loaded = false;
+	static void delete_tool(std::filesystem::path tool) {
+        std::filesystem::remove(rema_dir / tool);
+	}
 
-	bool changed = false;
+	bool loaded = false;
 
 	std::filesystem::path last_selected_tool;
 
 	CIAA ciaa;
 
-private:
-    REMA(std::filesystem::path rema_file);
+public:
+    REMA(std::filesystem::path path) {
+        std::ifstream i(path);
+        nlohmann::json j;
+        i >> j;
+        this->loaded = true;
+        this->last_selected_tool = std::filesystem::path(j["last_selected_tool"]);
+    }
 
     // C++ 11
     // =======
@@ -71,7 +79,5 @@ public:
 
 
 };
-
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(REMA, last_selected_tool);
 
 #endif 		// REMA_HPP

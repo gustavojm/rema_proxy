@@ -21,7 +21,7 @@
 	margin: 2px;
 	padding: 3px;
 	justify-content: center;
-	align-items: center;	
+	align-items: center;
 }
 
 .normal {
@@ -35,8 +35,6 @@
 .high {
 	background-color: red;
 }
-
-
 </style>
 
 <script src="js/jquery.js"></script>
@@ -57,46 +55,53 @@
 			<li><a href="hx.html">HX</a></li>
 			<li><a href="config.html">Config</a></li>
 			<li><a href="logs.html">Logs</a></li>
+			<li><a href="tool.html">Tools</a></li>
 			<li><a href="about.html">About</a></li>
-<!-- 			<li><a href="websocket.html">Websocket</a></li> -->
+			<!-- 			<li><a href="websocket.html">Websocket</a></li> -->
 			<li style="float: right;">
-			<div style="margin-top: 6; margin-right: 20">
-				Selected Tool: <select id="ss"><option>Choose a Tool</option></select>
-				 Offset X: <input type="text" id="offset_x" name="offset X" readonly="readonly" size="4">
-				 Offset X: <input type="text" id="offset_y" name="offset Y" readonly="readonly" size="4">
-			</div>
-			</li>			
-		</ul>			
+				<div style="margin-top: 6; margin-right: 20">
+					Selected Tool: <select id="tools"><option>Choose
+							a Tool</option></select> Offset X: <input type="text" id="offset_x" name="offset X"
+						readonly="readonly" size="4"> Offset X: <input type="text"
+						id="offset_y" name="offset Y" readonly="readonly" size="4">
+				</div>
+			</li>
+		</ul>
 	</div>
-	<div style="overflow: hidden; padding-top: 5px;"
-		class="row">
+	<div style="overflow: hidden; padding-top: 5px;" class="row">
 		<div style="float: left; justify-content: left; max-width: 10%"
 			class="col">
 			<div>
 				<img alt="" src="images/logo nasa.png">
 			</div>
 		</div>
-		<div style="float: left; justify-content: left;  max-width: 20%"
+		<div style="float: left; justify-content: left; max-width: 20%"
 			class="col">
-			Temperaturas: 
+			Temperaturas:
 			<div class="temperature normal" id="temperature_x">__._ºC</div>
 			<div class="temperature normal" id="temperature_y">__._ºC</div>
 			<div class="temperature normal" id="temperature_z">__._ºC</div>
 		</div>
 
 		<div style="float: left;" class="col">
-			Position X:<input type="text" id="position_x" name="position X" readonly="readonly" size="4">&nbsp;
-			  Y:<input type="text" id="position_y" name="position Y" readonly="readonly" size="4">&nbsp;
-			  Z:<input type="text" id="position_z" name="position Z" readonly="readonly" size="4">&nbsp;
-				<span id="unit">inch</span>			
-		</div>		
+			Position X:<input type="text" id="position_x" name="position X"
+				readonly="readonly" size="4">&nbsp; Y:<input type="text"
+				id="position_y" name="position Y" readonly="readonly" size="4">&nbsp;
+			Z:<input type="text" id="position_z" name="position Z"
+				readonly="readonly" size="4">&nbsp; <span id="unit">inch</span>
+		</div>
 		<div class="col">
-			<span style="float: right; padding-right: 10px;" id="sse"></span>
-			<span style="float: right; color: red; opacity: 0;" id="reconnect">Sin Conexión... <a href="#" id="reconnect_ciaa">Reconectar CIAA</a></span>
-			<div style="float: left; display:none;" class="col" id="joystick_btn_div"><input type="button" value="Joystick" id="joystick_btn"/></div>
+			<span style="float: right; padding-right: 10px;" id="sse"></span> <span
+				style="float: right; color: red; opacity: 0;" id="reconnect">Sin
+				Conexión... <a href="#" id="reconnect_ciaa">Reconectar CIAA</a>
+			</span>
+			<div style="float: left; display: none;" class="col"
+				id="joystick_btn_div">
+				<input type="button" value="Joystick" id="joystick_btn" />
+			</div>
 		</div>
 	</div>
-	
+
 	<div id="joystick_div" style="overflow: hidden;"></div>
 
 
@@ -105,6 +110,49 @@
 <script type="text/javascript">
 
 scale = 1;
+
+function get_rema_info() {
+	return $.post('/json/rema_info');
+}
+
+get_rema_info()
+		.done(				
+				function(data) {
+					var tools_dropdown = $('#tools');
+					$.each(
+							data.tools,
+							function(key, entry) {
+								tools_dropdown
+										.append($('<option></option>')
+												.attr(
+														'value',
+														entry.value)
+												.attr(
+														'data-offset_x',
+														entry.offset_x)
+												.attr(
+														'data-offset_y',
+														entry.offset_y)														
+												.text(
+														entry.text));
+							});
+
+							tools_dropdown.change(function() {
+								offset_x = $("option:selected", this).data("offset_x");
+								offset_y = $("option:selected", this).data("offset_y");
+								$("#offset_x").val(offset_x);
+								$("#offset_y").val(offset_y);
+								$.post('/json/tool_select', JSON.stringify({
+									tool_path : $("option:selected", this).val(),
+								}), function(data) {
+								});								
+							});
+					
+					tools_dropdown.val(data.last_selected_tool).change();	
+					
+				}
+		);	
+
 
 function get_session_info_index() {
 	return $.post('/json/session_info');

@@ -335,34 +335,6 @@ svg .tube:hover {
 						});
 	}
 
-	
-	function get_rema_info() {
-		return $.post('/json/rema_info');
-	}
-
-	get_rema_info()
-			.done(
-					function(data) {
-						$.each(
-								data.tools,
-								function(key, entry) {
-									tools_dropdown
-											.append($('<option></option>')
-													.attr(
-															'value',
-															entry.value)
-													.text(
-															entry.text));
-								});
-
-				tools_dropdown.change(function() {
-					alert("update offset inputs here");
-				});
-						
-						
-					}
-			);	
-	
 	function get_session_info() {
 		return $.post('/json/session_info');
 	}
