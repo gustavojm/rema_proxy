@@ -63,7 +63,7 @@ void event_stream_handler() {
         }
     }
 
-    if (current_session.is_changed()) {
+    if (current_session.is_loaded() && current_session.is_changed()) {
         current_session.save_to_disk();
         current_session.set_changed(false);
         res["SESSION_MSG"] = "Session Saved";

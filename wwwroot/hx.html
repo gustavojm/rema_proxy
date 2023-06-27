@@ -349,7 +349,7 @@ svg .tube:hover {
 							tube_od = data.tube_od;
 						}
 						svg_load("../"
-								+ (data.tubesheet_svg_path || "/static/no_session_loaded.svg"), tube_od, scale);
+								+ (data.tubesheet_svg || "/static/no_session_loaded.svg"), tube_od, scale);
 
 						var insp_plans_dropdown = $('#insp_plans');
 						var table = $('#insp_plan_table').DataTable();
@@ -365,16 +365,16 @@ svg .tube:hover {
 						var color = 0;
 						$
 								.each(
-										data.inspection_plans,
+										data.insp_plans,
 										function(key, entry) {
 											insp_plans_dropdown
 													.append($(
 															'<option style="background-color:' + pastel_colors[color] + '; "></option>')
 															.attr(
 																	'value',
-																	entry.value)
+																	key)
 															.text(
-																	entry.text));
+																	key));
 											color++;
 											color %= pastel_colors.length;
 										});

@@ -17,7 +17,7 @@ void REMA::save_to_disk() const {
     file << j;
 }
 
-void REMA::set_selected_tool(std::filesystem::path tool) {
+void REMA::set_selected_tool(std::string tool) {
     last_selected_tool = tool;
     save_to_disk();
 }

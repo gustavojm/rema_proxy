@@ -6,19 +6,40 @@
 #include "inspection-session.hpp"
 #include "boost/program_options.hpp"
 
-extern InspectionSession current_session;
-
 InspectionSession::InspectionSession() :
         loaded(false) {
+}
 
+InspectionSession::InspectionSession(
+        std::filesystem::path inspection_session_file) {
+
+    std::ifstream i(inspection_session_file);
+    nlohmann::json j;
+    i >> j;
+    *this = j;
+    this->loaded = true;
+    this->name = inspection_session_file.filename().replace_extension();
+}
+
+bool InspectionSession::load(std::string session_name) {
+
+    std::filesystem::path session_path = insp_sessions_dir / (session_name + std::string(".json"));
+
+    std::ifstream i(session_path);
+
+    nlohmann::json j;
+    i >> j;
+    *this = j;
+    this->loaded = true;
+    this->name = session_name;
+
+    return true;
 }
 
 InspectionSession::InspectionSession(std::string session_name,
-        std::filesystem::path hx) :
+        std::filesystem::path hx) : name(session_name),
         hx(hx) {
 
-    inspection_session_file = insp_sessions_dir
-            / (session_name + std::string(".json"));
     hx_directory = std::filesystem::path("HXs");
 
     tubesheet_csv = hx_directory / hx / "tubesheet.csv";
@@ -69,7 +90,7 @@ std::string InspectionSession::load_plans() {
         std::string tube_num;
         while (ip.read_row(row, col, tube_num)) {
             std::string tube_num_stripped = tube_num.substr(5);
-            insp_plans[entry.path()][tube_num_stripped] = InspectionPlanEntry {
+            insp_plans[entry.path().filename().replace_extension()][tube_num_stripped] = InspectionPlanEntry {
                     row, col, false };
         }
     }
@@ -77,34 +98,20 @@ std::string InspectionSession::load_plans() {
     return out.str();
 }
 
-InspectionSession InspectionSession::load(
-        std::filesystem::path inspection_session_file) {
-
-    std::filesystem::path session_path = insp_sessions_dir
-            / inspection_session_file;
-
-    this->inspection_session_file = session_path;
-    std::ifstream i(session_path);
-
-    nlohmann::json j;
-    i >> j;
-    *this = j;
-    this->loaded = true;
-
-    return *this;
-}
-
 void InspectionSession::save_to_disk() const {
-    std::ofstream file(inspection_session_file);
-    file << nlohmann::json(*this);
+    std::filesystem::path session_file = insp_sessions_dir / (name + std::string(".json"));
+    std::ofstream file(session_file);
+    nlohmann::json j(*this);
+    j.erase("name");
+    file << j;
 }
 
-void InspectionSession::set_selected_plan(std::filesystem::path plan) {
+void InspectionSession::set_selected_plan(std::string plan) {
     last_selected_plan = plan;
     changed = true;
 }
 
-std::filesystem::path InspectionSession::get_selected_plan() const {
+std::string InspectionSession::get_selected_plan() const {
     return last_selected_plan;
 }
 
@@ -113,8 +120,8 @@ void InspectionSession::set_tube_inspected(std::string tube_id, bool state) {
     changed = true;
 }
 
-void InspectionSession::set_tube_inspected(std::filesystem::path insp_plan_path,
+void InspectionSession::set_tube_inspected(std::string insp_plan,
         std::string tube_id, bool state) {
-    insp_plans[insp_plan_path][tube_id].inspected = state;
+    insp_plans[insp_plan][tube_id].inspected = state;
     changed = true;
 }

@@ -11,7 +11,7 @@
 
 static inline std::filesystem::path rema_dir = std::filesystem::path("rema");
 static inline std::filesystem::path rema_file = rema_dir / "rema.json";
-static inline std::string tools_dir = rema_dir / "tools";
+static inline std::filesystem::path tools_dir = rema_dir / "tools";
 
 class REMA {
 public:
@@ -21,26 +21,21 @@ public:
         return instance;
     }
 
-    static nlohmann::json tools_list() {
-        nlohmann::json res;
+    static std::vector<Tool> tools_list() {
+        std::vector<Tool> res;
 
         for (const auto &entry : std::filesystem::directory_iterator(tools_dir)) {
             Tool t(entry.path());
-            res.push_back(
-                    { { "value", entry.path().filename() }, { "text",
-                            t.name }, { "offset_x", t.offset_x }, {
-                            "offset_y", t.offset_y } });
+            res.push_back(t);
         }
-        std::sort(res.begin(), res.end());
-
         return res;
     }
 
-    static void delete_tool(std::filesystem::path tool) {
-        std::filesystem::remove(rema_dir / tool);
+    static void delete_tool(std::string tool) {
+        std::filesystem::remove(tools_dir / (tool + std::string(".json")));
     }
 
-	void set_selected_tool(std::filesystem::path tool);
+	void set_selected_tool(std::string tool);
 
 	std::filesystem::path get_selected_tool() const;
 
@@ -48,7 +43,7 @@ public:
 
 	bool loaded = false;
 
-	std::filesystem::path last_selected_tool;
+	std::string last_selected_tool;
 
 	CIAA rtu;
 
@@ -58,7 +53,7 @@ private:
         nlohmann::json j;
         i >> j;
         this->loaded = true;
-        this->last_selected_tool = std::filesystem::path(j["last_selected_tool"]);
+        this->last_selected_tool = j["last_selected_tool"];
     }
 
     // C++ 11

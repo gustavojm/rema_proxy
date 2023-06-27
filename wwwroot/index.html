@@ -126,7 +126,7 @@ get_rema_info()
 										.append($('<option></option>')
 												.attr(
 														'value',
-														entry.value)
+														entry.name)
 												.attr(
 														'data-offset_x',
 														entry.offset_x)
@@ -134,7 +134,7 @@ get_rema_info()
 														'data-offset_y',
 														entry.offset_y)														
 												.text(
-														entry.text));
+														entry.name));
 							});
 
 							tools_dropdown.change(function() {
@@ -143,7 +143,7 @@ get_rema_info()
 								$("#offset_x").val(offset_x);
 								$("#offset_y").val(offset_y);
 								$.post('/json/tool_select', JSON.stringify({
-									tool_path : $("option:selected", this).val(),
+									tool_name : $("option:selected", this).val(),
 								}), function(data) {
 								});								
 							});

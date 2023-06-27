@@ -112,21 +112,20 @@ nlohmann::json tools_list_cmd(nlohmann::json pars) {
 }
 
 nlohmann::json tool_select_cmd(nlohmann::json pars) {
+    std::string tool_name = std::filesystem::path(pars["tool_name"]);
 
     REMA &rema_instance = REMA::get_instance();
-    std::filesystem::path tool_path = std::filesystem::path(pars["tool_path"]);
+    rema_instance.set_selected_tool(tool_name);
 
-    nlohmann::json res;
-    rema_instance.set_selected_tool(tool_path);
-    return res;
+    return nlohmann::json();
 }
 
 nlohmann::json tool_delete_cmd(nlohmann::json pars) {
-    std::filesystem::path tool_file = std::filesystem::path(pars["tool_file"]);
-    nlohmann::json res = nlohmann::json(nlohmann::json::value_t::object);
+    std::string tool_name = pars["tool_name"];
 
+    nlohmann::json res = nlohmann::json(nlohmann::json::value_t::object);
     try {
-        REMA::delete_tool(tool_file);
+        REMA::delete_tool(tool_name);
         res["success"] = true;
     } catch (const std::filesystem::filesystem_error &e) {
         res["logs"] = std::string("filesystem error: ") + e.what();
@@ -224,19 +223,16 @@ nlohmann::json session_info_cmd(nlohmann::json pars) {
     nlohmann::json res = nlohmann::json(nlohmann::json::value_t::object);
 
     if (current_session.is_loaded()) {
-        res["is_loaded"] = current_session.is_loaded();
-        res["tubesheet_svg_path"] = current_session.tubesheet_svg;
-        res["last_selected_plan"] = current_session.get_selected_plan();
-        res["leg"] = current_session.leg;
-        res["tube_od"] = current_session.tube_od;
-        res["unit"] = current_session.unit;
-
-        nlohmann::json insp_plans_json;
-        for (auto &i_p : current_session.insp_plans) {
-            insp_plans_json.push_back(
-                    { { "value", i_p.first }, { "text", i_p.first.filename() } });
-        }
-        res["inspection_plans"] = insp_plans_json;
+        res = current_session;
+        res["is_loaded"] = true;
+//
+//        nlohmann::json insp_plans_json;
+//        for (auto &i_p : current_session.insp_plans) {
+//            insp_plans_json.push_back(
+//                    { { "value", i_p.first }, { "text", i_p.first.filename() } });
+//        }
+//        res["inspection_plans"] = insp_plans_json;
+        return res;
     }
 
     return res;
@@ -261,12 +257,11 @@ nlohmann::json tube_set_status_cmd(nlohmann::json pars) {
     nlohmann::json res;
 
     try {
-        std::filesystem::path insp_plan_path = std::filesystem::path(
-                pars["insp_plan_path"]);
+        std::string insp_plan = pars["insp_plan_path"];
         std::string tube_id = pars["tube_id"];
         bool checked = pars["checked"];
 
-        current_session.set_tube_inspected(insp_plan_path, tube_id, checked);
+        current_session.set_tube_inspected(insp_plan, tube_id, checked);
         res[tube_id] = checked;
     } catch (nlohmann::json::exception &e) {
         res["logs"] = e.what();

@@ -13,89 +13,97 @@ std::time_t to_time_t(TP tp) {
     return std::chrono::system_clock::to_time_t(sctp);
 }
 
-static inline std::filesystem::path insp_sessions_dir = std::filesystem::path("insp_sessions");
+static inline std::filesystem::path insp_sessions_dir = std::filesystem::path(
+        "insp_sessions");
 
+struct InspectionPlanEntry {
+    std::string row, col;
+    bool inspected;
+};
 
-	struct InspectionPlanEntry {
-		std::string row, col;
-		bool inspected;
-	};
-
-	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(InspectionPlanEntry, row, col, inspected)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(InspectionPlanEntry, row, col, inspected)
 
 class InspectionSession {
 public:
-	InspectionSession();
-	InspectionSession(std::string session_name, std::filesystem::path hx);
+    InspectionSession();
 
-	std::string load_plans();
+    explicit InspectionSession(std::string session_name, std::filesystem::path hx);
 
-	InspectionSession load(std::filesystem::path inspection_session_file);
+    explicit InspectionSession(std::filesystem::path inspection_session_file);
 
-	static nlohmann::json sessions_list() {
-	    nlohmann::json res;
+    std::string load_plans();
 
-	    for (const auto &entry : std::filesystem::directory_iterator(
-	            insp_sessions_dir)) {
-	        if (entry.is_regular_file()) {
+    bool load(std::string session_name);
 
-	            std::time_t tt = to_time_t(entry.last_write_time());
-	            std::tm *gmt = std::gmtime(&tt);
-	            std::stringstream buffer;
-	            buffer << std::put_time(gmt, "%A, %d %B %Y %H:%M");
-	            std::string formattedFileTime = buffer.str();
-	            std::string filename = entry.path().filename();
-	            std::ifstream session_file { entry.path() };
-	            nlohmann::json j;
-	            session_file >> j;
+    static std::vector<InspectionSession> sessions_list() {
+        std::vector<InspectionSession> res;
 
-	            res.push_back(nlohmann::json { { "file_name", filename }, { "hx",
-	                    j["hx"] }, { "file_date", formattedFileTime }, });
-	        }
-	    }
-	    std::sort(res.begin(), res.end());
-	    return res;
-	}
+        for (const auto &entry : std::filesystem::directory_iterator(
+                insp_sessions_dir)) {
+            if (entry.is_regular_file()) {
+                std::time_t tt = to_time_t(entry.last_write_time());
+                std::tm *gmt = std::gmtime(&tt);
+                std::stringstream buffer;
+                buffer << std::put_time(gmt, "%A, %d %B %Y %H:%M");
+                std::string formattedFileTime = buffer.str();
 
+                InspectionSession insp_session(entry);
+                insp_session.last_write_time = buffer.str();
 
-	void save_to_disk() const;
+                res.push_back(insp_session);
+            }
+        }
+        //std::sort(res.begin(), res.end());
+        return res;
+    }
 
-	inline bool is_loaded() {return loaded;};
+    void save_to_disk() const;
 
-	inline bool is_changed() const {return changed;};
+    inline bool is_loaded() {
+        return loaded;
+    }
 
-	inline void set_changed(bool changed) {this->changed = changed;};
+    inline bool is_changed() const {
+        return changed;
+    }
 
-	void set_selected_plan(std::filesystem::path plan);
+    inline void set_changed(bool changed) {
+        this->changed = changed;
+    }
 
-	std::filesystem::path get_selected_plan() const;
+    void set_selected_plan(std::string plan);
 
-	void set_tube_inspected(std::string tube_id, bool state);
+    std::string get_selected_plan() const;
 
-	void set_tube_inspected(std::filesystem::path insp_plan_path, std::string tube_id, bool state);
+    void set_tube_inspected(std::string tube_id, bool state);
 
-	static void delete_session(std::filesystem::path session_name) {
-	    std::filesystem::remove(insp_sessions_dir / session_name);
-	}
+    void set_tube_inspected(std::string insp_plan,
+            std::string tube_id, bool state);
 
-	std::map<std::filesystem::path,
-			std::map<std::string, struct InspectionPlanEntry::InspectionPlanEntry>> insp_plans;
+    static void delete_session(std::string session_name) {
+        std::filesystem::remove(insp_sessions_dir / (session_name + std::string(".json")));
+    }
 
-	std::filesystem::path inspection_session_file;
-	std::filesystem::path hx_directory;
-	std::filesystem::path hx;
-	std::filesystem::path tubesheet_csv;
-	std::filesystem::path tubesheet_svg;
-	std::filesystem::path last_selected_plan;
-	float tube_od;
-	std::string leg = "both";
-	bool loaded = false;
-	bool changed = false;
-	std::string unit = "inch";
+    std::map<std::string,
+            std::map<std::string,
+                    struct InspectionPlanEntry::InspectionPlanEntry>> insp_plans;
+
+    std::string name;
+    std::filesystem::path hx_directory;
+    std::filesystem::path hx;
+    std::filesystem::path tubesheet_csv;
+    std::filesystem::path tubesheet_svg;
+    std::string last_selected_plan;
+    std::string last_write_time;
+    float tube_od;
+    std::string leg = "both";
+    bool loaded = false;
+    bool changed = false;
+    std::string unit = "inch";
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(InspectionSession, inspection_session_file,
-        hx_directory, hx, tubesheet_csv, tubesheet_svg, last_selected_plan,
-        insp_plans, leg, tube_od, unit)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(InspectionSession, name,
+        last_write_time, hx_directory, hx, tubesheet_csv, tubesheet_svg,
+        last_selected_plan, insp_plans, leg, tube_od, unit)
 
 #endif 		// INSP_SESSION_HPP
