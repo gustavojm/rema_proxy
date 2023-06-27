@@ -141,12 +141,10 @@ nlohmann::json insp_plan_load_cmd(nlohmann::json pars) {
     nlohmann::json res; //requires to_json and from_json to be defined to be able to serialize the custom object "tube"
 
     try {
-        std::filesystem::path insp_plan_path = std::filesystem::path(
-                pars["insp_plan_path"]);
-        current_session.last_selected_plan = std::filesystem::path(
-                insp_plan_path);
+        std::string insp_plan = pars["insp_plan"];
+        current_session.last_selected_plan = insp_plan;
 
-        for (auto [key, value] : current_session.insp_plans.at(insp_plan_path)) {
+        for (auto [key, value] : current_session.insp_plans.at(insp_plan)) {
             res.push_back( { { "tube_id", key }, { "col", value.col }, { "row",
                     value.row }, { "inspected", value.inspected } });
         }
@@ -225,13 +223,6 @@ nlohmann::json session_info_cmd(nlohmann::json pars) {
     if (current_session.is_loaded()) {
         res = current_session;
         res["is_loaded"] = true;
-//
-//        nlohmann::json insp_plans_json;
-//        for (auto &i_p : current_session.insp_plans) {
-//            insp_plans_json.push_back(
-//                    { { "value", i_p.first }, { "text", i_p.first.filename() } });
-//        }
-//        res["inspection_plans"] = insp_plans_json;
         return res;
     }
 
@@ -257,7 +248,7 @@ nlohmann::json tube_set_status_cmd(nlohmann::json pars) {
     nlohmann::json res;
 
     try {
-        std::string insp_plan = pars["insp_plan_path"];
+        std::string insp_plan = pars["insp_plan"];
         std::string tube_id = pars["tube_id"];
         bool checked = pars["checked"];
 

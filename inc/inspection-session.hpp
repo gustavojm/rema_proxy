@@ -86,7 +86,7 @@ public:
 
     std::map<std::string,
             std::map<std::string,
-                    struct InspectionPlanEntry::InspectionPlanEntry>> insp_plans;
+                    struct InspectionPlanEntry>> insp_plans;
 
     std::string name;
     std::filesystem::path hx_directory;

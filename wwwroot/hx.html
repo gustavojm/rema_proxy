@@ -460,7 +460,7 @@ svg .tube:hover {
 								url : "/json/insp_plan_load",
 								data : function() {
 									return JSON.stringify({
-										insp_plan_path : $("#insp_plans").val()
+										insp_plan : $("#insp_plans").val()
 									});
 								},
 								dataSrc : '',
@@ -528,7 +528,7 @@ svg .tube:hover {
 				url : "/json/tube_set_status",
 				contentType : "application/json",
 				data : JSON.stringify({
-						insp_plan_path : $("#insp_plans").val(),
+						insp_plan : $("#insp_plans").val(),
 						tube_id : $(this).val(),
 						checked : $(this).prop("checked"), 					
 					}),
