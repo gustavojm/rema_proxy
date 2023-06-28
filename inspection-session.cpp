@@ -98,11 +98,32 @@ std::string InspectionSession::load_plans() {
     return out.str();
 }
 
+std::vector<InspectionPlanEntryWithTubeID> InspectionSession::inspection_plan_get(std::string insp_plan) {
+    std::vector<InspectionPlanEntryWithTubeID> res;
+    last_selected_plan = insp_plan;
+
+    auto it = insp_plans.find(insp_plan);
+    if (it != insp_plans.end()) {
+        for (auto [key, value] : it->second ) {
+            InspectionPlanEntryWithTubeID entry;
+            entry.col = value.col;
+            entry.row = value.row;
+            entry.inspected = value.inspected;
+            entry.tube_id = key;
+
+            res.push_back(entry);
+        }
+    }
+    return res;
+}
+
+
 void InspectionSession::save_to_disk() const {
     std::filesystem::path session_file = insp_sessions_dir / (name + std::string(".json"));
     std::ofstream file(session_file);
     nlohmann::json j(*this);
     j.erase("name");
+    j.erase("last_write_time");
     file << j;
 }
 

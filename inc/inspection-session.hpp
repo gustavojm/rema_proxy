@@ -16,12 +16,20 @@ std::time_t to_time_t(TP tp) {
 static inline std::filesystem::path insp_sessions_dir = std::filesystem::path(
         "insp_sessions");
 
-struct InspectionPlanEntry {
+class InspectionPlanEntry {
+public:
     std::string row, col;
     bool inspected;
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(InspectionPlanEntry, row, col, inspected)
+
+class InspectionPlanEntryWithTubeID : public InspectionPlanEntry {
+public:
+    std::string tube_id;
+};
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(InspectionPlanEntryWithTubeID, tube_id, row, col, inspected)
 
 class InspectionSession {
 public:
@@ -32,6 +40,8 @@ public:
     explicit InspectionSession(std::filesystem::path inspection_session_file);
 
     std::string load_plans();
+
+    std::vector<InspectionPlanEntryWithTubeID> inspection_plan_get(std::string insp_plan);
 
     bool load(std::string session_name);
 

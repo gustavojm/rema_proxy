@@ -230,10 +230,12 @@ void post_json_method_handler(const shared_ptr<restbed::Session> session) {
 
                 nlohmann::json j;
 
-                try {
-                    j = nlohmann::json::parse(b);
-                } catch (std::exception &e) {
-                    std::cout << e.what() << "\n";
+                if (!b.empty()) {
+                    try {
+                        j = nlohmann::json::parse(b);
+                    } catch (std::exception &e) {
+                        std::cout << e.what() << "\n";
+                    }
                 }
                 const std::string command = request->get_path_parameter(
                         "command");
