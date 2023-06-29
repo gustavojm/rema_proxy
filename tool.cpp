@@ -4,20 +4,23 @@
 #include <map>
 #include <csv.h>
 
+#include "rema.hpp"
 #include "tool.hpp"
 
-    Tool::Tool(std::filesystem::path tool_file) {
-        std::ifstream i(tool_file);
+extern std::filesystem::path tools_dir;
 
-        nlohmann::json j;
-        i >> j;
-        *this = j;
-        this->name = tool_file.filename().replace_extension();
-    }
+Tool::Tool(std::filesystem::path tool_file) {
+    std::ifstream i(tool_file);
 
+    nlohmann::json j;
+    i >> j;
+    *this = j;
+    this->name = tool_file.filename().replace_extension();
+}
 
 void Tool::save_to_disk() const {
-    std::filesystem::path tool_file = std::filesystem::path(name).append(".json");
+    std::filesystem::path tool_file = tools_dir / (name + std::string(".json"));
+
     std::ofstream file(tool_file);
     nlohmann::json j(*this);
     j.erase("name");

@@ -41,7 +41,7 @@ svg .tube:hover {
 			Col:<input type="text" id="tube_info_col" size="4"> 
 			Row:<input	type="text" id="tube_info_row" size="4">
 			  X:<input type="text" id="tube_info_x" size="4"> 
-			  Y:<input type="text" id="tube_info_y" size="4"> <span id="unit">inch</span>
+			  Y:<input type="text" id="tube_info_y" size="4"> <span class="units">inch</span>
 				 <input type="button" name="start" value="GO" id="go_button" style="background-color: springgreen;">
 				
 		</div>
@@ -344,7 +344,7 @@ svg .tube:hover {
 					function(data) {
 						tube_od = 1;
 						if (data.is_loaded) {
-							$("#unit").text(data.unit);
+							$(".units").text(data.unit);
 							scale = data.unit == "mm" ? 25.4 : 1;
 							tube_od = data.tube_od;
 						}
@@ -415,8 +415,8 @@ svg .tube:hover {
 		});
 		
 		$("#go_button").click(function() {
-			var pos_x = parseFloat($("#tube_info_x").val()) / scale;
-			var pos_y = parseFloat($("#tube_info_y").val()) / scale;
+			var pos_x = parseFloat($("#tube_info_x").val()) / scale + $("#offset_x").val() / scale;
+			var pos_y = parseFloat($("#tube_info_y").val()) / scale + $("#offset_y").val() / scale;;
 
 			$.ajax({
 				url : "/REMA/",

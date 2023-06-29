@@ -231,6 +231,7 @@ void post_json_method_handler(const shared_ptr<restbed::Session> session) {
                 nlohmann::json j;
 
                 if (!b.empty()) {
+                    std::cout << b << std::endl;
                     try {
                         j = nlohmann::json::parse(b);
                     } catch (std::exception &e) {

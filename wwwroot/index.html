@@ -61,9 +61,12 @@
 			<li style="float: right;">
 				<div style="margin-top: 6; margin-right: 20">
 					Selected Tool: <select id="tools"><option>Choose
-							a Tool</option></select> Offset X: <input type="text" id="offset_x" name="offset X"
-						readonly="readonly" size="4"> Offset X: <input type="text"
-						id="offset_y" name="offset Y" readonly="readonly" size="4">
+							a Tool</option></select> Offset X: <input type="text" id="offset_x"
+						readonly="readonly" size="4"> Y: <input type="text"
+						id="offset_y" readonly="readonly" size="4">
+						Z: <input type="text"
+						id="offset_z" readonly="readonly" size="4">
+						<span class="units">inch</span>
 				</div>
 			</li>
 		</ul>
@@ -77,7 +80,7 @@
 		</div>
 		<div style="float: left; justify-content: left; max-width: 20%"
 			class="col">
-			Temperaturas:
+			Temperatures:
 			<div class="temperature normal" id="temperature_x">__._ºC</div>
 			<div class="temperature normal" id="temperature_y">__._ºC</div>
 			<div class="temperature normal" id="temperature_z">__._ºC</div>
@@ -88,12 +91,12 @@
 				readonly="readonly" size="4">&nbsp; Y:<input type="text"
 				id="position_y" name="position Y" readonly="readonly" size="4">&nbsp;
 			Z:<input type="text" id="position_z" name="position Z"
-				readonly="readonly" size="4">&nbsp; <span id="unit">inch</span>
+				readonly="readonly" size="4">&nbsp; <span class="units">inch</span>
 		</div>
 		<div class="col">
 			<span style="float: right; padding-right: 10px;" id="sse"></span> <span
-				style="float: right; color: red; opacity: 0;" id="reconnect">Sin
-				Conexión... <a href="#" id="reconnect_rema">Reconectar REMA</a>
+				style="float: right; color: red; opacity: 0;" id="reconnect">Connection 
+				Lost... <a href="#" id="reconnect_rema">Reconnect REMA</a>
 			</span>
 			<div style="float: left; display: none;" class="col"
 				id="joystick_btn_div">
@@ -111,49 +114,6 @@
 
 scale = 1;
 
-function get_rema_info() {
-	return $.post('/json/rema_info');
-}
-
-get_rema_info()
-		.done(				
-				function(data) {
-					var tools_dropdown = $('#tools');
-					$.each(
-							data.tools,
-							function(key, entry) {
-								tools_dropdown
-										.append($('<option></option>')
-												.attr(
-														'value',
-														entry.name)
-												.attr(
-														'data-offset_x',
-														entry.offset_x)
-												.attr(
-														'data-offset_y',
-														entry.offset_y)														
-												.text(
-														entry.name));
-							});
-
-							tools_dropdown.change(function() {
-								offset_x = $("option:selected", this).data("offset_x");
-								offset_y = $("option:selected", this).data("offset_y");
-								$("#offset_x").val(offset_x);
-								$("#offset_y").val(offset_y);
-								$.post('/json/tool_select', JSON.stringify({
-									tool_name : $("option:selected", this).val(),
-								}), function(data) {
-								});								
-							});
-					
-					tools_dropdown.val(data.last_selected_tool).change();	
-					
-				}
-		);	
-
-
 function get_session_info_index() {
 	return $.post('/json/session_info');
 }
@@ -163,7 +123,7 @@ get_session_info_index()
 				function(data) {					
 					active_tab = 0;
 					if (data.is_loaded) {
-						$("#unit").text(data.unit);
+						$(".units").text(data.unit);
 						scale = data.unit == "mm" ? 25.4 : 1;
 						active_tab = 3
 					}
@@ -176,16 +136,58 @@ get_session_info_index()
 						}
 					});
 
-				});
+					$.post('/json/rema_info', function(data) {
+						var tools_dropdown = $('#tools');
+						$.each(
+								data.tools,
+								function(key, entry) {
+									tools_dropdown
+											.append($('<option></option>')
+													.attr(
+															'value',
+															entry.name)
+													.attr(
+															'data-offset_x',
+															entry.offset_x)
+													.attr(
+															'data-offset_y',
+															entry.offset_y)														
+													.attr(
+															'data-offset_z',
+															entry.offset_z)														
+													.text(
+															entry.name));
+								});
 
-	function update_ui(data, scale) {
-		var pos_x = data["POS X"] * scale;
-		var pos_y = data["POS Y"] * scale;
-		var pos_z = data["POS Z"] * scale;
-		$("#position_x").val(pos_x);
-		$("#position_y").val(pos_y);
-		$("#position_z").val(pos_z);	
-		
+								tools_dropdown.change(function() {
+									offset_x = $("option:selected", this).data("offset_x");
+									offset_y = $("option:selected", this).data("offset_y");
+									offset_z = $("option:selected", this).data("offset_z");
+									$("#offset_x").val(offset_x * scale);
+									$("#offset_y").val(offset_y * scale);
+									$("#offset_z").val(offset_z * scale);
+									$.post('/json/tool_select', JSON.stringify({
+										tool_name : $("option:selected", this).val(),
+									}), function(data) {
+									});								
+								});
+						
+								tools_dropdown.val(data.last_selected_tool).change();	
+							}										
+					);			
+				}
+		);
+				
+				
+
+	function update_ui(data, scale) {		
+		var pos_x = data["POS X"] * scale - parseFloat($("#offset_x").val());
+		var pos_y = data["POS Y"] * scale - parseFloat($("#offset_y").val());
+		var pos_z = data["POS Z"] * scale - parseFloat($("#offset_z").val());
+		$("#position_x").val(pos_x.toFixed(4));
+		$("#position_y").val(pos_y.toFixed(4));
+		$("#position_z").val(pos_z.toFixed(4));	
+
 		if (typeof update_limits === "function") {
 			update_limits(data["LIMITS"]);
 		}

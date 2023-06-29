@@ -1,4 +1,3 @@
-#include <ciaa.hpp>
 #include <functional>
 #include <ctime>
 #include <chrono>
@@ -7,7 +6,6 @@
 #include <exception>
 #include <vector>
 
-#include "inc/csv.h"
 #include "inc/json.hpp"
 #include "inc/inspection-session.hpp"
 #include "inc/tool.hpp"
@@ -59,6 +57,30 @@ nlohmann::json hx_list_cmd(nlohmann::json pars) {
 /**
  * Tools related functions
  **/
+nlohmann::json tool_create_cmd(nlohmann::json pars) {
+    nlohmann::json res;
+
+    std::string tool_name = pars["tool_name"];
+    if (tool_name.empty()) {
+        res["success"] = false;
+        res["logs"] = "no filename specified";
+        return res;
+    }
+
+    float offset_x = std::stof(pars["offset_x"].get<std::string>());
+    float offset_y = std::stof(pars["offset_y"].get<std::string>());
+    float offset_z = std::stof(pars["offset_z"].get<std::string>());
+
+    try {
+        Tool new_tool(tool_name, offset_x, offset_y, offset_z);
+        res["success"] = true;
+    } catch (const std::exception &e) {
+        res["success"] = false;
+        res["logs"] = e.what();
+    }
+    return res;
+}
+
 
 nlohmann::json tools_list_cmd(nlohmann::json pars) {
     return REMA::tools_list();
@@ -107,12 +129,11 @@ nlohmann::json insp_sessions_list_cmd(nlohmann::json pars) {
 }
 
 nlohmann::json session_create_cmd(nlohmann::json pars) {
-    std::filesystem::path session_name = std::filesystem::path(
-            pars["session_name"]);
+    std::string session_name = pars["session_name"];
 
     nlohmann::json res;
 
-    if (session_name.empty() && !session_name.has_filename()) {
+    if (session_name.empty()) {
         res["success"] = false;
         res["logs"] = "no filename specified";
         return res;
@@ -202,6 +223,7 @@ std::map<std::string, std::function<nlohmann::json(nlohmann::json)>> commands =
 		  { "rema_info", &rema_info_cmd },
           { "hx_tubesheet_load", &hx_tubesheet_load_cmd },
 		  { "hx_list", &hx_list_cmd },
+          { "tool_create", &tool_create_cmd },
 		  { "tools_list", &tools_list_cmd },
 		  { "tool_select", &tool_select_cmd },
 		  { "tool_delete", &tool_delete_cmd },

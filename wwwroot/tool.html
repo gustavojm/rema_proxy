@@ -4,22 +4,25 @@
 
 
 <div id="new_tool_div" style="overflow: hidden; width: 100%;">
-	<form>
+	<form id="tool_create">
 		<div>
 			<div style="padding-bottom: 10px;">
-				<label>Tool Name: <input type="text" id="tool_name" /></label>
+				<label>Tool Name: <input type="text" name="tool_name" /></label>
 			</div>
 			<div style="padding-bottom: 10px;">
-				<label>Offset X: <input type="text" id="offset_x_" /></label>
+				<label>Offset X: <input type="text" name="offset_x" /></label>
 			</div>
 			<div style="padding-bottom: 10px;">
-				<label>Offset Y: <input type="text" id="offset_y_" /></label>
+				<label>Offset Y: <input type="text" name="offset_y" /></label>
 			</div>
-			<div style="padding-bottom: 10px; padding-top: 10px;">
-				<textarea id="new_tool_logs" style="width: 100%"></textarea>
-			</div>
+			<div style="padding-bottom: 10px;">
+				<label>Offset Z: <input type="text" name="offset_z" /></label>
+			</div>			
 		</div>
 	</form>
+	<div style="padding-bottom: 10px; padding-top: 10px;">
+		<textarea id="new_tool_logs" style="width: 100%"></textarea>
+	</div>
 </div>
 
 <div id="tool_tab"
@@ -32,6 +35,7 @@
 				<th>Name</th>
 				<th>Offset X</th>
 				<th>Offset Y</th>
+				<th>Offset Z</th>
 				<th>Options</th>
 			</tr>
 		</thead>
@@ -61,6 +65,9 @@
 							},
 							{
 								data : 'offset_y'
+							},
+							{
+								data : 'offset_z'
 							},
 							{
 								data : null,
@@ -110,11 +117,8 @@
 				text : "Create",
 				//icon: "ui-icon-heart",
 				click : function(event) {
-					$.post('/json/tool_create', JSON.stringify({
-						tool_name : $("#tool_name").val(),
-						offset_x : $("#offset_x_").val(),
-						offset_y : $("#offset_y_").val(),
-					}), function(data) {
+					$.post('/json/tool_create', JSON.stringify(Object.fromEntries(new FormData(document.getElementById("tool_create")))), 
+							function(data) {
 						$("#new_tool_logs").val(data.logs);
 						if (data.success) {
 							$(event.target).hide(); // Hides the "Create" button

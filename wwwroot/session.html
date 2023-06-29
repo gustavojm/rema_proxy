@@ -4,20 +4,20 @@
 
 
 <div id="new_session_div" style="overflow: hidden; width: 100%;">
-	<form>
+	<form id="session_create">
 		<div>
 			<div style="padding-bottom: 10px;">
-				<label>Session Name: <input type="text" id="session_name" /></label>
+				<label>Session Name: <input type="text" name="session_name" /></label>
 			</div>
 			<div>
-				<select id="heat_exchangers" name="hx">
+				<select name="hx" id="heat_exchangers">
 				</select>
-			</div>
-			<div style="padding-bottom: 10px; padding-top: 10px;">
-				<textarea id="new_session_logs" style="width: 100%"></textarea>
 			</div>
 		</div>
 	</form>
+	<div style="padding-bottom: 10px; padding-top: 10px;">
+		<textarea id="new_session_logs" style="width: 100%"></textarea>
+	</div>
 </div>
 
 <div id="sessions_tab"
@@ -125,10 +125,8 @@
 				text : "Create",
 				//icon: "ui-icon-heart",
 				click : function(event) {
-					$.post('/json/session_create', JSON.stringify({
-						session_name : $("#session_name").val(),
-						hx : $("#heat_exchangers").val(),
-					}), function(data) {
+					$.post('/json/session_create', JSON.stringify(Object.fromEntries(new FormData(document.getElementById("session_create")))), 
+					function(data) {
 						$("#new_session_logs").val(data.logs);
 						if (data.success) {
 							$(event.target).hide(); // Hides the "Create" button
