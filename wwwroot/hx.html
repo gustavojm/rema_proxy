@@ -25,7 +25,12 @@ svg .tube:hover {
 }
 
 .dataTables_filter input {
-	width: 80px
+	width: 80px;
+}
+
+.nav-buttons {
+	width: 80px;
+	height: 30px;
 }
 </style>
 
@@ -37,13 +42,14 @@ svg .tube:hover {
 		<div
 			style="position: relative; width: 80%; height: 100%; float: left;"
 			class="left-side">
-			Tube Id:<input type="text" id="tube_info_id" size="4"> 
-			Col:<input type="text" id="tube_info_col" size="4"> 
-			Row:<input	type="text" id="tube_info_row" size="4">
-			  X:<input type="text" id="tube_info_x" size="4"> 
-			  Y:<input type="text" id="tube_info_y" size="4"> <span class="units">inch</span>
-				 <input type="button" name="start" value="GO" id="go_button" style="background-color: springgreen;">
-				
+			Tube Id:<input type="text" id="tube_info_id" size="4"> Col:<input
+				type="text" id="tube_info_col" size="4"> Row:<input
+				type="text" id="tube_info_row" size="4"> X:<input
+				type="text" id="tube_info_x" size="4"> Y:<input type="text"
+				id="tube_info_y" size="4"> <span class="units">inch</span> <input
+				type="button" name="start" value="GO" id="go_button"
+				style="background-color: springgreen;">
+
 		</div>
 		<div style="float: right; text-align: center;" class="right-side">
 			<input type="checkbox" name="leg_switch" id="leg_switch"> <select
@@ -55,7 +61,8 @@ svg .tube:hover {
 		<div
 			style="position: relative; overflow: scroll; text-align: center; height: 100%; width: 80%; align-content: center; float: left; resize: horizontal; min-width: 20%; max-width: 80%"
 			id="left_side_resizable">
-			<svg id="hx_svg" style="position: relative; cursor: crosshair;  width: 100%; height: auto"
+			<svg id="hx_svg"
+				style="position: relative; cursor: crosshair; width: 100%; height: auto"
 				onmousemove="displayCoordinates(event)"></svg>
 		</div>
 		<div id="tubesheet_tab" class="right-side"
@@ -75,11 +82,13 @@ svg .tube:hover {
 					</tbody>
 				</table>
 			</div>
-<!-- 			<div id="joystick" style="margin: 0px;"></div> -->
-
+			<div id="tableNavigation" style="text-align: center;"></div>
+			<div id="tableNavigationButtons" style="text-align: center; padding: 10px;">
+				<button id="previous_btn" class="nav-buttons">Previous</button>
+				<button id="next_btn" class="nav-buttons">Next</button>
+			</div>
 		</div>
 	</div>
-
 	<div style="padding: 10px; width: 100%">
 		<div id="coordinates" style="float: left; width: 40%">Coordinates:</div>
 		<div
@@ -415,8 +424,8 @@ svg .tube:hover {
 		});
 		
 		$("#go_button").click(function() {
-			var pos_x = parseFloat($("#tube_info_x").val()) / scale + $("#offset_x").val() / scale;
-			var pos_y = parseFloat($("#tube_info_y").val()) / scale + $("#offset_y").val() / scale;;
+			var pos_x = parseFloat($("#tube_info_x").val()) / scale - parseFloat($("#offset_x").val()) / scale;
+			var pos_y = parseFloat($("#tube_info_y").val()) / scale - parseFloat($("#offset_y").val()) / scale;;
 
 			$.ajax({
 				url : "/REMA/",
@@ -548,5 +557,45 @@ svg .tube:hover {
 		new ResizeObserver(resize_divs).observe(document
 				.getElementById("left_side_resizable"));
 
+		var currentRow = null;
+
+		  // Store the selected row on click
+		  $('#insp_plan_table tbody').on('click', 'tr', function() {
+		    if (currentRow !== null) {
+		      currentRow.removeClass('selected');
+		    }
+		    currentRow = $(this);
+		    currentRow.addClass('selected');
+		  });
+
+		  // Previous button event handler
+		  $('#previous_btn').on('click', function() {
+		    if (currentRow !== null) {
+		      var prevRow = currentRow.prev('tr');
+		      if (prevRow.length > 0) {
+		        currentRow.removeClass('selected');
+		        currentRow = prevRow;
+		        currentRow.addClass('selected');
+		        table.row(currentRow).scrollTo();
+		        currentRow.trigger("click");
+		      }
+		    }
+		  }); 
+
+		  // Next button event handler
+		  $('#next_btn').on('click', function() {
+		    if (currentRow !== null) {
+		      var nextRow = currentRow.next('tr');
+		      if (nextRow.length > 0) {
+		        currentRow.removeClass('selected');
+		        currentRow = nextRow;
+		        currentRow.addClass('selected');
+		        table.row(currentRow).scrollTo();
+		        currentRow.trigger("click");		        
+		      }
+		    }
+		  });
+	 
 	});
+	
 </script>

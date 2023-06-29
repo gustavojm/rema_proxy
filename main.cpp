@@ -231,7 +231,7 @@ void post_json_method_handler(const shared_ptr<restbed::Session> session) {
                 nlohmann::json j;
 
                 if (!b.empty()) {
-                    std::cout << b << std::endl;
+                    // std::cout << b << std::endl;
                     try {
                         j = nlohmann::json::parse(b);
                     } catch (std::exception &e) {
@@ -281,8 +281,8 @@ int main(const int, const char**) {
         po::options_description rtu_settings("RTU Settings");
         rtu_settings.add_options()("RTU.ip",
                 po::value<std::string>(&rtu_ip)->default_value("192.168.2.20"),
-                "IP address")("RTU.port",
-                po::value<int>(&rtu_port)->default_value(5020), "Port number");
+                "IP Address")("RTU.port",
+                po::value<int>(&rtu_port)->default_value(5020), "Port Number");
 
         po::options_description config_file_settings;
         config_file_settings.add(json_proxy_settings).add(rtu_settings);
@@ -296,7 +296,7 @@ int main(const int, const char**) {
         rema_instance.rtu.set_ip(rtu_ip);
         rema_instance.rtu.set_port(rtu_port);
 
-        std::cout << "JSON Proxy Server running on " << rtu_proxy_port << "\n";
+        std::cout << "REMA Proxy Server running on " << rtu_proxy_port << "\n";
         std::cout << "Connecting to RTU on " << rema_instance.rtu.get_ip() << ":"
                 << rema_instance.rtu.get_port() << "\n";
 

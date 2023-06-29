@@ -22,7 +22,7 @@ void CIAA::connect() {
     boost::asio::async_connect(*socket, endpoint_iter,
             [&](boost::system::error_code ec, tcp::resolver::iterator it) {
                 if (ec) {
-                    isConnected = false;
+                    isConnected = true;             // Should be "false" changed to allow reconnection if network was down initially
                     throw std::runtime_error(
                             "Error connecting to RTU: " + ec.message());
                 } else {
