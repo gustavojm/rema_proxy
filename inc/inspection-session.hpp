@@ -18,18 +18,19 @@ static inline std::filesystem::path insp_sessions_dir = std::filesystem::path(
 
 class InspectionPlanEntry {
 public:
+    int seq;
     std::string row, col;
     bool inspected;
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(InspectionPlanEntry, row, col, inspected)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(InspectionPlanEntry, seq, row, col, inspected)
 
 class InspectionPlanEntryWithTubeID : public InspectionPlanEntry {
 public:
     std::string tube_id;
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(InspectionPlanEntryWithTubeID, tube_id, row, col, inspected)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(InspectionPlanEntryWithTubeID, seq, tube_id, row, col, inspected)
 
 class InspectionSession {
 public:

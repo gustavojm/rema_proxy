@@ -83,15 +83,16 @@ std::string InspectionSession::load_plans() {
         out << "Procesando plan: " << entry.path().filename() << "\n";
 
         // Parse the CSV file to extract the data for the plan
-        io::CSVReader<3, io::trim_chars<' ', '\t'>, io::no_quote_escape<';'> > ip(
+        io::CSVReader<4, io::trim_chars<' ', '\t'>, io::no_quote_escape<';'> > ip(
                 entry.path());
-        ip.read_header(io::ignore_extra_column, "ROW", "COL", "TUBE");
+        ip.read_header(io::ignore_extra_column, "SEQ", "ROW", "COL", "TUBE");
+        int seq;
         std::string row, col;
         std::string tube_num;
-        while (ip.read_row(row, col, tube_num)) {
+        while (ip.read_row(seq, row, col, tube_num)) {
             std::string tube_num_stripped = tube_num.substr(5);
             insp_plans[entry.path().filename().replace_extension()][tube_num_stripped] = InspectionPlanEntry {
-                    row, col, false };
+                    seq, row, col, false };
         }
     }
     loaded = true;
@@ -106,6 +107,7 @@ std::vector<InspectionPlanEntryWithTubeID> InspectionSession::inspection_plan_ge
     if (it != insp_plans.end()) {
         for (auto [key, value] : it->second ) {
             InspectionPlanEntryWithTubeID entry;
+            entry.seq = value.seq;
             entry.col = value.col;
             entry.row = value.row;
             entry.inspected = value.inspected;

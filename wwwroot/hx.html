@@ -72,6 +72,7 @@ svg .tube:hover {
 					style="width: 100%">
 					<thead>
 						<tr>
+							<th>SEQ</th>
 							<th>ID</th>
 							<th>COL</th>
 							<th>ROW</th>
@@ -101,6 +102,8 @@ svg .tube:hover {
 </div>
 
 <script type="text/javascript">
+	var currentRow = null;
+
 	function displayCoordinates(event) {
 		var svg = document.getElementById("tubesheet_svg");
 		if (svg) {
@@ -276,9 +279,10 @@ svg .tube:hover {
 									
 									var data = this.data();
 									if (data["tube_id"] == val) {
-										this
+										this												
 												.select()
 												.scrollTo();
+										currentRow = $(this.node());		// Obtain the <tr> of the selected row wrapped in JQuery 
 									}
 								});
 			}
@@ -476,6 +480,9 @@ svg .tube:hover {
 							},
 							columns : [
 									{
+										data : 'seq'
+									},
+									{
 										data : 'tube_id'
 									},
 									{
@@ -515,19 +522,51 @@ svg .tube:hover {
 															: '') + '>';
 										}
 									}, ],
-						});
-
+						});		
 
 		$('#insp_plan_table tbody').on(
 				'click',
 				'tr',
 				function() {
+					if (currentRow !== null) {
+						currentRow.removeClass('selected');
+					}
+					currentRow = $(this);					// Store the selected row on click					
+					currentRow.addClass('selected');
 					var data = table.row(this).data();					
 					var leg = $("#leg_switch").is(':checked') ? "hl": "cl";	
 					var g = $("#"+ leg + data.tube_id, $("#tubesheet_svg"));
 					show_tube_info(g, true);
 				});
 
+		// Previous button event handler
+		$('#previous_btn').on('click', function() {
+			if (currentRow !== null) {
+		    	var prevRow = currentRow.prev('tr');
+		      	if (prevRow.length > 0) {
+		        	currentRow.removeClass('selected');
+		        	currentRow = prevRow;
+		        	currentRow.addClass('selected');
+		        	table.row(currentRow).scrollTo();
+		        	currentRow.trigger("click");
+		        }
+		    }
+		}); 
+
+		// Next button event handler
+		$('#next_btn').on('click', function() {
+			if (currentRow !== null) {
+		        var nextRow = currentRow.next('tr');
+		        if (nextRow.length > 0) {
+		            currentRow.removeClass('selected');
+		            currentRow = nextRow;
+		            currentRow.addClass('selected');
+		            table.row(currentRow).scrollTo();
+		            currentRow.trigger("click");		        
+		        }
+		    }
+		});
+		
 		// Mark/unmark a tube as inspected
 		$("#insp_plan_table").on('change', "input[type='checkbox']", function(e) {			// Using Event Delegates
 		    
@@ -556,45 +595,6 @@ svg .tube:hover {
 
 		new ResizeObserver(resize_divs).observe(document
 				.getElementById("left_side_resizable"));
-
-		var currentRow = null;
-
-		  // Store the selected row on click
-		  $('#insp_plan_table tbody').on('click', 'tr', function() {
-		    if (currentRow !== null) {
-		      currentRow.removeClass('selected');
-		    }
-		    currentRow = $(this);
-		    currentRow.addClass('selected');
-		  });
-
-		  // Previous button event handler
-		  $('#previous_btn').on('click', function() {
-		    if (currentRow !== null) {
-		      var prevRow = currentRow.prev('tr');
-		      if (prevRow.length > 0) {
-		        currentRow.removeClass('selected');
-		        currentRow = prevRow;
-		        currentRow.addClass('selected');
-		        table.row(currentRow).scrollTo();
-		        currentRow.trigger("click");
-		      }
-		    }
-		  }); 
-
-		  // Next button event handler
-		  $('#next_btn').on('click', function() {
-		    if (currentRow !== null) {
-		      var nextRow = currentRow.next('tr');
-		      if (nextRow.length > 0) {
-		        currentRow.removeClass('selected');
-		        currentRow = nextRow;
-		        currentRow.addClass('selected');
-		        table.row(currentRow).scrollTo();
-		        currentRow.trigger("click");		        
-		      }
-		    }
-		  });
 	 
 	});
 	
