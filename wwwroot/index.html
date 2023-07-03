@@ -47,7 +47,7 @@
 
 <body>
 
-	<div id="tabs" style="height: 95%">
+	<div id="tabs" style="height: 94.5%">
 		<ul>
 			<li><a href="session.html">Session</a></li>
 			<li><a href="tubesheet.html">Tubesheet</a></li>
@@ -60,7 +60,7 @@
 			<!-- 			<li><a href="websocket.html">Websocket</a></li> -->
 			<li style="float: right;">
 				<div style="margin-top: 6; margin-right: 20">
-					Selected Tool: <select id="tools"><option data-offset_x="0", data-offset_y="0", data-offset_z="0">Choose
+					Selected Tool: <select id="tools"><option data-offset_x="0" data-offset_y="0" data-offset_z="0">Choose
 							a Tool</option></select> Offset X: <input type="text" id="offset_x"
 						readonly="readonly" size="4"> Y: <input type="text"
 						id="offset_y" readonly="readonly" size="4">
@@ -181,9 +181,9 @@ get_session_info_index()
 				
 
 	function update_ui(data, scale) {		
-		var pos_x = data["POS X"] * scale - parseFloat($("#offset_x").val());
-		var pos_y = data["POS Y"] * scale - parseFloat($("#offset_y").val());
-		var pos_z = data["POS Z"] * scale - parseFloat($("#offset_z").val());
+		var pos_x = data["POS X"] * scale + parseFloat($("#offset_x").val());
+		var pos_y = data["POS Y"] * scale + parseFloat($("#offset_y").val());
+		var pos_z = data["POS Z"] * scale + parseFloat($("#offset_z").val());
 		$("#position_x").val(pos_x.toFixed(4));
 		$("#position_y").val(pos_y.toFixed(4));
 		$("#position_z").val(pos_z.toFixed(4));	
@@ -224,8 +224,8 @@ get_session_info_index()
 	}
 
 	function set_cal_point() {
-		var pos_x = parseFloat($("#tube_info_x").val()) / scale;
-		var pos_y = parseFloat($("#tube_info_y").val()) / scale;
+		var pos_x = (parseFloat($("#tube_info_x").val()) / scale) - parseFloat($("#offset_x").val() / scale);
+		var pos_y = (parseFloat($("#tube_info_y").val()) / scale) - parseFloat($("#offset_y").val() / scale);
 
 		$.ajax({
 			url : "/REMA/",
