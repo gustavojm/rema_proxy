@@ -1,6 +1,11 @@
 #ifndef REMA_HPP
 #define REMA_HPP
 
+#include <Open3D/Geometry/PointCloud.h>
+#include <Open3D/Registration/ColoredICP.h>
+#include <Open3D/IO/ClassIO/ImageIO.h>
+#include <Eigen/Eigen>
+
 #include <string>
 #include <filesystem>
 #include <json.hpp>
@@ -12,6 +17,10 @@
 static inline std::filesystem::path rema_dir = std::filesystem::path("rema");
 static inline std::filesystem::path rema_file = rema_dir / "rema.json";
 static inline std::filesystem::path tools_dir = rema_dir / "tools";
+
+struct Point3D {
+    double x, y, z;
+};
 
 class REMA {
 public:
@@ -34,6 +43,8 @@ public:
     static void delete_tool(std::string tool) {
         std::filesystem::remove(tools_dir / (tool + std::string(".json")));
     }
+
+    std::vector<Eigen::Matrix<double, 3, 1>> get_aligned_tubes(std::vector<Point3D> src_points, std::vector<Point3D> dst_points);
 
 	void set_selected_tool(std::string tool);
 

@@ -76,7 +76,15 @@
 											+ row.name + '">' + row.name
 											+ '</a>';
 								}
-							}, ]
+							}, 
+					],
+					columnDefs: [
+						{render: function (data, type, row) {
+								return (data.toFixed(4));
+							},
+							target: [1, 2, 3]						
+						}	
+					]					
 				});
 		
 		table.on('draw.dt', function(e, settings, json, xhr) {			

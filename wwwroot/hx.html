@@ -28,9 +28,28 @@ svg .tube:hover {
 	width: 80px;
 }
 
-.nav-buttons {	
+.nav-buttons {
 	width: 80px;
 	height: 30px;
+}
+
+.context-menu {
+	display: none;
+	position: absolute;
+	background: white;
+	border: 1px solid #ccc;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.context-menu li {
+	padding: 1px 1px;
+	cursor: pointer;
+}
+
+.context-menu li:hover {
+	background: #f0f0f0;
 }
 </style>
 
@@ -40,20 +59,23 @@ svg .tube:hover {
 	<div id="tube_info"
 		style="position: relative; width: 100%; float: left; vertical-align: middle; height: 3%; display: flex; flex-direction: row;">
 		<div
-			style="position: relative; width: 50%; height: 100%; float: left; display: flex; flex: 1" class="left-side">
-			<div
+			style="position: relative; width: 50%; height: 100%; float: left; display: flex; flex: 1"
+			class="left-side">
+			<div id="tube_info_coord"
 				style="position: relative; width: 85%; float: left; vertical-align: middle;">
 				Tube Id:<input type="text" id="tube_info_id" size="4"> Col:<input
 					type="text" id="tube_info_col" size="4"> Row:<input
 					type="text" id="tube_info_row" size="4"> X:<input
 					type="text" id="tube_info_x" size="4"> Y:<input type="text"
 					id="tube_info_y" size="4"> <span class="units">inch</span>
-			</div> 
+			</div>
 			<div
-				style="position: relative; width: 10%; float: right; height:100%; vertical-align: middle; display:flex; flex-direction: row; flex: 1">
-				<div style="float: left; text-align: right; align-items: center; display: flex; vertical-align: middle; padding-right: 10px;">Zoom:</div> 
-				<div id="zoom_bar" style="float: right; width:50%; display: flex; align-items: center; justify-content: center; vertical-align: middle; margin-top: 8px;"></div>				
-			</div>				
+				style="position: relative; width: 10%; float: right; height: 100%; vertical-align: middle; display: flex; flex-direction: row; flex: 1">
+				<div
+					style="float: left; text-align: right; align-items: center; display: flex; vertical-align: middle; padding-right: 10px;">Zoom:</div>
+				<div id="zoom_bar"
+					style="float: right; width: 50%; display: flex; align-items: center; justify-content: center; vertical-align: middle; margin-top: 8px;"></div>
+			</div>
 		</div>
 		<div style="float: right; text-align: center;" class="right-side">
 			<input type="checkbox" name="leg_switch" id="leg_switch"> <select
@@ -70,7 +92,7 @@ svg .tube:hover {
 				onmousemove="displayCoordinates(event)"></svg>
 		</div>
 		<div id="tubesheet_tab" class="right-side"
-			style="overflow: scroll; width: 20%; height: 100%; float: left; position: relative; display: flex; flex-direction: column; ">
+			style="overflow: scroll; width: 20%; height: 100%; float: left; position: relative; display: flex; flex-direction: column;">
 			<div id="datatables_div">
 				<table id="insp_plan_table" class="datatables display my-table"
 					style="width: 100%">
@@ -86,21 +108,30 @@ svg .tube:hover {
 					<tbody>
 					</tbody>
 				</table>
-			</div>			
-			<div id="tableNavigationButtons" style="text-align: center; flex: 1; padding: 10px;">
-					<button id="previous_btn" class="nav-buttons">Previous</button>
-					<button id="next_btn" class="nav-buttons">Next</button>
-					<button id="go_button" class="nav-buttons" style="background-color: springgreen; width: 40px;">GO</button>
 			</div>
-			<div id="messages" style="text-align: center; background-color: yellow; flex:2; align-content: center; display:flex; align-items: center; justify-content: center;" >
-				Messages ON CONDITIONa adfsiupo dsfaupoipiuo afdsp uioafdsupio fadsuipo  
-			</div>			
+			<div id="tableNavigationButtons"
+				style="text-align: center; flex: 1; padding: 10px;">
+				<button id="previous_btn" class="nav-buttons">Previous</button>
+				<button id="next_btn" class="nav-buttons">Next</button>
+				<button id="go_button" class="nav-buttons"
+					style="background-color: springgreen; width: 40px;">GO</button>
+			</div>
+			<div id="messages"
+				style="text-align: center; background-color: yellow; flex: 2; align-content: center; display: flex; align-items: center; justify-content: center;">
+				Messages ON CONDITIONa adfsiupo dsfaupoipiuo afdsp uioafdsupio
+				fadsuipo</div>
 		</div>
 	</div>
 	<div style="padding: 10px; width: 100%">
 		<div id="coordinates" style="float: left; width: 40%">Coordinates:</div>
 	</div>
 </div>
+
+<ul id="context-menu" class="context-menu">
+	<li>Option 1</li>
+	<li>Option 2</li>
+	<li>Option 3</li>
+</ul>
 
 <script type="text/javascript">
 	var currentRow = null;
@@ -223,7 +254,7 @@ svg .tube:hover {
 					.removeClass(
 							clickmark);
 			table.rows().deselect();
-			$("input[type=text]")
+			$("#tube_info_coord input[type=text]")
 					.val("");
 			update_location_pin_position(
 					0, 0);
@@ -344,6 +375,20 @@ svg .tube:hover {
 									drawLocationPin(svg, tube_od, scale);
 									var objDiv = document.getElementById("left_side_resizable");									
 									objDiv.scrollTop = (objDiv.scrollHeight - objDiv.clientHeight) / 2;
+								
+									tubes.on('contextmenu', function(e) {
+										    e.preventDefault(); // Prevent the default browser context menu
+										    $('#context-menu').css({
+										      display: 'block',
+										      left: e.clientX,
+										      top: e.clientY
+										    });
+										  });
+
+										  $(document).on('click', function() {
+											  $('#context-menu').css('display', 'none');
+										  });
+									
 								}
 							});
 						});
@@ -429,8 +474,8 @@ svg .tube:hover {
 		});
 		
 		$("#go_button").click(function() {
-			var pos_x = parseFloat($("#tube_info_x").val()) / scale - (parseFloat($("#offset_x").val()) / scale);
-			var pos_y = parseFloat($("#tube_info_y").val()) / scale - (parseFloat($("#offset_y").val()) / scale);
+			var pos_x = parseFloat($("#tube_info_x").val() || 0) / scale - (parseFloat($("#offset_x").val()) / scale);
+			var pos_y = parseFloat($("#tube_info_y").val() || 0) / scale - (parseFloat($("#offset_y").val()) / scale);
 
 			$.ajax({
 				url : "/REMA/",
@@ -587,16 +632,12 @@ svg .tube:hover {
 			gray_out_tube("#cl" + $(this).val(), $(this).prop("checked"));								
 		});
 			
-		$("#tubesheet_svg").svg({
-			onLoad : function (svg) {
-				drawBullseye(svg);
-				drawLocationPin(svg);
-			}
-		});
-
 		new ResizeObserver(resize_divs).observe(document
 				.getElementById("left_side_resizable"));
+			
 	 
 	});
+
+
 	
 </script>
