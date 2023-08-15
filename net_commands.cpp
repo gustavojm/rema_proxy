@@ -24,7 +24,7 @@ nlohmann::json rema_connect_cmd(nlohmann::json pars) {
     nlohmann::json res;
     try {
         REMA &rema_instance = REMA::get_instance();
-        rema_instance.rtu.connect();
+        rema_instance.rtu.connect_comm();
         res["ACK"] = true;
     } catch (std::exception &e) {
         std::cout << e.what() << std::endl;
@@ -57,6 +57,7 @@ nlohmann::json hx_list_cmd(nlohmann::json pars) {
 /**
  * Tools related functions
  **/
+
 nlohmann::json tool_create_cmd(nlohmann::json pars) {
     nlohmann::json res;
 
@@ -217,6 +218,49 @@ nlohmann::json tube_set_status_cmd(nlohmann::json pars) {
     return res;
 }
 
+nlohmann::json tube_determine_center_cmd(nlohmann::json pars) {
+    nlohmann::json res;
+    REMA &rema_instance = REMA::get_instance();
+    std::string tx_buffer;
+
+    nlohmann::json to_rema;
+    nlohmann::json commands = nlohmann::json::array();
+
+    // Create an individual command object and add it to the array
+    nlohmann::json command1 = {
+        {"command", "MOVE_CLOSED_LOOP"},
+        {"pars", {
+            {"axes", "XY"},
+            {"first_axis_setpoint", 100},
+            {"second_axis_setpoint", 200}
+        }}
+    };
+    commands.push_back(command1);
+    to_rema["commands"] = commands;
+    tx_buffer = to_rema.dump();
+    std::cout << "Enviando a RTU: "<< tx_buffer << "\n";
+    rema_instance.rtu.send(tx_buffer);
+    sleep(5);
+
+    nlohmann::json command2 = {
+            {"command", "MOVE_CLOSED_LOOP"},
+            {"pars", {
+                {"axes", "XY"},
+                {"first_axis_setpoint", -300},
+                {"second_axis_setpoint", -500}
+            }}
+    };
+    commands.push_back(command1);
+    to_rema["commands"] = commands;
+    tx_buffer = to_rema.dump();
+    std::cout << "Enviando a RTU: "<< tx_buffer << "\n";
+    rema_instance.rtu.send(tx_buffer);
+    sleep(5);
+
+    return res;
+}
+
+
 // @formatter:off
 std::map<std::string, std::function<nlohmann::json(nlohmann::json)>> commands =
 		{ { "rema_connect", &rema_connect_cmd },
@@ -234,6 +278,7 @@ std::map<std::string, std::function<nlohmann::json(nlohmann::json)>> commands =
 		  { "session_info", &session_info_cmd },
 		  { "session_delete", &session_delete_cmd },
 		  { "tube_set_status", &tube_set_status_cmd },
+		  { "tube_determine_center", &tube_determine_center_cmd },
 		};
 // @formatter:on
 

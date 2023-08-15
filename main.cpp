@@ -74,23 +74,14 @@ void event_stream_handler() {
     auto now = std::chrono::high_resolution_clock::now();
     auto elapsed_time = now - prev;
 
-    std::string telemetry_cmd;
-    if (elapsed_time > 5s) {
-        telemetry_cmd ="{\"commands\": [{\"command\": \"TELEMETRIA\" }, {\"command\": \"TEMP_INFO\" }]}";
-        prev = now;
-    } else {
-        telemetry_cmd ="{\"commands\": [{\"command\": \"TELEMETRIA\" }]}";
-    }
-
     try {
-        Bytes body(telemetry_cmd.begin(), telemetry_cmd.end());
-        rema_instance.rtu.tx_rx(body, rx_buffer);
+        rema_instance.rtu.receive_telemetry(rx_buffer);
         std::string stream(
                 boost::asio::buffer_cast<const char*>((rx_buffer).data()));
         if (!stream.empty()) {
             cout << stream << endl;
             auto json = nlohmann::json::parse(stream);
-            res["TELEMETRIA"] = json.at("TELEMETRIA");
+            res["TELEMETRIA"] = json;
             if (json.contains("TEMP_INFO")) {
                 res["TEMP_INFO"] = json.at("TEMP_INFO");
             }
@@ -192,9 +183,11 @@ void post_rtu_method_handler(const shared_ptr<restbed::Session> session,
             [&](const shared_ptr<restbed::Session> &session,
                     const Bytes &body) {
 
+                std::string tx_buffer(body.begin(), body.end());
+
                 boost::asio::streambuf rx_buffer;
                 try {
-                    rema.rtu.tx_rx(body, rx_buffer);
+                    rema.rtu.tx_rx(tx_buffer, rx_buffer);
                     std::string stream(
                             boost::asio::buffer_cast<const char*>(
                                     (rx_buffer).data()));
@@ -300,7 +293,8 @@ int main(const int, const char**) {
         std::cout << "Connecting to RTU on " << rema_instance.rtu.get_ip() << ":"
                 << rema_instance.rtu.get_port() << "\n";
 
-        rema_instance.rtu.connect();
+        //rema_instance.rtu.connect_comm();
+        rema_instance.rtu.connect_telemetry();
 
     } catch (std::exception &e) {
         std::cout << e.what() << std::endl;

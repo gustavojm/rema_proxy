@@ -41,39 +41,38 @@ struct IO_Service {
 
 class CIAA {
 public:
-	void tx_rx(const restbed::Bytes &tx_buffer,
+	void tx_rx(const std::string &tx_buffer,
 			boost::asio::streambuf &rx_buffer);
 
 	void set_ip(const std::string ip) {
 		this->ip = ip;
 	}
 
-	void set_port(std::string port) {
-		this->port = port;
-	}
-
 	void set_port(int port) {
-		this->port = std::to_string(port);
+		this->port = port;
 	}
 
 	std::string get_ip() {
 		return ip;
 	}
 
-	std::string get_port() {
+	int get_port() {
 		return port;
 	}
 
-	void connect();
+	void connect_comm();
 	size_t receive(boost::asio::streambuf &rx_buffer);
-	void send(const restbed::Bytes &tx_buffer);
+	void send(const std::string &tx_buffer);
 
+	void connect_telemetry();
+	size_t receive_telemetry(boost::asio::streambuf &rx_buffer);
 
 private:
 	std::string ip;
-	std::string port;
+	int port;
 	struct IO_Service serv;
-	std::unique_ptr<tcp::socket> socket;
+	std::unique_ptr<tcp::socket> socket_comm;
+	std::unique_ptr<tcp::socket> socket_telemetry;
 
 public:
 	bool isConnected = false;
