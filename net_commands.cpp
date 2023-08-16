@@ -1,5 +1,6 @@
 #include <functional>
 #include <ctime>
+#include <thread>
 #include <chrono>
 #include <fstream>
 #include <iostream>
@@ -218,44 +219,68 @@ nlohmann::json tube_set_status_cmd(nlohmann::json pars) {
     return res;
 }
 
+struct sequence_step {
+    std::string axes;
+    double first_axis_setpoint;
+    double second_axis_setpoint;
+    double reached_x_coord;
+    double reached_y_coord;
+    double reached_z_coord;
+};
+
 nlohmann::json tube_determine_center_cmd(nlohmann::json pars) {
+
+    std::vector<sequence_step> seq = {
+            {
+                    "XY",
+                    1.125197,
+                    0.649606
+            },
+            {
+                    "XY",
+                    2.250394,
+                    -1.299213
+            },
+    };
+
     nlohmann::json res;
     REMA &rema_instance = REMA::get_instance();
     std::string tx_buffer;
-
     nlohmann::json to_rema;
-    nlohmann::json commands = nlohmann::json::array();
 
     // Create an individual command object and add it to the array
-    nlohmann::json command1 = {
-        {"command", "MOVE_CLOSED_LOOP"},
-        {"pars", {
-            {"axes", "XY"},
-            {"first_axis_setpoint", 100},
-            {"second_axis_setpoint", 200}
-        }}
-    };
-    commands.push_back(command1);
-    to_rema["commands"] = commands;
-    tx_buffer = to_rema.dump();
-    std::cout << "Enviando a RTU: "<< tx_buffer << "\n";
-    rema_instance.rtu.send(tx_buffer);
-    sleep(5);
-
-    nlohmann::json command2 = {
+    for (auto &seq_step : seq) {
+        nlohmann::json command = {
             {"command", "MOVE_CLOSED_LOOP"},
             {"pars", {
-                {"axes", "XY"},
-                {"first_axis_setpoint", -300},
-                {"second_axis_setpoint", -500}
+                {"axes", seq_step.axes},
+                {"first_axis_setpoint", seq_step.first_axis_setpoint},
+                {"second_axis_setpoint", seq_step.second_axis_setpoint}
             }}
-    };
-    commands.push_back(command1);
-    to_rema["commands"] = commands;
-    tx_buffer = to_rema.dump();
-    std::cout << "Enviando a RTU: "<< tx_buffer << "\n";
-    rema_instance.rtu.send(tx_buffer);
-    sleep(5);
+        };
+
+        to_rema["commands"].clear();
+        to_rema["commands"].push_back(command);
+        tx_buffer = to_rema.dump();
+
+        std::cout << "Enviando a RTU: "<< tx_buffer << "\n";
+        rema_instance.rtu.send(tx_buffer);
+        //std::this_thread::sleep_for(std::chrono::milliseconds(100));        // Wait for telemetry to update
+
+        // Using std::bind to bind the member function to an instance
+        auto bound_member_function = std::bind(&REMA::update_telemetry, &rema_instance, std::placeholders::_1);
+        rema_instance.rtu.receive_telemetry(bound_member_function);
+
+        while (!(rema_instance.telemetry.probe_touching || rema_instance.cancel_cmd || rema_instance.telemetry.x_y_on_condition)) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+
+        if (rema_instance.telemetry.x_y_on_condition) {       // ask for probe_touching
+            seq_step.reached_x_coord = rema_instance.telemetry.x;
+            seq_step.reached_y_coord = rema_instance.telemetry.y;
+            seq_step.reached_z_coord = rema_instance.telemetry.z;
+        }
+    }
 
     return res;
 }

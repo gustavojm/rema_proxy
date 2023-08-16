@@ -69,27 +69,16 @@ void event_stream_handler() {
         res["SESSION_MSG"] = "Session Saved";
     }
 
-    boost::asio::streambuf rx_buffer;
+    res["TELEMETRY"] = rema_instance.telemetry;
+    res["TEMP_INFO"] = rema_instance.temps;
 
-    auto now = std::chrono::high_resolution_clock::now();
-    auto elapsed_time = now - prev;
+//    auto now = std::chrono::high_resolution_clock::now();
+//    auto elapsed_time = now - prev;
 
-    try {
-        rema_instance.rtu.receive_telemetry(rx_buffer);
-        std::string stream(
-                boost::asio::buffer_cast<const char*>((rx_buffer).data()));
-        if (!stream.empty()) {
-            cout << stream << endl;
-            auto json = nlohmann::json::parse(stream);
-            res["TELEMETRIA"] = json;
-            if (json.contains("TEMP_INFO")) {
-                res["TEMP_INFO"] = json.at("TEMP_INFO");
-            }
-        }
-    } catch (std::exception &e) {
-        std::string message = std::string(e.what());
-        std::cerr << "COMMUNICATIONS ERROR " << message << "\n";
-    }
+
+    // Using std::bind to bind the member function to an instance
+    auto bound_member_function = std::bind(&REMA::update_telemetry, &rema_instance, std::placeholders::_1);
+    rema_instance.rtu.receive_telemetry(bound_member_function);
 
     if (!res.empty()) {
         sessions.erase(

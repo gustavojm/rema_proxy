@@ -9,6 +9,8 @@
 #include <boost/asio.hpp>
 #include <boost/asio/high_resolution_timer.hpp>
 #include <ciaa.hpp>
+#include <json.hpp>
+
 
 constexpr std::chrono::milliseconds TIMEOUT = std::chrono::milliseconds(500);
 using boost::asio::ip::tcp;
@@ -39,7 +41,6 @@ void CIAA::connect_comm() {
 void CIAA::connect_telemetry() {
     socket_telemetry.reset(new tcp::socket(serv.ioservice)); // Create new socket (old one is destroyed automatically)
     tcp::resolver resolver(serv.ioservice);
-
     tcp::resolver::iterator endpoint_iter = resolver.resolve(ip, std::to_string(port + 1));
 
     boost::asio::async_connect(*socket_telemetry, endpoint_iter,
@@ -102,7 +103,13 @@ void CIAA::tx_rx(const std::string &tx_buffer,
     receive(rx_buffer);
 }
 
-size_t CIAA::receive_telemetry(boost::asio::streambuf &rx_buffer) {
+void process_function(std::function<int(int)> func, int parameter) {
+    int result = func(parameter);
+    std::cout << "Result: " << result << std::endl;
+}
+
+void CIAA::receive_telemetry(std::function<void(boost::asio::streambuf &rx_buffer)> callback) {
+    boost::asio::streambuf rx_buffer;
     size_t bytes;
     boost::asio::async_read_until(*socket_telemetry, rx_buffer, '\0',
             [&](boost::system::error_code ec, size_t bytes_transferred) {
@@ -111,9 +118,13 @@ size_t CIAA::receive_telemetry(boost::asio::streambuf &rx_buffer) {
                             "Error receiving message: " + ec.message());
                 }
                 //std::cout << "Received message is: " << &rx_buffer << '\n';
+                callback(rx_buffer);
                 bytes = bytes_transferred;
             });
 
     serv.await_operation(TIMEOUT, *socket_telemetry);
-    return bytes;
+    return;
 }
+
+
+

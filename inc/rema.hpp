@@ -7,6 +7,7 @@
 #include <Eigen/Eigen>
 
 #include <string>
+#include <mutex>
 #include <filesystem>
 #include <json.hpp>
 
@@ -21,6 +22,28 @@ static inline std::filesystem::path tools_dir = rema_dir / "tools";
 struct Point3D {
     double x, y, z;
 };
+
+struct temps {
+    double x;
+    double y;
+    double z;
+};
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(temps, x, y, z)
+
+struct telemetry {
+    double x;
+    double y;
+    double z;
+    bool probe_touching = false;
+    bool x_y_on_condition = false;
+    bool z_on_condition = false;
+    bool x_stalled = false;
+    bool y_stalled = false;
+    bool z_stalled = false;
+};
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(telemetry, x, y, z, probe_touching, x_y_on_condition, z_on_condition, x_stalled, y_stalled, z_stalled)
 
 class REMA {
 public:
@@ -44,6 +67,8 @@ public:
         std::filesystem::remove(tools_dir / (tool + std::string(".json")));
     }
 
+    void update_telemetry(boost::asio::streambuf &rx_buffer);
+
     std::vector<Eigen::Matrix<double, 3, 1>> get_aligned_tubes(std::vector<Point3D> src_points, std::vector<Point3D> dst_points);
 
 	void set_selected_tool(std::string tool);
@@ -57,6 +82,13 @@ public:
 	std::string last_selected_tool;
 
 	CIAA rtu;
+
+    bool cancel_cmd;
+
+    // Telemetry values
+    struct telemetry telemetry;
+    struct temps temps;
+
 
 private:
     REMA(std::filesystem::path path) {

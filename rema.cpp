@@ -35,6 +35,36 @@ std::filesystem::path REMA::get_selected_tool() const {
     return last_selected_tool;
 }
 
+void REMA::update_telemetry(boost::asio::streambuf &rx_buffer) {
+    nlohmann::json json;
+    try {
+        std::string stream(
+                boost::asio::buffer_cast<const char*>((rx_buffer).data()));
+        if (!stream.empty()) {
+            //cout << stream << endl;
+            json = nlohmann::json::parse(stream);
+
+            telemetry.x_y_on_condition = json["X_Y_ON_COND"];
+            telemetry.z_on_condition = json["Z_ON_COND"];
+            telemetry.x = json["POS X"];
+            telemetry.y = json["POS Y"];
+            telemetry.z = json["POS Z"];
+
+            if (json.contains("TEMP_INFO")) {
+                temps.x = json["TEMP_INFO"].at("TEMP X");
+                temps.y = json["TEMP_INFO"].at("TEMP Y");
+                temps.z = json["TEMP_INFO"].at("TEMP Z");
+            }
+
+            //rema_instance.probe_touching = json["PROBE_TOUCHING"];
+        }
+    } catch (std::exception &e) {
+        std::string message = std::string(e.what());
+        std::cerr << "COMMUNICATIONS ERROR " << message << "\n";
+    }
+    return;
+}
+
 std::vector<Eigen::Matrix<double, 3, 1>> REMA::get_aligned_tubes(std::vector<Point3D> src_points,
         std::vector<Point3D> dst_points) {
 // Parse the CSV file to extract the data for each tube

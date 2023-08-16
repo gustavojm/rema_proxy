@@ -65,7 +65,7 @@ public:
 	void send(const std::string &tx_buffer);
 
 	void connect_telemetry();
-	size_t receive_telemetry(boost::asio::streambuf &rx_buffer);
+	void receive_telemetry(std::function<void(boost::asio::streambuf &rx_buffer)> callback);
 
 private:
 	std::string ip;
