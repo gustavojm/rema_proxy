@@ -12,6 +12,7 @@
 #include "inc/tool.hpp"
 #include "inc/rema.hpp"
 #include "inc/HXs.hpp"
+#include "inc/circle_fit.hpp"
 
 using namespace std::chrono_literals;
 extern InspectionSession current_session;
@@ -223,23 +224,26 @@ struct sequence_step {
     std::string axes;
     double first_axis_setpoint;
     double second_axis_setpoint;
-    double reached_x_coord;
-    double reached_y_coord;
-    double reached_z_coord;
+    struct Point3D reached_coords;
 };
 
 nlohmann::json tube_determine_center_cmd(nlohmann::json pars) {
 
     std::vector<sequence_step> seq = {
             {
-                    "XY",
-                    1.125197,
-                    0.649606
+                    "XY",           //Tube 11
+                    0.562598,
+                    0.324803,
             },
             {
-                    "XY",
-                    2.250394,
-                    -1.299213
+                    "XY",           //Tube 42           ( The center of the three coordinates shoud be at X = 1.125197, Y = 0.649606 Tube 22)
+                    1.125197,
+                    1.299213
+            },
+            {
+                    "XY",           //Tube 12
+                    1.687795,
+                    0.324803
             },
     };
 
@@ -247,6 +251,7 @@ nlohmann::json tube_determine_center_cmd(nlohmann::json pars) {
     REMA &rema_instance = REMA::get_instance();
     std::string tx_buffer;
     nlohmann::json to_rema;
+    std::vector<Point3D> tube_boundary_points;
 
     // Create an individual command object and add it to the array
     for (auto &seq_step : seq) {
@@ -268,19 +273,33 @@ nlohmann::json tube_determine_center_cmd(nlohmann::json pars) {
         //std::this_thread::sleep_for(std::chrono::milliseconds(100));        // Wait for telemetry to update
 
         // Using std::bind to bind the member function to an instance
-        auto bound_member_function = std::bind(&REMA::update_telemetry, &rema_instance, std::placeholders::_1);
-        rema_instance.rtu.receive_telemetry(bound_member_function);
+        auto bound_member_function = std::bind(&REMA::update_telemetry_callback_method, &rema_instance, std::placeholders::_1);
+
+        int count = 0;
+        int maxTries = 3;
+        while(true) {
+            try {
+                rema_instance.rtu.receive_telemetry(bound_member_function);
+                break;
+            } catch (std::exception &e) {                // handle exception
+                if (++count == maxTries) {
+                    return res;
+                }
+            }
+        }
 
         while (!(rema_instance.telemetry.limits.probe || rema_instance.cancel_cmd || rema_instance.telemetry.on_condition.x_y)) {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
 
         if (rema_instance.telemetry.on_condition.x_y) {       // ask for probe_touching
-            seq_step.reached_x_coord = rema_instance.telemetry.x;
-            seq_step.reached_y_coord = rema_instance.telemetry.y;
-            seq_step.reached_z_coord = rema_instance.telemetry.z;
+            tube_boundary_points.push_back(rema_instance.telemetry.coords);
         }
     }
+    res["reached_coords"] = tube_boundary_points;
+    auto [center, radius] = fitCircle(tube_boundary_points);
+    res["center"] = center;
+    res["radius"] = radius;
 
     return res;
 }

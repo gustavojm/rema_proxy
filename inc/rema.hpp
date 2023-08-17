@@ -22,11 +22,10 @@ static inline std::filesystem::path tools_dir = rema_dir / "tools";
 struct Point3D {
     double x, y, z;
 };
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Point3D, x, y, z)
 
 struct temps {
-    double x;
-    double y;
-    double z;
+    double x, y, z;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(temps, x, y, z)
 
@@ -55,14 +54,12 @@ struct on_condition {
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(on_condition, x_y, z)
 
 struct telemetry {
-    double x;
-    double y;
-    double z;
+    struct Point3D coords;
     struct on_condition on_condition;
     struct stalled stalled;
     struct limits limits;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(telemetry, x, y, z, on_condition, stalled, limits)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(telemetry, coords, on_condition, stalled, limits)
 
 class REMA {
 public:
@@ -86,7 +83,7 @@ public:
         std::filesystem::remove(tools_dir / (tool + std::string(".json")));
     }
 
-    void update_telemetry(boost::asio::streambuf &rx_buffer);
+    void update_telemetry_callback_method(boost::asio::streambuf &rx_buffer);
 
     std::vector<Eigen::Matrix<double, 3, 1>> get_aligned_tubes(std::vector<Point3D> src_points, std::vector<Point3D> dst_points);
 

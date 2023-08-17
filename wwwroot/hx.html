@@ -460,6 +460,25 @@ svg .tube:hover {
 		$(g).css("opacity", status == true ? 0.25 : 1);
 	}
 	
+	
+	function drawCircle(svg, center, radius, scale) {		
+		stroke = 0.03 * scale;
+		
+		var g = svg.group({
+			stroke : 'blue',
+			strokeWidth : stroke,
+			id : "determined_tube",
+			transform : "scale(1,-1)",
+		});
+
+		svg.circle(g, center.x, center.y, radius * scale, {
+			fill : 'none',
+			stroke : 'blue',
+			strokeWidth : stroke,					
+		});
+	}
+
+	
 	$(function() {
 
 		var leg_switch = $('#leg_switch').rcSwitcher({
@@ -647,6 +666,11 @@ svg .tube:hover {
 						tube_id : $(this).val(),
 						checked : $(this).prop("checked"), 					
 					}),
+				success : function(data) {
+					console.log(data);
+					var svg = $("#tubesheet_svg").svg("get");					
+					drawCircle(svg, data.center, data.radius, scale);					
+				}					
 			});			
 		});
 	 

@@ -181,9 +181,9 @@ get_session_info_index()
 				
 
 	function update_ui(telemetry, scale) {		
-		var pos_x = telemetry.x * scale + parseFloat($("#offset_x").val());
-		var pos_y = telemetry.y * scale + parseFloat($("#offset_y").val());
-		var pos_z = telemetry.z * scale + parseFloat($("#offset_z").val());
+		var pos_x = telemetry.coords.x * scale + parseFloat($("#offset_x").val());
+		var pos_y = telemetry.coords.y * scale + parseFloat($("#offset_y").val());
+		var pos_z = telemetry.coords.z * scale + parseFloat($("#offset_z").val());
 		$("#position_x").val(pos_x.toFixed(4));
 		$("#position_y").val(pos_y.toFixed(4));
 		$("#position_z").val(pos_z.toFixed(4));	

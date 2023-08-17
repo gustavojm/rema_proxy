@@ -79,8 +79,18 @@ void event_stream_handler() {
     }
 
     // Using std::bind to bind the member function to an instance
-    auto bound_member_function = std::bind(&REMA::update_telemetry, &rema_instance, std::placeholders::_1);
-    rema_instance.rtu.receive_telemetry(bound_member_function);
+    auto bound_member_function = std::bind(&REMA::update_telemetry_callback_method, &rema_instance, std::placeholders::_1);
+
+    try {
+        try {
+            rema_instance.rtu.receive_telemetry(bound_member_function);
+        } catch (std::exception &e) {
+            std::cerr << "Telemetry connection lost... reconnecting" << "\n";
+            rema_instance.rtu.connect_telemetry();
+        }
+    } catch (std::exception &e) {
+        std::cerr << e.what() << "\n";
+    }
 
     if (!res.empty()) {
         sessions.erase(

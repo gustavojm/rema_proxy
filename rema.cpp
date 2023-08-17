@@ -35,7 +35,7 @@ std::filesystem::path REMA::get_selected_tool() const {
     return last_selected_tool;
 }
 
-void REMA::update_telemetry(boost::asio::streambuf &rx_buffer) {
+void REMA::update_telemetry_callback_method(boost::asio::streambuf &rx_buffer) {
     nlohmann::json json;
     try {
         std::lock_guard<std::mutex> lock(mtx);
@@ -52,16 +52,10 @@ void REMA::update_telemetry(boost::asio::streambuf &rx_buffer) {
             if (json.contains("temps")) {
                 temps = json["temps"];
             }
-
-            //rema_instance.probe_touching = json["PROBE_TOUCHING"];
         }
     } catch (std::exception &e) {
         std::string message = std::string(e.what());
-        std::string stream(
-                boost::asio::buffer_cast<const char*>(
-                        (rx_buffer).data()));
-
-        std::cerr << "COMMUNICATIONS ERROR _rema_teleme_" << message << stream << "\n";
+        std::cerr << "TELEMETRY COMMUNICATIONS ERROR " << message << "\n";
     }
     return;
 }
