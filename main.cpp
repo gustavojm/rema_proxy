@@ -294,7 +294,7 @@ int main(const int, const char**) {
         std::cout << "Connecting to RTU on " << rema_instance.rtu.get_ip() << ":"
                 << rema_instance.rtu.get_port() << "\n";
 
-        //rema_instance.rtu.connect_comm();
+        rema_instance.rtu.connect_comm();
         rema_instance.rtu.connect_telemetry();
 
     } catch (std::exception &e) {

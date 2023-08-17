@@ -62,7 +62,9 @@ void CIAA::connect_telemetry() {
 
 size_t CIAA::receive(boost::asio::streambuf &rx_buffer) {
     size_t bytes;
-    if (isConnected) {
+    if (!isConnected) {
+        CIAA::connect_comm();
+    } else {
         boost::asio::async_read_until(*socket_comm, rx_buffer, '\0',
                 [&](boost::system::error_code ec, size_t bytes_transferred) {
                     if (ec) {
@@ -82,9 +84,9 @@ size_t CIAA::receive(boost::asio::streambuf &rx_buffer) {
 void CIAA::send(const std::string &tx_buffer) {
     const restbed::Bytes tx_buffer_bytes(tx_buffer.begin(), tx_buffer.end());
 
-    CIAA::connect_comm();
-
-    if (isConnected) {
+    if (!isConnected) {
+        CIAA::connect_comm();
+    } else {
         boost::asio::async_write(*socket_comm, boost::asio::buffer(tx_buffer),
                 [&](boost::system::error_code ec, size_t /*bytes_transferred*/) {
                     if (ec) {
