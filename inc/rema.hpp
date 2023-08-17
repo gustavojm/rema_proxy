@@ -28,22 +28,41 @@ struct temps {
     double y;
     double z;
 };
-
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(temps, x, y, z)
+
+struct stalled {
+    bool x;
+    bool y;
+    bool z;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(stalled, x, y, z)
+
+struct limits {
+        bool left;
+        bool right;
+        bool up;
+        bool down;
+        bool in;
+        bool out;
+        bool probe;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(limits, left, right, up, down, in, out, probe)
+
+struct on_condition {
+    bool x_y = false;
+    bool z = false;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(on_condition, x_y, z)
 
 struct telemetry {
     double x;
     double y;
     double z;
-    bool probe_touching = false;
-    bool x_y_on_condition = false;
-    bool z_on_condition = false;
-    bool x_stalled = false;
-    bool y_stalled = false;
-    bool z_stalled = false;
+    struct on_condition on_condition;
+    struct stalled stalled;
+    struct limits limits;
 };
-
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(telemetry, x, y, z, probe_touching, x_y_on_condition, z_on_condition, x_stalled, y_stalled, z_stalled)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(telemetry, x, y, z, on_condition, stalled, limits)
 
 class REMA {
 public:
@@ -86,9 +105,9 @@ public:
     bool cancel_cmd;
 
     // Telemetry values
+    std::mutex mtx;
     struct telemetry telemetry;
     struct temps temps;
-
 
 private:
     REMA(std::filesystem::path path) {

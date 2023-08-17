@@ -271,11 +271,11 @@ nlohmann::json tube_determine_center_cmd(nlohmann::json pars) {
         auto bound_member_function = std::bind(&REMA::update_telemetry, &rema_instance, std::placeholders::_1);
         rema_instance.rtu.receive_telemetry(bound_member_function);
 
-        while (!(rema_instance.telemetry.probe_touching || rema_instance.cancel_cmd || rema_instance.telemetry.x_y_on_condition)) {
+        while (!(rema_instance.telemetry.limits.probe || rema_instance.cancel_cmd || rema_instance.telemetry.on_condition.x_y)) {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
 
-        if (rema_instance.telemetry.x_y_on_condition) {       // ask for probe_touching
+        if (rema_instance.telemetry.on_condition.x_y) {       // ask for probe_touching
             seq_step.reached_x_coord = rema_instance.telemetry.x;
             seq_step.reached_y_coord = rema_instance.telemetry.y;
             seq_step.reached_z_coord = rema_instance.telemetry.z;

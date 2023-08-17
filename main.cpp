@@ -70,11 +70,13 @@ void event_stream_handler() {
     }
 
     res["TELEMETRY"] = rema_instance.telemetry;
-    res["TEMP_INFO"] = rema_instance.temps;
 
-//    auto now = std::chrono::high_resolution_clock::now();
-//    auto elapsed_time = now - prev;
 
+    auto now = std::chrono::high_resolution_clock::now();
+    auto elapsed_time = now - prev;
+    if (elapsed_time > std::chrono::milliseconds(500)) {
+        res["TEMP_INFO"] = rema_instance.temps;
+    }
 
     // Using std::bind to bind the member function to an instance
     auto bound_member_function = std::bind(&REMA::update_telemetry, &rema_instance, std::placeholders::_1);

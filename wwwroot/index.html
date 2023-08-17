@@ -180,16 +180,22 @@ get_session_info_index()
 				
 				
 
-	function update_ui(data, scale) {		
-		var pos_x = data["x"] * scale + parseFloat($("#offset_x").val());
-		var pos_y = data["y"] * scale + parseFloat($("#offset_y").val());
-		var pos_z = data["z"] * scale + parseFloat($("#offset_z").val());
+	function update_ui(telemetry, scale) {		
+		var pos_x = telemetry.x * scale + parseFloat($("#offset_x").val());
+		var pos_y = telemetry.y * scale + parseFloat($("#offset_y").val());
+		var pos_z = telemetry.z * scale + parseFloat($("#offset_z").val());
 		$("#position_x").val(pos_x.toFixed(4));
 		$("#position_y").val(pos_y.toFixed(4));
 		$("#position_z").val(pos_z.toFixed(4));	
 
+		if (telemetry.on_condition.x_y) {
+			$("#messages").html("XY ON CONDITION");
+		} else {
+			$("#messages").html("");
+		}
+		
 		if (typeof update_limits === "function") {
-			update_limits(data["LIMITS"]);
+			update_limits(telemetry.limits);
 		}
 		
 		if (typeof update_bullseye_position === "function") {
@@ -209,11 +215,11 @@ get_session_info_index()
 		return "normal";		
 	}
 	
-	function update_temps(data) {
+	function update_temps(temps) {
 		
-		var temp_x = (data["x"]/10).toFixed(1);
-		var temp_y = (data["y"]/10).toFixed(1);
-		var temp_z = (data["z"]/10).toFixed(1);
+		var temp_x = (temps.x / 10).toFixed(1);
+		var temp_y = (temps.y / 10).toFixed(1);
+		var temp_z = (temps.z / 10).toFixed(1);
 		$("#temperature_x").text(temp_x + "ºC");
 		$("#temperature_y").text(temp_y + "ºC");
 		$("#temperature_z").text(temp_z + "ºC");

@@ -38,29 +38,30 @@ std::filesystem::path REMA::get_selected_tool() const {
 void REMA::update_telemetry(boost::asio::streambuf &rx_buffer) {
     nlohmann::json json;
     try {
+        std::lock_guard<std::mutex> lock(mtx);
         std::string stream(
                 boost::asio::buffer_cast<const char*>((rx_buffer).data()));
         if (!stream.empty()) {
             //cout << stream << endl;
             json = nlohmann::json::parse(stream);
 
-            telemetry.x_y_on_condition = json["X_Y_ON_COND"];
-            telemetry.z_on_condition = json["Z_ON_COND"];
-            telemetry.x = json["POS X"];
-            telemetry.y = json["POS Y"];
-            telemetry.z = json["POS Z"];
+            if (json.contains("telemetry")) {
+                telemetry = json["telemetry"];
+            }
 
-            if (json.contains("TEMP_INFO")) {
-                temps.x = json["TEMP_INFO"].at("TEMP X");
-                temps.y = json["TEMP_INFO"].at("TEMP Y");
-                temps.z = json["TEMP_INFO"].at("TEMP Z");
+            if (json.contains("temps")) {
+                temps = json["temps"];
             }
 
             //rema_instance.probe_touching = json["PROBE_TOUCHING"];
         }
     } catch (std::exception &e) {
         std::string message = std::string(e.what());
-        std::cerr << "COMMUNICATIONS ERROR " << message << "\n";
+        std::string stream(
+                boost::asio::buffer_cast<const char*>(
+                        (rx_buffer).data()));
+
+        std::cerr << "COMMUNICATIONS ERROR _rema_teleme_" << message << stream << "\n";
     }
     return;
 }
