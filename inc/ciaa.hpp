@@ -41,9 +41,6 @@ struct IO_Service {
 
 class CIAA {
 public:
-	void tx_rx(const std::string &tx_buffer,
-			boost::asio::streambuf &rx_buffer);
-
 	void set_ip(const std::string ip) {
 		this->ip = ip;
 	}
@@ -61,11 +58,12 @@ public:
 	}
 
 	void connect_comm();
-	size_t receive(boost::asio::streambuf &rx_buffer);
+	void receive(std::function<void(boost::asio::streambuf &rx_buffer)> callback);
 	void send(const std::string &tx_buffer);
 
 	void connect_telemetry();
 	void receive_telemetry(std::function<void(boost::asio::streambuf &rx_buffer)> callback);
+	size_t receive_telemetry_sync(boost::asio::streambuf &rx_buffer);
 
 private:
 	std::string ip;

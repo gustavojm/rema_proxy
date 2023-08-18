@@ -654,28 +654,30 @@ svg .tube:hover {
 		new ResizeObserver(resize_divs).observe(document
 				.getElementById("left_side_resizable"));
 			
-		
+					
 		$("#determine_center").click(function() {
-			$.ajax({
-				method : "POST",
-				dataType : 'json',
-				url : "/json/tube_determine_center",
-				contentType : "application/json",
-				data : JSON.stringify({
-						insp_plan : $("#insp_plans").val(),
-						tube_id : $(this).val(),
-						checked : $(this).prop("checked"), 					
-					}),
-				success : function(data) {
-					console.log(data);
+			Promise.resolve(
+				$.ajax({
+					method : "POST",
+					dataType : 'json',
+					url : "/json/tube_determine_center",
+					contentType : "application/json",
+					data : JSON.stringify({}),
+					timeout: 15000,
+				}))
+				.then(function(data) {
 					var svg = $("#tubesheet_svg").svg("get");					
 					drawCircle(svg, data.center, data.radius, scale);					
-				}					
-			});			
-		});
-	 
+				})
+				.catch(function(e) {
+					if(e.statusText == 'timeout') {     
+					    // TODO Send a cancel command? 
+						alert('Please have the touch prove inserted into the tube to be detected');
+					    
+					  }
+				});			
+			}); 
+		
 	});
-
-
 	
 </script>

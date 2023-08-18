@@ -249,22 +249,7 @@
 		});
 	});
 
-	function update_switches(control, stall) {
-		var control_pars = {};
-		var stall_pars = {};
-
-		if (control !== null) {
-			control_pars = {
-				enabled : control
-			};
-		}
-
-		if (stall !== null) {
-			stall_pars = {
-				enabled : stall
-			};
-		}
-
+	function update_switches() {
 		$.ajax({
 			url : "/REMA/",
 			method : "POST",
@@ -272,10 +257,8 @@
 			data : JSON.stringify({
 				commands : [ {
 					command : "CONTROL_ENABLE",
-					pars : control_pars,
 				}, {
 					command : "STALL_CONTROL",
-					pars : stall_pars,
 				} ]
 			}),
 			dataType : "json",
@@ -287,7 +270,6 @@
 				var stall_switch = $('#stall_switch');
 				stall_switch.prop('checked', data.STALL_CONTROL.STATUS);
 				stall_switch.change();
-
 			}
 		});
 	}
@@ -339,8 +321,22 @@
 			// autoFontSize: true,
 			autoStick : true,
 		}).on('toggle.rcSwitcher', function(e, data, type) {
-			update_switches(null, stall_switch.is(':checked'));
-		});
+			$.ajax({
+				url : "/REMA/",
+				method : "POST",
+				contentType : "application/json",
+				data : JSON.stringify({
+					commands : [ {
+						command : "STALL_CONTROL",
+						pars : {enabled :stall_switch.is(':checked')},
+					}]
+				}),
+				dataType : "json",
+				success : function(data) {
+					update_switches();
+				}
+			});
+		});			
 
 		var power_switch = $('#power_switch').rcSwitcher({
 			// reverse: true,
@@ -354,7 +350,21 @@
 			// autoFontSize: true,
 			autoStick : true,
 		}).on('toggle.rcSwitcher', function(e, data, type) {
-			update_switches(power_switch.is(':checked'));
+			$.ajax({
+				url : "/REMA/",
+				method : "POST",
+				contentType : "application/json",
+				data : JSON.stringify({
+					commands : [ {
+						command : "CONTROL_ENABLE",
+						pars : {enabled :power_switch.is(':checked')},
+					}]
+				}),
+				dataType : "json",
+				success : function(data) {
+					update_switches();
+				}
+			});
 		});
 
 		update_switches(); // brings current status from REMA

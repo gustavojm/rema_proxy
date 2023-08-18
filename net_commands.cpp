@@ -273,24 +273,37 @@ nlohmann::json tube_determine_center_cmd(nlohmann::json pars) {
         //std::this_thread::sleep_for(std::chrono::milliseconds(100));        // Wait for telemetry to update
 
         // Using std::bind to bind the member function to an instance
-        auto bound_member_function = std::bind(&REMA::update_telemetry_callback_method, &rema_instance, std::placeholders::_1);
+        // auto bound_member_function = std::bind(&REMA::update_telemetry_callback_method, &rema_instance, std::placeholders::_1);
 
-        int count = 0;
-        int maxTries = 3;
-        while(true) {
+//        int count = 0;
+//        int maxTries = 3;
+//        while(true) {
+//            try {
+//                rema_instance.rtu.receive_telemetry([&rema_instance](auto &rx_buffer) {rema_instance.update_telemetry_callback_method(rx_buffer); });
+//                break;
+//            } catch (std::exception &e) {                // handle exception
+//                if (++count == maxTries) {
+//                    return res;
+//                }
+//            }
+//        }
+
+        do {
             try {
-                rema_instance.rtu.receive_telemetry(bound_member_function);
-                break;
-            } catch (std::exception &e) {                // handle exception
-                if (++count == maxTries) {
-                    return res;
-                }
-            }
-        }
+                boost::asio::streambuf rx_buffer;
+                rema_instance.rtu.receive_telemetry_sync(rx_buffer);
+                std::string stream(
+                        boost::asio::buffer_cast<const char*>(
+                                (rx_buffer).data()));
 
-        while (!(rema_instance.telemetry.limits.probe || rema_instance.cancel_cmd || rema_instance.telemetry.on_condition.x_y)) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        }
+                std::cout << stream << "\n";
+                rema_instance.update_telemetry_callback_method(rx_buffer);
+            } catch (std::exception &e) {                // handle exception
+                std::cerr << e.what() << "\n";
+                return res;
+            }
+
+        } while (!(rema_instance.telemetry.limits.probe || rema_instance.cancel_cmd || rema_instance.telemetry.on_condition.x_y));
 
         if (rema_instance.telemetry.on_condition.x_y) {       // ask for probe_touching
             tube_boundary_points.push_back(rema_instance.telemetry.coords);

@@ -188,19 +188,23 @@ void post_rtu_method_handler(const shared_ptr<restbed::Session> session,
 
                 boost::asio::streambuf rx_buffer;
                 try {
-                    rema.rtu.tx_rx(tx_buffer, rx_buffer);
-                    std::string stream(
-                            boost::asio::buffer_cast<const char*>(
-                                    (rx_buffer).data()));
-                    cout << stream << endl;
+                    rema.rtu.send(tx_buffer);
 
-                    if (!stream.empty())
-                        //stream.pop_back(); // Erase null character at the end of stream response
+                    rema.rtu.receive([&session](auto &rx_buffer) {
+                        std::string stream(
+                                boost::asio::buffer_cast<const char*>(
+                                        (rx_buffer).data()));
+                        cout << stream << endl;
 
-                        session->close(OK, stream, { { "Content-Length",
-                                ::to_string(stream.length()) }, {
-                                "Content-Type",
-                                "application/json; charset=utf-8" } });
+                        if (!stream.empty())
+                            //stream.pop_back(); // Erase null character at the end of stream response
+
+                            session->close(OK, stream, { { "Content-Length",
+                                    ::to_string(stream.length()) }, {
+                                    "Content-Type",
+                                    "application/json; charset=utf-8" } });
+
+                    });
 
                 } catch (std::exception &e) {
                     std::string message = std::string(e.what());
