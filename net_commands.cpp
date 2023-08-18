@@ -27,6 +27,7 @@ nlohmann::json rema_connect_cmd(nlohmann::json pars) {
     try {
         REMA &rema_instance = REMA::get_instance();
         rema_instance.rtu.connect_comm();
+        rema_instance.rtu.connect_telemetry();
         res["ACK"] = true;
     } catch (std::exception &e) {
         std::cout << e.what() << std::endl;

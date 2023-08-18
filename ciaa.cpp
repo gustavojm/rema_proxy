@@ -28,8 +28,7 @@ void CIAA::connect_comm() {
                             "Error connecting to RTU: " + ec.message());
                 } else {
                     isConnected = true;
-//                    std::cout << "Connected to RTU: " << it->endpoint()
-//                        << std::endl;
+                    std::cout << "Connected to RTU: " << it->endpoint() << std::endl;
                 }
             });
     serv.await_operation_ex(TIMEOUT, [&] {
@@ -41,7 +40,7 @@ void CIAA::connect_comm() {
 void CIAA::receive(std::function<void(boost::asio::streambuf &rx_buffer)> callback) {
     boost::asio::streambuf rx_buffer;
     if (!isConnected) {
-        CIAA::connect_comm();
+        // CIAA::connect_comm();        // Do not force reconnection...
     } else {
         boost::asio::async_read_until(*socket_comm, rx_buffer, '\0',
                 [&](boost::system::error_code ec, size_t bytes_transferred) {
@@ -62,7 +61,7 @@ void CIAA::send(const std::string &tx_buffer) {
     const restbed::Bytes tx_buffer_bytes(tx_buffer.begin(), tx_buffer.end());
 
     if (!isConnected) {
-        CIAA::connect_comm();
+        // CIAA::connect_comm();        // Do not force reconnection...
     } else {
         boost::asio::async_write(*socket_comm, boost::asio::buffer(tx_buffer),
                 [&](boost::system::error_code ec, size_t /*bytes_transferred*/) {
@@ -106,24 +105,32 @@ void CIAA::connect_telemetry() {
 
 void CIAA::receive_telemetry(std::function<void(boost::asio::streambuf &rx_buffer)> callback) {
     boost::asio::streambuf rx_buffer;
-    boost::asio::async_read_until(*socket_telemetry, rx_buffer, '\0',
-            [&](boost::system::error_code ec, size_t bytes_transferred) {
-                if (ec) {
-                    throw std::runtime_error(
-                            "Error receiving message: " + ec.message());
-                }
-                //std::cout << "Received message is: " << &rx_buffer << '\n';
-                callback(rx_buffer);
-            });
 
-    serv.await_operation(TIMEOUT, *socket_telemetry);
+    if (isConnected) {
+        boost::asio::async_read_until(*socket_telemetry, rx_buffer, '\0',
+                [&](boost::system::error_code ec, size_t bytes_transferred) {
+                    if (ec) {
+                        isConnected = false;
+                        throw std::runtime_error(
+                                "Error receiving telemetry message: " + ec.message());
+                    }
+                    //std::cout << "Received message is: " << &rx_buffer << '\n';
+                    callback(rx_buffer);
+                });
+
+        serv.await_operation(TIMEOUT, *socket_telemetry);
+
+    }
     return;
 }
 
 size_t CIAA::receive_telemetry_sync(boost::asio::streambuf &rx_buffer) {
-    size_t bytes;
-    serv.await_operation(TIMEOUT, *socket_telemetry);
-    bytes = boost::asio::read_until(*socket_telemetry, rx_buffer, '\0');
+    size_t bytes = 0;
+
+    if (isConnected) {
+        serv.await_operation(TIMEOUT, *socket_telemetry);
+        bytes = boost::asio::read_until(*socket_telemetry, rx_buffer, '\0');
+    }
 
     return bytes;
 }

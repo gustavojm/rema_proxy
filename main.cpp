@@ -53,6 +53,22 @@ void event_stream_handler() {
     static bool hide_sent = false;
     nlohmann::json res;
 
+    // Using std::bind to bind the member function to an instance
+    // auto bound_member_function = std::bind(&REMA::update_telemetry_callback_method, &rema_instance, std::placeholders::_1);
+
+    try {
+        rema_instance.rtu.receive_telemetry([&rema_instance](auto &rx_buffer) {rema_instance.update_telemetry_callback_method(rx_buffer); });
+        res["TELEMETRY"] = rema_instance.telemetry;
+
+        auto now = std::chrono::high_resolution_clock::now();
+        auto elapsed_time = now - prev;
+        if (elapsed_time > std::chrono::milliseconds(500)) {
+            res["TEMP_INFO"] = rema_instance.temps;
+        }
+    } catch (std::exception &e) {
+        std::cerr << "Telemetry connection lost..." << "\n";
+    }
+
     if (!rema_instance.rtu.isConnected) {
         res["SHOW_CONNECT"] = true;
         hide_sent = false;
@@ -67,29 +83,6 @@ void event_stream_handler() {
         current_session.save_to_disk();
         current_session.set_changed(false);
         res["SESSION_MSG"] = "Session Saved";
-    }
-
-    res["TELEMETRY"] = rema_instance.telemetry;
-
-
-    auto now = std::chrono::high_resolution_clock::now();
-    auto elapsed_time = now - prev;
-    if (elapsed_time > std::chrono::milliseconds(500)) {
-        res["TEMP_INFO"] = rema_instance.temps;
-    }
-
-    // Using std::bind to bind the member function to an instance
-    auto bound_member_function = std::bind(&REMA::update_telemetry_callback_method, &rema_instance, std::placeholders::_1);
-
-    try {
-        try {
-            rema_instance.rtu.receive_telemetry(bound_member_function);
-        } catch (std::exception &e) {
-            std::cerr << "Telemetry connection lost... reconnecting" << "\n";
-            rema_instance.rtu.connect_telemetry();
-        }
-    } catch (std::exception &e) {
-        std::cerr << e.what() << "\n";
     }
 
     if (!res.empty()) {
