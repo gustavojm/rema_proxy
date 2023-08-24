@@ -11,18 +11,14 @@
 #include <filesystem>
 #include <json.hpp>
 
-#include "rema.hpp"
 #include "tool.hpp"
 #include "ciaa.hpp"
+#include "points.hpp"
+#include "inspection-session.hpp"
 
 static inline std::filesystem::path rema_dir = std::filesystem::path("rema");
 static inline std::filesystem::path rema_file = rema_dir / "rema.json";
 static inline std::filesystem::path tools_dir = rema_dir / "tools";
-
-struct Point3D {
-    double x, y, z;
-};
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Point3D, x, y, z)
 
 struct temps {
     double x, y, z;
@@ -37,15 +33,16 @@ struct stalled {
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(stalled, x, y, z)
 
 struct limits {
-        bool left;
-        bool right;
-        bool up;
-        bool down;
-        bool in;
-        bool out;
-        bool probe;
+    bool left;
+    bool right;
+    bool up;
+    bool down;
+    bool in;
+    bool out;
+    bool probe;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(limits, left, right, up, down, in, out, probe)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(limits, left, right, up, down, in, out,
+        probe)
 
 struct on_condition {
     bool x_y = false;
@@ -59,7 +56,8 @@ struct telemetry {
     struct stalled stalled;
     struct limits limits;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(telemetry, coords, on_condition, stalled, limits)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(telemetry, coords, on_condition, stalled,
+        limits)
 
 class REMA {
 public:
@@ -83,21 +81,22 @@ public:
         std::filesystem::remove(tools_dir / (tool + std::string(".json")));
     }
 
-    void update_telemetry_callback_method(boost::asio::streambuf &rx_buffer);
+    void update_telemetry(boost::asio::streambuf &rx_buffer);
 
-    std::vector<Eigen::Matrix<double, 3, 1>> get_aligned_tubes(std::vector<Point3D> src_points, std::vector<Point3D> dst_points);
+    std::vector<Point3D> get_aligned_tubes(InspectionSession insp_sess,
+            std::vector<Point3D> src_points, std::vector<Point3D> dst_points);
 
-	void set_selected_tool(std::string tool);
+    void set_selected_tool(std::string tool);
 
-	std::filesystem::path get_selected_tool() const;
+    std::filesystem::path get_selected_tool() const;
 
     void save_to_disk() const;
 
-	bool loaded = false;
+    bool loaded = false;
 
-	std::string last_selected_tool;
+    std::string last_selected_tool;
 
-	CIAA rtu;
+    CIAA rtu;
 
     bool cancel_cmd;
 
@@ -120,7 +119,6 @@ private:
     // We can use the better technique of deleting the methods
     // we don't want.
 
-
 public:
     REMA(REMA const&) = delete;
     REMA& operator=(REMA const&) = delete;
@@ -130,7 +128,6 @@ public:
     //       be public as it results in better error messages
     //       due to the compilers behavior to check accessibility
     //       before deleted status
-
 
 };
 

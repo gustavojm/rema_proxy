@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="css/datatables.min.css" />
+<link rel="stylesheet" type="text/css"
+	href="css/select.dataTables.min.css" />
+<link rel="stylesheet" type="text/css"
+	href="css/scroller.dataTables.min.css" />
+
+</head>
+<body>
+<div id="calibration_div">
+	<div style="display: flex; flex-direction: column; height: 100%; align-content: center;">
+		<div style="display: flex; flex-grow: 2;">
+			<table id="calibration_table" class="datatables display my-table"
+				style="width: 100%">
+				<thead>
+					<tr>
+						<th>ID</th>
+						<th>COL</th>
+						<th>ROW</th>
+						<th>CALIBRATED</th>
+						<th>Options</th>
+					</tr>
+				</thead>
+				<tbody>
+				</tbody>
+			</table>
+		</div>
+		<div id="cal_point_info_div">
+			<div style="display: flex; flex-direction: row;">
+			Tube Id:<input type="text" id="cal_tube_info_id" size="4"> 
+				Col:<input type="text" id="cal_tube_info_col" size="4"> 
+				Row:<input type="text" id="cal_tube_info_row" size="4"> 
+			</div>
+			<div style="display: flex; flex-direction:row;">
+				<div style="display: flex; flex-direction:column;">
+					<div>Theoretical</div>
+					<div>X:<input type="text" id="ideal_coords_x" size="4"></div> 
+					<div>Y:<input type="text" id="ideal_coords_y" size="4"></div> 
+					<div>Z:<input type="text" id="ideal_coords_z" size="4"></div>
+				</div>
+				<div style="display: flex; flex-direction:column;">
+					<div>Determined</div>
+					<input type="text" id="determined_coords_x" size="4"> 
+					<input type="text" id="determined_coords_y" size="4"> 
+					<input type="text" id="determined_coords_z" size="4">
+				</div>
+				<div style="display: flex; flex-direction:column;">
+					<div>Difference</div>
+					<input type="text" id="cal_tube_diff_x" size="4"> 
+					<input type="text" id="cal_tube_diff_y" size="4"> 
+					<input type="text" id="cal_tube_diff_z" size="4">
+				</div>
+				
+				<div style="display: flex; flex-direction:column;">
+					<div>Algo</div>
+					<div style="display:flex; flex-grow: 2;"><button>Algo</button></div>
+				</div>				
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+
+//Shows information of the selected tube either on the datatables or the HX itself
+function show_cal_point_info(data) {	
+	$("#cal_tube_info_id").val(data.tube_id);
+	$("#ideal_coords_x").val(data.ideal_coords.x);
+	$("#ideal_coords_y").val(data.ideal_coords.y);
+	$("#ideal_coords_z").val(data.ideal_coords.z);
+	$("#determined_coords_x").val(data.determined_coords.x);
+	$("#determined_coords_y").val(data.determined_coords.y);
+	$("#determined_coords_z").val(data.determined_coords.z);
+
+}
+
+$(function() {
+	var table = $('#calibration_table')
+	.DataTable(
+			{
+				deferRender: true,
+				select : true,
+				scrollX : true,						
+				ajax : {
+					method : "post",
+					dataType : 'json',
+					url : "/json/cal_points_list",
+					data : function() {},
+					dataSrc : '',
+				},
+				columns : [
+						{
+							data : 'tube_id'
+						},
+						{
+							data : 'tube_id'
+						},
+						{
+							data : 'tube_id'
+						},
+						{
+							data : '',
+							render : function(data, type, row) {
+								return '<input type="checkbox" value='
+										+ row.tube_id
+										+ (data == true ? ' checked'
+												: '') + '>';
+							}
+						},
+						{
+							data : null,
+							render : function(data, type, row) {
+								return '<a class="ui-icon ui-icon-trash" href="#" data-tube_id="'
+										+ row.tube_id + '">' + row.tube_id
+										+ '</a>';
+							}
+						}, 
+				],
+				
+			});
+	
+	table.on('draw.dt', function(e, settings, json, xhr) {			
+		$(".ui-icon-trash").on("click", function() {
+			console.log($(this).data);
+			var tube_id = $(this).data("tube_id").toString();
+			
+			var confirm_action = confirm("Are you sure you want to delete " + tube_id + " ?");
+	        if (confirm_action) {
+				$.post('/json/cal_point_delete', JSON.stringify({
+					tube_id : tube_id,
+				}), function(data) {
+					if (data.success) {
+						table.ajax.reload();
+					} else {
+							alert("data.logs");					
+					}
+				});
+	        }
+		});
+	});
+	
+	
+	table.on(
+			'click',
+			'tr',
+			function() {				
+				currentRow = table.row(this);					// Store the selected row on click
+				if (!currentRow.selected()) {
+					var data = currentRow.data();									
+					show_cal_point_info(data);
+				} else {
+					$("#cal_point_info_div input[type=text]").val("");
+				}
+			});
+
+//		$("#set_as_cal_point").click(function() {
+//		Promise.resolve(
+//			$.ajax({
+//				method : "POST",
+//				dataType : 'json',
+//				url : "/json/tube_determine_center",
+//				contentType : "application/json",
+//				data : JSON.stringify(),
+//				timeout: 15000,
+//			}))
+//			.then(function(data) {
+//				var svg = $("#tubesheet_svg").svg("get");					
+//				drawCircle(svg, data.center, data.radius, scale);
+			
+//				$(data.transformed_points).each(function (p) {
+//					drawCircle(svg, this, 0.05, scale);
+//				});								
+//			})
+//			.catch(function(e) {
+//				if(e.statusText == 'timeout') {     
+//				    // TODO Send a cancel command? 
+//					alert('Please have the touch prove inserted into the tube to be detected');
+			    
+//				  }
+//			});			
+//		}); 
+
+	$("#set_as_cal_point").click(function() {
+		$.ajax({
+			method : "POST",
+			dataType : 'json',
+			url : "/json/cal_point_add",
+			contentType : "application/json",
+			data : JSON.stringify({
+				id : 	$("#tube_info_id").val(),
+			}),
+			success : function() {
+				table = $('#calibration_table').DataTable();
+				table.ajax.reload();
+			}
+		});
+	});
+	
+	
+});
+
+</script>
+
+</body>
+</html>
+

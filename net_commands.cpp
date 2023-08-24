@@ -7,16 +7,15 @@
 #include <exception>
 #include <vector>
 
-#include "inc/json.hpp"
-#include "inc/inspection-session.hpp"
-#include "inc/tool.hpp"
-#include "inc/rema.hpp"
-#include "inc/HXs.hpp"
-#include "inc/circle_fit.hpp"
+#include "json.hpp"
+#include "inspection-session.hpp"
+#include "tool.hpp"
+#include "rema.hpp"
+#include "HXs.hpp"
+#include "circle_fit.hpp"
 
 using namespace std::chrono_literals;
 extern InspectionSession current_session;
-extern REMA rema;
 
 /**
  * REMA related functions
@@ -37,9 +36,9 @@ nlohmann::json rema_connect_cmd(nlohmann::json pars) {
 }
 
 nlohmann::json rema_info_cmd(nlohmann::json pars) {
+    nlohmann::json res = nlohmann::json(nlohmann::json::value_t::object);
     REMA &rema_instance = REMA::get_instance();
 
-    nlohmann::json res = nlohmann::json(nlohmann::json::value_t::object);
     res["tools"] = REMA::tools_list();
     res["last_selected_tool"] = rema_instance.last_selected_tool;
     return res;
@@ -85,7 +84,6 @@ nlohmann::json tool_create_cmd(nlohmann::json pars) {
     return res;
 }
 
-
 nlohmann::json tools_list_cmd(nlohmann::json pars) {
     return REMA::tools_list();
 }
@@ -100,9 +98,9 @@ nlohmann::json tool_select_cmd(nlohmann::json pars) {
 }
 
 nlohmann::json tool_delete_cmd(nlohmann::json pars) {
+    nlohmann::json res = nlohmann::json(nlohmann::json::value_t::object);
     std::string tool_name = pars["tool_name"];
 
-    nlohmann::json res = nlohmann::json(nlohmann::json::value_t::object);
     try {
         REMA::delete_tool(tool_name);
         res["success"] = true;
@@ -167,8 +165,8 @@ nlohmann::json session_create_cmd(nlohmann::json pars) {
 }
 
 nlohmann::json session_load_cmd(nlohmann::json pars) {
-    std::string session_name = pars["session_name"];
     nlohmann::json res;
+    std::string session_name = pars["session_name"];
 
     if (session_name.empty()) {
         res["success"] = false;
@@ -189,16 +187,18 @@ nlohmann::json session_info_cmd(nlohmann::json pars) {
     nlohmann::json res = nlohmann::json(nlohmann::json::value_t::object);
 
     if (current_session.is_loaded()) {
+        std::cout << "here1 " << "\n";
         res = current_session;
         res["is_loaded"] = true;
+        std::cout << "here2 " << "\n";
         return res;
     }
     return res;
 }
 
 nlohmann::json session_delete_cmd(nlohmann::json pars) {
-    std::string session_name = pars["session_name"];
     nlohmann::json res = nlohmann::json(nlohmann::json::value_t::object);
+    std::string session_name = pars["session_name"];
 
     try {
         InspectionSession::delete_session(session_name);
@@ -220,6 +220,62 @@ nlohmann::json tube_set_status_cmd(nlohmann::json pars) {
     res[tube_id] = checked;
     return res;
 }
+
+
+
+nlohmann::json cal_points_list_cmd(nlohmann::json pars) {
+    std::vector<CalPointEntryWithTubeID> res;
+
+    for (auto [key, value] : current_session.cal_points ) {
+        CalPointEntryWithTubeID entry;
+        entry.tube_id = key;
+        entry.ideal_coords = value.ideal_coords;
+        entry.determined_coords = value.determined_coords;
+        entry.determined = value.determined;
+        res.push_back(entry);
+    }
+
+    return res;
+}
+
+nlohmann::json cal_point_add_cmd(nlohmann::json pars) {
+    nlohmann::json res;
+
+    std::string id = pars["id"];
+
+    if (id.empty()) {
+        res["success"] = false;
+        res["logs"] = "no tube specified";
+        return res;
+    }
+
+    CalPointEntry cpe = {
+            {5, 5, 5},
+            {10, 15, 25},
+            true,
+    };
+    current_session.cal_points[id] = cpe;
+
+    res["success"] = true;
+    return res;
+}
+
+nlohmann::json cal_point_delete_cmd(nlohmann::json pars) {
+    nlohmann::json res;
+
+    std::string tube_id = pars["tube_id"];
+
+    if (tube_id.empty()) {
+        res["success"] = false;
+        res["logs"] = "no tube specified";
+        return res;
+    }
+    current_session.cal_points.erase(tube_id);
+
+    res["success"] = true;
+    return res;
+}
+
 
 struct sequence_step {
     std::string axes;
@@ -249,7 +305,8 @@ nlohmann::json tube_determine_center_cmd(nlohmann::json pars) {
     };
 
     nlohmann::json res;
-    REMA &rema_instance = REMA::get_instance();
+    REMA &rema_instance = REMA::get_instance();//extern REMA rema;
+
     std::string tx_buffer;
     nlohmann::json to_rema;
     std::vector<Point3D> tube_boundary_points;
@@ -271,23 +328,6 @@ nlohmann::json tube_determine_center_cmd(nlohmann::json pars) {
 
         std::cout << "Enviando a RTU: "<< tx_buffer << "\n";
         rema_instance.rtu.send(tx_buffer);
-        //std::this_thread::sleep_for(std::chrono::milliseconds(100));        // Wait for telemetry to update
-
-        // Using std::bind to bind the member function to an instance
-        // auto bound_member_function = std::bind(&REMA::update_telemetry_callback_method, &rema_instance, std::placeholders::_1);
-
-//        int count = 0;
-//        int maxTries = 3;
-//        while(true) {
-//            try {
-//                rema_instance.rtu.receive_telemetry([&rema_instance](auto &rx_buffer) {rema_instance.update_telemetry_callback_method(rx_buffer); });
-//                break;
-//            } catch (std::exception &e) {                // handle exception
-//                if (++count == maxTries) {
-//                    return res;
-//                }
-//            }
-//        }
 
         do {
             try {
@@ -298,7 +338,7 @@ nlohmann::json tube_determine_center_cmd(nlohmann::json pars) {
                                 (rx_buffer).data()));
 
                 std::cout << stream << "\n";
-                rema_instance.update_telemetry_callback_method(rx_buffer);
+                rema_instance.update_telemetry(rx_buffer);
             } catch (std::exception &e) {                // handle exception
                 std::cerr << e.what() << "\n";
                 return res;
@@ -314,6 +354,10 @@ nlohmann::json tube_determine_center_cmd(nlohmann::json pars) {
     auto [center, radius] = fitCircle(tube_boundary_points);
     res["center"] = center;
     res["radius"] = radius;
+
+    std::vector<Point3D> src_dst_points = {center};
+
+    res["transformed_points"] = rema_instance.get_aligned_tubes(current_session, src_dst_points, src_dst_points);
 
     return res;
 }
@@ -335,8 +379,12 @@ std::map<std::string, std::function<nlohmann::json(nlohmann::json)>> commands =
 		  { "session_load", &session_load_cmd },
 		  { "session_info", &session_info_cmd },
 		  { "session_delete", &session_delete_cmd },
+		  { "cal_points_list", &cal_points_list_cmd },
+		  { "cal_point_add", &cal_point_add_cmd },
+		  { "cal_point_delete", &cal_point_delete_cmd },
 		  { "tube_set_status", &tube_set_status_cmd },
 		  { "tube_determine_center", &tube_determine_center_cmd },
+
 		};
 // @formatter:on
 

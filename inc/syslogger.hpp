@@ -1,3 +1,6 @@
+#ifndef SYSLOGGER_HPP
+#define SYSLOGGER_HPP
+
 #include <memory>
 #include <cstdarg>
 #include <cstdlib>
@@ -79,3 +82,6 @@ class SyslogLogger : public Logger
             }
         }
 };
+
+#endif      // SYSLOGGER_HPP
+

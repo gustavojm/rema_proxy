@@ -5,6 +5,8 @@
 #include <filesystem>
 #include <json.hpp>
 
+#include "points.hpp"
+
 template<typename TP>
 std::time_t to_time_t(TP tp) {
     auto sctp =
@@ -22,15 +24,28 @@ public:
     std::string row, col;
     bool inspected;
 };
-
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(InspectionPlanEntry, seq, row, col, inspected)
 
 class InspectionPlanEntryWithTubeID : public InspectionPlanEntry {
 public:
     std::string tube_id;
 };
-
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(InspectionPlanEntryWithTubeID, seq, tube_id, row, col, inspected)
+
+class CalPointEntry {
+public:
+    Point3D ideal_coords;
+    Point3D determined_coords;
+    bool determined;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(CalPointEntry, ideal_coords, determined_coords, determined)
+
+class CalPointEntryWithTubeID : public CalPointEntry {
+public:
+    std::string tube_id;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(CalPointEntryWithTubeID, tube_id, ideal_coords, determined_coords, determined)
+
 
 class InspectionSession {
 public:
@@ -111,10 +126,11 @@ public:
     bool loaded = false;
     bool changed = false;
     std::string unit = "inch";
+    std::map<std::string, CalPointEntry> cal_points;
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(InspectionSession, name,
         last_write_time, hx_directory, hx, tubesheet_csv, tubesheet_svg,
-        last_selected_plan, insp_plans, leg, tube_od, unit)
+        last_selected_plan, insp_plans, leg, tube_od, unit, cal_points)
 
 #endif 		// INSP_SESSION_HPP

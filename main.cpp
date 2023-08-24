@@ -15,11 +15,11 @@
 
 #include <boost/asio.hpp>
 #include <boost/program_options.hpp>
-#include "inc/syslogger.hpp"
-#include "inc/json.hpp"
-#include "inc/csv.h"
-#include "inc/net_commands.hpp"
-#include "inc/inspection-session.hpp"
+#include "syslogger.hpp"
+#include "json.hpp"
+#include "csv.h"
+#include "net_commands.hpp"
+#include "inspection-session.hpp"
 #include "websocket-server.hpp"
 #include "rema.hpp"
 
@@ -53,11 +53,8 @@ void event_stream_handler() {
     static bool hide_sent = false;
     nlohmann::json res;
 
-    // Using std::bind to bind the member function to an instance
-    // auto bound_member_function = std::bind(&REMA::update_telemetry_callback_method, &rema_instance, std::placeholders::_1);
-
     try {
-        rema_instance.rtu.receive_telemetry([&rema_instance](auto &rx_buffer) {rema_instance.update_telemetry_callback_method(rx_buffer); });
+        rema_instance.rtu.receive_telemetry([&rema_instance](auto &rx_buffer) {rema_instance.update_telemetry(rx_buffer); });
         res["TELEMETRY"] = rema_instance.telemetry;
 
         auto now = std::chrono::high_resolution_clock::now();

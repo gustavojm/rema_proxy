@@ -121,16 +121,21 @@ svg .tube:hover {
 				Messages ON CONDITIONa adfsiupo dsfaupoipiuo afdsp uioafdsupio
 				fadsuipo</div>
 		</div>
+		<div id="calibration_tab" class="right-side"
+			style="overflow: scroll; width: 20%; height: 100%; float: left; position: relative; display: none; flex-direction: column;">
+		</div>
+		
 	</div>
 	<div style="padding: 10px; width: 100%">
 		<div id="coordinates" style="float: left; width: 40%">Coordinates:</div>
+		<div id="nothing" style="float: left; width: 50%"></div>
+		<div id="calibration_changer" style="float: right; width: 10%"><button id="calibration_inspection_btn">Calibration</button></div>
 	</div>
 </div>
 
 <ul id="context-menu" class="context-menu">
-	<li><a id="determine_center">Center</a></li>
-	<li>Option 2</li>
-	<li>Option 3</li>
+	<li><a id="set_as_cal_point">Set as calibration point</a></li>
+	<li>Remove calibration point</li>
 </ul>
 
 <script type="text/javascript">
@@ -377,6 +382,9 @@ svg .tube:hover {
 									objDiv.scrollTop = (objDiv.scrollHeight - objDiv.clientHeight) / 2;
 								
 									tubes.on('contextmenu', function(e) {
+											console.log(this);
+											var g = $(this).parent();
+											show_tube_info(g);
 										    e.preventDefault(); // Prevent the default browser context menu
 										    $('#context-menu').css({
 										      display: 'block',
@@ -653,30 +661,14 @@ svg .tube:hover {
 			
 		new ResizeObserver(resize_divs).observe(document
 				.getElementById("left_side_resizable"));
-			
-					
-		$("#determine_center").click(function() {
-			Promise.resolve(
-				$.ajax({
-					method : "POST",
-					dataType : 'json',
-					url : "/json/tube_determine_center",
-					contentType : "application/json",
-					data : JSON.stringify({}),
-					timeout: 15000,
-				}))
-				.then(function(data) {
-					var svg = $("#tubesheet_svg").svg("get");					
-					drawCircle(svg, data.center, data.radius, scale);					
-				})
-				.catch(function(e) {
-					if(e.statusText == 'timeout') {     
-					    // TODO Send a cancel command? 
-						alert('Please have the touch prove inserted into the tube to be detected');
-					    
-					  }
-				});			
-			}); 
+							
+		
+		$("#calibration_inspection_btn").click(function() {
+			$("#tubesheet_tab").toggle();
+			$("#calibration_tab").toggle();
+		});
+		
+		$("#calibration_tab").load("cal_points.html");
 		
 	});
 	

@@ -15,6 +15,7 @@
 #include <json.hpp>
 
 #include "rema.hpp"
+#include "inspection-session.hpp"
 #include "tool.hpp"
 
 void REMA::save_to_disk() const {
@@ -35,7 +36,7 @@ std::filesystem::path REMA::get_selected_tool() const {
     return last_selected_tool;
 }
 
-void REMA::update_telemetry_callback_method(boost::asio::streambuf &rx_buffer) {
+void REMA::update_telemetry(boost::asio::streambuf &rx_buffer) {
     nlohmann::json json;
     try {
         std::lock_guard<std::mutex> lock(mtx);
@@ -60,12 +61,11 @@ void REMA::update_telemetry_callback_method(boost::asio::streambuf &rx_buffer) {
     return;
 }
 
-std::vector<Eigen::Matrix<double, 3, 1>> REMA::get_aligned_tubes(std::vector<Point3D> src_points,
-        std::vector<Point3D> dst_points) {
-// Parse the CSV file to extract the data for each tube
-    std::string leg = "hot";
+std::vector<Point3D> REMA::get_aligned_tubes(InspectionSession insp_sess, std::vector<Point3D> src_points, std::vector<Point3D> dst_points) {
+
+    // Parse the CSV file to extract the data for each tube
     io::CSVReader<5, io::trim_chars<' ', '\t'>, io::no_quote_escape<';'>> in(
-            "tubesheet.csv");
+            insp_sess.hx_directory / insp_sess.hx / "tubesheet.csv");
     in.read_header(io::ignore_extra_column, "cl_x", "cl_y", "hl_x", "hl_y",
             "tube_id");
     double cl_x, cl_y, hl_x, hl_y;
@@ -74,40 +74,36 @@ std::vector<Eigen::Matrix<double, 3, 1>> REMA::get_aligned_tubes(std::vector<Poi
     std::vector<Point3D> tubes;
 
     while (in.read_row(cl_x, cl_y, hl_x, hl_y, tube_id)) {
-        if (leg == "cold" || leg == "both") {
+        if (insp_sess.leg == "cold" || insp_sess.leg == "both") {
             tubes.push_back( { cl_x, cl_y, 0 });
         }
 
-        if (leg == "hot" || leg == "both") {
+        if (insp_sess.leg == "hot" || insp_sess.leg == "both") {
             tubes.push_back( { hl_x, hl_y, 0 });
         }
     }
 
-    //1.625; 0.704;TUBE.2
-    //16.656;2.815;TUBE.280
-    //71.125;3.518;TUBE.431
-
-    std::vector<Point3D> source_points = { { 1.625, 0.704, 0 },
+    //std::vector<Point3D> src_points = { { 1.625, 0.704, 0 },
     //        {16.656, 2.815, 0},
     //        {71.125, 3.518, 0},
-            };
+    //        };
 
-    std::vector<Point3D> target_points = { { 11.625, 10.704, 1 },
+    //std::vector<Point3D> dst_points = { { 11.625, 10.704, 1 },
     //        {26.656, 12.815, 2},
     //        {81.125, 13.518, 3},
-            };
+    //        };
 
-// Convert vector of Point3D to Open3D point clouds
+    // Convert vector of Point3D to Open3D point clouds
     open3d::geometry::PointCloud source_cloud;
     open3d::geometry::PointCloud target_cloud;
     open3d::geometry::PointCloud tubes_cloud;
 
-    for (const Point3D &point : source_points) {
+    for (const Point3D &point : src_points) {
         source_cloud.points_.push_back(
                 Eigen::Vector3d(point.x, point.y, point.z));
     }
 
-    for (const Point3D &point : target_points) {
+    for (const Point3D &point : dst_points) {
         target_cloud.points_.push_back(
                 Eigen::Vector3d(point.x, point.y, point.z));
     }
@@ -117,7 +113,7 @@ std::vector<Eigen::Matrix<double, 3, 1>> REMA::get_aligned_tubes(std::vector<Poi
                 Eigen::Vector3d(point.x, point.y, point.z));
     }
 
-// Set ICP parameters and perform ICP
+    // Set ICP parameters and perform ICP
     open3d::registration::ICPConvergenceCriteria icp_criteria;
     icp_criteria.max_iteration_ = 50;
     icp_criteria.relative_fitness_ = 1e-6;
@@ -127,17 +123,16 @@ std::vector<Eigen::Matrix<double, 3, 1>> REMA::get_aligned_tubes(std::vector<Poi
             open3d::registration::TransformationEstimationPointToPoint(false),
             icp_criteria);
 
-// Get the transformation matrix
+    // Get the transformation matrix
     Eigen::Matrix4d transformation_matrix = result.transformation_;
     std::cout << transformation_matrix << std::endl;
 
-    std::cout << " ----------- TRANSFORMED CLOUD ------------- " << std::endl;
-
-// Transform the source point cloud
+    // Transform the source point cloud
     tubes_cloud.Transform(transformation_matrix);
-    for (auto p : tubes_cloud.points_)
-        std::cout << "X:" << p.x() << " Y:" << p.y() << " Z:" << p.z()
-                << std::endl;
+    std::vector<Point3D> points;
+    for (auto p : tubes_cloud.points_) {
+        points.push_back({p.x(), p.y(), p.z()});
+    }
 
-    return tubes_cloud.points_;
+    return points;
 }
