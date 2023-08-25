@@ -20,9 +20,6 @@
 			</div>			
 		</div>
 	</form>
-	<div style="padding-bottom: 10px; padding-top: 10px;">
-		<textarea id="new_tool_logs" style="width: 100%"></textarea>
-	</div>
 </div>
 
 <div id="tool_tab"
@@ -52,8 +49,8 @@
 		table = $('#tool_table').DataTable(
 				{
 					ajax : {
-						method : "post",
-						url : "/json/tools_list",
+						method : "GET",
+						url : "/rest/tools",
 						dataSrc : '',
 					},
 					columns : [
@@ -94,15 +91,17 @@
 				
 				var confirm_action = confirm("Are you sure you want to delete " + tool_name + " ?");
 		        if (confirm_action) {
-					$.post('/json/tool_delete', JSON.stringify({
-						tool_name : tool_name,
-					}), function(data) {
-						if (data.success) {
+		        	$.ajax({
+						url : "/rest/tools/" + tool_name,
+						type : "DELETE",
+						success: function(data) {
 							table.ajax.reload();
-						} else {
-								alert("data.logs");					
-						}
-					});
+						},
+						error: function(xhr, status, error) {
+							alert("Error");
+							console.log("Error", status, error);
+						}						
+		        	});
 		        }
 			});
 
@@ -125,14 +124,20 @@
 				text : "Create",
 				//icon: "ui-icon-heart",
 				click : function(event) {
-					$.post('/json/tool_create', JSON.stringify(Object.fromEntries(new FormData(document.getElementById("tool_create")))), 
-							function(data) {
-						$("#new_tool_logs").val(data.logs);
-						if (data.success) {
+		        	$.ajax({
+						url : "/rest/tools",
+						type : "POST",
+						data: JSON.stringify(Object.fromEntries(new FormData(document.getElementById("tool_create")))),
+						success: function(data) {
+							table.ajax.reload();
 							$(event.target).hide(); // Hides the "Create" button
-						}
-					});
-
+						},
+						error: function(xhr, status, error) {
+							alert("Error");
+							console.log("Error", status, error);
+						}						
+		        	});
+				
 				}
 			}, {
 				text : "Close",

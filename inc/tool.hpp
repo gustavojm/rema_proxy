@@ -24,7 +24,6 @@ public:
     float offset_y = 0;
     float offset_z = 0;
 };
-
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Tool, name, offset_x, offset_y,
         offset_z)
 
