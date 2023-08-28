@@ -13,6 +13,9 @@
 #include "tool.hpp"
 #include "rema.hpp"
 #include "HXs.hpp"
+#include "points.hpp"
+#include "circle_fit.hpp"
+
 
 extern InspectionSession current_session;
 
@@ -243,16 +246,177 @@ void insp_sessions_delete(const std::shared_ptr<restbed::Session> session) {
     session->close(status, res_string, { { "Content-Type", "application/json ; charset=utf-8" }, { "Content-Length", std::to_string(res_string.length())} });
 }
 
-void cal_points_list(const std::shared_ptr<restbed::Session>) {
-    return;
+
+void cal_points_list(const std::shared_ptr<restbed::Session> session) {
+    std::vector<CalPointEntryWithTubeID> res;
+
+    for (auto [key, value] : current_session.cal_points ) {
+        CalPointEntryWithTubeID entry;
+        entry.tube_id = key;
+        entry.ideal_coords = value.ideal_coords;
+        entry.determined_coords = value.determined_coords;
+        entry.determined = value.determined;
+        res.push_back(entry);
+    }
+    std::string res_string = nlohmann::json(res).dump();
+    session->close(restbed::OK, res_string, { { "Content-Type", "application/json ; charset=utf-8" }, { "Content-Length", std::to_string(res_string.length())} });
 }
 
-void cal_points_put(const std::shared_ptr<restbed::Session>) {
-    return;
+void cal_points_add(const std::shared_ptr<restbed::Session> session) {
+    const auto request = session->get_request();
+    size_t content_length = request->get_header("Content-Length", 0);
+    session->fetch(content_length,
+            [&](const std::shared_ptr<restbed::Session> &session,
+                    const restbed::Bytes &body) {
+
+                nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
+                std::string res_string;
+                int status;
+
+                std::string id = form_data["id"];
+                if (id.empty()) {
+                    std::string res_string = "No tool name specified";
+                    status = restbed::INTERNAL_SERVER_ERROR;
+                } else {
+                    CalPointEntry cpe = {
+                                {5, 5, 5},
+                                {10, 15, 25},
+                                true,
+                        };
+                        current_session.cal_points[id] = cpe;
+                        res_string = nlohmann::json().dump();
+                        status = restbed::OK;
+                }
+
+                session->close(status, res_string, { { "Content-Type", "application/json ; charset=utf-8" }, { "Content-Length", std::to_string(res_string.length())} });
+    });
+};
+
+void cal_points_delete(const std::shared_ptr<restbed::Session> session) {
+    const auto request = session->get_request();
+    std::string tube_id = request->get_path_parameter("tube_id", "");
+
+    std::string res_string;
+    int status;
+    if (tube_id.empty()) {
+        res_string = "No tube specified";
+        status = restbed::INTERNAL_SERVER_ERROR;
+    } else {
+        current_session.cal_points.erase(tube_id);
+        status = restbed::NO_CONTENT;
+    }
+    session->close(status, res_string, { { "Content-Length", std::to_string(res_string.length())} });
 }
 
-void cal_points_delete(const std::shared_ptr<restbed::Session>) {
-    return;
+void tubes_set_status(const std::shared_ptr<restbed::Session> session) {
+
+    const auto request = session->get_request();
+    std::string tube_id = request->get_path_parameter("tube_id", "");
+
+    size_t content_length = request->get_header("Content-Length", 0);
+    std::string session_name = request->get_path_parameter("session_name", "");
+
+    nlohmann::json res = nlohmann::json::object();
+    std::string res_string;
+    session->fetch(content_length,
+            [&](const std::shared_ptr<restbed::Session> &session,
+                    const restbed::Bytes &body) {
+
+                nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
+                std::string res_string;
+
+                std::string insp_plan = form_data["insp_plan"];
+                bool checked = form_data["checked"];
+                current_session.set_tube_inspected(insp_plan, tube_id, checked);
+                res[tube_id] = checked;
+                res_string = res.dump();
+                session->close(restbed::OK, res_string, { { "Content-Type", "application/json ; charset=utf-8" }, { "Content-Length", std::to_string(res_string.length())} });
+    });
+}
+
+
+struct sequence_step {
+    std::string axes;
+    double first_axis_setpoint;
+    double second_axis_setpoint;
+    struct Point3D reached_coords;
+};
+
+void tubes_determine_center(const std::shared_ptr<restbed::Session> session) {
+    std::vector<sequence_step> seq = {
+            {
+                    "XY",           //Tube 11
+                    0.562598,
+                    0.324803,
+            },
+            {
+                    "XY",           //Tube 42           ( The center of the three coordinates shoud be at X = 1.125197, Y = 0.649606 Tube 22)
+                    1.125197,
+                    1.299213
+            },
+            {
+                    "XY",           //Tube 12
+                    1.687795,
+                    0.324803
+            },
+    };
+
+    nlohmann::json res;
+    REMA &rema_instance = REMA::get_instance();//extern REMA rema;
+
+    std::string tx_buffer;
+    nlohmann::json to_rema;
+    std::vector<Point3D> tube_boundary_points;
+
+    // Create an individual command object and add it to the array
+    for (auto &seq_step : seq) {
+        nlohmann::json command = {
+            {"command", "MOVE_CLOSED_LOOP"},
+            {"pars", {
+                {"axes", seq_step.axes},
+                {"first_axis_setpoint", seq_step.first_axis_setpoint},
+                {"second_axis_setpoint", seq_step.second_axis_setpoint}
+            }}
+        };
+
+        to_rema["commands"].clear();
+        to_rema["commands"].push_back(command);
+        tx_buffer = to_rema.dump();
+
+        std::cout << "Enviando a RTU: "<< tx_buffer << "\n";
+        rema_instance.rtu.send(tx_buffer);
+
+        do {
+            try {
+                boost::asio::streambuf rx_buffer;
+                rema_instance.rtu.receive_telemetry_sync(rx_buffer);
+                std::string stream(
+                        boost::asio::buffer_cast<const char*>(
+                                (rx_buffer).data()));
+
+                std::cout << stream << "\n";
+                rema_instance.update_telemetry(rx_buffer);
+            } catch (std::exception &e) {                // handle exception
+                std::cerr << e.what() << "\n";
+                //return res;
+            }
+
+        } while (!(rema_instance.telemetry.limits.probe || rema_instance.cancel_cmd || rema_instance.telemetry.on_condition.x_y));
+
+        if (rema_instance.telemetry.on_condition.x_y) {       // ask for probe_touching
+            tube_boundary_points.push_back(rema_instance.telemetry.coords);
+        }
+    }
+    res["reached_coords"] = tube_boundary_points;
+    auto [center, radius] = fitCircle(tube_boundary_points);
+    res["center"] = center;
+    res["radius"] = radius;
+
+    std::vector<Point3D> src_dst_points = {center};
+
+    res["transformed_points"] = rema_instance.get_aligned_tubes(current_session, src_dst_points, src_dst_points);
+
+    //return res;
 }
 
 
@@ -293,13 +457,24 @@ void restfull_api_create_endpoints(restbed::Service &service) {
                 {"GET", &inspection_sessions_info},
             },
         },
-
         {"calibration-points", {
                 {"GET", &cal_points_list},
-                {"PUT", &cal_points_put},
+                {"POST", &cal_points_add},
+            },
+        },
+        {"calibration-points/{tube_id: .*}", {
                 {"DELETE", &cal_points_delete},
             },
         },
+        {"tubes/{tube_id: .*}", {
+                {"PUT", &tubes_set_status},
+            },
+        },
+        {"tubes/determine-center", {
+                {"GET", &tubes_determine_center},
+            },
+        },
+
     };
 
     for (auto [path, resources] : rest_resources) {

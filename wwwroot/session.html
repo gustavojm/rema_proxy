@@ -93,7 +93,7 @@
 				
 				var confirm_action = confirm("Are you sure you want to delete " + insp_session_name + " ?");
 		        if (confirm_action) {
-					$.post('/json/session_delete', JSON.stringify({
+					$.post('/REST/session_delete', JSON.stringify({
 						session_name : insp_session_name,
 					}), function(data) {
 						//$("#new_session_logs").val(data.logs);

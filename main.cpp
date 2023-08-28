@@ -18,7 +18,6 @@
 #include "syslogger.hpp"
 #include "json.hpp"
 #include "csv.h"
-#include "net_commands.hpp"
 #include "inspection-session.hpp"
 #include "websocket-server.hpp"
 #include "rema.hpp"
@@ -207,39 +206,6 @@ void post_rtu_method_handler(const shared_ptr<restbed::Session> session,
             });
 }
 
-void post_json_method_handler(const shared_ptr<restbed::Session> session) {
-    const auto request = session->get_request();
-    size_t content_length = request->get_header("Content-Length", 0);
-
-    session->fetch(content_length,
-            [&](const shared_ptr<restbed::Session> &session,
-                    const Bytes &body) {
-
-                std::string b = { body.begin(), body.end() };
-
-                nlohmann::json j;
-
-                if (!b.empty()) {
-                    // std::cout << b << std::endl;
-                    try {
-                        j = nlohmann::json::parse(b);
-                    } catch (std::exception &e) {
-                        std::cout << e.what() << "\n";
-                    }
-                }
-                const std::string command = request->get_path_parameter(
-                        "command");
-
-                nlohmann::json res = cmd_execute(command, j);
-
-                std::string res_string = res.dump();
-
-                session->close(OK, res_string, { { "Content-Length",
-                        ::to_string(res_string.length()) }, { "Content-Type",
-                        "application/json; charset=utf-8" } });
-            });
-}
-
 void failed_filter_validation_handler(
         const shared_ptr<restbed::Session> session) {
     const auto request = session->get_request();
@@ -306,12 +272,6 @@ int main(const int, const char**) {
             failed_filter_validation_handler);
     resource_rtu->set_method_handler("POST", post_rtu_method_handler_bound);
 
-    auto resource_json = make_shared<restbed::Resource>();
-    resource_json->set_path("/json/{command: .*}");
-    resource_json->set_failed_filter_validation_handler(
-            failed_filter_validation_handler);
-    resource_json->set_method_handler("POST", post_json_method_handler);
-
     auto resource_html_file = make_shared<restbed::Resource>();
 
     resource_html_file->set_paths( {
@@ -342,7 +302,6 @@ int main(const int, const char**) {
     restbed::Service service;
     service.publish(resource_rtu);
     service.publish(resource_HXs);
-    service.publish(resource_json);
     service.publish(resource_html_file);
     service.publish(resource_server_side_events);
 

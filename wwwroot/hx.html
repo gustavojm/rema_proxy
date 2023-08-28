@@ -638,15 +638,15 @@ svg .tube:hover {
 		
 		// Mark/unmark a tube as inspected
 		$("#insp_plan_table").on('change', "input[type='checkbox']", function(e) {			// Using Event Delegates
-		    
+		    var tube_id = $(this).val();
+		
 			$.ajax({
-				method : "POST",
+				method : "PUT",
 				dataType : 'json',
-				url : "/json/tube_set_status",
+				url : "/REST/tubes/" + tube_id,
 				contentType : "application/json",
 				data : JSON.stringify({
 						insp_plan : $("#insp_plans").val(),
-						tube_id : $(this).val(),
 						checked : $(this).prop("checked"), 					
 					}),
 			});

@@ -84,9 +84,9 @@ $(function() {
 				select : true,
 				scrollX : true,						
 				ajax : {
-					method : "post",
+					method : "GET",
 					dataType : 'json',
-					url : "/json/cal_points_list",
+					url : "/REST/calibration-points",
 					data : function() {},
 					dataSrc : '',
 				},
@@ -128,15 +128,17 @@ $(function() {
 			
 			var confirm_action = confirm("Are you sure you want to delete " + tube_id + " ?");
 	        if (confirm_action) {
-				$.post('/json/cal_point_delete', JSON.stringify({
-					tube_id : tube_id,
-				}), function(data) {
-					if (data.success) {
+	        	$.ajax({
+					url : "/REST/calibration-points/" + tube_id,
+					type : "DELETE",
+					success: function(data) {
 						table.ajax.reload();
-					} else {
-							alert("data.logs");					
-					}
-				});
+					},
+					error: function(xhr, status, error) {
+						alert("Error");
+						console.log("Error", status, error);
+					}						
+	        	});
 	        }
 		});
 	});
@@ -160,7 +162,7 @@ $(function() {
 //			$.ajax({
 //				method : "POST",
 //				dataType : 'json',
-//				url : "/json/tube_determine_center",
+//				url : "/REST/tubes/determine-center",
 //				contentType : "application/json",
 //				data : JSON.stringify(),
 //				timeout: 15000,
@@ -186,7 +188,7 @@ $(function() {
 		$.ajax({
 			method : "POST",
 			dataType : 'json',
-			url : "/json/cal_point_add",
+			url : "/REST/calibration-points",
 			contentType : "application/json",
 			data : JSON.stringify({
 				id : 	$("#tube_info_id").val(),
@@ -194,7 +196,11 @@ $(function() {
 			success : function() {
 				table = $('#calibration_table').DataTable();
 				table.ajax.reload();
-			}
+			},
+			error: function(xhr, status, error) {
+				alert("Error");
+				console.log("Error", status, error);
+			}						
 		});
 	});
 	
