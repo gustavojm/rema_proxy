@@ -403,7 +403,7 @@ svg .tube:hover {
 	}
 
 	function get_session_info() {
-		return $.post('/json/session_info');
+		return $.get('/REST/current-session/info');
 	}
 
 	get_session_info()
@@ -450,6 +450,7 @@ svg .tube:hover {
 							insp_plans_dropdown.css("background-color", $(
 									"option:selected", this).css(
 									"background-color"));
+							table.ajax.url("/REST/inspection-plans/" + $(this).val());
 							table.ajax.reload();
 						});
 						
@@ -541,14 +542,9 @@ svg .tube:hover {
 							scrollX : true,						
 							//paging: false,							
 							ajax : {
-								method : "post",
+								method : "GET",
 								dataType : 'json',
-								url : "/json/insp_plan_load",
-								data : function() {
-									return JSON.stringify({
-										insp_plan : $("#insp_plans").val()
-									});
-								},
+								url : "/REST/inspection-plans",
 								dataSrc : '',
 							},
 							columns : [

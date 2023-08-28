@@ -20,7 +20,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Tube, x_label, y_label, cl_x, cl_y, hl_x,
 
 static std::string hxs_path = "./HXs";
 
-std::vector<std::string> HXs_list() {
+static inline std::vector<std::string> HXs_list() {
     std::vector<std::string> res;
     for (const auto &entry : std::filesystem::directory_iterator(hxs_path)) {
         if (entry.is_directory()) {
@@ -30,7 +30,7 @@ std::vector<std::string> HXs_list() {
     return res;
 }
 
-std::vector<Tube> HX_get_tubes(std::filesystem::path tubesheet_csv) {
+static inline std::vector<Tube> HX_get_tubes(std::filesystem::path tubesheet_csv) {
     // Parse the CSV file to extract the data for each tube
     std::vector<Tube> tubes;
     try {

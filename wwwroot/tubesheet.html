@@ -28,8 +28,8 @@
 		$('#tubesheet_table').DataTable({
 			pageLength: 25,
 			ajax : {
-				method : "post",
-				url : "/json/hx_tubesheet_load",
+				method : "GET",
+				url : "/REST/HXs/tubesheet/load",
 				dataSrc : '',
 			},
 			columns : [ {

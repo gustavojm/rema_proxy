@@ -50,7 +50,7 @@
 				{
 					ajax : {
 						method : "GET",
-						url : "/rest/tools",
+						url : "/REST/tools",
 						dataSrc : '',
 					},
 					columns : [
@@ -92,7 +92,7 @@
 				var confirm_action = confirm("Are you sure you want to delete " + tool_name + " ?");
 		        if (confirm_action) {
 		        	$.ajax({
-						url : "/rest/tools/" + tool_name,
+						url : "/REST/tools/" + tool_name,
 						type : "DELETE",
 						success: function(data) {
 							table.ajax.reload();
@@ -125,7 +125,7 @@
 				//icon: "ui-icon-heart",
 				click : function(event) {
 		        	$.ajax({
-						url : "/rest/tools",
+						url : "/REST/tools",
 						type : "POST",
 						data: JSON.stringify(Object.fromEntries(new FormData(document.getElementById("tool_create")))),
 						success: function(data) {

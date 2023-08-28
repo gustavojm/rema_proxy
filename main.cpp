@@ -22,89 +22,7 @@
 #include "inspection-session.hpp"
 #include "websocket-server.hpp"
 #include "rema.hpp"
-
-struct ResourceEntry {
-    std::string method;
-    std::function< void ( const std::shared_ptr< Session > )> callback;
-};
-
-void HXs_get(const std::shared_ptr<Session> session) {
-    return;
-}
-
-void tools_get(const std::shared_ptr<Session> session ) {
-    nlohmann::json res = REMA::tools_list();
-    std::string res_string = res.dump();
-    session->close(restbed::OK, res_string, { { "Content-Type", "application/json ; charset=utf-8" }, { "Content-Length", std::to_string(res_string.length())} });
-}
-
-void tools_delete(const std::shared_ptr<Session> session) {
-    const auto request = session->get_request();
-    std::string tool_name = request->get_path_parameter("tool_name", "");
-
-    try {
-        REMA::delete_tool(tool_name);
-        session->close(restbed::NO_CONTENT, "", { { "Content-Length", "0"} });
-    } catch (const std::filesystem::filesystem_error &e) {
-        std::string res_string = "Failed to delete the tool";
-        session->close(restbed::INTERNAL_SERVER_ERROR, res_string, { { "Content-Length", std::to_string(res_string.length())} });
-    }
-}
-
-void tools_post(const std::shared_ptr<Session> session) {
-    const auto request = session->get_request();
-    size_t content_length = request->get_header("Content-Length", 0);
-    session->fetch(content_length,
-            [&](const shared_ptr<restbed::Session> &session,
-                    const Bytes &body) {
-
-                nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
-
-                std::string tool_name = form_data["tool_name"];
-                if (tool_name.empty()) {
-                    std::string res_string = "No tool name specified";
-                    session->close(restbed::INTERNAL_SERVER_ERROR, res_string, { { "Content-Length", std::to_string(res_string.length())} });
-                }
-
-                float offset_x = std::stof(form_data["offset_x"].get<std::string>());
-                float offset_y = std::stof(form_data["offset_y"].get<std::string>());
-                float offset_z = std::stof(form_data["offset_z"].get<std::string>());
-
-                try {
-                    Tool new_tool(tool_name, offset_x, offset_y, offset_z);
-                    std::string res_string = "Tool created Successfully";
-                    session->close(restbed::CREATED, res_string, { { "Content-Length", std::to_string(res_string.length())} });;
-                } catch (const std::exception &e) {
-                    std::string res_string = e.what();
-                    session->close(restbed::INTERNAL_SERVER_ERROR, res_string, { { "Content-Length", std::to_string(res_string.length())} });
-                }
-    });
-}
-
-void insp_sessions_get( const std::shared_ptr< Session > ) {
-    return;
-}
-
-void insp_sessions_put( const std::shared_ptr< Session > ) {
-    return;
-}
-
-void insp_sessions_delete( const std::shared_ptr< Session > ) {
-    return;
-}
-
-void cal_points_get( const std::shared_ptr< Session > ) {
-    return;
-}
-
-void cal_points_put( const std::shared_ptr< Session > ) {
-    return;
-}
-
-void cal_points_delete( const std::shared_ptr< Session > ) {
-    return;
-}
-
+#include "restfull_api.hpp"
 
 InspectionSession current_session;
 
@@ -428,55 +346,7 @@ int main(const int, const char**) {
     service.publish(resource_html_file);
     service.publish(resource_server_side_events);
 
-    /*
-     *
-     * */
-
-    std::map<std::string, std::vector<ResourceEntry>> rest_resources = {
-        {"HXs", { {"GET", &HXs_get}}},
-        {"tools", {
-                {"GET", &tools_get},
-                {"POST", &tools_post},
-            },
-        },
-        {"tools/{tool_name: .*}", {
-                {"GET", &tools_get},
-                {"DELETE", &tools_delete},
-            },
-        },
-        {"insp-sessions", {
-                {"GET", &insp_sessions_get},
-                {"PUT", &insp_sessions_put},
-                {"DELETE", &insp_sessions_delete},
-            },
-        },
-        {"cal-points", {
-                {"GET", &cal_points_get},
-                {"PUT", &cal_points_put},
-                {"DELETE", &cal_points_delete},
-            },
-        },
-    };
-    /*
-     *
-     *
-     * */
-
-
-    for (auto [path, resources] : rest_resources) {
-        auto resource_rest = make_shared<restbed::Resource>();
-        resource_rest->set_path(std::string("/rest/").append(path));
-        resource_rest->set_failed_filter_validation_handler(
-                failed_filter_validation_handler);
-
-        for (ResourceEntry r : resources) {
-            resource_rest->set_method_handler(r.method, r.callback);
-        }
-        service.publish(resource_rest);
-    }
-
-
-
+    restfull_api_create_endpoints(service);
 
     service.schedule(event_stream_handler, std::chrono::milliseconds(100));
 

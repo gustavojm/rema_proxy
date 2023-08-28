@@ -11,11 +11,11 @@ struct Circle {
     double radius;
 };
 
-double distance(const Point3D& p1, const Point3D& p2) {
+static inline double distance(const Point3D& p1, const Point3D& p2) {
     return std::sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y));
 }
 
-Circle fitCircle(const std::vector<Point3D>& points) {
+static inline Circle fitCircle(const std::vector<Point3D>& points) {
     int n = points.size();
     if (n < 3) {
         throw std::invalid_argument("At least 3 points are required.");

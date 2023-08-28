@@ -46,8 +46,8 @@
 		table = $('#sessions_table').DataTable(
 				{
 					ajax : {
-						method : "post",
-						url : "/json/insp_sessions_list",
+						method : "GET",
+						url : "/REST/inspection-sessions",
 						dataSrc : '',
 					},
 					columns : [
@@ -76,15 +76,15 @@
 		table.on('draw.dt', function(e, settings, json, xhr) {			
 			$(".ui-icon-play").on("click", function() {
 				var insp_session_name = $(this).data("name");
-				$.post('/json/session_load', JSON.stringify({
-					session_name : insp_session_name,
-				}), function(data) {
-					if (data.success) {
-						alert("Session loaded successfully");
-						window.location.reload(true);
-					} else {
-						alert(data.logs);					
-					}
+				$.ajax({
+						url: '/REST/inspection-sessions/' + insp_session_name,
+						success: function () {
+							alert("Session loaded successfully");
+							window.location.reload(true);
+						},
+						error: function (xhr, status, error) {
+							console.log(xhr, status, error);
+						}
 				});
 			})
 			

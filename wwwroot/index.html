@@ -115,7 +115,7 @@
 scale = 1;
 
 function get_session_info_index() {
-	return $.post('/json/session_info');
+	return $.get('/REST/current-session/info');
 }
 
 get_session_info_index()
@@ -136,7 +136,7 @@ get_session_info_index()
 						}
 					});
 
-					$.post('/json/rema_info', function(data) {
+					$.get('/REST/REMA/info', function(data) {
 						var tools_dropdown = $('#tools');
 						$.each(
 								data.tools,
@@ -166,10 +166,8 @@ get_session_info_index()
 									$("#offset_x").val(offset_x * scale);
 									$("#offset_y").val(offset_y * scale);
 									$("#offset_z").val(offset_z * scale);
-									$.post('/json/tool_select', JSON.stringify({
-										tool_name : $("option:selected", this).val(),
-									}), function(data) {
-									});								
+									var tool_name = $("option:selected", this).val();
+									$.post('/REST/tools/' + tool_name + '/select');								
 								});
 						
 								tools_dropdown.val(data.last_selected_tool).change();	
@@ -284,10 +282,7 @@ get_session_info_index()
 			$.ajax({
 				method : "POST",
 				dataType : 'json',
-				url : "/json/rema_connect",
-				contentType : "application/json",
-				data : JSON.stringify({
-					}),
+				url : "/REST/REMA/connect",
 			});			
 		});
 		
