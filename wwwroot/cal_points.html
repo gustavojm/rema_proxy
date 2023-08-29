@@ -55,7 +55,7 @@
 				
 				<div style="display: flex; flex-direction:column;">
 					<div>Algo</div>
-					<div style="display:flex; flex-grow: 2;"><button>Algo</button></div>
+					<div style="display:flex; flex-grow: 2;"><button id="algo">Algo</button></div>
 				</div>				
 			</div>
 		</div>
@@ -144,45 +144,42 @@ $(function() {
 	});
 	
 	
-	table.on(
-			'click',
-			'tr',
-			function() {				
-				currentRow = table.row(this);					// Store the selected row on click
-				if (!currentRow.selected()) {
-					var data = currentRow.data();									
-					show_cal_point_info(data);
-				} else {
-					$("#cal_point_info_div input[type=text]").val("");
-				}
-			});
+	table.on('click', 'tr',
+		function() {				
+			currentRow = table.row(this);					// Store the selected row on click
+			if (!currentRow.selected()) {
+				var data = currentRow.data();									
+				show_cal_point_info(data);
+			} else {
+				$("#cal_point_info_div input[type=text]").val("");
+			}
+		}
+	);
 
-//		$("#set_as_cal_point").click(function() {
-//		Promise.resolve(
-//			$.ajax({
-//				method : "POST",
-//				dataType : 'json',
-//				url : "/REST/tubes/determine-center",
-//				contentType : "application/json",
-//				data : JSON.stringify(),
-//				timeout: 15000,
-//			}))
-//			.then(function(data) {
-//				var svg = $("#tubesheet_svg").svg("get");					
-//				drawCircle(svg, data.center, data.radius, scale);
-			
-//				$(data.transformed_points).each(function (p) {
-//					drawCircle(svg, this, 0.05, scale);
-//				});								
-//			})
-//			.catch(function(e) {
-//				if(e.statusText == 'timeout') {     
-//				    // TODO Send a cancel command? 
-//					alert('Please have the touch prove inserted into the tube to be detected');
-			    
-//				  }
-//			});			
-//		}); 
+	$("#algo").click(function() {
+	Promise.resolve(
+		$.ajax({
+			method : "GET",
+			url : "/REST/determine-tube-center",
+			data : JSON.stringify(),
+			timeout: 25000,
+		}))
+		.then(function(data) {
+			var svg = $("#tubesheet_svg").svg("get");					
+			drawCircle(svg, data.center, data.radius, scale);
+		
+			$(data.transformed_points).each(function (p) {
+				drawCircle(svg, this, 0.05, scale);
+			});								
+		})
+		.catch(function(e) {
+			if(e.statusText == 'timeout') {     
+			    // TODO Send a cancel command? 
+				alert('Please have the touch prove inserted into the tube to be detected');
+		    
+			  }
+		});			
+	}); 
 
 	$("#set_as_cal_point").click(function() {
 		$.ajax({
@@ -201,8 +198,7 @@ $(function() {
 			}						
 		});
 	});
-	
-	
+
 });
 
 </script>

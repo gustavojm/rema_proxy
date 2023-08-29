@@ -345,7 +345,7 @@ struct sequence_step {
     struct Point3D reached_coords;
 };
 
-void tubes_determine_center(const std::shared_ptr<restbed::Session> session) {
+void determine_tube_center(const std::shared_ptr<restbed::Session> session) {
     std::vector<sequence_step> seq = {
             {
                     "XY",           //Tube 11
@@ -453,7 +453,7 @@ void restfull_api_create_endpoints(restbed::Service &service) {
         },
         {"calibration-points/{tube_id: .*}", {{"DELETE", &cal_points_delete}}},
         {"tubes/{tube_id: .*}", {{"PUT", &tubes_set_status}}},
-        {"tubes/determine-center", {{"GET", &tubes_determine_center}}},
+        {"determine-tube-center", {{"GET", &determine_tube_center}}},
     };
 // @formatter:on
 
