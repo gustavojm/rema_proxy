@@ -165,9 +165,19 @@ $(function() {
 			timeout: 25000,
 		}))
 		.then(function(data) {
-			var svg = $("#tubesheet_svg").svg("get");					
+			var svg = $("#tubesheet_svg").svg("get");		
+			console.log("Scale:", scale);
+			data.center.x *= scale;
+			data.center.y *= scale;
+			data.center.z *= scale;
 			drawCircle(svg, data.center, data.radius, scale);
+			
+			$("#determined_coords_x").val(data.center.x * scale);
+			$("#determined_coords_y").val(data.center.y * scale);
+			$("#determined_coords_z").val(data.center.z * scale);
 		
+			$("#cal_tube_diff_x").val(); 
+			
 			$(data.transformed_points).each(function (p) {
 				drawCircle(svg, this, 0.05, scale);
 			});								

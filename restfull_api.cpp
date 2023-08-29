@@ -457,6 +457,7 @@ void restfull_api_create_endpoints(restbed::Service &service) {
     };
 // @formatter:on
 
+    //std::cout << "Creando endpoints" << "\n";
     for (auto [path, resources] : rest_resources) {
         auto resource_rest = std::make_shared<restbed::Resource>();
         resource_rest->set_path(std::string("/REST/").append(path));
@@ -465,6 +466,7 @@ void restfull_api_create_endpoints(restbed::Service &service) {
 
         for (ResourceEntry r : resources) {
             resource_rest->set_method_handler(r.method, r.callback);
+            //std::cout << "127.0.0.1:4321/REST/" << path << ", " << r.method << "\n";
         }
         service.publish(resource_rest);
     }

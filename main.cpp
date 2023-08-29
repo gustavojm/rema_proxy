@@ -291,7 +291,9 @@ int main(const int, const char**) {
 
     auto settings = make_shared<restbed::Settings>();
     settings->set_port(rtu_proxy_port);
-    settings->set_default_header("Connection", "close");
+    //settings->set_default_header("Connection", "close");
+
+    settings->set_default_header("Access-Control-Allow-Origin", "*");       // Enable Cross Origin Requests
     settings->set_worker_limit(std::thread::hardware_concurrency());
 
     auto resource_server_side_events = make_shared<restbed::Resource>();
