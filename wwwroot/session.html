@@ -16,7 +16,7 @@
 		</div>
 	</form>
 	<div style="padding-bottom: 10px; padding-top: 10px;">
-		<textarea id="new_session_logs" style="width: 100%"></textarea>
+		<textarea id="new_session_logs" style="width: 100%" readonly="readonly"></textarea>
 	</div>
 </div>
 
@@ -93,16 +93,17 @@
 				
 				var confirm_action = confirm("Are you sure you want to delete " + insp_session_name + " ?");
 		        if (confirm_action) {
-					$.post('/REST/session_delete', JSON.stringify({
-						session_name : insp_session_name,
-					}), function(data) {
-						//$("#new_session_logs").val(data.logs);
-						if (data.success) {
+		        	$.ajax({
+						url : "/REST/inspection-sessions/" + insp_session_name,
+						type : "DELETE",
+						success: function(data) {
 							table.ajax.reload();
-						} else {
-								alert("data.logs");					
-						}
-					});
+						},
+						error: function(xhr, status, error) {
+							alert("Error");
+							console.log("Error", status, error);
+						}						
+		        	});
 		        }
 			});
 
@@ -125,14 +126,19 @@
 				text : "Create",
 				//icon: "ui-icon-heart",
 				click : function(event) {
-					$.post('/json/session_create', JSON.stringify(Object.fromEntries(new FormData(document.getElementById("session_create")))), 
-					function(data) {
-						$("#new_session_logs").val(data.logs);
-						if (data.success) {
-							$(event.target).hide(); // Hides the "Create" button
-						}
+					$.ajax({										
+						url: '/REST/inspection-sessions',
+						method: "POST",
+						data: JSON.stringify(Object.fromEntries(new FormData(document.getElementById("session_create")))), 
+						success: function(data) {
+							$("#new_session_logs").val(data);
+							$(event.target).hide(); 	// Hides the "Create" button
+						},
+						error: function(xhr, status, error) {
+							console.log(xhr, status, error);
+							$("#new_session_logs").val(xhr.responseText);
+						}							
 					});
-
 				}
 			}, {
 				text : "Close",
@@ -159,7 +165,7 @@
 		hx_dropdown.prop('selectedIndex', 0);
 
 		// Populate dropdown with list of HXs
-		$.post('/json/hx_list', JSON.stringify({}), function(data) {
+		$.get('/REST/HXs', null, function(data) {
 			$.each(data, function(key, value) {
 				hx_dropdown.append($('<option></option>').attr('value',
 						value).text(value));

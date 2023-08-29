@@ -128,7 +128,7 @@ svg .tube:hover {
 	</div>
 	<div style="padding: 10px; width: 100%">
 		<div id="coordinates" style="float: left; width: 40%">Coordinates:</div>
-		<div id="nothing" style="float: left; width: 50%"></div>
+		<div id="session_name" style="float: left; width: 50%"></div>
 		<div id="calibration_changer" style="float: right; width: 10%"><button id="calibration_inspection_btn">Calibration</button></div>
 	</div>
 </div>
@@ -412,6 +412,7 @@ svg .tube:hover {
 						tube_od = 1;
 						if (data.is_loaded) {
 							$(".units").text(data.unit);
+							$("#session_name").text("Session: " + data.name);
 							scale = data.unit == "mm" ? 25.4 : 1;
 							tube_od = data.tube_od;
 						}

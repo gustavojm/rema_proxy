@@ -187,9 +187,7 @@ $(function() {
 	$("#set_as_cal_point").click(function() {
 		$.ajax({
 			method : "POST",
-			dataType : 'json',
 			url : "/REST/calibration-points",
-			contentType : "application/json",
 			data : JSON.stringify({
 				id : 	$("#tube_info_id").val(),
 			}),
