@@ -34,17 +34,19 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(InspectionPlanEntryWithTubeID, seq, tube_id, 
 
 class CalPointEntry {
 public:
+    std::string col;
+    std::string row;
     Point3D ideal_coords;
     Point3D determined_coords;
     bool determined;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(CalPointEntry, ideal_coords, determined_coords, determined)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(CalPointEntry, col, row, ideal_coords, determined_coords, determined)
 
 class CalPointEntryWithTubeID : public CalPointEntry {
 public:
     std::string tube_id;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(CalPointEntryWithTubeID, tube_id, ideal_coords, determined_coords, determined)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(CalPointEntryWithTubeID, tube_id, col, row, ideal_coords, determined_coords, determined)
 
 
 class InspectionSession {
@@ -58,6 +60,14 @@ public:
     std::string load_plans();
 
     std::vector<InspectionPlanEntryWithTubeID> inspection_plan_get(std::string insp_plan);
+
+    std::vector<CalPointEntryWithTubeID> cal_points_get();
+
+    void cal_points_add(std::string id, std::string col, std::string row, Point3D ideal_coords);
+
+    void cal_points_delete(std::string id);
+
+    void cal_points_set_determined_coords(std::string tube_id, Point3D determined_coords);
 
     bool load(std::string session_name);
 
@@ -79,7 +89,6 @@ public:
                 res.push_back(insp_session);
             }
         }
-        //std::sort(res.begin(), res.end());
         return res;
     }
 

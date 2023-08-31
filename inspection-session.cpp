@@ -148,3 +148,40 @@ void InspectionSession::set_tube_inspected(std::string insp_plan,
     insp_plans[insp_plan][tube_id].inspected = state;
     changed = true;
 }
+
+std::vector<CalPointEntryWithTubeID> InspectionSession::cal_points_get()  {
+    std::vector<CalPointEntryWithTubeID> res;
+    for (auto [key, value] : cal_points ) {
+        CalPointEntryWithTubeID entry;
+        entry.tube_id = key;
+        entry.row = value.row;
+        entry.col = value.col;
+        entry.ideal_coords = value.ideal_coords;
+        entry.determined_coords = value.determined_coords;
+        entry.determined = value.determined;
+        res.push_back(entry);
+    }
+    return res;
+}
+
+void InspectionSession::cal_points_add(std::string tube_id, std::string col, std::string row, Point3D ideal_coords)  {
+    CalPointEntry cpe = {
+            col,
+            row,
+            ideal_coords,
+            Point3D(),
+            false,
+    };
+    cal_points[tube_id] = cpe;
+    changed = true;
+}
+
+void InspectionSession::cal_points_delete(std::string tube_id)  {
+    cal_points.erase(tube_id);
+    changed = true;
+}
+
+void InspectionSession::cal_points_set_determined_coords(std::string tube_id, Point3D determined_coords)  {
+    cal_points[tube_id].determined_coords = determined_coords;
+    changed = true;
+}

@@ -38,13 +38,13 @@
 		$("#clear_logs").click(function(){
 			$("#logs").val("");
 		})
-		
+	
+		$('.ui-tabs-tab').on('unload_tab',function() {
+			clearInterval(timer_logs);
+		    timer_logs = null;		
+		});
+
 	});
 	
-	
-	$('.tabs-div').on('unload_tab',function() {
-		clearInterval(timer_logs);
-	    timer_logs = null;		
-	});
 
 </script>

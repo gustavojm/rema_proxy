@@ -56,19 +56,20 @@ svg .tube:hover {
 <div id="hx_tab"
 	style="overflow: visible; height: 92%; width: 100%; float: left; position: relative;">
 
-	<div id="tube_info"
-		style="position: relative; width: 100%; float: left; vertical-align: middle; height: 3%; display: flex; flex-direction: row;">
+	<div style="position: relative; width: 100%; float: left; vertical-align: middle; height: 3%; display: flex; flex-direction: row;">
 		<div
 			style="position: relative; width: 50%; height: 100%; float: left; display: flex; flex: 1"
 			class="left-side">
-			<div id="tube_info_coord"
-				style="position: relative; width: 85%; float: left; vertical-align: middle;">
-				Tube Id:<input type="text" id="tube_info_id" size="4"> Col:<input
-					type="text" id="tube_info_col" size="4"> Row:<input
-					type="text" id="tube_info_row" size="4"> X:<input
-					type="text" id="tube_info_x" size="4"> Y:<input type="text"
-					id="tube_info_y" size="4"> <span class="units">inch</span>
-			</div>
+				<div id="tube_info_coord" style="position: relative; width: 85%; float: left; vertical-align: middle;">
+					<form id="tube_info">					
+						Tube Id:<input type="text" id="tube_info_id" name="id" size="4"> 
+						Col:<input type="text" id="tube_info_col" name="col" size="4"> 
+						Row:<input type="text" id="tube_info_row" name="row" size="4"> 
+						X:<input type="text" id="tube_info_x" name="x" size="4"> 
+						Y:<input type="text" id="tube_info_y" name="y" size="4"> <span class="units">inch</span>
+						<button id="set_as_cal_point">Set as Calibration Point</button>							
+					</form>
+				</div>
 			<div
 				style="position: relative; width: 10%; float: right; height: 100%; vertical-align: middle; display: flex; flex-direction: row; flex: 1">
 				<div
@@ -131,12 +132,7 @@ svg .tube:hover {
 		<div id="session_name" style="float: left; width: 50%"></div>
 		<div id="calibration_changer" style="float: right; width: 10%"><button id="calibration_inspection_btn">Calibration</button></div>
 	</div>
-</div>
-
-<ul id="context-menu" class="context-menu">
-	<li><a id="set_as_cal_point">Set as calibration point</a></li>
-	<li>Remove calibration point</li>
-</ul>
+</div>	
 
 <script type="text/javascript">
 	var currentRow = null;
@@ -379,24 +375,7 @@ svg .tube:hover {
 									drawBullseye(svg, tube_od, scale);
 									drawLocationPin(svg, tube_od, scale);
 									var objDiv = document.getElementById("left_side_resizable");									
-									objDiv.scrollTop = (objDiv.scrollHeight - objDiv.clientHeight) / 2;
-								
-									tubes.on('contextmenu', function(e) {
-											console.log(this);
-											var g = $(this).parent();
-											show_tube_info(g);
-										    e.preventDefault(); // Prevent the default browser context menu
-										    $('#context-menu').css({
-										      display: 'block',
-										      left: e.clientX,
-										      top: e.clientY
-										    });
-										  });
-
-										  $(document).on('click', function() {
-											  $('#context-menu').css('display', 'none');
-										  });
-									
+									objDiv.scrollTop = (objDiv.scrollHeight - objDiv.clientHeight) / 2;																
 								}
 							});
 						});

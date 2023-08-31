@@ -240,7 +240,6 @@ void inspection_sessions_info(const std::shared_ptr<restbed::Session> session) {
 
 }
 
-
 void inspection_sessions_delete(const std::shared_ptr<restbed::Session> session) {
     auto request = session->get_request();
     std::string session_name = request->get_path_parameter("session_name", "");
@@ -254,19 +253,12 @@ void inspection_sessions_delete(const std::shared_ptr<restbed::Session> session)
     }
 }
 
+/**
+ * Calibration Points related functions
+ **/
 
 void cal_points_list(const std::shared_ptr<restbed::Session> session) {
-    std::vector<CalPointEntryWithTubeID> res;
-
-    for (auto [key, value] : current_session.cal_points ) {
-        CalPointEntryWithTubeID entry;
-        entry.tube_id = key;
-        entry.ideal_coords = value.ideal_coords;
-        entry.determined_coords = value.determined_coords;
-        entry.determined = value.determined;
-        res.push_back(entry);
-    }
-    close_session(session, restbed::OK, nlohmann::json(res));
+    close_session(session, restbed::OK, nlohmann::json(current_session.cal_points_get()));
 }
 
 void cal_points_add(const std::shared_ptr<restbed::Session> session) {
@@ -280,17 +272,22 @@ void cal_points_add(const std::shared_ptr<restbed::Session> session) {
                 std::string res;
                 int status;
 
-                std::string id = form_data["id"];
-                if (!id.empty()) {
-                    CalPointEntry cpe = {
-                                {5, 5, 5},
-                                {10, 15, 25},
-                                true,
-                        };
-                        current_session.cal_points[id] = cpe;
+                try {
+                    std::string id = form_data["id"];
+                    Point3D ideal_coords = {
+                            std::stof(form_data["x"].get<std::string>()),
+                            std::stof(form_data["y"].get<std::string>()),
+                            0
+                    };
+                    if (!id.empty()) {
+                        current_session.cal_points_add(id, form_data["col"], form_data["row"], ideal_coords);
                         status = restbed::OK;
-                } else {
-                    res = "No tool name specified";
+                    } else {
+                        res += "No tool name specified";
+                        status = restbed::BAD_REQUEST;
+                    }
+                } catch(std::exception &e) {
+                    res += e.what();
                     status = restbed::INTERNAL_SERVER_ERROR;
                 }
                 close_session(session, status, res);
@@ -307,7 +304,7 @@ void cal_points_delete(const std::shared_ptr<restbed::Session> session) {
         res = "No tube specified";
         status = restbed::INTERNAL_SERVER_ERROR;
     } else {
-        current_session.cal_points.erase(tube_id);
+        current_session.cal_points_delete(tube_id);
         status = restbed::NO_CONTENT;
     }
     close_session(session, status, res);
