@@ -228,9 +228,10 @@ svg .tube:hover {
 	}
 
 	function update_bullseye_position(x, y) {
+		$("#bullseye").stop();			// Clear animation queue
 		$("#bullseye").animate({
 			svgTransform : 'scale(1 -1) translate(' + x + " " + y + ')'
-		}, 20);
+		}, 0);
 	}
 
 	function update_location_pin_position(x, y) {

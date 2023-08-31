@@ -114,16 +114,6 @@
 
 scale = 1;
 
-function initialize_tabs(active_tab) {
-	$("#tabs").tabs({
-		active : active_tab,
-		//heightStyle : "fill"			
-		beforeActivate : function(event, ui) {
-			$(ui.oldTab).trigger("unload_tab");
-		}
-	});
-};
-
 function get_session_info_index() {
 	return $.get('/REST/current-session/info');
 }
@@ -138,7 +128,13 @@ get_session_info_index()
 						active_tab = 3
 					}
 					
-					initialize_tabs(active_tab)
+					$("#tabs").tabs({
+						active : active_tab,
+						//heightStyle : "fill"			
+						beforeActivate : function(event, ui) {
+							$(ui.oldTab).trigger("unload_tab");
+						}
+					});
 
 					$.get('/REST/REMA/info', function(data) {
 						var tools_dropdown = $('#tools');
@@ -200,14 +196,8 @@ get_session_info_index()
 			update_limits(telemetry.limits);
 		}
 		
-		var current_tab = $("#tabs").tabs('option', 'active');
-		if (current_tab == 3) {
-			try {											// sometimes update_bullseye_position goes undefined... chrome memory management?
-				update_bullseye_position(pos_x, pos_y);
-			} catch (error) {				
-				$("#tabs").tabs('destroy');				
-				initialize_tabs(current_tab);
-			}
+		if (typeof(update_bullseye_position) === "function") {
+			update_bullseye_position(pos_x, pos_y);
 		}					
 	}
 	
