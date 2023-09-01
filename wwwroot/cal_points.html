@@ -15,6 +15,11 @@
     padding: 20px;    
 }
 
+
+svg .tube.highlight_cal_tube  {
+	fill: lightgreen;
+}
+
 .column {
     flex: 1;
     display: flex;
@@ -115,6 +120,40 @@ function show_cal_point_info(data) {
 
 }
 
+function highlight_calibration_tube(g) {
+	var table = $('#calibration_table').DataTable();
+	var tubes = $(
+			'#tubesheet_svg .tube_num, #tubesheet_svg circle ');
+	var highlight = 'highlight_cal_tube';
+
+	if (g
+			.find("circle")
+			.hasClass(highlight)) {
+		g
+				.children(
+						"circle")
+				.removeClass(
+						highlight);
+		table.rows().deselect();
+	} else {
+		tubes
+				.not(g)
+				.removeClass(
+						highlight);
+		g
+				.find("circle")
+				.addClass(
+						highlight);
+	}
+}
+
+function remove_highlight_calibration_tube(g) {
+	var tubes = $(
+			'#tubesheet_svg .tube_num, #tubesheet_svg circle ');
+	var highlight = 'highlight_cal_tube';
+	tubes.removeClass(highlight);
+}
+
 function drawAlignedCircle(svg, tube, radius, scale) {		
 	stroke = 0.03 * scale;
 	
@@ -180,8 +219,7 @@ $(function() {
 			});
 	
 	table.on('draw.dt', function(e, settings, json, xhr) {			
-		$(".ui-icon-trash").on("click", function() {
-			console.log($(this).data);
+		$(".ui-icon-trash").on("click", function() {			
 			var tube_id = $(this).data("tube_id").toString();
 			
 			var confirm_action = confirm("Are you sure you want to delete " + tube_id + " ?");
@@ -206,11 +244,17 @@ $(function() {
 		function() {				
 			currentRow = table.row(this);					// Store the selected row on click
 			if (!currentRow.selected()) {
-				var data = currentRow.data();									
+				var data = currentRow.data();				
 				show_cal_point_info(data);
-			} else {
+				
+				var leg = $("#leg_switch").is(':checked') ? "hl": "cl";	
+				var g = $("#"+ leg + data.tube_id, $("#tubesheet_svg"));
+				highlight_calibration_tube(g);
+			} else {				
 				$("#cal_point_info input[type=text]").val("");
+				remove_highlight_calibration_tube();
 			}
+			
 		}
 	);
 	
