@@ -273,14 +273,14 @@ void cal_points_add(const std::shared_ptr<restbed::Session> session) {
                 int status;
 
                 try {
-                    std::string id = form_data["id"];
+                    std::string tube_id = form_data["tube_id"];
                     Point3D ideal_coords = {
                             std::stof(form_data["x"].get<std::string>()),
                             std::stof(form_data["y"].get<std::string>()),
                             0
                     };
-                    if (!id.empty()) {
-                        current_session.cal_points_add(id, form_data["col"], form_data["row"], ideal_coords);
+                    if (!tube_id.empty()) {
+                        current_session.cal_points_add(tube_id, form_data["col"], form_data["row"], ideal_coords);
                         status = restbed::OK;
                     } else {
                         res += "No tool name specified";
@@ -293,6 +293,41 @@ void cal_points_add(const std::shared_ptr<restbed::Session> session) {
                 close_session(session, status, res);
     });
 };
+
+void cal_points_update(const std::shared_ptr<restbed::Session> session) {
+    const auto request = session->get_request();
+    std::string tube_id = request->get_path_parameter("tube_id", "");
+
+    size_t content_length = request->get_header("Content-Length", 0);
+    session->fetch(content_length,
+            [&](const std::shared_ptr<restbed::Session> &session,
+                    const restbed::Bytes &body) {
+
+                nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
+                std::string res;
+                int status;
+
+                try {
+                    Point3D determined_coords = {
+                            std::stof(form_data["determined_coords_x"].get<std::string>()),
+                            std::stof(form_data["determined_coords_y"].get<std::string>()),
+                            0
+                    };
+                    if (!tube_id.empty()) {
+                        current_session.cal_points_set_determined_coords(tube_id, determined_coords);
+                        status = restbed::OK;
+                    } else {
+                        res += "No tool name specified";
+                        status = restbed::BAD_REQUEST;
+                    }
+                } catch(std::exception &e) {
+                    res += e.what();
+                    status = restbed::INTERNAL_SERVER_ERROR;
+                }
+                close_session(session, status, res);
+    });
+};
+
 
 void cal_points_delete(const std::shared_ptr<restbed::Session> session) {
     const auto request = session->get_request();
@@ -411,10 +446,22 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> session) {
     auto [center, radius] = fitCircle(tube_boundary_points);
     res["center"] = center;
     res["radius"] = radius;
+    close_session(session, restbed::OK, res);
+}
 
-    std::vector<Point3D> src_dst_points = {center};
+void aligned_tubesheet_get(const std::shared_ptr<restbed::Session> session) {
+    nlohmann::json res;
+    REMA &rema_instance = REMA::get_instance();
 
-    res["transformed_points"] = rema_instance.get_aligned_tubes(current_session, src_dst_points, src_dst_points);
+    std::vector<Point3D> src_points, dst_points;
+    for (auto cal_point: current_session.cal_points) {
+        if (cal_point.second.determined) {
+            src_points.push_back(cal_point.second.ideal_coords);
+            dst_points.push_back(cal_point.second.determined_coords);
+        }
+    }
+
+    res["transformed_points"] = rema_instance.get_aligned_tubes(current_session, src_points, dst_points);
     close_session(session, restbed::OK, res);
 }
 
@@ -448,9 +495,12 @@ void restfull_api_create_endpoints(restbed::Service &service) {
                                 {"POST", &cal_points_add},
                                },
         },
-        {"calibration-points/{tube_id: .*}", {{"DELETE", &cal_points_delete}}},
+        {"calibration-points/{tube_id: .*}", {{"PUT", &cal_points_update},
+                                              {"DELETE", &cal_points_delete}}
+                                             },
         {"tubes/{tube_id: .*}", {{"PUT", &tubes_set_status}}},
         {"determine-tube-center", {{"GET", &determine_tube_center}}},
+        {"aligned-tubesheet-get", {{"GET", &aligned_tubesheet_get}}},
     };
 // @formatter:on
 

@@ -61,7 +61,7 @@ void REMA::update_telemetry(boost::asio::streambuf &rx_buffer) {
     return;
 }
 
-std::vector<Point3D> REMA::get_aligned_tubes(InspectionSession insp_sess, std::vector<Point3D> src_points, std::vector<Point3D> dst_points) {
+std::vector<PointWithID> REMA::get_aligned_tubes(InspectionSession insp_sess, std::vector<Point3D> src_points, std::vector<Point3D> dst_points) {
 
     // Parse the CSV file to extract the data for each tube
     io::CSVReader<5, io::trim_chars<' ', '\t'>, io::no_quote_escape<';'>> in(
@@ -71,15 +71,15 @@ std::vector<Point3D> REMA::get_aligned_tubes(InspectionSession insp_sess, std::v
     double cl_x, cl_y, hl_x, hl_y;
     std::string tube_id;
 
-    std::vector<Point3D> tubes;
+    std::vector<PointWithID> tubes;
 
     while (in.read_row(cl_x, cl_y, hl_x, hl_y, tube_id)) {
         if (insp_sess.leg == "cold" || insp_sess.leg == "both") {
-            tubes.push_back( { cl_x, cl_y, 0 });
+            tubes.push_back( { tube_id.substr(5), { cl_x, cl_y, 0 } });
         }
 
         if (insp_sess.leg == "hot" || insp_sess.leg == "both") {
-            tubes.push_back( { hl_x, hl_y, 0 });
+            tubes.push_back( { tube_id.substr(5), { hl_x, hl_y, 0 } });
         }
     }
 
@@ -96,7 +96,6 @@ std::vector<Point3D> REMA::get_aligned_tubes(InspectionSession insp_sess, std::v
     // Convert vector of Point3D to Open3D point clouds
     open3d::geometry::PointCloud source_cloud;
     open3d::geometry::PointCloud target_cloud;
-    open3d::geometry::PointCloud tubes_cloud;
 
     for (const Point3D &point : src_points) {
         source_cloud.points_.push_back(
@@ -108,11 +107,6 @@ std::vector<Point3D> REMA::get_aligned_tubes(InspectionSession insp_sess, std::v
                 Eigen::Vector3d(point.x, point.y, point.z));
     }
 
-    for (const Point3D &point : tubes) {
-        tubes_cloud.points_.push_back(
-                Eigen::Vector3d(point.x, point.y, point.z));
-    }
-
     // Set ICP parameters and perform ICP
     open3d::registration::ICPConvergenceCriteria icp_criteria;
     icp_criteria.max_iteration_ = 50;
@@ -120,7 +114,7 @@ std::vector<Point3D> REMA::get_aligned_tubes(InspectionSession insp_sess, std::v
     icp_criteria.relative_rmse_ = 1e-6;
     auto result = open3d::registration::RegistrationICP(source_cloud,
             target_cloud, 1000, Eigen::Matrix4d::Identity(),
-            open3d::registration::TransformationEstimationPointToPoint(false),
+            open3d::registration::TransformationEstimationPointToPoint(true),
             icp_criteria);
 
     // Get the transformation matrix
@@ -128,11 +122,18 @@ std::vector<Point3D> REMA::get_aligned_tubes(InspectionSession insp_sess, std::v
     std::cout << transformation_matrix << std::endl;
 
     // Transform the source point cloud
-    tubes_cloud.Transform(transformation_matrix);
-    std::vector<Point3D> points;
-    for (auto p : tubes_cloud.points_) {
-        points.push_back({p.x(), p.y(), p.z()});
+    std::vector<PointWithID> aligned_points;
+    for (const PointWithID &point : tubes) {
+        open3d::geometry::PointCloud one_tube_cloud;
+        one_tube_cloud.points_.push_back(
+                Eigen::Vector3d(point.coords.x, point.coords.y, point.coords.z));
+
+        one_tube_cloud.Transform(transformation_matrix);
+        aligned_points.push_back( {point.tube_id, {(*one_tube_cloud.points_.begin()).x(), (*one_tube_cloud.points_.begin()).y(), (*one_tube_cloud.points_.begin()).z()} });
     }
 
-    return points;
+
+    //tubes_cloud.Transform(transformation_matrix);
+
+    return aligned_points;
 }

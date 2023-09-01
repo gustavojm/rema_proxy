@@ -196,7 +196,8 @@ get_session_info_index()
 			update_limits(telemetry.limits);
 		}
 		
-		if (typeof(update_bullseye_position) === "function") {
+		var current_tab = $("#tabs").tabs('option', 'active');
+		if (current_tab == 3 && typeof(update_bullseye_position) === "function") {
 			update_bullseye_position(pos_x, pos_y);
 		}					
 	}

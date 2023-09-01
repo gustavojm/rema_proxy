@@ -183,5 +183,6 @@ void InspectionSession::cal_points_delete(std::string tube_id)  {
 
 void InspectionSession::cal_points_set_determined_coords(std::string tube_id, Point3D determined_coords)  {
     cal_points[tube_id].determined_coords = determined_coords;
+    cal_points[tube_id].determined = true;
     changed = true;
 }

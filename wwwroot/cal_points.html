@@ -71,24 +71,27 @@
 				</tbody>
 			</table>
 		</div>
-		
+		<div class="row">
+			<button id="show_hide_aligned_tubesheet">Show Aligned Tubesheet</button>
+		</div>		
 		<div>
 			<form id="cal_point_info">			
 				<div style="display: flex; flex-direction: row;">
-				Tube Id:<input type="text" id="cal_tube_info_id" name="id" size="4"> 
+				Tube Id:<input type="text" id="cal_point_tube_id" name="tube_id" size="4"> 
 					Col:<input type="text" id="cal_tube_info_col" size="4"> 
 					Row:<input type="text" id="cal_tube_info_row" size="4"> 
 				</div>
 				<div class="container">
 			        <div class="column">
-			        	<div class="row"><div class="content">&nbsp;</div><div class="content">Theo</div><div class="content"></div><div class="content">Determined</div></div>
+			        	<div class="row"><div class="content">&nbsp;</div><div class="content">Ideal</div><div class="content"></div><div class="content">Determined</div></div>
 			            <div class="row"><div class="content">X:</div><div class="content"><input type="text" id="ideal_coords_x" size="6"></div><div class="content"><input type="text" id="determined_coords_x" name="determined_coords_x" size="6"></div></div>
-			            <div class="row"><div class="content">Y:</div><div class="content"><input type="text" id="ideal_coords_y" size="6"></div><div class="content"><input type="text" id="determined_coords_y" name="determined_coords_x" size="6"></div></div>
-			            <div class="row"><div class="content">Z:</div><div class="content"><input type="text" id="ideal_coords_z" size="6"></div><div class="content"><input type="text" id="determined_coords_z" name="determined_coords_x" size="6"></div></div>
+			            <div class="row"><div class="content">Y:</div><div class="content"><input type="text" id="ideal_coords_y" size="6"></div><div class="content"><input type="text" id="determined_coords_y" name="determined_coords_y" size="6"></div></div>
+			            <div class="row"><div class="content">Z:</div><div class="content"><input type="text" id="ideal_coords_z" size="6"></div><div class="content"><input type="text" id="determined_coords_z" name="determined_coords_z" size="6"></div></div>
 			        </div>
 			        <div class="column" style="vertical-align: middle; align-items: center;">
-			            <button id="determine_center">Determine</button>
-			            <button id="determine_center">Update</button>
+			        	<button id="copy_center" style="position: relative; width:100%">Copy</button>
+			            <button id="determine_center" style="position: relative; width:100%">Determine</button>
+			            <button id="cal_point_update" style="position: relative; width:100%">Update</button>
 			        </div>
 			    </div>
 			</form>				
@@ -100,7 +103,7 @@
 
 //Shows information of the selected tube either on the datatables or the HX itself
 function show_cal_point_info(data) {	
-	$("#cal_tube_info_id").val(data.tube_id);
+	$("#cal_point_tube_id").val(data.tube_id);
 	$("#cal_tube_info_col").val(data.col);
 	$("#cal_tube_info_row").val(data.row);
 	$("#ideal_coords_x").val(data.ideal_coords.x);
@@ -111,6 +114,25 @@ function show_cal_point_info(data) {
 	$("#determined_coords_z").val(data.determined_coords.z);
 
 }
+
+function drawAlignedCircle(svg, tube, radius, scale) {		
+	stroke = 0.03 * scale;
+	
+	var g = svg.group({
+		stroke : 'blue',
+		strokeWidth : stroke,
+		"class" : "determined_tube",
+		transform : "scale(1,-1)",
+		id : "determined_" + tube.tube_id, 
+	});
+
+	svg.circle(g, tube.coords.x, tube.coords.y, radius * scale, {
+		fill : 'none',
+		stroke : 'blue',
+		strokeWidth : stroke,					
+	});
+}
+
 
 $(function() {
 	var table = $('#calibration_table')
@@ -137,7 +159,7 @@ $(function() {
 							data : 'row'
 						},
 						{
-							data : '',
+							data : 'determined',
 							render : function(data, type, row) {
 								return '<input type="checkbox" value='
 										+ row.tube_id
@@ -191,40 +213,7 @@ $(function() {
 			}
 		}
 	);
-
-	$("#determine_center").click(function() {
-	Promise.resolve(
-		$.ajax({
-			method : "GET",
-			url : "/REST/determine-tube-center",
-			data : JSON.stringify(),
-			timeout: 25000,
-		}))
-		.then(function(data) {
-			var svg = $("#tubesheet_svg").svg("get");		
-			console.log("Scale:", scale);
-			data.center.x *= scale;
-			data.center.y *= scale;
-			data.center.z *= scale;
-			drawCircle(svg, data.center, data.radius, scale);
-			
-			$("#determined_coords_x").val(data.center.x * scale);
-			$("#determined_coords_y").val(data.center.y * scale);
-			$("#determined_coords_z").val(data.center.z * scale);
-		
-			$(data.transformed_points).each(function (p) {
-				drawCircle(svg, this, 0.05, scale);
-			});								
-		})
-		.catch(function(e) {
-			if(e.statusText == 'timeout') {     
-			    // TODO Send a cancel command? 
-				alert('Please have the touch prove inserted into the tube to be detected');
-		    
-			  }
-		});			
-	}); 
-
+	
 	$("#set_as_cal_point").click(function(e) {
 		e.preventDefault();
 		$.ajax({
@@ -242,6 +231,92 @@ $(function() {
 		});
 	});
 
+	$("#copy_center").click(function(e) {
+		e.preventDefault();
+		$("#determined_coords_x").val($("#ideal_coords_x").val());
+		$("#determined_coords_y").val($("#ideal_coords_y").val());
+		$("#determined_coords_z").val($("#ideal_coords_z").val());
+	}); 
+
+	$("#determine_center").click(function(e) {
+		e.preventDefault();
+		Promise.resolve(
+			$.ajax({
+				method : "GET",
+				url : "/REST/determine-tube-center",
+				data : JSON.stringify(),
+				timeout: 25000,
+			}))
+			.then(function(data) {
+				var svg = $("#tubesheet_svg").svg("get");		
+				console.log("Scale:", scale);
+				data.center.x *= scale;
+				data.center.y *= scale;
+				data.center.z *= scale;
+				drawCircle(svg, data.center, data.radius, scale);
+				
+				$("#determined_coords_x").val(data.center.x * scale);
+				$("#determined_coords_y").val(data.center.y * scale);
+				$("#determined_coords_z").val(data.center.z * scale);			
+			})
+			.catch(function(e) {
+				if(e.statusText == 'timeout') {     
+				    // TODO Send a cancel command? 
+					alert('Please have the touch prove inserted into the tube to be detected');
+			    
+				  }
+			});			
+	});	
+
+	$("#cal_point_update").click(function(e) {
+		e.preventDefault();
+		cal_point_id = $("#cal_point_tube_id").val();
+		$.ajax({
+			method : "PUT",
+			url : "/REST/calibration-points/" + cal_point_id,
+			data: JSON.stringify(Object.fromEntries(new FormData(document.getElementById("cal_point_info")))),
+			success : function() {
+				$("#cal_point_info input[type=text]").val("");
+				table = $('#calibration_table').DataTable();
+				table.ajax.reload();
+			},
+			error: function(xhr, status, error) {
+				alert("Error");
+				console.log("Error", status, error);
+			}						
+		});
+	});
+
+	var showing_aligned_tubeseet = false;
+	
+	$("#show_hide_aligned_tubesheet").click(function(e) {
+		if (showing_aligned_tubeseet) {
+			$(".determined_tube").hide();
+			showing_aligned_tubeseet = false;
+			$("#show_hide_aligned_tubesheet").text("Show Aligned Tubesheet");
+			
+		} else {
+			$.ajax({
+				method : "GET",
+				url : "/REST/aligned-tubesheet-get",
+				success : function(data) {
+					var svg = $("#tubesheet_svg").svg("get");
+					$(data.transformed_points).each(function (p) {					
+						drawAlignedCircle(svg, this, 0.05, scale);
+					});									
+				},
+				error: function(xhr, status, error) {
+					alert("Error");
+					console.log("Error", status, error);
+				}						
+			});
+			showing_aligned_tubeseet = true;
+			$("#show_hide_aligned_tubesheet").text("Hide Aligned Tubesheet");
+		}
+	});
+	
+	
+	
 });
 
 </script>

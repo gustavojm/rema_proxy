@@ -62,12 +62,12 @@ svg .tube:hover {
 			class="left-side">
 				<div id="tube_info_coord" style="position: relative; width: 85%; float: left; vertical-align: middle;">
 					<form id="tube_info">					
-						Tube Id:<input type="text" id="tube_info_id" name="id" size="4"> 
+						Tube Id:<input type="text" id="tube_info_id" name="tube_id" size="4"> 
 						Col:<input type="text" id="tube_info_col" name="col" size="4"> 
 						Row:<input type="text" id="tube_info_row" name="row" size="4"> 
 						X:<input type="text" id="tube_info_x" name="x" size="4"> 
 						Y:<input type="text" id="tube_info_y" name="y" size="4"> <span class="units">inch</span>
-						<button id="set_as_cal_point">Set as Calibration Point</button>							
+						<button id="set_as_cal_point" disabled="disabled">Set as Calibration Point</button>							
 					</form>
 				</div>
 			<div
@@ -260,6 +260,7 @@ svg .tube:hover {
 					.val("");
 			update_location_pin_position(
 					0, 0);
+			$("#set_as_cal_point").prop('disabled', true);
 		} else {
 			tubes
 					.not(g)
@@ -320,6 +321,7 @@ svg .tube:hover {
 									}
 								});
 			}
+			$("#set_as_cal_point").prop('disabled', false);
 		}
 	}
 	
