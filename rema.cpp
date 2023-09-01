@@ -61,27 +61,7 @@ void REMA::update_telemetry(boost::asio::streambuf &rx_buffer) {
     return;
 }
 
-std::vector<PointWithID> REMA::get_aligned_tubes(InspectionSession insp_sess, std::vector<Point3D> src_points, std::vector<Point3D> dst_points) {
-
-    // Parse the CSV file to extract the data for each tube
-    io::CSVReader<5, io::trim_chars<' ', '\t'>, io::no_quote_escape<';'>> in(
-            insp_sess.hx_directory / insp_sess.hx / "tubesheet.csv");
-    in.read_header(io::ignore_extra_column, "cl_x", "cl_y", "hl_x", "hl_y",
-            "tube_id");
-    double cl_x, cl_y, hl_x, hl_y;
-    std::string tube_id;
-
-    std::vector<PointWithID> tubes;
-
-    while (in.read_row(cl_x, cl_y, hl_x, hl_y, tube_id)) {
-        if (insp_sess.leg == "cold" || insp_sess.leg == "both") {
-            tubes.push_back( { tube_id.substr(5), { cl_x, cl_y, 0 } });
-        }
-
-        if (insp_sess.leg == "hot" || insp_sess.leg == "both") {
-            tubes.push_back( { tube_id.substr(5), { hl_x, hl_y, 0 } });
-        }
-    }
+std::map<std::string, Point3D> REMA::calculate_aligned_tubes(InspectionSession& insp_sess, std::vector<Point3D> src_points, std::vector<Point3D> dst_points) {
 
     //std::vector<Point3D> src_points = { { 1.625, 0.704, 0 },
     //        {16.656, 2.815, 0},
@@ -122,18 +102,15 @@ std::vector<PointWithID> REMA::get_aligned_tubes(InspectionSession insp_sess, st
     std::cout << transformation_matrix << std::endl;
 
     // Transform the source point cloud
-    std::vector<PointWithID> aligned_points;
-    for (const PointWithID &point : tubes) {
+    insp_sess.aligned_tubes.clear();
+    for (const auto &tube : insp_sess.tubes) {
         open3d::geometry::PointCloud one_tube_cloud;
         one_tube_cloud.points_.push_back(
-                Eigen::Vector3d(point.coords.x, point.coords.y, point.coords.z));
+                Eigen::Vector3d(tube.second.x, tube.second.y, tube.second.z));
 
         one_tube_cloud.Transform(transformation_matrix);
-        aligned_points.push_back( {point.tube_id, {(*one_tube_cloud.points_.begin()).x(), (*one_tube_cloud.points_.begin()).y(), (*one_tube_cloud.points_.begin()).z()} });
+        insp_sess.aligned_tubes[tube.first] = {(*one_tube_cloud.points_.begin()).x(), (*one_tube_cloud.points_.begin()).y(), (*one_tube_cloud.points_.begin()).z()};
     }
 
-
-    //tubes_cloud.Transform(transformation_matrix);
-
-    return aligned_points;
+    return insp_sess.aligned_tubes;
 }

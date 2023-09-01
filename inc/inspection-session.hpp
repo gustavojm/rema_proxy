@@ -26,6 +26,13 @@ public:
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(InspectionPlanEntry, seq, row, col, inspected)
 
+struct TubeWithID {
+    std::string tube_id;
+    Point3D coords;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(TubeWithID, tube_id, coords)
+
+
 class InspectionPlanEntryWithTubeID : public InspectionPlanEntry {
 public:
     std::string tube_id;
@@ -68,6 +75,8 @@ public:
     void cal_points_delete(std::string id);
 
     void cal_points_set_determined_coords(std::string tube_id, Point3D determined_coords);
+
+    Point3D get_tube_coordinates(std::string tube_id, bool ideal);
 
     bool load(std::string session_name);
 
@@ -135,6 +144,8 @@ public:
     bool loaded = false;
     bool changed = false;
     std::string unit = "inch";
+    std::map<std::string, Point3D> tubes;
+    std::map<std::string, Point3D> aligned_tubes;
     std::map<std::string, CalPointEntry> cal_points;
 };
 

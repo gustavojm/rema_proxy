@@ -162,7 +162,7 @@ function drawAlignedCircle(svg, tube, radius, scale) {
 		strokeWidth : stroke,
 		"class" : "determined_tube",
 		transform : "scale(1,-1)",
-		id : "determined_" + tube.tube_id, 
+		id : "determined_" + tube.id, 
 	});
 
 	svg.circle(g, tube.coords.x, tube.coords.y, radius * scale, {
@@ -344,9 +344,10 @@ $(function() {
 				method : "GET",
 				url : "/REST/aligned-tubesheet-get",
 				success : function(data) {
+					console.log(data.cl1);
 					var svg = $("#tubesheet_svg").svg("get");
-					$(data.transformed_points).each(function (p) {					
-						drawAlignedCircle(svg, this, 0.05, scale);
+					$(data).each(function (key, tube) {						
+						drawAlignedCircle(svg, data[key], 0.05, scale);
 					});									
 				},
 				error: function(xhr, status, error) {

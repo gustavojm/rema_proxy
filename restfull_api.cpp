@@ -445,12 +445,50 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> session) {
     res["reached_coords"] = tube_boundary_points;
     auto [center, radius] = fitCircle(tube_boundary_points);
     res["center"] = center;
+
+    nlohmann::json command_goto_center = {
+        {"command", "MOVE_CLOSED_LOOP"},
+        {"pars", {
+            {"axes", "XY"},
+            {"first_axis_setpoint", center.x},
+            {"second_axis_setpoint", center.y}
+        }}
+    };
+
+    to_rema["commands"].clear();
+    to_rema["commands"].push_back(command_goto_center);
+    tx_buffer = to_rema.dump();
+
+    std::cout << "Enviando a RTU: "<< tx_buffer << "\n";
+    rema_instance.rtu.send(tx_buffer);
+
+    do {
+        try {
+            boost::asio::streambuf rx_buffer;
+            rema_instance.rtu.receive_telemetry_sync(rx_buffer);
+            std::string stream(
+                    boost::asio::buffer_cast<const char*>(
+                            (rx_buffer).data()));
+
+            std::cout << stream << "\n";
+            rema_instance.update_telemetry(rx_buffer);
+        } catch (std::exception &e) {                // handle exception
+            std::cerr << e.what() << "\n";
+            //return res;
+        }
+
+    } while (!(rema_instance.telemetry.limits.probe || rema_instance.cancel_cmd || rema_instance.telemetry.on_condition.x_y));
+
+    if (rema_instance.telemetry.on_condition.x_y) {       // ask for probe_touching
+        tube_boundary_points.push_back(rema_instance.telemetry.coords);
+    }
+
+
     res["radius"] = radius;
     close_session(session, restbed::OK, res);
 }
 
 void aligned_tubesheet_get(const std::shared_ptr<restbed::Session> session) {
-    nlohmann::json res;
     REMA &rema_instance = REMA::get_instance();
 
     std::vector<Point3D> src_points, dst_points;
@@ -461,7 +499,13 @@ void aligned_tubesheet_get(const std::shared_ptr<restbed::Session> session) {
         }
     }
 
-    res["transformed_points"] = rema_instance.get_aligned_tubes(current_session, src_points, dst_points);
+    rema_instance.calculate_aligned_tubes(current_session, src_points, dst_points);
+
+    std::vector<TubeWithID> res;
+    for (auto [id, coords]: current_session.aligned_tubes ) {
+        res.push_back({id, coords});
+    }
+
     close_session(session, restbed::OK, res);
 }
 

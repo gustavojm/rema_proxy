@@ -50,13 +50,6 @@ struct on_condition {
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(on_condition, x_y, z)
 
-struct PointWithID {
-    std::string tube_id;
-    Point3D coords;
-};
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(PointWithID, tube_id, coords)
-
-
 struct telemetry {
     struct Point3D coords;
     struct on_condition on_condition;
@@ -90,7 +83,7 @@ public:
 
     void update_telemetry(boost::asio::streambuf &rx_buffer);
 
-    std::vector<PointWithID> get_aligned_tubes(InspectionSession insp_sess, std::vector<Point3D> src_points, std::vector<Point3D> dst_points);
+    std::map<std::string, Point3D> calculate_aligned_tubes(InspectionSession& insp_sess, std::vector<Point3D> src_points, std::vector<Point3D> dst_points);
 
     void set_selected_tool(std::string tool);
 

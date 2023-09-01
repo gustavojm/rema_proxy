@@ -33,6 +33,26 @@ bool InspectionSession::load(std::string session_name) {
     this->loaded = true;
     this->name = session_name;
 
+    // Parse the CSV file to extract the data for each tube
+    io::CSVReader<5, io::trim_chars<' ', '\t'>, io::no_quote_escape<';'>> in(
+            hx_directory / hx / "tubesheet.csv");
+    in.read_header(io::ignore_extra_column, "cl_x", "cl_y", "hl_x", "hl_y",
+            "tube_id");
+    double cl_x, cl_y, hl_x, hl_y;
+    std::string tube_id;
+
+    while (in.read_row(cl_x, cl_y, hl_x, hl_y, tube_id)) {
+        if (leg == "cold" || leg == "both") {
+            tubes[std::string("cl") + tube_id.substr(5)] = { cl_x, cl_y, 0 };
+        }
+
+        if (leg == "hot" || leg == "both") {
+            tubes[std::string("hl") + tube_id.substr(5)] = { hl_x, hl_y, 0 };
+        }
+    }
+
+
+
     return true;
 }
 
@@ -186,3 +206,7 @@ void InspectionSession::cal_points_set_determined_coords(std::string tube_id, Po
     cal_points[tube_id].determined = true;
     changed = true;
 }
+
+Point3D get_tube_coordinates(std::string tube_id, bool ideal);
+
+
