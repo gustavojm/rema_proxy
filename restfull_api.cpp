@@ -14,7 +14,7 @@
 #include "rema.hpp"
 #include "HXs.hpp"
 #include "points.hpp"
-#include "circle_fit.hpp"
+#include "circle_fns.hpp"
 
 
 extern InspectionSession current_session;
@@ -377,26 +377,9 @@ struct sequence_step {
     struct Point3D reached_coords;
 };
 
-void determine_tube_center(const std::shared_ptr<restbed::Session> session) {
-    std::vector<sequence_step> seq = {
-            {
-                    "XY",           //Tube 11
-                    0.562598,
-                    0.324803,
-            },
-            {
-                    "XY",           //Tube 42           ( The center of the three coordinates shoud be at X = 1.125197, Y = 0.649606 Tube 22)
-                    1.125197,
-                    1.299213
-            },
-            {
-                    "XY",           //Tube 12
-                    1.687795,
-                    0.324803
-            },
-    };
 
-    nlohmann::json res;
+
+std::vector<Point3D> exec_seq(std::vector<sequence_step> seq) {
     REMA &rema_instance = REMA::get_instance();
 
     std::string tx_buffer;
@@ -405,20 +388,17 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> session) {
 
     // Create an individual command object and add it to the array
     for (auto &seq_step : seq) {
-        nlohmann::json command = {
-            {"command", "MOVE_CLOSED_LOOP"},
-            {"pars", {
-                {"axes", seq_step.axes},
-                {"first_axis_setpoint", seq_step.first_axis_setpoint},
-                {"second_axis_setpoint", seq_step.second_axis_setpoint}
-            }}
-        };
-
+        nlohmann::json command = { { "command", "MOVE_CLOSED_LOOP" },
+                { "pars",
+                        { { "axes", seq_step.axes }, { "first_axis_setpoint",
+                                seq_step.first_axis_setpoint }, {
+                                "second_axis_setpoint",
+                                seq_step.second_axis_setpoint } } } };
         to_rema["commands"].clear();
         to_rema["commands"].push_back(command);
         tx_buffer = to_rema.dump();
 
-        std::cout << "Enviando a RTU: "<< tx_buffer << "\n";
+        std::cout << "Enviando a RTU: " << tx_buffer << "\n";
         rema_instance.rtu.send(tx_buffer);
 
         do {
@@ -428,64 +408,68 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> session) {
                 std::string stream(
                         boost::asio::buffer_cast<const char*>(
                                 (rx_buffer).data()));
-
                 std::cout << stream << "\n";
                 rema_instance.update_telemetry(rx_buffer);
             } catch (std::exception &e) {                // handle exception
                 std::cerr << e.what() << "\n";
-                //return res;
             }
 
-        } while (!(rema_instance.telemetry.limits.probe || rema_instance.cancel_cmd || rema_instance.telemetry.on_condition.x_y));
-
-        if (rema_instance.telemetry.on_condition.x_y) {       // ask for probe_touching
+        } while (!(rema_instance.telemetry.limits.probe
+                || rema_instance.cancel_cmd
+                || rema_instance.telemetry.on_condition.x_y));
+        if (rema_instance.telemetry.on_condition.x_y) { // ask for probe_touching
             tube_boundary_points.push_back(rema_instance.telemetry.coords);
         }
     }
-    res["reached_coords"] = tube_boundary_points;
-    auto [center, radius] = fitCircle(tube_boundary_points);
-    res["center"] = center;
+    return tube_boundary_points;
+}
 
-    nlohmann::json command_goto_center = {
-        {"command", "MOVE_CLOSED_LOOP"},
-        {"pars", {
-            {"axes", "XY"},
-            {"first_axis_setpoint", center.x},
-            {"second_axis_setpoint", center.y}
-        }}
-    };
+void determine_tube_center(const std::shared_ptr<restbed::Session> session) {
+    const auto request = session->get_request();
+    std::string tube_id = request->get_path_parameter("tube_id", "");
 
-    to_rema["commands"].clear();
-    to_rema["commands"].push_back(command_goto_center);
-    tx_buffer = to_rema.dump();
+    nlohmann::json res;
 
-    std::cout << "Enviando a RTU: "<< tx_buffer << "\n";
-    rema_instance.rtu.send(tx_buffer);
+    if (!tube_id.empty()) {
+        double scale = current_session.unit == "inch" ? 1 : 25.4;
+        double tube_radius = (current_session.tube_od / 2) / scale;
 
-    do {
-        try {
-            boost::asio::streambuf rx_buffer;
-            rema_instance.rtu.receive_telemetry_sync(rx_buffer);
-            std::string stream(
-                    boost::asio::buffer_cast<const char*>(
-                            (rx_buffer).data()));
+        constexpr int points_number = 5;
+        static_assert(points_number % 2 != 0, "Number of points must be odd");
+        std::vector<Point3D> reordered_points;
+        std::vector<Point3D> points = calculateCirclePoints(current_session.tubes[tube_id] / scale, tube_radius, points_number);
 
-            std::cout << stream << "\n";
-            rema_instance.update_telemetry(rx_buffer);
-        } catch (std::exception &e) {                // handle exception
-            std::cerr << e.what() << "\n";
-            //return res;
+        int i = 0;
+        for (int n = 0; n < points_number; n++) {
+            reordered_points.push_back(points[i % points_number]);
+            i += 2;
         }
 
-    } while (!(rema_instance.telemetry.limits.probe || rema_instance.cancel_cmd || rema_instance.telemetry.on_condition.x_y));
+        std::vector<sequence_step> seq;
+        for (auto point : reordered_points) {
+            sequence_step step;
+            step.axes = "XY";
+            step.first_axis_setpoint = point.x;
+            step.second_axis_setpoint = point.y;
+            seq.push_back(step);
+        }
 
-    if (rema_instance.telemetry.on_condition.x_y) {       // ask for probe_touching
-        tube_boundary_points.push_back(rema_instance.telemetry.coords);
+        auto tube_boundary_points = exec_seq(seq);
+        res["reached_coords"] = tube_boundary_points;
+        auto [center, radius] = fitCircle(tube_boundary_points);
+        res["center"] = center;
+
+        sequence_step goto_center;
+        goto_center.axes = "XY";
+        goto_center.first_axis_setpoint = center.x;
+        goto_center.second_axis_setpoint = center.y;
+
+        exec_seq(std::vector<sequence_step>(1, goto_center));
+
+        res["radius"] = radius;
+        close_session(session, restbed::OK, res);
     }
 
-
-    res["radius"] = radius;
-    close_session(session, restbed::OK, res);
 }
 
 void aligned_tubesheet_get(const std::shared_ptr<restbed::Session> session) {
@@ -528,7 +512,7 @@ void restfull_api_create_endpoints(restbed::Service &service) {
                                               {"DELETE", &cal_points_delete}}
                                              },
         {"tubes/{tube_id: .*}", {{"PUT", &tubes_set_status}}},
-        {"determine-tube-center", {{"GET", &determine_tube_center}}},
+        {"determine-tube-center/{tube_id: .*}", {{"GET", &determine_tube_center}}},
         {"aligned-tubesheet-get", {{"GET", &aligned_tubesheet_get}}},
     };
 // @formatter:on

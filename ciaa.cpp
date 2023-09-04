@@ -58,8 +58,6 @@ void CIAA::receive(std::function<void(boost::asio::streambuf &rx_buffer)> callba
 }
 
 void CIAA::send(const std::string &tx_buffer) {
-    const restbed::Bytes tx_buffer_bytes(tx_buffer.begin(), tx_buffer.end());
-
     if (!isConnected) {
         // CIAA::connect_comm();        // Do not force reconnection...
     } else {

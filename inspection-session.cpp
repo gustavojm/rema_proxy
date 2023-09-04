@@ -48,11 +48,11 @@ bool InspectionSession::load(std::string session_name) {
 
     while (in.read_row(cl_x, cl_y, hl_x, hl_y, tube_id)) {
         if (leg == "cold" || leg == "both") {
-            tubes[std::string("cl") + tube_id.substr(5)] = { cl_x, cl_y, 0 };
+            tubes[std::string("CL_") + tube_id.substr(5)] = { cl_x, cl_y, 0 };
         }
 
         if (leg == "hot" || leg == "both") {
-            tubes[std::string("hl") + tube_id.substr(5)] = { hl_x, hl_y, 0 };
+            tubes[std::string("HL_") + tube_id.substr(5)] = { hl_x, hl_y, 0 };
         }
     }
 

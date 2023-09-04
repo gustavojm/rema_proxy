@@ -285,7 +285,7 @@ svg .tube:hover {
 			var row = $(g).data(
 					"row");
 			$("#tube_info_id").val(
-					id.substring(2));
+					id);
 			$("#tube_info_col")
 					.val(col);
 			$("#tube_info_row")
@@ -592,7 +592,7 @@ svg .tube:hover {
 					currentRow = $(this);					// Store the selected row on click					
 					currentRow.addClass('selected');
 					var data = table.row(this).data();					
-					var leg = $("#leg_switch").is(':checked') ? "hl": "cl";	
+					var leg = $("#leg_switch").is(':checked') ? "HL_": "CL_";	
 					var g = $("#"+ leg + data.tube_id, $("#tubesheet_svg"));
 					show_tube_info(g, true);
 				});

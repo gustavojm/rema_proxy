@@ -60,6 +60,7 @@ public:
 	void connect_comm();
 	void receive(std::function<void(boost::asio::streambuf &rx_buffer)> callback);
 	void send(const std::string &tx_buffer);
+	void send_sync(const std::string &tx_buffer);
 
 	void connect_telemetry();
 	void receive_telemetry(std::function<void(boost::asio::streambuf &rx_buffer)> callback);
