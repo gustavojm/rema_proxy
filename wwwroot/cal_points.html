@@ -154,7 +154,7 @@ function remove_highlight_calibration_tube(g) {
 	tubes.removeClass(highlight);
 }
 
-function drawAlignedCircle(svg, tube, radius, scale) {		
+function drawAlignedCircle(svg, id, coords, radius, scale) {		
 	stroke = 0.03 * scale;
 	
 	var g = svg.group({
@@ -162,10 +162,10 @@ function drawAlignedCircle(svg, tube, radius, scale) {
 		strokeWidth : stroke,
 		"class" : "determined_tube",
 		transform : "scale(1,-1)",
-		id : "determined_" + tube.id, 
+		id : "determined_" + id, 
 	});
 
-	svg.circle(g, tube.coords.x, tube.coords.y, radius * scale, {
+	svg.circle(g, coords.x, coords.y, radius * scale, {
 		fill : 'none',
 		stroke : 'blue',
 		strokeWidth : stroke,					
@@ -185,7 +185,13 @@ $(function() {
 					dataType : 'json',
 					url : "/REST/calibration-points",
 					data : function() {},
-					dataSrc : '',
+					dataSrc :function ( data ) {
+						var array_data = [];
+						$.each(data, function(id, tube) {
+							 array_data.push({tube_id : id, col: tube.col, row: tube.row, determined : tube.determined});
+						});
+						return array_data;
+					} 						
 				},
 				columns : [
 						{
@@ -344,11 +350,11 @@ $(function() {
 				method : "GET",
 				url : "/REST/aligned-tubesheet-get",
 				success : function(data) {
-					console.log(data.cl1);
-					var svg = $("#tubesheet_svg").svg("get");
-					$(data).each(function (key, tube) {						
-						drawAlignedCircle(svg, data[key], 0.05, scale);
-					});									
+					var svg = $("#tubesheet_svg").svg("get");					
+					$.each(data, function(id, coords) {
+						  //console.log(`${key}: ${value}`);
+						  drawAlignedCircle(svg, id, coords, 0.05, scale);
+					});
 				},
 				error: function(xhr, status, error) {
 					alert("Error");

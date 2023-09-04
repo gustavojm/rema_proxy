@@ -1,3 +1,8 @@
+#include <Open3D/Geometry/PointCloud.h>
+#include <Open3D/Registration/ColoredICP.h>
+#include <Open3D/IO/ClassIO/ImageIO.h>
+#include <Eigen/Eigen>
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -119,26 +124,16 @@ std::string InspectionSession::load_plans() {
     return out.str();
 }
 
-std::vector<InspectionPlanEntryWithTubeID> InspectionSession::inspection_plan_get(std::string insp_plan) {
-    std::vector<InspectionPlanEntryWithTubeID> res;
+std::map<std::string, struct InspectionPlanEntry> InspectionSession::inspection_plan_get(std::string insp_plan) {
     last_selected_plan = insp_plan;
 
     auto it = insp_plans.find(insp_plan);
     if (it != insp_plans.end()) {
-        for (auto [key, value] : it->second ) {
-            InspectionPlanEntryWithTubeID entry;
-            entry.seq = value.seq;
-            entry.col = value.col;
-            entry.row = value.row;
-            entry.inspected = value.inspected;
-            entry.tube_id = key;
-
-            res.push_back(entry);
-        }
+        return it->second;
+    } else  {
+        return std::map<std::string, struct InspectionPlanEntry>();
     }
-    return res;
 }
-
 
 void InspectionSession::save_to_disk() const {
     std::filesystem::path session_file = insp_sessions_dir / (name + std::string(".json"));
@@ -169,21 +164,6 @@ void InspectionSession::set_tube_inspected(std::string insp_plan,
     changed = true;
 }
 
-std::vector<CalPointEntryWithTubeID> InspectionSession::cal_points_get()  {
-    std::vector<CalPointEntryWithTubeID> res;
-    for (auto [key, value] : cal_points ) {
-        CalPointEntryWithTubeID entry;
-        entry.tube_id = key;
-        entry.row = value.row;
-        entry.col = value.col;
-        entry.ideal_coords = value.ideal_coords;
-        entry.determined_coords = value.determined_coords;
-        entry.determined = value.determined;
-        res.push_back(entry);
-    }
-    return res;
-}
-
 void InspectionSession::cal_points_add(std::string tube_id, std::string col, std::string row, Point3D ideal_coords)  {
     CalPointEntry cpe = {
             col,
@@ -207,6 +187,63 @@ void InspectionSession::cal_points_set_determined_coords(std::string tube_id, Po
     changed = true;
 }
 
-Point3D get_tube_coordinates(std::string tube_id, bool ideal);
+Point3D InspectionSession::get_tube_coordinates(std::string tube_id, bool ideal) {
+    return Point3D();
+};
+
+std::map<std::string, Point3D> InspectionSession::calculate_aligned_tubes() {
+        //std::vector<Point3D> src_points = { { 1.625, 0.704, 0 },
+    //        {16.656, 2.815, 0},
+    //        {71.125, 3.518, 0},
+    //        };
+
+    //std::vector<Point3D> dst_points = { { 11.625, 10.704, 1 },
+    //        {26.656, 12.815, 2},
+    //        {81.125, 13.518, 3},
+    //        };
+
+    // Convert vector of Point3D to Open3D point clouds
+    open3d::geometry::PointCloud source_cloud;
+    open3d::geometry::PointCloud target_cloud;
+
+    for (auto cal_point: cal_points) {
+        if (cal_point.second.determined) {
+            source_cloud.points_.push_back(
+                    Eigen::Vector3d(cal_point.second.ideal_coords.x, cal_point.second.ideal_coords.y, cal_point.second.ideal_coords.z));
+
+            target_cloud.points_.push_back(
+                    Eigen::Vector3d(cal_point.second.determined_coords.x, cal_point.second.determined_coords.y, cal_point.second.determined_coords.z));
+
+        }
+    }
+
+    // Set ICP parameters and perform ICP
+    open3d::registration::ICPConvergenceCriteria icp_criteria;
+    icp_criteria.max_iteration_ = 50;
+    icp_criteria.relative_fitness_ = 1e-6;
+    icp_criteria.relative_rmse_ = 1e-6;
+    auto result = open3d::registration::RegistrationICP(source_cloud,
+            target_cloud, 1000, Eigen::Matrix4d::Identity(),
+            open3d::registration::TransformationEstimationPointToPoint(true),
+            icp_criteria);
+
+    // Get the transformation matrix
+    Eigen::Matrix4d transformation_matrix = result.transformation_;
+    std::cout << transformation_matrix << std::endl;
+
+    // Transform the source point cloud
+    aligned_tubes.clear();
+    for (const auto &tube : tubes) {
+        open3d::geometry::PointCloud one_tube_cloud;
+        one_tube_cloud.points_.push_back(
+                Eigen::Vector3d(tube.second.x, tube.second.y, tube.second.z));
+
+        one_tube_cloud.Transform(transformation_matrix);
+        aligned_tubes[tube.first] = {(*one_tube_cloud.points_.begin()).x(), (*one_tube_cloud.points_.begin()).y(), (*one_tube_cloud.points_.begin()).z()};
+    }
+
+    return aligned_tubes;
+}
+
 
 

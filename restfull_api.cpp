@@ -258,7 +258,7 @@ void inspection_sessions_delete(const std::shared_ptr<restbed::Session> session)
  **/
 
 void cal_points_list(const std::shared_ptr<restbed::Session> session) {
-    close_session(session, restbed::OK, nlohmann::json(current_session.cal_points_get()));
+    close_session(session, restbed::OK, nlohmann::json(current_session.cal_points));
 }
 
 void cal_points_add(const std::shared_ptr<restbed::Session> session) {
@@ -489,24 +489,9 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> session) {
 }
 
 void aligned_tubesheet_get(const std::shared_ptr<restbed::Session> session) {
-    REMA &rema_instance = REMA::get_instance();
+    current_session.calculate_aligned_tubes();
 
-    std::vector<Point3D> src_points, dst_points;
-    for (auto cal_point: current_session.cal_points) {
-        if (cal_point.second.determined) {
-            src_points.push_back(cal_point.second.ideal_coords);
-            dst_points.push_back(cal_point.second.determined_coords);
-        }
-    }
-
-    rema_instance.calculate_aligned_tubes(current_session, src_points, dst_points);
-
-    std::vector<TubeWithID> res;
-    for (auto [id, coords]: current_session.aligned_tubes ) {
-        res.push_back({id, coords});
-    }
-
-    close_session(session, restbed::OK, res);
+    close_session(session, restbed::OK, nlohmann::json(current_session.aligned_tubes));
 }
 
 

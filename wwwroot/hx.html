@@ -528,7 +528,13 @@ svg .tube:hover {
 								method : "GET",
 								dataType : 'json',
 								url : "/REST/inspection-plans",
-								dataSrc : '',
+								dataSrc :function ( data ) {
+									var array_data = [];
+									$.each(data, function(id, tube) {
+										 array_data.push({tube_id : id, seq: tube.seq, col: tube.col, row: tube.row, inspected: tube.inspected});
+									});
+									return array_data;
+								} 
 							},
 							columns : [
 									{

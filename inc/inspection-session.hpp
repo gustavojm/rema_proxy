@@ -26,19 +26,6 @@ public:
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(InspectionPlanEntry, seq, row, col, inspected)
 
-struct TubeWithID {
-    std::string tube_id;
-    Point3D coords;
-};
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(TubeWithID, tube_id, coords)
-
-
-class InspectionPlanEntryWithTubeID : public InspectionPlanEntry {
-public:
-    std::string tube_id;
-};
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(InspectionPlanEntryWithTubeID, seq, tube_id, row, col, inspected)
-
 class CalPointEntry {
 public:
     std::string col;
@@ -48,13 +35,6 @@ public:
     bool determined;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(CalPointEntry, col, row, ideal_coords, determined_coords, determined)
-
-class CalPointEntryWithTubeID : public CalPointEntry {
-public:
-    std::string tube_id;
-};
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(CalPointEntryWithTubeID, tube_id, col, row, ideal_coords, determined_coords, determined)
-
 
 class InspectionSession {
 public:
@@ -66,9 +46,7 @@ public:
 
     std::string load_plans();
 
-    std::vector<InspectionPlanEntryWithTubeID> inspection_plan_get(std::string insp_plan);
-
-    std::vector<CalPointEntryWithTubeID> cal_points_get();
+    std::map<std::string, struct InspectionPlanEntry> inspection_plan_get(std::string insp_plan);
 
     void cal_points_add(std::string id, std::string col, std::string row, Point3D ideal_coords);
 
@@ -127,6 +105,8 @@ public:
     static void delete_session(std::string session_name) {
         std::filesystem::remove(insp_sessions_dir / (session_name + std::string(".json")));
     }
+
+    std::map<std::string, Point3D> calculate_aligned_tubes();
 
     std::map<std::string,
             std::map<std::string,
