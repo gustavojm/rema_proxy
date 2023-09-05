@@ -54,7 +54,7 @@ void event_stream_handler() {
     nlohmann::json res;
 
     try {
-        rema_instance.rtu.receive_telemetry([&rema_instance](auto &rx_buffer) {rema_instance.update_telemetry(rx_buffer); });
+        rema_instance.telemetry_client.receive_async(std::chrono::seconds(1), [&rema_instance](auto &rx_buffer) {rema_instance.update_telemetry(rx_buffer); });
         res["TELEMETRY"] = rema_instance.telemetry;
 
         auto now = std::chrono::high_resolution_clock::now();
@@ -66,7 +66,7 @@ void event_stream_handler() {
         std::cerr << "Telemetry connection lost..." << "\n";
     }
 
-    if (!rema_instance.rtu.isConnected) {
+    if (!rema_instance.command_client.isConnected || !rema_instance.telemetry_client.isConnected) {
         res["SHOW_CONNECT"] = true;
         hide_sent = false;
     } else {
@@ -178,24 +178,18 @@ void post_rtu_method_handler(const shared_ptr<restbed::Session> session,
 
                 boost::asio::streambuf rx_buffer;
                 try {
-                    rema.rtu.send(tx_buffer);
+                    rema.command_client.send_blocking(tx_buffer, std::chrono::seconds(1));
 
-                    rema.rtu.receive([&session](auto &rx_buffer) {
-                        std::string stream(
-                                boost::asio::buffer_cast<const char*>(
-                                        (rx_buffer).data()));
-                        cout << stream << endl;
+                    std::string stream = rema.command_client.receive_blocking(std::chrono::seconds(1));
+                    if (!stream.empty()) {
+                        //stream.pop_back(); // Erase null character at the end of stream response
 
-                        if (!stream.empty())
-                            //stream.pop_back(); // Erase null character at the end of stream response
+                        session->close(OK, stream, { { "Content-Length",
+                                ::to_string(stream.length()) }, {
+                                "Content-Type",
+                                "application/json; charset=utf-8" } });
 
-                            session->close(OK, stream, { { "Content-Length",
-                                    ::to_string(stream.length()) }, {
-                                    "Content-Type",
-                                    "application/json; charset=utf-8" } });
-
-                    });
-
+                    }
                 } catch (std::exception &e) {
                     std::string message = std::string(e.what());
                     std::cerr << "COMMUNICATIONS ERROR " << message << "\n";
@@ -231,13 +225,13 @@ int main(const int, const char**) {
                 po::value<int>(&rtu_proxy_port)->default_value(1980),
                 "Port number");
 
-        std::string rtu_ip;
-        int rtu_port;
+        std::string rtu_host;
+        std::string rtu_service;
         po::options_description rtu_settings("RTU Settings");
         rtu_settings.add_options()("RTU.ip",
-                po::value<std::string>(&rtu_ip)->default_value("192.168.2.20"),
+                po::value<std::string>(&rtu_host)->default_value("192.168.2.20"),
                 "IP Address")("RTU.port",
-                po::value<int>(&rtu_port)->default_value(5020), "Port Number");
+                po::value<std::string>(&rtu_service)->default_value("5020"), "Port Number");
 
         po::options_description config_file_settings;
         config_file_settings.add(json_proxy_settings).add(rtu_settings);
@@ -248,15 +242,17 @@ int main(const int, const char**) {
                 vm);
         po::notify(vm);
 
-        rema_instance.rtu.set_ip(rtu_ip);
-        rema_instance.rtu.set_port(rtu_port);
+        rema_instance.command_client.set_host(rtu_host);
+        rema_instance.command_client.set_service(rtu_service);
+
+
+        rema_instance.telemetry_client.set_host(rtu_host);
+        rema_instance.telemetry_client.set_service(std::to_string(std::stoi(rtu_service) + 1));
 
         std::cout << "REMA Proxy Server running on " << rtu_proxy_port << "\n";
-        std::cout << "Connecting to RTU on " << rema_instance.rtu.get_ip() << ":"
-                << rema_instance.rtu.get_port() << "\n";
 
-        rema_instance.rtu.connect_comm();
-        rema_instance.rtu.connect_telemetry();
+        rema_instance.command_client.connect(std::chrono::seconds(1));
+        rema_instance.telemetry_client.connect(std::chrono::seconds(1));
 
     } catch (std::exception &e) {
         std::cout << e.what() << std::endl;

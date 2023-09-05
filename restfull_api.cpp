@@ -42,8 +42,8 @@ void REMA_connect(const std::shared_ptr<restbed::Session> session) {
     int status;
     try {
         REMA &rema_instance = REMA::get_instance();
-        rema_instance.rtu.connect_comm();
-        rema_instance.rtu.connect_telemetry();
+        rema_instance.command_client.connect(std::chrono::seconds(1));
+        rema_instance.telemetry_client.connect(std::chrono::seconds(1));
         status = restbed::OK;
     } catch (std::exception &e) {
         res = e.what();
@@ -386,6 +386,8 @@ std::vector<Point3D> exec_seq(std::vector<sequence_step> seq) {
     nlohmann::json to_rema;
     std::vector<Point3D> tube_boundary_points;
 
+    nlohmann::json command_soft_stop = { { "command", "AXES_SOFT_STOP_ALL" }};
+    to_rema["commands"].push_back(command_soft_stop);
     // Create an individual command object and add it to the array
     for (auto &seq_step : seq) {
         nlohmann::json command = { { "command", "MOVE_CLOSED_LOOP" },
@@ -399,17 +401,12 @@ std::vector<Point3D> exec_seq(std::vector<sequence_step> seq) {
         tx_buffer = to_rema.dump();
 
         std::cout << "Enviando a RTU: " << tx_buffer << "\n";
-        rema_instance.rtu.send(tx_buffer);
-
+        rema_instance.command_client.send_blocking(tx_buffer, std::chrono::seconds(1));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));                     // Wait for telemetry update...
         do {
             try {
-                boost::asio::streambuf rx_buffer;
-                rema_instance.rtu.receive_telemetry_sync(rx_buffer);
-                std::string stream(
-                        boost::asio::buffer_cast<const char*>(
-                                (rx_buffer).data()));
-                std::cout << stream << "\n";
-                rema_instance.update_telemetry(rx_buffer);
+                std::string stream = rema_instance.telemetry_client.receive_blocking(std::chrono::seconds(1));
+                rema_instance.update_telemetry(stream);
             } catch (std::exception &e) {                // handle exception
                 std::cerr << e.what() << "\n";
             }
@@ -420,11 +417,24 @@ std::vector<Point3D> exec_seq(std::vector<sequence_step> seq) {
         if (rema_instance.telemetry.on_condition.x_y) { // ask for probe_touching
             tube_boundary_points.push_back(rema_instance.telemetry.coords);
         }
+
+        if (rema_instance.cancel_cmd) {
+            rema_instance.is_determining = false;
+            break;
+        }
+
     }
     return tube_boundary_points;
 }
 
 void determine_tube_center(const std::shared_ptr<restbed::Session> session) {
+    REMA &rema_instance = REMA::get_instance();
+    while (rema_instance.is_determining) {
+        rema_instance.cancel_cmd = true;
+    }
+    rema_instance.cancel_cmd = false;
+
+    rema_instance.is_determining = true;
     const auto request = session->get_request();
     std::string tube_id = request->get_path_parameter("tube_id", "");
 
@@ -469,6 +479,7 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> session) {
         res["radius"] = radius;
         close_session(session, restbed::OK, res);
     }
+    rema_instance.is_determining = false;
 
 }
 

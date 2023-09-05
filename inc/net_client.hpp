@@ -1,5 +1,5 @@
-#ifndef CIAA_HPP
-#define CIAA_HPP
+#ifndef NET_CLIENT_HPP
+#define NET_CLIENT_HPP
 
 #include <string>
 #include <restbed>
@@ -7,71 +7,70 @@
 #include <chrono>
 #include <boost/asio.hpp>
 #include <boost/asio/high_resolution_timer.hpp>
+#include <boost/asio/io_context.hpp>
 
 using boost::asio::ip::tcp;
 
-struct IO_Service {
-	using error_code = boost::system::error_code;
-
-	template<typename AllowTime, typename Cancel> void await_operation_ex(
-			AllowTime const &deadline_or_duration, Cancel &&cancel) {
-		using namespace boost::asio;
-
-		ioservice.reset();
-		{
-			high_resolution_timer tm(ioservice, deadline_or_duration);
-			tm.async_wait([&cancel](error_code ec) {
-				if (ec != error::operation_aborted)
-					std::forward<Cancel>(cancel)();
-			});
-			ioservice.run_one();
-		}
-		ioservice.run();
-	}
-
-	template<typename AllowTime, typename ServiceObject> void await_operation(
-			AllowTime const &deadline_or_duration, ServiceObject &so) {
-		return await_operation_ex(deadline_or_duration, [&so] {
-			so.cancel();
-		});
-	}
-
-	boost::asio::io_service ioservice;
-};
-
-class CIAA {
+class netClient {
 public:
-	void set_ip(const std::string ip) {
-		this->ip = ip;
+	void set_host(const std::string host) {
+		this->host = host;
 	}
 
-	void set_port(int port) {
-		this->port = port;
+	void set_service(std::string service) {
+		this->service = service;
 	}
 
-	std::string get_ip() {
-		return ip;
+	std::string get_host() {
+		return host;
 	}
 
-	int get_port() {
-		return port;
+	std::string get_service() {
+		return service;
 	}
 
-	void connect_comm();
-	void receive(std::function<void(boost::asio::streambuf &rx_buffer)> callback);
-	void send(const std::string &tx_buffer);
-	void send_sync(const std::string &tx_buffer);
+	void connect(std::chrono::steady_clock::duration timeout);
 
-	void connect_telemetry();
-	void receive_telemetry(std::function<void(boost::asio::streambuf &rx_buffer)> callback);
-	size_t receive_telemetry_sync(boost::asio::streambuf &rx_buffer);
+	void receive_async(std::chrono::steady_clock::duration timeout, std::function<void(std::string &rx_buffer)> callback);
+
+	std::string receive_blocking(std::chrono::steady_clock::duration timeout);
+
+	void send_blocking(const std::string& line,
+	    std::chrono::steady_clock::duration timeout);
+
 
 private:
-	std::string ip;
-	int port;
-	struct IO_Service serv;
-	std::unique_ptr<tcp::socket> socket_comm;
-	std::unique_ptr<tcp::socket> socket_telemetry;
+	std::string host;
+	std::string service;
+	boost::asio::io_context io_context_;
+	tcp::socket socket_{io_context_};
+	std::string input_buffer_;
+	std::mutex mtx;
+
+    void run(std::chrono::steady_clock::duration timeout)
+    {
+      // Restart the io_context, as it may have been left in the "stopped" state
+      // by a previous operation.
+      io_context_.restart();
+
+      // Block until the asynchronous operation has completed, or timed out. If
+      // the pending asynchronous operation is a composed operation, the deadline
+      // applies to the entire operation, rather than individual operations on
+      // the socket.
+      io_context_.run_for(timeout);
+
+      // If the asynchronous operation completed successfully then the io_context
+      // would have been stopped due to running out of work. If it was not
+      // stopped, then the io_context::run_for call must have timed out.
+      if (!io_context_.stopped())
+      {
+        // Close the socket to cancel the outstanding asynchronous operation.
+        socket_.close();
+
+        // Run the io_context again until the operation completes.
+        io_context_.run();
+      }
+    }
 
 public:
 	bool isConnected = false;

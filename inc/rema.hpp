@@ -10,9 +10,9 @@
 #include <mutex>
 #include <filesystem>
 #include <json.hpp>
+#include <net_client.hpp>
 
 #include "tool.hpp"
-#include "ciaa.hpp"
 #include "points.hpp"
 #include "inspection-session.hpp"
 
@@ -81,7 +81,7 @@ public:
         std::filesystem::remove(tools_dir / (tool + std::string(".json")));
     }
 
-    void update_telemetry(boost::asio::streambuf &rx_buffer);
+    void update_telemetry(std::string &stream);
 
     std::map<std::string, Point3D> calculate_aligned_tubes(InspectionSession& insp_sess, std::vector<Point3D> src_points, std::vector<Point3D> dst_points);
 
@@ -95,8 +95,10 @@ public:
 
     std::string last_selected_tool;
 
-    CIAA rtu;
+    netClient command_client;
+    netClient telemetry_client;
 
+    bool is_determining;
     bool cancel_cmd;
 
     // Telemetry values

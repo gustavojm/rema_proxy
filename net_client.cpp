@@ -8,129 +8,131 @@
 #include <chrono>
 #include <boost/asio.hpp>
 #include <boost/asio/high_resolution_timer.hpp>
-#include <ciaa.hpp>
+#include <boost/asio/io_context.hpp>
 #include <json.hpp>
-
+#include <net_client.hpp>
 
 constexpr std::chrono::milliseconds TIMEOUT = std::chrono::milliseconds(500);
 using boost::asio::ip::tcp;
 
-void CIAA::connect_comm() {
-    socket_comm.reset(new tcp::socket(serv.ioservice));	// Create new socket (old one is destroyed automatically)
-    tcp::resolver resolver(serv.ioservice);
-    tcp::resolver::iterator endpoint_iter = resolver.resolve(ip, std::to_string(port));
+void netClient::connect(std::chrono::steady_clock::duration timeout) {
+    // Resolve the host name and service to a list of endpoints.
+    auto endpoints = tcp::resolver(io_context_).resolve(host, service);
 
-    boost::asio::async_connect(*socket_comm, endpoint_iter,
-            [&](boost::system::error_code ec, tcp::resolver::iterator it) {
-                if (ec) {
-                    isConnected = true;             // Should be "false" changed to allow reconnection if network was down initially
-                    throw std::runtime_error(
-                            "Error connecting to RTU: " + ec.message());
-                } else {
-                    isConnected = true;
-                    std::cout << "Connected to RTU: " << it->endpoint() << std::endl;
-                }
+    for (auto endpoint : endpoints) {
+        std::cout << "Connecting to :" << endpoint.host_name() << ":"
+                << endpoint.service_name() << "\n";
+    }
+
+    // Start the asynchronous operation itself. The lambda that is used as a
+    // callback will update the error variable when the operation completes.
+    // The blocking_udp_client.cpp example shows how you can use std::bind
+    // rather than a lambda.
+    boost::system::error_code error;
+    boost::asio::async_connect(socket_, endpoints,
+            [&](const boost::system::error_code &result_error,
+                    const tcp::endpoint& /*result_endpoint*/) {
+                error = result_error;
             });
-    serv.await_operation_ex(TIMEOUT, [&] {
+
+    // Run the operation until it completes, or until the timeout.
+    run(timeout);
+
+    // Determine whether a connection was successfully established.
+    if (error)
+        throw std::system_error(error);
+
+    isConnected = true;
+}
+
+void netClient::receive_async(std::chrono::steady_clock::duration timeout,
+        std::function<void(std::string &rx_buffer)> callback) {
+    // Start the asynchronous operation. The lambda that is used as a callback
+    // will update the error and n variables when the operation completes. The
+    // blocking_udp_client.cpp example shows how you can use std::bind rather
+    // than a lambda.
+    std::lock_guard<std::mutex> lock(mtx);
+    boost::system::error_code error;
+    std::size_t n = 0;
+    boost::asio::async_read_until(socket_,
+            boost::asio::dynamic_buffer(input_buffer_), '\0',
+            [&](const boost::system::error_code &result_error,
+                    std::size_t result_n) {
+                error = result_error;
+                n = result_n;
+
+                if (error) {
+                    isConnected = false;
+                    throw std::runtime_error(
+                            "Error receiving message: " + error.message());
+                }
+                //std::cout << "Received message is: " << input_buffer_ << '\n';
+                std::string line(input_buffer_.substr(0, n - 1));
+                callback(line);
+                input_buffer_.erase(0, n);
+            });
+
+    // Run the operation until it completes, or until the timeout.
+    run(timeout);
+    if (error) {
         isConnected = false;
-        throw std::runtime_error("Error connecting to RTU: timeout\n");
-    });
-}
-
-void CIAA::receive(std::function<void(boost::asio::streambuf &rx_buffer)> callback) {
-    boost::asio::streambuf rx_buffer;
-    if (!isConnected) {
-        // CIAA::connect_comm();        // Do not force reconnection...
-    } else {
-        boost::asio::async_read_until(*socket_comm, rx_buffer, '\0',
-                [&](boost::system::error_code ec, size_t bytes_transferred) {
-                    if (ec) {
-                        isConnected = false;
-                        throw std::runtime_error(
-                                "Error receiving message: " + ec.message());
-                    }
-                    //std::cout << "Received message is: " << &rx_buffer << '\n';
-                    callback(rx_buffer);
-                });
-
-        serv.await_operation(TIMEOUT, *socket_comm);
+        throw std::system_error(error);
     }
 }
 
-void CIAA::send(const std::string &tx_buffer) {
-    if (!isConnected) {
-        // CIAA::connect_comm();        // Do not force reconnection...
-    } else {
-        boost::asio::async_write(*socket_comm, boost::asio::buffer(tx_buffer),
-                [&](boost::system::error_code ec, size_t /*bytes_transferred*/) {
-                    if (ec) {
-                        isConnected = false;
-                        throw std::runtime_error(
-                                "Error sending message: " + ec.message());
-                    }
-                });
-        serv.await_operation(TIMEOUT, *socket_comm);
-    }
-}
-
-void process_function(std::function<int(int)> func, int parameter) {
-    int result = func(parameter);
-    std::cout << "Result: " << result << std::endl;
-}
-
-
-void CIAA::connect_telemetry() {
-    socket_telemetry.reset(new tcp::socket(serv.ioservice)); // Create new socket (old one is destroyed automatically)
-    tcp::resolver resolver(serv.ioservice);
-    tcp::resolver::iterator endpoint_iter = resolver.resolve(ip, std::to_string(port + 1));
-
-    boost::asio::async_connect(*socket_telemetry, endpoint_iter,
-            [&](boost::system::error_code ec, tcp::resolver::iterator it) {
-                if (ec) {
-                    throw std::runtime_error(
-                            "Error connecting to Telemetry Socket: " + ec.message());
-                } else {
-//                    std::cout << "Connected to RTU: " << it->endpoint()
-//                        << std::endl;
-                }
+std::string netClient::receive_blocking(
+        std::chrono::steady_clock::duration timeout) {
+    // Start the asynchronous operation. The lambda that is used as a callback
+    // will update the error and n variables when the operation completes. The
+    // blocking_udp_client.cpp example shows how you can use std::bind rather
+    // than a lambda.
+    std::lock_guard<std::mutex> lock(mtx);
+    boost::system::error_code error;
+    std::size_t n = 0;
+    boost::asio::async_read_until(socket_,
+            boost::asio::dynamic_buffer(input_buffer_), '\0',
+            [&](const boost::system::error_code &result_error,
+                    std::size_t result_n) {
+                error = result_error;
+                n = result_n;
             });
-    serv.await_operation_ex(TIMEOUT, [&] {
-        throw std::runtime_error("Error connecting to Telemetry Socket in RTU: timeout\n");
-    });
 
+    // Run the operation until it completes, or until the timeout.
+    run(timeout);
 
-}
-
-void CIAA::receive_telemetry(std::function<void(boost::asio::streambuf &rx_buffer)> callback) {
-    boost::asio::streambuf rx_buffer;
-
-    if (isConnected) {
-        boost::asio::async_read_until(*socket_telemetry, rx_buffer, '\0',
-                [&](boost::system::error_code ec, size_t bytes_transferred) {
-                    if (ec) {
-                        isConnected = false;
-                        throw std::runtime_error(
-                                "Error receiving telemetry message: " + ec.message());
-                    }
-                    //std::cout << "Received message is: " << &rx_buffer << '\n';
-                    callback(rx_buffer);
-                });
-
-        serv.await_operation(TIMEOUT, *socket_telemetry);
-
-    }
-    return;
-}
-
-size_t CIAA::receive_telemetry_sync(boost::asio::streambuf &rx_buffer) {
-    size_t bytes = 0;
-
-    if (isConnected) {
-        serv.await_operation(TIMEOUT, *socket_telemetry);
-        bytes = boost::asio::read_until(*socket_telemetry, rx_buffer, '\0');
+    // Determine whether the read completed successfully.
+    if (error) {
+        isConnected = false;
+        throw std::system_error(error);
     }
 
-    return bytes;
+    std::string line(input_buffer_.substr(0, n - 1));
+    input_buffer_.erase(0, n);
+    return line;
 }
 
+void netClient::send_blocking(const std::string &line,
+        std::chrono::steady_clock::duration timeout) {
 
+    std::lock_guard<std::mutex> lock(mtx);
+    std::string data = line + "\0";
+    // Start the asynchronous operation itself. The lambda that is used as a
+    // callback will update the error variable when the operation completes.
+    // The blocking_udp_client.cpp example shows how you can use std::bind
+    // rather than a lambda.
+    boost::system::error_code error;
+    boost::asio::async_write(socket_, boost::asio::buffer(data),
+            [&](const boost::system::error_code &result_error,
+                    std::size_t /*result_n*/) {
+                error = result_error;
+            });
+
+    // Run the operation until it completes, or until the timeout.
+    run(timeout);
+
+    // Determine whether the read completed successfully.
+    if (error) {
+        isConnected = false;
+        throw std::system_error(error);
+    }
+}

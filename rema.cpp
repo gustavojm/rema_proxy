@@ -36,12 +36,10 @@ std::filesystem::path REMA::get_selected_tool() const {
     return last_selected_tool;
 }
 
-void REMA::update_telemetry(boost::asio::streambuf &rx_buffer) {
+void REMA::update_telemetry(std::string &stream) {
     nlohmann::json json;
     try {
         std::lock_guard<std::mutex> lock(mtx);
-        std::string stream(
-                boost::asio::buffer_cast<const char*>((rx_buffer).data()));
         if (!stream.empty()) {
             //cout << stream << endl;
             json = nlohmann::json::parse(stream);
