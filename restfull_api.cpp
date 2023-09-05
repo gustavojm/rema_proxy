@@ -42,8 +42,8 @@ void REMA_connect(const std::shared_ptr<restbed::Session> session) {
     int status;
     try {
         REMA &rema_instance = REMA::get_instance();
-        rema_instance.command_client.connect(std::chrono::seconds(1));
-        rema_instance.telemetry_client.connect(std::chrono::seconds(1));
+        rema_instance.command_client.connect();
+        rema_instance.telemetry_client.connect();
         status = restbed::OK;
     } catch (std::exception &e) {
         res = e.what();
@@ -401,11 +401,11 @@ std::vector<Point3D> exec_seq(std::vector<sequence_step> seq) {
         tx_buffer = to_rema.dump();
 
         std::cout << "Enviando a RTU: " << tx_buffer << "\n";
-        rema_instance.command_client.send_blocking(tx_buffer, std::chrono::seconds(1));
+        rema_instance.command_client.send_blocking(tx_buffer);
         std::this_thread::sleep_for(std::chrono::milliseconds(100));                     // Wait for telemetry update...
         do {
             try {
-                std::string stream = rema_instance.telemetry_client.receive_blocking(std::chrono::seconds(1));
+                std::string stream = rema_instance.telemetry_client.receive_blocking();
                 rema_instance.update_telemetry(stream);
             } catch (std::exception &e) {                // handle exception
                 std::cerr << e.what() << "\n";

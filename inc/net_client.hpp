@@ -29,17 +29,17 @@ public:
 		return service;
 	}
 
-	void connect(std::chrono::steady_clock::duration timeout);
+	void connect();
 
-	void receive_async(std::chrono::steady_clock::duration timeout, std::function<void(std::string &rx_buffer)> callback);
+	void receive_async(std::function<void(std::string &rx_buffer)> callback);
 
-	std::string receive_blocking(std::chrono::steady_clock::duration timeout);
+	std::string receive_blocking();
 
-	void send_blocking(const std::string& line,
-	    std::chrono::steady_clock::duration timeout);
+	void send_blocking(const std::string& line);
 
 
 private:
+	std::chrono::steady_clock::duration timeout = std::chrono::milliseconds(500);
 	std::string host;
 	std::string service;
 	boost::asio::io_context io_context_;
@@ -47,7 +47,7 @@ private:
 	std::string input_buffer_;
 	std::mutex mtx;
 
-    void run(std::chrono::steady_clock::duration timeout)
+    void run()
     {
       // Restart the io_context, as it may have been left in the "stopped" state
       // by a previous operation.

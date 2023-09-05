@@ -54,7 +54,7 @@ void event_stream_handler() {
     nlohmann::json res;
 
     try {
-        rema_instance.telemetry_client.receive_async(std::chrono::seconds(1), [&rema_instance](auto &rx_buffer) {rema_instance.update_telemetry(rx_buffer); });
+        rema_instance.telemetry_client.receive_async([&rema_instance](auto &rx_buffer) {rema_instance.update_telemetry(rx_buffer); });
         res["TELEMETRY"] = rema_instance.telemetry;
 
         auto now = std::chrono::high_resolution_clock::now();
@@ -178,9 +178,9 @@ void post_rtu_method_handler(const shared_ptr<restbed::Session> session,
 
                 boost::asio::streambuf rx_buffer;
                 try {
-                    rema.command_client.send_blocking(tx_buffer, std::chrono::seconds(1));
+                    rema.command_client.send_blocking(tx_buffer);
 
-                    std::string stream = rema.command_client.receive_blocking(std::chrono::seconds(1));
+                    std::string stream = rema.command_client.receive_blocking();
                     if (!stream.empty()) {
                         //stream.pop_back(); // Erase null character at the end of stream response
 
@@ -251,8 +251,8 @@ int main(const int, const char**) {
 
         std::cout << "REMA Proxy Server running on " << rtu_proxy_port << "\n";
 
-        rema_instance.command_client.connect(std::chrono::seconds(1));
-        rema_instance.telemetry_client.connect(std::chrono::seconds(1));
+        rema_instance.command_client.connect();
+        rema_instance.telemetry_client.connect();
 
     } catch (std::exception &e) {
         std::cout << e.what() << std::endl;

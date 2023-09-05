@@ -12,10 +12,9 @@
 #include <json.hpp>
 #include <net_client.hpp>
 
-constexpr std::chrono::milliseconds TIMEOUT = std::chrono::milliseconds(500);
 using boost::asio::ip::tcp;
 
-void netClient::connect(std::chrono::steady_clock::duration timeout) {
+void netClient::connect() {
     // Resolve the host name and service to a list of endpoints.
     auto endpoints = tcp::resolver(io_context_).resolve(host, service);
 
@@ -36,7 +35,7 @@ void netClient::connect(std::chrono::steady_clock::duration timeout) {
             });
 
     // Run the operation until it completes, or until the timeout.
-    run(timeout);
+    run();
 
     // Determine whether a connection was successfully established.
     if (error)
@@ -45,8 +44,7 @@ void netClient::connect(std::chrono::steady_clock::duration timeout) {
     isConnected = true;
 }
 
-void netClient::receive_async(std::chrono::steady_clock::duration timeout,
-        std::function<void(std::string &rx_buffer)> callback) {
+void netClient::receive_async(std::function<void(std::string &rx_buffer)> callback) {
     // Start the asynchronous operation. The lambda that is used as a callback
     // will update the error and n variables when the operation completes. The
     // blocking_udp_client.cpp example shows how you can use std::bind rather
@@ -73,15 +71,14 @@ void netClient::receive_async(std::chrono::steady_clock::duration timeout,
             });
 
     // Run the operation until it completes, or until the timeout.
-    run(timeout);
+    run();
     if (error) {
         isConnected = false;
         throw std::system_error(error);
     }
 }
 
-std::string netClient::receive_blocking(
-        std::chrono::steady_clock::duration timeout) {
+std::string netClient::receive_blocking() {
     // Start the asynchronous operation. The lambda that is used as a callback
     // will update the error and n variables when the operation completes. The
     // blocking_udp_client.cpp example shows how you can use std::bind rather
@@ -98,7 +95,7 @@ std::string netClient::receive_blocking(
             });
 
     // Run the operation until it completes, or until the timeout.
-    run(timeout);
+    run();
 
     // Determine whether the read completed successfully.
     if (error) {
@@ -111,8 +108,7 @@ std::string netClient::receive_blocking(
     return line;
 }
 
-void netClient::send_blocking(const std::string &line,
-        std::chrono::steady_clock::duration timeout) {
+void netClient::send_blocking(const std::string &line) {
 
     std::lock_guard<std::mutex> lock(mtx);
     std::string data = line + "\0";
@@ -128,7 +124,7 @@ void netClient::send_blocking(const std::string &line,
             });
 
     // Run the operation until it completes, or until the timeout.
-    run(timeout);
+    run();
 
     // Determine whether the read completed successfully.
     if (error) {
