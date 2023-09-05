@@ -553,7 +553,7 @@ svg .tube:hover {
 										data : 'inspected',
 										render : function(data, type, row) {											
 											// Highlight the tubes belonging to this inspection plan on the HX 
-											$("#hl" + row.tube_id,
+											$("#HL_" + row.tube_id,
 													$("#tubesheet_svg"))
 													.children("circle")
 													.css(
@@ -561,10 +561,10 @@ svg .tube:hover {
 															insp_plans_dropdown
 																	.css("background-color"));
 											
-											gray_out_tube("#hl" + row.tube_id, data);
+											gray_out_tube("#HL_" + row.tube_id, data);
 											
 
-											$("#cl" + row.tube_id,							// This selector could be combined with the previous but execution turns too slow
+											$("#CL_" + row.tube_id,							// This selector could be combined with the previous but execution turns too slow
 													$("#tubesheet_svg"))													
 													.children("circle")
 													.css(
@@ -572,7 +572,7 @@ svg .tube:hover {
 															insp_plans_dropdown
 																	.css("background-color"));
 											
-											gray_out_tube("#cl" + row.tube_id, data);
+											gray_out_tube("#CL_" + row.tube_id, data);
 
 											return '<input type="checkbox" value='
 													+ row.tube_id
@@ -640,8 +640,8 @@ svg .tube:hover {
 					}),
 			});
 
-			gray_out_tube("#hl" + $(this).val(), $(this).prop("checked"));
-			gray_out_tube("#cl" + $(this).val(), $(this).prop("checked"));								
+			gray_out_tube("#HL_" + $(this).val(), $(this).prop("checked"));
+			gray_out_tube("#CL_" + $(this).val(), $(this).prop("checked"));								
 		});
 			
 		new ResizeObserver(resize_divs).observe(document
