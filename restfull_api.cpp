@@ -166,7 +166,12 @@ void tools_select(const std::shared_ptr<restbed::Session> session) {
  **/
 
 void inspection_sessions_list(const std::shared_ptr<restbed::Session> session) {
-    close_session(session, restbed::OK, nlohmann::json(InspectionSession::sessions_list()));
+    nlohmann::json res;
+
+    for (auto session : InspectionSession::sessions_list()) {
+        res.push_back({{"name", session.name}, {"hx", session.hx }, {"last_write_time", session.last_write_time}});
+    }
+    close_session(session, restbed::OK, res);
 }
 
 void inspection_sessions_create(const std::shared_ptr<restbed::Session> session) {
@@ -232,6 +237,7 @@ void inspection_sessions_info(const std::shared_ptr<restbed::Session> session) {
     nlohmann::json res = nlohmann::json::object();
     if (current_session.is_loaded()) {
         res = current_session;
+        res["aligned_tubes"] = current_session.calculate_aligned_tubes();
         res["is_loaded"] = true;
     } else {
         res["is_loaded"] = false;
@@ -484,9 +490,8 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> session) {
 }
 
 void aligned_tubesheet_get(const std::shared_ptr<restbed::Session> session) {
-    current_session.calculate_aligned_tubes();
 
-    close_session(session, restbed::OK, nlohmann::json(current_session.aligned_tubes));
+    close_session(session, restbed::OK, nlohmann::json(current_session.calculate_aligned_tubes()));
 }
 
 

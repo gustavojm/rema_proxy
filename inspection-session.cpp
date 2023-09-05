@@ -56,8 +56,6 @@ bool InspectionSession::load(std::string session_name) {
         }
     }
 
-
-
     return true;
 }
 
@@ -232,7 +230,7 @@ std::map<std::string, Point3D> InspectionSession::calculate_aligned_tubes() {
     std::cout << transformation_matrix << std::endl;
 
     // Transform the source point cloud
-    aligned_tubes.clear();
+    std::map<std::string, Point3D> aligned_tubes;
     for (const auto &tube : tubes) {
         open3d::geometry::PointCloud one_tube_cloud;
         one_tube_cloud.points_.push_back(

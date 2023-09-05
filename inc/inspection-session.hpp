@@ -125,7 +125,6 @@ public:
     bool changed = false;
     std::string unit = "inch";
     std::map<std::string, Point3D> tubes;
-    std::map<std::string, Point3D> aligned_tubes;
     std::map<std::string, CalPointEntry> cal_points;
 };
 

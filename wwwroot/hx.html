@@ -290,10 +290,8 @@ svg .tube:hover {
 					.val(col);
 			$("#tube_info_row")
 					.val(row);
-			$("#tube_info_x").val(
-					cx);
-			$("#tube_info_y").val(
-					cy);
+			$("#tube_info_x").val(aligned_tubes[id].x);
+			$("#tube_info_y").val(aligned_tubes[id].y);
 			update_location_pin_position(
 					cx, cy);
 
@@ -397,6 +395,8 @@ svg .tube:hover {
 							$("#session_name").text("Session: " + data.name);
 							scale = data.unit == "mm" ? 25.4 : 1;
 							tube_od = data.tube_od;
+							console.log(data);
+							aligned_tubes = data.aligned_tubes;
 						}
 						svg_load("../"
 								+ (data.tubesheet_svg || "/static/no_session_loaded.svg"), tube_od, scale);
