@@ -31,6 +31,7 @@ svg .tube.highlight_cal_tube  {
     flex-grow: 2;
     justify-content: center; /* align item horizontally */
     align-items: center; /* align item vertically */
+    flex-basis: auto;
 }
 
 .row {
@@ -81,34 +82,40 @@ svg .tube.highlight_cal_tube  {
 		<div>
 			<form id="cal_point_info">			
 				<div class="row">
-				Tube Id:<input type="text" id="cal_point_tube_id" name="tube_id" size="4"> 
-					Col:<input type="text" id="cal_tube_info_col" name="col" size="4"> 
-					Row:<input type="text" id="cal_tube_info_row" name="row" size="4"> 
+				Tube Id:<input type="text" size="4" id="cal_point_tube_id" name="tube_id"> 
+					Col:<input type="text" size="4" id="cal_tube_info_col" name="col"> 
+					Row:<input type="text" size="4" id="cal_tube_info_row" name="row"> 
 				</div>
 				<div style="padding: 10px;" class="row">
 					<button id="set_as_cal_point" disabled="disabled">Set as Calibration Point</button>
 				</div>
 				<div class="container">
-			        <div class="column">
-			        	<div class="row"><div class="content">&nbsp;</div><div class="content">Ideal</div><div class="content"></div><div class="content">Determined</div></div>
-			            
-			            <div class="row"><div class="content">X:</div>
-				            <div class="content"><input type="text" id="ideal_coords_x" name="ideal_coords_x" size="6"></div>
-				            <div class="content"><input type="text" id="determined_coords_x" name="determined_coords_x" size="6"></div>
+			        <div class="column" style="width: 70%">
+			        	<div class="row">
+			        		<div class="content"></div>
+			        		<div class="content">Ideal</div>
+			        		<div class="content">Determined</div>
+			        	</div>			            
+			            <div class="row">
+			            	<div class="content">X:</div>
+				            <div class="content"><input type="text" size="6" id="ideal_coords_x" name="ideal_coords_x"></div>
+				            <div class="content"><input type="text" size="6" id="determined_coords_x" name="determined_coords_x"></div>
 			            </div>			            
-			            <div class="row"><div class="content">Y:</div>
-				            <div class="content"><input type="text" id="ideal_coords_y" name="ideal_coords_y" size="6"></div>
-				            <div class="content"><input type="text" id="determined_coords_y" name="determined_coords_y" size="6"></div>
+			           	<div class="row">
+			            	<div class="content">Y:</div>
+				            <div class="content"><input type="text" size="6" id="ideal_coords_y" name="ideal_coords_y"></div>
+				            <div class="content"><input type="text" size="6" id="determined_coords_y" name="determined_coords_y"></div>
 			            </div>			            
-			            <div class="row"><div class="content">Z:</div>
-				            <div class="content"><input type="text" id="ideal_coords_z" name="ideal_coords_z" size="6"></div>
-				            <div class="content"><input type="text" id="determined_coords_z" name="determined_coords_z" size="6"></div>
+			            <div class="row">
+			            	<div class="content">Z:</div>
+				            <div class="content"><input type="text" size="6" id="ideal_coords_z" name="ideal_coords_z"></div>
+				            <div class="content"><input type="text" size="6" id="determined_coords_z" name="determined_coords_z"></div>
 			            </div>
 			        </div>
-			        <div class="column" style="vertical-align: middle; align-items: center;">
-			        	<button id="copy_center" style="position: relative; width:100%">Copy</button>
-			            <button id="determine_center" style="position: relative; width:100%">Center</button>
-			            <button id="cal_point_update" style="position: relative; width:100%">Update</button>
+			        <div class="column" style="vertical-align: middle; align-items: center; width: 30%">
+			        	<button style="position: relative; width:80%" id="copy_center">Copy</button>
+			            <button style="position: relative; width:80%" id="determine_center">Center</button>
+			            <button style="position: relative; width:80%" id="cal_point_update">Update</button>
 			        </div>
 			    </div>
 			</form>				
