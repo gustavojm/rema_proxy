@@ -12,7 +12,6 @@
     display: flex;
     justify-content: space-between;
     align-items: stretch;
-    padding: 20px;    
 }
 
 
@@ -39,7 +38,7 @@ svg .tube.highlight_cal_tube  {
     align-items: center; /* align item vertically */
 	display: flex;
 	flex-direction: row;
-	flex-grow: 2;
+	flex-grow: 1;
 	position: relative;
 	width:100%;
 }
@@ -66,9 +65,9 @@ svg .tube.highlight_cal_tube  {
 				<thead>
 					<tr>
 						<th>ID</th>
-						<th>COL</th>
-						<th>ROW</th>
-						<th>CALIBRATED</th>
+						<th>Col</th>
+						<th>Row</th>
+						<th>Calibrated</th>
 						<th>Options</th>
 					</tr>
 				</thead>
@@ -76,48 +75,72 @@ svg .tube.highlight_cal_tube  {
 				</tbody>
 			</table>
 		</div>
-		<div class="row">
-			<button id="show_hide_aligned_tubesheet">Show Aligned Tubesheet</button>
-		</div>		
+		<div class="row" style="width: 100%">
+			<hr>
+		</div>
 		<div>
 			<form id="cal_point_info">			
-				<div style="display: flex; flex-direction: row;">
+				<div class="row">
 				Tube Id:<input type="text" id="cal_point_tube_id" name="tube_id" size="4"> 
-					Col:<input type="text" id="cal_tube_info_col" size="4"> 
-					Row:<input type="text" id="cal_tube_info_row" size="4"> 
+					Col:<input type="text" id="cal_tube_info_col" name="col" size="4"> 
+					Row:<input type="text" id="cal_tube_info_row" name="row" size="4"> 
+				</div>
+				<div style="padding: 10px;" class="row">
+					<button id="set_as_cal_point" disabled="disabled">Set as Calibration Point</button>
 				</div>
 				<div class="container">
 			        <div class="column">
 			        	<div class="row"><div class="content">&nbsp;</div><div class="content">Ideal</div><div class="content"></div><div class="content">Determined</div></div>
-			            <div class="row"><div class="content">X:</div><div class="content"><input type="text" id="ideal_coords_x" size="6"></div><div class="content"><input type="text" id="determined_coords_x" name="determined_coords_x" size="6"></div></div>
-			            <div class="row"><div class="content">Y:</div><div class="content"><input type="text" id="ideal_coords_y" size="6"></div><div class="content"><input type="text" id="determined_coords_y" name="determined_coords_y" size="6"></div></div>
-			            <div class="row"><div class="content">Z:</div><div class="content"><input type="text" id="ideal_coords_z" size="6"></div><div class="content"><input type="text" id="determined_coords_z" name="determined_coords_z" size="6"></div></div>
+			            
+			            <div class="row"><div class="content">X:</div>
+				            <div class="content"><input type="text" id="ideal_coords_x" name="ideal_coords_x" size="6"></div>
+				            <div class="content"><input type="text" id="determined_coords_x" name="determined_coords_x" size="6"></div>
+			            </div>			            
+			            <div class="row"><div class="content">Y:</div>
+				            <div class="content"><input type="text" id="ideal_coords_y" name="ideal_coords_y" size="6"></div>
+				            <div class="content"><input type="text" id="determined_coords_y" name="determined_coords_y" size="6"></div>
+			            </div>			            
+			            <div class="row"><div class="content">Z:</div>
+				            <div class="content"><input type="text" id="ideal_coords_z" name="ideal_coords_z" size="6"></div>
+				            <div class="content"><input type="text" id="determined_coords_z" name="determined_coords_z" size="6"></div>
+			            </div>
 			        </div>
 			        <div class="column" style="vertical-align: middle; align-items: center;">
 			        	<button id="copy_center" style="position: relative; width:100%">Copy</button>
-			            <button id="determine_center" style="position: relative; width:100%">Determine</button>
+			            <button id="determine_center" style="position: relative; width:100%">Center</button>
 			            <button id="cal_point_update" style="position: relative; width:100%">Update</button>
 			        </div>
 			    </div>
 			</form>				
 		</div>
+		<div class="row">
+			<button id="show_hide_aligned_tubesheet">Show Aligned Tubesheet</button>
+		</div>		
 	</div>
 </div>
 
 <script type="text/javascript">
 
 //Shows information of the selected tube either on the datatables or the HX itself
-function show_cal_point_info(data) {	
-	$("#cal_point_tube_id").val(data.tube_id);
-	$("#cal_tube_info_col").val(data.col);
-	$("#cal_tube_info_row").val(data.row);
-	$("#ideal_coords_x").val(data.ideal_coords.x);
-	$("#ideal_coords_y").val(data.ideal_coords.y);
-	$("#ideal_coords_z").val(data.ideal_coords.z);
-	$("#determined_coords_x").val(data.determined_coords.x);
-	$("#determined_coords_y").val(data.determined_coords.y);
-	$("#determined_coords_z").val(data.determined_coords.z);
-
+function show_cal_point_info(data, from_table = false) {
+	var table = $('#calibration_table').DataTable();
+	if (!from_table) {
+		table.rows().deselect();
+	}	
+	
+	if(data===null) {
+		$("#cal_point_info input[type=text]").val("");	
+	} else {
+		$("#cal_point_tube_id").val(data.tube_id);
+		$("#cal_tube_info_col").val(data.col);
+		$("#cal_tube_info_row").val(data.row);
+		$("#ideal_coords_x").val(data.ideal_coords.x);
+		$("#ideal_coords_y").val(data.ideal_coords.y);
+		$("#ideal_coords_z").val(data.ideal_coords.z);
+		$("#determined_coords_x").val(data.determined_coords.x);
+		$("#determined_coords_y").val(data.determined_coords.y);
+		$("#determined_coords_z").val(data.determined_coords.z);
+	}
 }
 
 function highlight_calibration_tube(g) {
@@ -251,7 +274,7 @@ $(function() {
 			currentRow = table.row(this);					// Store the selected row on click
 			if (!currentRow.selected()) {
 				var data = currentRow.data();				
-				show_cal_point_info(data);
+				show_cal_point_info(data, true);
 				var g = $("#"+ data.tube_id, $("#tubesheet_svg"));
 				highlight_calibration_tube(g);
 			} else {				
@@ -267,7 +290,7 @@ $(function() {
 		$.ajax({
 			method : "POST",
 			url : "/REST/calibration-points",
-			data: JSON.stringify(Object.fromEntries(new FormData(document.getElementById("tube_info")))),		// from hx.html
+			data: JSON.stringify(Object.fromEntries(new FormData(document.getElementById("cal_point_info")))),
 			success : function() {
 				table = $('#calibration_table').DataTable();
 				table.ajax.reload();
@@ -288,7 +311,13 @@ $(function() {
 
 	$("#determine_center").click(function(e) {
 		e.preventDefault();
-		cal_point_id = $("#cal_point_tube_id").val();		
+		cal_point_id = $("#cal_point_tube_id").val();
+		
+		if (cal_point_id === "") {
+			alert("Select a tube from calibration points table");
+			return;
+		}
+		
 		Promise.resolve(
 			$.ajax({
 				method : "GET",

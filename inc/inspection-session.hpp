@@ -48,7 +48,7 @@ public:
 
     std::map<std::string, struct InspectionPlanEntry> inspection_plan_get(std::string insp_plan);
 
-    void cal_points_add(std::string id, std::string col, std::string row, Point3D ideal_coords);
+    void cal_points_add(std::string tube_id, std::string col, std::string row, Point3D ideal_coords, Point3D determined_coords);
 
     void cal_points_delete(std::string id);
 

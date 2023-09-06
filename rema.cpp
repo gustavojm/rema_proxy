@@ -58,3 +58,62 @@ void REMA::update_telemetry(std::string &stream) {
     }
     return;
 }
+
+void REMA::execute_sequence(std::vector<sequence_step>& sequence) {
+    while (is_sequence_in_progress) {
+        cancel_sequence = true;
+    }
+    cancel_sequence = false;
+    is_sequence_in_progress = true;
+
+    std::string tx_buffer;
+    nlohmann::json to_rema;
+
+    nlohmann::json command_soft_stop = { { "command", "AXES_SOFT_STOP_ALL" }};
+    to_rema["commands"].push_back(command_soft_stop);
+    // Create an individual command object and add it to the array
+    for (auto &step : sequence) {
+        nlohmann::json command = { { "command", "MOVE_CLOSED_LOOP" },
+                { "pars",
+                        { { "axes", step.axes }, { "first_axis_setpoint",
+                                step.first_axis_setpoint }, {
+                                "second_axis_setpoint",
+                                step.second_axis_setpoint } } } };
+        to_rema["commands"].clear();
+        to_rema["commands"].push_back(command);
+        tx_buffer = to_rema.dump();
+
+        std::cout << "Enviando a RTU: " << tx_buffer << "\n";
+        command_client.send_blocking(tx_buffer);
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));                     // Wait for telemetry update...
+
+        bool stopped_on_probe = false;
+        bool stopped_on_condition = false;
+        do {
+            try {
+                std::string stream = telemetry_client.receive_blocking();
+                update_telemetry(stream);
+            } catch (std::exception &e) {                // handle exception
+                std::cerr << e.what() << "\n";
+            }
+
+            stopped_on_probe = telemetry.limits.probe && step.stop_on_probe;
+
+            if (step.axes == "XY") {
+                stopped_on_condition = telemetry.on_condition.x_y && step.stop_on_condition;
+            } else {
+                stopped_on_condition = telemetry.on_condition.z && step.stop_on_condition;
+            }
+        } while (!(stopped_on_probe || stopped_on_condition || cancel_sequence ));
+
+        if (cancel_sequence) {
+            break;
+        } else {
+                step.executed = true;
+                step.execution_results.coords = telemetry.coords;
+                step.execution_results.stopped_on_probe = stopped_on_probe;
+                step.execution_results.stopped_on_condition = stopped_on_condition;
+        }
+        is_sequence_in_progress = false;
+    }
+}

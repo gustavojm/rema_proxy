@@ -15,6 +15,7 @@
 #include "HXs.hpp"
 #include "points.hpp"
 #include "circle_fns.hpp"
+#include "misc_fns.hpp"
 
 
 extern InspectionSession current_session;
@@ -116,9 +117,9 @@ void tools_create(const std::shared_ptr<restbed::Session> session) {
                     if (!res.empty()) {
                         status = restbed::BAD_REQUEST;
                     } else {
-                        float offset_x = std::stof(form_data["offset_x"].get<std::string>());
-                        float offset_y = std::stof(form_data["offset_y"].get<std::string>());
-                        float offset_z = std::stof(form_data["offset_z"].get<std::string>());
+                        float offset_x = to_float(form_data.value("offset_x", "0"));
+                        float offset_y = to_float(form_data.value("offset_y", "0"));
+                        float offset_z = to_float(form_data.value("offset_z", "0"));
 
                         Tool new_tool(tool_name, offset_x, offset_y, offset_z);
                         res = "Tool created Successfully";
@@ -281,12 +282,18 @@ void cal_points_add(const std::shared_ptr<restbed::Session> session) {
                 try {
                     std::string tube_id = form_data["tube_id"];
                     Point3D ideal_coords = {
-                            std::stof(form_data["x"].get<std::string>()),
-                            std::stof(form_data["y"].get<std::string>()),
-                            0
+                            to_float(form_data.value("ideal_coords_x", "0")),
+                            to_float(form_data.value("ideal_coords_y", "0")),
+                            to_float(form_data.value("ideal_coords_z", "0")),
+                    };
+
+                    Point3D determined_coords = {
+                            to_float(form_data.value("determined_coords_x", "0")),
+                            to_float(form_data.value("determined_coords_y", "0")),
+                            to_float(form_data.value("determined_coords_z", "0")),
                     };
                     if (!tube_id.empty()) {
-                        current_session.cal_points_add(tube_id, form_data["col"], form_data["row"], ideal_coords);
+                        current_session.cal_points_add(tube_id, form_data["col"], form_data["row"], ideal_coords, determined_coords);
                         status = restbed::OK;
                     } else {
                         res += "No tool name specified";
@@ -315,8 +322,8 @@ void cal_points_update(const std::shared_ptr<restbed::Session> session) {
 
                 try {
                     Point3D determined_coords = {
-                            std::stof(form_data["determined_coords_x"].get<std::string>()),
-                            std::stof(form_data["determined_coords_y"].get<std::string>()),
+                            to_float(form_data.value("determined_coords_x", "0")),
+                            to_float(form_data.value("determined_coords_y", "0")),
                             0
                     };
                     if (!tube_id.empty()) {
@@ -375,72 +382,8 @@ void tubes_set_status(const std::shared_ptr<restbed::Session> session) {
     });
 }
 
-
-struct sequence_step {
-    std::string axes;
-    double first_axis_setpoint;
-    double second_axis_setpoint;
-    struct Point3D reached_coords;
-};
-
-
-
-std::vector<Point3D> exec_seq(std::vector<sequence_step> seq) {
-    REMA &rema_instance = REMA::get_instance();
-
-    std::string tx_buffer;
-    nlohmann::json to_rema;
-    std::vector<Point3D> tube_boundary_points;
-
-    nlohmann::json command_soft_stop = { { "command", "AXES_SOFT_STOP_ALL" }};
-    to_rema["commands"].push_back(command_soft_stop);
-    // Create an individual command object and add it to the array
-    for (auto &seq_step : seq) {
-        nlohmann::json command = { { "command", "MOVE_CLOSED_LOOP" },
-                { "pars",
-                        { { "axes", seq_step.axes }, { "first_axis_setpoint",
-                                seq_step.first_axis_setpoint }, {
-                                "second_axis_setpoint",
-                                seq_step.second_axis_setpoint } } } };
-        to_rema["commands"].clear();
-        to_rema["commands"].push_back(command);
-        tx_buffer = to_rema.dump();
-
-        std::cout << "Enviando a RTU: " << tx_buffer << "\n";
-        rema_instance.command_client.send_blocking(tx_buffer);
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));                     // Wait for telemetry update...
-        do {
-            try {
-                std::string stream = rema_instance.telemetry_client.receive_blocking();
-                rema_instance.update_telemetry(stream);
-            } catch (std::exception &e) {                // handle exception
-                std::cerr << e.what() << "\n";
-            }
-
-        } while (!(rema_instance.telemetry.limits.probe
-                || rema_instance.cancel_cmd
-                || rema_instance.telemetry.on_condition.x_y));
-        if (rema_instance.telemetry.on_condition.x_y) { // ask for probe_touching
-            tube_boundary_points.push_back(rema_instance.telemetry.coords);
-        }
-
-        if (rema_instance.cancel_cmd) {
-            rema_instance.is_determining = false;
-            break;
-        }
-
-    }
-    return tube_boundary_points;
-}
-
 void determine_tube_center(const std::shared_ptr<restbed::Session> session) {
     REMA &rema_instance = REMA::get_instance();
-    while (rema_instance.is_determining) {
-        rema_instance.cancel_cmd = true;
-    }
-    rema_instance.cancel_cmd = false;
-
-    rema_instance.is_determining = true;
     const auto request = session->get_request();
     std::string tube_id = request->get_path_parameter("tube_id", "");
 
@@ -467,34 +410,44 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> session) {
             step.axes = "XY";
             step.first_axis_setpoint = point.x;
             step.second_axis_setpoint = point.y;
+            step.stop_on_probe = true;
+            step.stop_on_condition = true;
+
             seq.push_back(step);
         }
 
-        auto tube_boundary_points = exec_seq(seq);
+        rema_instance.execute_sequence(seq);
+
+        std::vector<Point3D> tube_boundary_points;
+
+        for (auto step : seq) {
+            if (step.executed && step.execution_results.stopped_on_condition) {
+                tube_boundary_points.push_back(step.execution_results.coords);
+            }
+        }
         res["reached_coords"] = tube_boundary_points;
         auto [center, radius] = fitCircle(tube_boundary_points);
         res["center"] = center;
 
-        sequence_step goto_center;
-        goto_center.axes = "XY";
-        goto_center.first_axis_setpoint = center.x;
-        goto_center.second_axis_setpoint = center.y;
+        sequence_step goto_center_step;
+        goto_center_step.axes = "XY";
+        goto_center_step.first_axis_setpoint = center.x;
+        goto_center_step.second_axis_setpoint = center.y;
+        goto_center_step.stop_on_probe = true;
+        goto_center_step.stop_on_condition = true;
 
-        exec_seq(std::vector<sequence_step>(1, goto_center));
+        std::vector<sequence_step> goto_center_seq(1, goto_center_step);
+
+        rema_instance.execute_sequence(goto_center_seq);
 
         res["radius"] = radius;
         close_session(session, restbed::OK, res);
     }
-    rema_instance.is_determining = false;
-
 }
 
 void aligned_tubesheet_get(const std::shared_ptr<restbed::Session> session) {
-
     close_session(session, restbed::OK, nlohmann::json(current_session.calculate_aligned_tubes()));
 }
-
-
 
 // @formatter:off
 void restfull_api_create_endpoints(restbed::Service &service) {

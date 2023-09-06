@@ -66,8 +66,7 @@ svg .tube:hover {
 						Col:<input type="text" id="tube_info_col" name="col" size="4"> 
 						Row:<input type="text" id="tube_info_row" name="row" size="4"> 
 						X:<input type="text" id="tube_info_x" name="x" size="4"> 
-						Y:<input type="text" id="tube_info_y" name="y" size="4"> <span class="units">inch</span>
-						<button id="set_as_cal_point" disabled="disabled">Set as Calibration Point</button>							
+						Y:<input type="text" id="tube_info_y" name="y" size="4"> <span class="units">inch</span>											
 					</form>
 				</div>
 			<div
@@ -99,11 +98,11 @@ svg .tube:hover {
 					style="width: 100%">
 					<thead>
 						<tr>
-							<th>SEQ</th>
+							<th>Seq</th>
 							<th>ID</th>
-							<th>COL</th>
-							<th>ROW</th>
-							<th>INSPECTED</th>
+							<th>Col</th>
+							<th>Row</th>
+							<th>Inspected</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -130,7 +129,7 @@ svg .tube:hover {
 	<div style="padding: 10px; width: 100%">
 		<div id="coordinates" style="float: left; width: 40%">Coordinates:</div>
 		<div id="session_name" style="float: left; width: 50%"></div>
-		<div id="calibration_changer" style="float: right; width: 10%"><button id="calibration_inspection_btn">Calibration</button></div>
+		<div style="float: right; width: 10%"><button id="calibration_inspection_btn">Calibration</button></div>
 	</div>
 </div>	
 
@@ -258,6 +257,7 @@ svg .tube:hover {
 			table.rows().deselect();
 			$("#tube_info_coord input[type=text]")
 					.val("");
+			show_cal_point_info(null);
 			update_location_pin_position(
 					0, 0);
 			$("#set_as_cal_point").prop('disabled', true);
@@ -319,6 +319,21 @@ svg .tube:hover {
 									}
 								});
 			}
+			
+			var data = {
+					"tube_id": id, 
+					"col": col,
+					"row": row,
+					"ideal_coords": {"x" : cx,
+									 "y" : cy,
+									 "z" : 0,
+					},
+					"determined_coords": {"x" : aligned_tubes[id].x,
+									      "y" : aligned_tubes[id].y,
+					                      "z" : aligned_tubes[id].z,					                     
+					}
+			};
+			show_cal_point_info(data);
 			$("#set_as_cal_point").prop('disabled', false);
 		}
 	}
@@ -648,9 +663,14 @@ svg .tube:hover {
 				.getElementById("left_side_resizable"));
 							
 		
-		$("#calibration_inspection_btn").click(function() {
+		$("#calibration_inspection_btn").click(function(e) {
 			$("#tubesheet_tab").toggle();
 			$("#calibration_tab").toggle();
+			if ($(this).text() == "Calibration") {
+				$(this).text("Inspection Plan");
+			} else {
+				$(this).text("Calibration");
+			}
 		});
 		
 		$("#calibration_tab").load("cal_points.html");

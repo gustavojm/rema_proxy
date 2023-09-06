@@ -59,6 +59,20 @@ struct telemetry {
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(telemetry, coords, on_condition, stalled,
         limits)
 
+struct sequence_step {
+    std::string axes;
+    double first_axis_setpoint;
+    double second_axis_setpoint;
+    bool stop_on_probe = true;
+    bool stop_on_condition = true;
+    bool executed = false;
+    struct {
+        Point3D coords;
+        bool stopped_on_probe;
+        bool stopped_on_condition;
+    } execution_results;
+};
+
 class REMA {
 public:
     static REMA& get_instance() {
@@ -91,6 +105,8 @@ public:
 
     void save_to_disk() const;
 
+    void execute_sequence(std::vector<sequence_step>& sequence);
+
     bool loaded = false;
 
     std::string last_selected_tool;
@@ -98,8 +114,8 @@ public:
     netClient command_client;
     netClient telemetry_client;
 
-    bool is_determining;
-    bool cancel_cmd;
+    bool is_sequence_in_progress;
+    bool cancel_sequence;
 
     // Telemetry values
     std::mutex mtx;

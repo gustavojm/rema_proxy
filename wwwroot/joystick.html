@@ -122,10 +122,10 @@
 			style="float: left; width: 100%; display: flex; justify-content: center; align-items: center;">
 			<div style="float: left; padding: 15px;">
 				<div style="text-align: center;">
-					<div>Calibration Point</div>
+					<div>HOME (0, 0, 0)</div>
 					<div style="padding-top: 5px;">
 						<img alt="" src="images/target.png" height="40" width="40"
-							id="calibration_button">
+							id="home_button">
 					</div>
 				</div>
 			</div>
@@ -264,12 +264,10 @@
 			dataType : "json",
 			success : function(data) {
 				var power_switch = $('#power_switch');
-				power_switch.prop('checked', data.CONTROL_ENABLE.STATUS);
-				power_switch.change();
+				power_switch.prop('checked', data.CONTROL_ENABLE.STATUS).change();
 
 				var stall_switch = $('#stall_switch');
-				stall_switch.prop('checked', data.STALL_CONTROL.STATUS);
-				stall_switch.change();
+				stall_switch.prop('checked', data.STALL_CONTROL.STATUS).change();
 			}
 		});
 	}
@@ -332,8 +330,8 @@
 					}]
 				}),
 				dataType : "json",
-				success : function(data) {
-					update_switches();
+				success : function(data) {					
+					stall_switch.prop('checked', data.STALL_CONTROL.STATUS).change();
 				}
 			});
 		});			
@@ -362,17 +360,31 @@
 				}),
 				dataType : "json",
 				success : function(data) {
-					update_switches();
+					power_switch.prop('checked', data.CONTROL_ENABLE.STATUS).change();
 				}
 			});
 		});
 
-		update_switches(); // brings current status from REMA
+		update_switches(false); // brings current status from REMA
 
-		$("#calibration_button").click(function() {
-			if (typeof set_cal_point === "function") {
-				set_cal_point();
-			}
+		$("#home_button").click(function() {
+			$.ajax({
+				url : "/REMA/",
+				method : "POST",
+				contentType : "application/json",
+				data : JSON.stringify({
+					commands : [ {
+						command : "SET_CAL_POINT",
+						pars : {
+							position_x : 0,
+							position_y : 0,
+						}
+					} ]
+				}),
+				dataType : "json",
+				success : function(data) {				
+				}
+			});			
 		});		
 	});
 </script>

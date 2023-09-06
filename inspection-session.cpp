@@ -162,12 +162,12 @@ void InspectionSession::set_tube_inspected(std::string insp_plan,
     changed = true;
 }
 
-void InspectionSession::cal_points_add(std::string tube_id, std::string col, std::string row, Point3D ideal_coords)  {
+void InspectionSession::cal_points_add(std::string tube_id, std::string col, std::string row, Point3D ideal_coords, Point3D determined_coords)  {
     CalPointEntry cpe = {
             col,
             row,
             ideal_coords,
-            Point3D(),
+            determined_coords,
             false,
     };
     cal_points[tube_id] = cpe;
