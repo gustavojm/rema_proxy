@@ -10,6 +10,7 @@
 #include <csv.h>
 #include "inspection-session.hpp"
 #include "boost/program_options.hpp"
+#include "svg.hpp"
 
 InspectionSession::InspectionSession() :
         loaded(false) {
@@ -38,23 +39,33 @@ bool InspectionSession::load(std::string session_name) {
     this->loaded = true;
     this->name = session_name;
 
-    // Parse the CSV file to extract the data for each tube
-    io::CSVReader<5, io::trim_chars<' ', '\t'>, io::no_quote_escape<';'>> in(
-            hx_directory / hx / "tubesheet.csv");
-    in.read_header(io::ignore_extra_column, "cl_x", "cl_y", "hl_x", "hl_y",
-            "tube_id");
-    double cl_x, cl_y, hl_x, hl_y;
-    std::string tube_id;
+    std::filesystem::path csv_file = hx_directory / hx / "tubesheet.csv";
+    std::cout << "Reading " << csv_file << "\n";
 
-    while (in.read_row(cl_x, cl_y, hl_x, hl_y, tube_id)) {
+    io::CSVReader<7, io::trim_chars<' ', '\t'>, io::no_quote_escape<';'>> in(csv_file);
+    in.read_header(io::ignore_extra_column, "x_label", "y_label", "cl_x",
+            "cl_y", "hl_x", "hl_y", "tube_id");
+    std::string x_label, y_label;
+    float cl_x, cl_y, hl_x, hl_y;
+    std::string tube_id;
+    while (in.read_row(x_label, y_label, cl_x, cl_y, hl_x, hl_y, tube_id)) {
         if (leg == "cold" || leg == "both") {
-            tubes[std::string("CL_") + tube_id.substr(5)] = { cl_x, cl_y, 0 };
+            tubes.insert( { std::string(std::string("CL_") + tube_id.substr(5)),
+                    { x_label, y_label, {cl_x, cl_y, 0 }} });
+            svg.x_labels.insert(std::make_pair(x_label, cl_x));
+            svg.y_labels.insert(std::make_pair(y_label, cl_y));
         }
 
         if (leg == "hot" || leg == "both") {
-            tubes[std::string("HL_") + tube_id.substr(5)] = { hl_x, hl_y, 0 };
+            tubes.insert( { std::string(std::string("HL_") + tube_id.substr(5)),
+                    { x_label, y_label, {hl_x, hl_y, 0 }} });
+            svg.x_labels.insert(std::make_pair(x_label, hl_x));
+            svg.y_labels.insert(std::make_pair(y_label, hl_y));
         }
     }
+
+    generate_svg();
+    calculate_aligned_tubes();
 
     return true;
 }
@@ -189,8 +200,148 @@ Point3D InspectionSession::get_tube_coordinates(std::string tube_id, bool ideal)
     return Point3D();
 };
 
+void InspectionSession::generate_svg() {
+    std::cout << "Generating SVG..." << "\n";
+
+    namespace po = boost::program_options;
+    float min_x, width;
+    float min_y, height;
+    std::string font_size;
+    std::string x_labels_param;
+    std::string y_labels_param;
+    std::vector<std::string> config_x_labels_coords;
+    std::vector<std::string> config_y_labels_coords;
+
+    try {
+        po::options_description settings_desc("HX Settings");
+        settings_desc.add_options()("min_x",
+                po::value<float>(&min_x)->default_value(0),
+                "viewBox X minimum coord");
+        settings_desc.add_options()("width",
+                po::value<float>(&width)->default_value(0), "viewBoxWidth");
+        settings_desc.add_options()("min_y",
+                po::value<float>(&min_y)->default_value(0),
+                "viewBox Y minimum coord");
+        settings_desc.add_options()("height",
+                po::value<float>(&height)->default_value(0), "viewBox Height");
+        settings_desc.add_options()("font_size",
+                po::value<std::string>(&font_size)->default_value("0.25"),
+                "Number font size in px");
+        settings_desc.add_options()("x_labels",
+                po::value<std::string>(&x_labels_param)->default_value("0"),
+                "Where to locate x axis labels, can use several coords separated by space");
+        settings_desc.add_options()("y_labels",
+                po::value<std::string>(&y_labels_param)->default_value("0"),
+                "Where to locate x axis labels, can use several coords separated by space");
+        settings_desc.add_options()("help,h", "Help screen"); // what an strange syntax...
+        // ("config", po::value<std::string>(), "Config file");
+        po::variables_map vm;
+
+        //po::store(po::parse_command_line(argc, argv, settings_desc), vm);
+        std::filesystem::path config = hx_directory / hx / "config.ini";
+        if (std::filesystem::exists(config)) {
+            std::ifstream config_is = std::ifstream(config);
+            po::store(po::parse_config_file(config_is, settings_desc, true),
+                    vm);
+        }
+        po::notify(vm);
+
+        if (vm.count("help")) {
+            std::cout << settings_desc << '\n';
+        }
+
+        boost::split(config_x_labels_coords, x_labels_param, boost::is_any_of(" "));
+        boost::split(config_y_labels_coords, y_labels_param, boost::is_any_of(" "));
+
+    } catch (std::exception &e) {
+        std::cout << e.what() << std::endl;
+    }
+
+    float tube_r = tube_od / 2;
+
+    // Create the SVG document
+    rapidxml::xml_document<char> document;
+    rapidxml::xml_document<char> *doc = &document;
+    auto svg_node = doc->allocate_node(rapidxml::node_element, "svg");
+
+    append_attributes(doc, svg_node,
+            { { "xmlns", "http://www.w3.org/2000/svg" }, { "version", "1.1" },
+                    { "id", "tubesheet_svg" },
+                    { "viewBox", std::to_string(min_x)
+                    + " " + std::to_string(min_y) + " " + std::to_string(width)
+                    + " " + std::to_string(height) }, });
+
+    auto style_node = doc->allocate_node(rapidxml::node_element, "style");
+    append_attributes(doc, style_node, { { "type", "text/css" } });
+
+    float stroke_width = stof(font_size) / 10;
+
+    std::string style =
+            std::string(".tube {stroke: black; stroke-width: "+ std::to_string(stroke_width) + " ; fill: white;} ")
+                    + ".tube_num { text-anchor: middle; alignment-baseline: middle; font-family: sans-serif; font-size: "
+                    + font_size
+                    + "px; fill: black;}"
+                    ".label { text-anchor: middle; alignment-baseline: middle; font-family: sans-serif; font-size: " + font_size + "; fill: red;}";
+
+    style_node->value(style.c_str());
+
+    svg_node->append_node(style_node);
+    doc->append_node(svg_node);
+
+    auto cartesian_g_node = doc->allocate_node(rapidxml::node_element, "g");
+    append_attributes(doc, cartesian_g_node, { { "id", "cartesian" },
+            { "transform", "scale(1,-1)" } }
+    );
+    svg_node->append_node(cartesian_g_node);
+
+    auto x_axis = add_dashed_line(doc, 0, min_y, 0, min_y + height, stof(font_size));
+    auto y_axis = add_dashed_line(doc, min_x, 0, min_x + width, 0, stof(font_size));
+    cartesian_g_node->append_node(x_axis);
+    cartesian_g_node->append_node(y_axis);
+
+    for (auto config_coord : config_x_labels_coords) {
+        for (auto [label, coord] : svg.x_labels) {
+            auto label_x = add_label(doc, coord,
+                    std::stof(config_coord), label.c_str());
+            append_attributes(doc, label_x,
+                      { { "transform-origin", std::to_string(coord) + " " + config_coord },
+                        { "transform", "scale(1, -1) rotate(270)" },}
+            );
+            cartesian_g_node->append_node(label_x);
+        }
+    }
+
+    for (auto config_coord : config_y_labels_coords) {
+        for (auto [label, coord] : svg.y_labels) {
+            auto label_y = add_label(doc, std::stof(config_coord),
+                    coord, label.c_str());
+            append_attributes(doc, label_y,
+                    { { "transform-origin", config_coord + " " + std::to_string(coord) },
+                      { "transform", "scale(1, -1)" }, }
+            );
+           cartesian_g_node->append_node(label_y);
+        }
+    }
+
+    // Create an SVG circle element for each tube in the CSV data
+    for (const auto &tube_pair : tubes) {
+        auto tube = tube_pair.second;
+
+        auto tube_node = add_tube(doc, tube, tube_pair.first, tube_r);
+        cartesian_g_node->append_node(tube_node);
+    }
+
+    // Write the SVG document to a file
+    std::filesystem::path svg_path = hx_directory / hx / "tubesheet.svg";
+    std::ofstream file(svg_path);
+    file << document;
+    file.close();
+}
+
+
 std::map<std::string, Point3D> InspectionSession::calculate_aligned_tubes() {
-        //std::vector<Point3D> src_points = { { 1.625, 0.704, 0 },
+    std::cout << "Aligning Tubes... \n";
+    //std::vector<Point3D> src_points = { { 1.625, 0.704, 0 },
     //        {16.656, 2.815, 0},
     //        {71.125, 3.518, 0},
     //        };
@@ -234,7 +385,7 @@ std::map<std::string, Point3D> InspectionSession::calculate_aligned_tubes() {
     for (const auto &tube : tubes) {
         open3d::geometry::PointCloud one_tube_cloud;
         one_tube_cloud.points_.push_back(
-                Eigen::Vector3d(tube.second.x, tube.second.y, tube.second.z));
+                Eigen::Vector3d(tube.second.coords.x, tube.second.coords.y, tube.second.coords.z));
 
         one_tube_cloud.Transform(transformation_matrix);
         aligned_tubes[tube.first] = {(*one_tube_cloud.points_.begin()).x(), (*one_tube_cloud.points_.begin()).y(), (*one_tube_cloud.points_.begin()).z()};

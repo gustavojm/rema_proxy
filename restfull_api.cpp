@@ -396,7 +396,7 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> session) {
         constexpr int points_number = 5;
         static_assert(points_number % 2 != 0, "Number of points must be odd");
         std::vector<Point3D> reordered_points;
-        std::vector<Point3D> points = calculateCirclePoints(current_session.tubes[tube_id] / scale, tube_radius, points_number);
+        std::vector<Point3D> points = calculateCirclePoints(current_session.tubes[tube_id].coords / scale, tube_radius, points_number);
 
         int i = 0;
         for (int n = 0; n < points_number; n++) {

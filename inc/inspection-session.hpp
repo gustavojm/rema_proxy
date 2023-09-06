@@ -4,6 +4,7 @@
 #include <string>
 #include <filesystem>
 #include <json.hpp>
+#include <set>
 
 #include "points.hpp"
 
@@ -36,6 +37,13 @@ public:
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(CalPointEntry, col, row, ideal_coords, determined_coords, determined)
 
+class TubeEntry {
+public:
+    std::string x_label;
+    std::string y_label;
+    Point3D coords;
+};
+
 class InspectionSession {
 public:
     InspectionSession();
@@ -55,6 +63,8 @@ public:
     void cal_points_set_determined_coords(std::string tube_id, Point3D determined_coords);
 
     Point3D get_tube_coordinates(std::string tube_id, bool ideal);
+
+    void generate_svg();
 
     bool load(std::string session_name);
 
@@ -124,7 +134,14 @@ public:
     bool loaded = false;
     bool changed = false;
     std::string unit = "inch";
-    std::map<std::string, Point3D> tubes;
+    //std::map<std::string, TubeEntry> tubes;
+    std::map<std::string, TubeEntry> tubes;
+    struct {
+        std::vector<std::string> config_x_labels_coords;
+        std::vector<std::string> config_y_labels_coords;
+        std::set<std::pair<std::string, float>> x_labels;
+        std::set<std::pair<std::string, float>> y_labels;
+    } svg;
     std::map<std::string, CalPointEntry> cal_points;
 };
 
