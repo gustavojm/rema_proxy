@@ -426,13 +426,14 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> session) {
             }
         }
         res["reached_coords"] = tube_boundary_points;
-        auto [center, radius] = fitCircle(tube_boundary_points);
-        res["center"] = center;
+        Circle c = CircleFitByHyper(tube_boundary_points);
+        res["center"] = c.center;
+        res["radius"] = c.radius;
 
         sequence_step goto_center_step;
         goto_center_step.axes = "XY";
-        goto_center_step.first_axis_setpoint = center.x;
-        goto_center_step.second_axis_setpoint = center.y;
+        goto_center_step.first_axis_setpoint = c.center.x;
+        goto_center_step.second_axis_setpoint = c.center.y;
         goto_center_step.stop_on_probe = true;
         goto_center_step.stop_on_condition = true;
 
@@ -440,7 +441,6 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> session) {
 
         rema_instance.execute_sequence(goto_center_seq);
 
-        res["radius"] = radius;
         close_session(session, restbed::OK, res);
     }
 }
