@@ -8,13 +8,11 @@
 		style="width: 100%">
 		<thead>
 			<tr>
-				<th>CL_X</th>
-				<th>CL_Y</th>
-				<th>HL_X</th>
-				<th>HL_Y</th>
-				<th>COL</th>
-				<th>ROW</th>
-				<th>TUBE_ID</th>
+				<th>ID</th>
+				<th>Col</th>
+				<th>Row</th>
+				<th>X</th>
+				<th>Y</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -30,23 +28,27 @@
 			ajax : {
 				method : "GET",
 				url : "/REST/HXs/tubesheet/load",
-				dataSrc : '',
+				dataSrc :function ( data ) {
+					var array_data = [];
+					$.each(data, function(id, tube) {
+						tube.tube_id = id;
+						array_data.push(tube);
+					});
+					return array_data;
+				} 						
 			},
 			columns : [ {
-				data : 'cl_x'
-			}, {
-				data : 'cl_y'
-			}, {
-				data : 'hl_x'
-			}, {
-				data : 'hl_y'
-			}, {
-				data : 'x_label'
-			}, {
-				data : 'y_label'
-			}, {
-				data : 'tube_id'				
-			}, ]
+					data : 'tube_id'				
+				}, {
+					data : 'x_label'
+				}, {
+					data : 'y_label'
+				},{
+					data : 'coords.x'
+				}, {
+					data : 'coords.y'
+				},  
+			]
 
 		});
 	});

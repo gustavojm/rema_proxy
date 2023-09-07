@@ -70,7 +70,7 @@ void HXs_list_(const std::shared_ptr<restbed::Session> session) {
 }
 
 void HXs_tubesheet_load(const std::shared_ptr<restbed::Session> session) {
-    close_session(session, restbed::OK,  nlohmann::json(HX_get_tubes(current_session.tubesheet_csv)));
+    close_session(session, restbed::OK,  nlohmann::json(current_session.tubes));
 }
 
 /**

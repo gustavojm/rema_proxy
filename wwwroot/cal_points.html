@@ -218,7 +218,8 @@ $(function() {
 					dataSrc :function ( data ) {
 						var array_data = [];
 						$.each(data, function(id, tube) {
-							 array_data.push({tube_id : id, col: tube.col, row: tube.row, determined : tube.determined, ideal_coords: tube.ideal_coords, determined_coords: tube.determined_coords });
+							tube.tube_id = id;
+							array_data.push(tube);
 						});
 						return array_data;
 					} 						

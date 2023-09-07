@@ -546,7 +546,8 @@ svg .tube:hover {
 								dataSrc :function ( data ) {
 									var array_data = [];
 									$.each(data, function(id, tube) {
-										 array_data.push({tube_id : id, seq: tube.seq, col: tube.col, row: tube.row, inspected: tube.inspected});
+										tube.tube_id = id;
+										array_data.push(tube);
 									});
 									return array_data;
 								} 

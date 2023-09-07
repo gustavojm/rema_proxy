@@ -43,6 +43,7 @@ public:
     std::string y_label;
     Point3D coords;
 };
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(TubeEntry, x_label, y_label, coords)
 
 class InspectionSession {
 public:
