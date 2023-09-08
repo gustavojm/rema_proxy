@@ -258,7 +258,7 @@ $(function() {
 						{
 							data : 'determined',
 							render : function(data, type, row) {
-								return '<input type="checkbox" value='
+								return '<input type="checkbox" onclick="return false;" value='
 										+ row.tube_id
 										+ (data == true ? ' checked'
 												: '') + '>';

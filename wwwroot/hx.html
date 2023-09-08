@@ -419,7 +419,7 @@ svg .tube:hover {
 						var table = $('#insp_plan_table').DataTable();
 						insp_plans_dropdown.empty();
 						insp_plans_dropdown
-								.append('<option>Choose an Inspection Plan</option>');
+								.append('<option value="">Choose an Inspection Plan</option>');
 						insp_plans_dropdown.prop('selectedIndex', 0);
 
 						// Populate dropdown with list of Inspection Plans 		
@@ -447,6 +447,12 @@ svg .tube:hover {
 							insp_plans_dropdown.css("background-color", $(
 									"option:selected", this).css(
 									"background-color"));
+							if ($("option:selected", this).val() == "") {							
+								console.log("here");
+								$("#tubesheet_svg").find("circle").css("fill", "");
+								$("#tubesheet_svg").find("g").css("opacity", "");
+							}
+							
 							table.ajax.url("/REST/inspection-plans/" + $(this).val());
 							table.ajax.reload();
 						});
