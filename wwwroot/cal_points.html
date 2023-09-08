@@ -206,6 +206,7 @@ function aligned_tubes_get() {
 		method : "GET",
 		url : "/REST/aligned-tubesheet-get",
 		success : function(data) {
+			aligned_tubes = data;
 			var svg = $("#tubesheet_svg").svg("get");
 			$(".determined_tube").remove();
 			$.each(data, function(id, coords) {
@@ -392,6 +393,18 @@ $(function() {
 			aligned_tubes_get();
 		}
 	});	
+
+	$("#determined_coords_x").on("dblclick", function() {
+		$(this).val($("#position_x").val());
+	})
+
+	$("#determined_coords_y").on("dblclick", function() {
+		$(this).val($("#position_y").val());
+	})
+	
+	$("#determined_coords_z").on("dblclick", function() {
+		$(this).val($("#position_z").val());
+	})
 	
 });
 

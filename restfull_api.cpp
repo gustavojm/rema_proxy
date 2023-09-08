@@ -290,7 +290,7 @@ void cal_points_add_update(const std::shared_ptr<restbed::Session> session) {
                     Point3D determined_coords = {
                             to_float(form_data.value("determined_coords_x", "0")),
                             to_float(form_data.value("determined_coords_y", "0")),
-                            0
+                            to_float(form_data.value("determined_coords_z", "0")),
                     };
                     if (!tube_id.empty()) {
                         current_session.cal_points_add_update(tube_id, form_data["col"], form_data["row"], ideal_coords, determined_coords);
