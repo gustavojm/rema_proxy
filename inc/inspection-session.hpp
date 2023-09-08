@@ -57,11 +57,9 @@ public:
 
     std::map<std::string, struct InspectionPlanEntry> inspection_plan_get(std::string insp_plan);
 
-    void cal_points_add(std::string tube_id, std::string col, std::string row, Point3D ideal_coords, Point3D determined_coords);
+    void cal_points_add_update(std::string tube_id, std::string col, std::string row, Point3D ideal_coords, Point3D determined_coords);
 
     void cal_points_delete(std::string id);
-
-    void cal_points_set_determined_coords(std::string tube_id, Point3D determined_coords);
 
     Point3D get_tube_coordinates(std::string tube_id, bool ideal);
 
@@ -117,7 +115,7 @@ public:
         std::filesystem::remove(insp_sessions_dir / (session_name + std::string(".json")));
     }
 
-    std::map<std::string, Point3D> calculate_aligned_tubes();
+    std::map<std::string, Point3D>& calculate_aligned_tubes();
 
     std::map<std::string,
             std::map<std::string,
@@ -135,8 +133,8 @@ public:
     bool loaded = false;
     bool changed = false;
     std::string unit = "inch";
-    //std::map<std::string, TubeEntry> tubes;
     std::map<std::string, TubeEntry> tubes;
+    std::map<std::string, Point3D> aligned_tubes;
     struct {
         std::vector<std::string> config_x_labels_coords;
         std::vector<std::string> config_y_labels_coords;

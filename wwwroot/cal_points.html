@@ -81,16 +81,13 @@ svg .tube.highlight_cal_tube  {
 		</div>
 		<div>
 			<form id="cal_point_info">			
-				<div class="row">
+				<div class="row" style="padding-bottom: 10px;">
 				Tube Id:<input type="text" size="4" id="cal_point_tube_id" name="tube_id"> 
 					Col:<input type="text" size="4" id="cal_tube_info_col" name="col"> 
 					Row:<input type="text" size="4" id="cal_tube_info_row" name="row"> 
 				</div>
-				<div style="padding: 10px;" class="row">
-					<button id="set_as_cal_point" disabled="disabled">Set as Calibration Point</button>
-				</div>
 				<div class="container">
-			        <div class="column" style="width: 70%">
+			        <div class="column" style="width: 65%">
 			        	<div class="row">
 			        		<div class="content"></div>
 			        		<div class="content">Ideal</div>
@@ -112,10 +109,10 @@ svg .tube.highlight_cal_tube  {
 				            <div class="content"><input type="text" size="6" id="determined_coords_z" name="determined_coords_z"></div>
 			            </div>
 			        </div>
-			        <div class="column" style="vertical-align: middle; align-items: center; width: 30%">
-			        	<button style="position: relative; width:80%" id="copy_center">Copy</button>
-			            <button style="position: relative; width:80%" id="determine_center">Center</button>
-			            <button style="position: relative; width:80%" id="cal_point_update">Update</button>
+			        <div class="column" style="vertical-align: middle; align-items: center; width: 35%">
+			        	<button style="position: relative; width:100%" id="copy_center">Copy</button>
+			            <button style="position: relative; width:100%" id="determine_center">Center</button>
+			            <button style="position: relative; width:100%" id="cal_point_add_update">Add/Update</button>
 			        </div>
 			    </div>
 			</form>				
@@ -127,6 +124,8 @@ svg .tube.highlight_cal_tube  {
 </div>
 
 <script type="text/javascript">
+
+var showing_aligned_tubeseet = false;
 
 //Shows information of the selected tube either on the datatables or the HX itself
 function show_cal_point_info(data, from_table = false) {
@@ -202,6 +201,27 @@ function drawAlignedCircle(svg, id, coords, radius, scale) {
 	});
 }
 
+function aligned_tubes_get() {
+	$.ajax({
+		method : "GET",
+		url : "/REST/aligned-tubesheet-get",
+		success : function(data) {
+			var svg = $("#tubesheet_svg").svg("get");
+			$(".determined_tube").remove();
+			$.each(data, function(id, coords) {
+				  //console.log(`${key}: ${value}`);				  
+				  drawAlignedCircle(svg, id, coords, 0.05, scale);
+			});
+		},
+		error: function(xhr, status, error) {
+			alert("Error");
+			console.log("Error", status, error);
+		}						
+	});
+	showing_aligned_tubeseet = true;
+	$("#show_hide_aligned_tubesheet").text("Hide Aligned Tubesheet");	
+}
+
 
 $(function() {
 	var table = $('#calibration_table')
@@ -266,6 +286,7 @@ $(function() {
 					type : "DELETE",
 					success: function(data) {
 						table.ajax.reload();
+						aligned_tubes_get();
 					},
 					error: function(xhr, status, error) {
 						alert("Error");
@@ -293,23 +314,6 @@ $(function() {
 		}
 	);
 	
-	$("#set_as_cal_point").click(function(e) {
-		e.preventDefault();
-		$.ajax({
-			method : "POST",
-			url : "/REST/calibration-points",
-			data: JSON.stringify(Object.fromEntries(new FormData(document.getElementById("cal_point_info")))),
-			success : function() {
-				table = $('#calibration_table').DataTable();
-				table.ajax.reload();
-			},
-			error: function(xhr, status, error) {
-				alert("Error");
-				console.log("Error", status, error);
-			}						
-		});
-	});
-
 	$("#copy_center").click(function(e) {
 		e.preventDefault();
 		$("#determined_coords_x").val($("#ideal_coords_x").val());
@@ -354,55 +358,40 @@ $(function() {
 			});			
 	});	
 
-	$("#cal_point_update").click(function(e) {
+	$("#cal_point_add_update").click(function(e) {
 		e.preventDefault();
 		cal_point_id = $("#cal_point_tube_id").val();
-		$.ajax({
-			method : "PUT",
-			url : "/REST/calibration-points/" + cal_point_id,
-			data: JSON.stringify(Object.fromEntries(new FormData(document.getElementById("cal_point_info")))),
-			success : function() {
-				$("#cal_point_info input[type=text]").val("");
-				table = $('#calibration_table').DataTable();
-				table.ajax.reload();
-			},
-			error: function(xhr, status, error) {
-				alert("Error");
-				console.log("Error", status, error);
-			}						
-		});
-	});
-
-	var showing_aligned_tubeseet = false;
-	
-	$("#show_hide_aligned_tubesheet").click(function(e) {
-		if (showing_aligned_tubeseet) {
-			$(".determined_tube").hide();
-			showing_aligned_tubeseet = false;
-			$("#show_hide_aligned_tubesheet").text("Show Aligned Tubesheet");
-			
-		} else {
+		if (cal_point_id==="") {
+			alert("Select a tube");	
+		} else {		
 			$.ajax({
-				method : "GET",
-				url : "/REST/aligned-tubesheet-get",
-				success : function(data) {
-					var svg = $("#tubesheet_svg").svg("get");					
-					$.each(data, function(id, coords) {
-						  //console.log(`${key}: ${value}`);
-						  drawAlignedCircle(svg, id, coords, 0.05, scale);
-					});
+				method : "PUT",
+				url : "/REST/calibration-points/" + cal_point_id,
+				data: JSON.stringify(Object.fromEntries(new FormData(document.getElementById("cal_point_info")))),
+				success : function() {
+					$("#cal_point_info input[type=text]").val("");
+					table = $('#calibration_table').DataTable();
+					table.ajax.reload();
+					aligned_tubes_get();
 				},
 				error: function(xhr, status, error) {
 					alert("Error");
 					console.log("Error", status, error);
 				}						
 			});
-			showing_aligned_tubeseet = true;
-			$("#show_hide_aligned_tubesheet").text("Hide Aligned Tubesheet");
 		}
 	});
-	
-	
+
+	$("#show_hide_aligned_tubesheet").click(function(e) {
+		if (showing_aligned_tubeseet) {
+			$(".determined_tube").remove();
+			showing_aligned_tubeseet = false;
+			$("#show_hide_aligned_tubesheet").text("Show Aligned Tubesheet");
+			
+		} else {
+			aligned_tubes_get();
+		}
+	});	
 	
 });
 

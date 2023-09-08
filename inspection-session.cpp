@@ -173,13 +173,13 @@ void InspectionSession::set_tube_inspected(std::string insp_plan,
     changed = true;
 }
 
-void InspectionSession::cal_points_add(std::string tube_id, std::string col, std::string row, Point3D ideal_coords, Point3D determined_coords)  {
+void InspectionSession::cal_points_add_update(std::string tube_id, std::string col, std::string row, Point3D ideal_coords, Point3D determined_coords)  {
     CalPointEntry cpe = {
             col,
             row,
             ideal_coords,
             determined_coords,
-            false,
+            true,
     };
     cal_points[tube_id] = cpe;
     changed = true;
@@ -187,12 +187,6 @@ void InspectionSession::cal_points_add(std::string tube_id, std::string col, std
 
 void InspectionSession::cal_points_delete(std::string tube_id)  {
     cal_points.erase(tube_id);
-    changed = true;
-}
-
-void InspectionSession::cal_points_set_determined_coords(std::string tube_id, Point3D determined_coords)  {
-    cal_points[tube_id].determined_coords = determined_coords;
-    cal_points[tube_id].determined = true;
     changed = true;
 }
 
@@ -339,7 +333,7 @@ void InspectionSession::generate_svg() {
 }
 
 
-std::map<std::string, Point3D> InspectionSession::calculate_aligned_tubes() {
+std::map<std::string, Point3D>& InspectionSession::calculate_aligned_tubes() {
     std::cout << "Aligning Tubes... \n";
     //std::vector<Point3D> src_points = { { 1.625, 0.704, 0 },
     //        {16.656, 2.815, 0},
@@ -381,7 +375,6 @@ std::map<std::string, Point3D> InspectionSession::calculate_aligned_tubes() {
     std::cout << transformation_matrix << std::endl;
 
     // Transform the source point cloud
-    std::map<std::string, Point3D> aligned_tubes;
     for (const auto &tube : tubes) {
         open3d::geometry::PointCloud one_tube_cloud;
         one_tube_cloud.points_.push_back(

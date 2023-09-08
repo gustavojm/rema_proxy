@@ -238,13 +238,12 @@ void inspection_sessions_info(const std::shared_ptr<restbed::Session> session) {
     nlohmann::json res = nlohmann::json::object();
     if (current_session.is_loaded()) {
         res = current_session;
-        res["aligned_tubes"] = current_session.calculate_aligned_tubes();
+        res["aligned_tubes"] = current_session.aligned_tubes;
         res["is_loaded"] = true;
     } else {
         res["is_loaded"] = false;
     }
     close_session(session, restbed::OK, res);
-
 }
 
 void inspection_sessions_delete(const std::shared_ptr<restbed::Session> session) {
@@ -268,46 +267,7 @@ void cal_points_list(const std::shared_ptr<restbed::Session> session) {
     close_session(session, restbed::OK, nlohmann::json(current_session.cal_points));
 }
 
-void cal_points_add(const std::shared_ptr<restbed::Session> session) {
-    const auto request = session->get_request();
-    size_t content_length = request->get_header("Content-Length", 0);
-    session->fetch(content_length,
-            [&](const std::shared_ptr<restbed::Session> &session,
-                    const restbed::Bytes &body) {
-
-                nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
-                std::string res;
-                int status;
-
-                try {
-                    std::string tube_id = form_data["tube_id"];
-                    Point3D ideal_coords = {
-                            to_float(form_data.value("ideal_coords_x", "0")),
-                            to_float(form_data.value("ideal_coords_y", "0")),
-                            to_float(form_data.value("ideal_coords_z", "0")),
-                    };
-
-                    Point3D determined_coords = {
-                            to_float(form_data.value("determined_coords_x", "0")),
-                            to_float(form_data.value("determined_coords_y", "0")),
-                            to_float(form_data.value("determined_coords_z", "0")),
-                    };
-                    if (!tube_id.empty()) {
-                        current_session.cal_points_add(tube_id, form_data["col"], form_data["row"], ideal_coords, determined_coords);
-                        status = restbed::OK;
-                    } else {
-                        res += "No tool name specified";
-                        status = restbed::BAD_REQUEST;
-                    }
-                } catch(std::exception &e) {
-                    res += e.what();
-                    status = restbed::INTERNAL_SERVER_ERROR;
-                }
-                close_session(session, status, res);
-    });
-};
-
-void cal_points_update(const std::shared_ptr<restbed::Session> session) {
+void cal_points_add_update(const std::shared_ptr<restbed::Session> session) {
     const auto request = session->get_request();
     std::string tube_id = request->get_path_parameter("tube_id", "");
 
@@ -321,16 +281,22 @@ void cal_points_update(const std::shared_ptr<restbed::Session> session) {
                 int status;
 
                 try {
+                    Point3D ideal_coords = {
+                            to_float(form_data.value("ideal_coords_x", "0")),
+                            to_float(form_data.value("ideal_coords_y", "0")),
+                            to_float(form_data.value("ideal_coords_z", "0")),
+                    };
+
                     Point3D determined_coords = {
                             to_float(form_data.value("determined_coords_x", "0")),
                             to_float(form_data.value("determined_coords_y", "0")),
                             0
                     };
                     if (!tube_id.empty()) {
-                        current_session.cal_points_set_determined_coords(tube_id, determined_coords);
+                        current_session.cal_points_add_update(tube_id, form_data["col"], form_data["row"], ideal_coords, determined_coords);
                         status = restbed::OK;
                     } else {
-                        res += "No tool name specified";
+                        res += "No tube specified";
                         status = restbed::BAD_REQUEST;
                     }
                 } catch(std::exception &e) {
@@ -473,11 +439,8 @@ void restfull_api_create_endpoints(restbed::Service &service) {
                                                    }
         },
         {"current-session/info", {{"GET", &inspection_sessions_info}}},
-        {"calibration-points", {{"GET", &cal_points_list},
-                                {"POST", &cal_points_add},
-                               },
-        },
-        {"calibration-points/{tube_id: .*}", {{"PUT", &cal_points_update},
+        {"calibration-points", {{"GET", &cal_points_list}}},
+        {"calibration-points/{tube_id: .*}", {{"PUT", &cal_points_add_update},
                                               {"DELETE", &cal_points_delete}}
                                              },
         {"tubes/{tube_id: .*}", {{"PUT", &tubes_set_status}}},
