@@ -21,6 +21,14 @@
 	height: auto;
 }
 
+.emergency-stop {
+	width: 100px;
+	height: 100px;
+	margin: 0px;
+	height: auto;
+}
+
+
 .joystick-arrow {
 	width: 50px;
 	height: 50px;
@@ -75,7 +83,7 @@
 					<div class="row">
 						<div class="joystick-limit-vertical" data-limit="left"></div>
 						<img alt="" src="images/left.png" class="joystick-arrow left" data-dir="left"> 
-						<img alt="" src="images/stop_red.png" class="joystick-stop" data-dir="none"> 
+						<img alt="" src="images/h.png" class="joystick-arrow" data-dir="none" id="home_xy"> 
 						<img alt="" src="images/right.png" class="joystick-arrow rigth" data-dir="right">
 						<div class="joystick-limit-vertical" data-limit="right"></div>
 					</div>
@@ -103,8 +111,8 @@
 						<img alt="" src="images/z_up.png" class="joystick-arrow"
 							data-dir="z_in">
 					</div>
-					<img alt="" src="images/z.png" class="joystick-arrow"
-						data-dir="none">
+					<img alt="" src="images/h.png" class="joystick-arrow"
+						data-dir="none" id="home_z">
 					<div class="row">
 						<img alt="" src="images/z_down.png" class="joystick-arrow"
 							data-dir="z_out">
@@ -122,10 +130,8 @@
 			style="float: left; width: 100%; display: flex; justify-content: center; align-items: center;">
 			<div style="float: left; padding: 15px;">
 				<div style="text-align: center;">
-					<div>HOME (0, 0, 0)</div>
 					<div style="padding-top: 5px;">
-						<img alt="" src="images/target.png" height="40" width="40"
-							id="home_button">
+							<img alt="" src="images/stop_red.png" class="emergency-stop" id="emergency_stop">
 					</div>
 				</div>
 			</div>
@@ -264,10 +270,10 @@
 			dataType : "json",
 			success : function(data) {
 				var power_switch = $('#power_switch');
-				power_switch.prop('checked', data.CONTROL_ENABLE.STATUS).change();
+				power_switch.prop('checked', data["CONTROL_ENABLE"].STATUS).change();
 
 				var stall_switch = $('#stall_switch');
-				stall_switch.prop('checked', data.STALL_CONTROL.STATUS).change();
+				stall_switch.prop('checked', data["STALL_CONTROL"].STATUS).change();
 			}
 		});
 	}
@@ -282,6 +288,45 @@
 		})
 	}
 
+	function set_home_xy(x, y) {
+		$.ajax({
+			url : "/REMA/",
+			method : "POST",
+			contentType : "application/json",
+			data : JSON.stringify({
+				commands : [ {
+					command : "SET_COORDS",
+					pars : {
+						position_x : x,
+						position_y : y,
+					}
+				} ]
+			}),
+			dataType : "json",
+			success : function(data) {				
+			}
+		});						
+	}
+
+	function set_home_z(z) {
+		$.ajax({
+			url : "/REMA/",
+			method : "POST",
+			contentType : "application/json",
+			data : JSON.stringify({
+				commands : [ {
+					command : "SET_COORDS",
+					pars : {
+						position_z : z,
+					}
+				} ]
+			}),
+			dataType : "json",
+			success : function(data) {				
+			}
+		});						
+	}
+	
 	$(function() {
 		$(".joystick-arrow").mouseup(function() {
 			stop();
@@ -289,7 +334,7 @@
 			stop();
 		});
 
-		$(".joystick-stop").click(function() {
+		$("#emergency_stop").click(function() {
 			$.ajax({
 				url : "/REMA/",
 				method : "POST",
@@ -330,7 +375,7 @@
 					}]
 				}),
 				dataType : "json",
-				success : function(data) {					
+				success : function(data) {
 					stall_switch.prop('checked', data.STALL_CONTROL.STATUS).change();
 				}
 			});
@@ -367,25 +412,58 @@
 
 		update_switches(false); // brings current status from REMA
 
-		$("#home_button").click(function() {
-			$.ajax({
-				url : "/REMA/",
-				method : "POST",
-				contentType : "application/json",
-				data : JSON.stringify({
-					commands : [ {
-						command : "SET_CAL_POINT",
-						pars : {
-							position_x : 0,
-							position_y : 0,
-						}
-					} ]
-				}),
-				dataType : "json",
-				success : function(data) {				
+		
+		$("#home_xy").click(function(e) {
+			tube_id = $("#tube_info_id").val();
+			var x = 0, y = 0;
+			if (tube_id !== "") {						
+				x = tubes[tube_id].coords.x;
+				y = tubes[tube_id].coords.y;
+			}
+			if (e.shiftKey) {
+				if (tube_id == "") {
+					alert("Please, select a tube");
+				} else {
+					if (confirm("Are you sure you want to determine current tube center and make it position X:" + x.toFixed(4) + ", Y:" + y.toFixed(4) + " ?")) {
+						$.ajax({
+							method : "GET",
+							url : "/REST/determine-tube-center/" + tube_id,
+							data : JSON.stringify(),
+							timeout: 25000,
+						})
+						.then(function(data) {							
+							set_home_xy(x / scale, y / scale);
+						});
+					}
 				}
-			});			
+			} else {
+				if (confirm("Are you sure you want to make current position X:" + x.toFixed(4) + ", Y:" + y.toFixed(4) + " ?")) {
+					set_home_xy(x, y);
+				}				
+			}			
+		});
+		
+		$("#home_z").click(function(e) {
+			if (e.shiftKey) {
+				if (confirm("Are you sure you want to determine the position of the tubesheet and make it position Z:0 ?")) {
+					$.ajax({
+						method : "GET",
+						url : "/REST/determine-tubesheet-z/",
+						data : JSON.stringify(),
+						timeout: 25000,
+					})
+					.then(function(data) {							
+						set_home_z(0);
+					});
+				}
+			} else {
+				if (confirm("Are you sure you want to make current position Z:0 ?")) {
+					set_home_z(0)
+				}				
+			}			
 		});		
+		
+		
 	});
 </script>
 

@@ -35,6 +35,20 @@
 .high {
 	background-color: red;
 }
+
+.touch-probe {
+	margin: 2px;
+	padding: 3px;
+	height: 8px;
+	width: 8px;
+	align-items: center;
+}
+
+.touch {
+	background-color: red;
+}
+
+
 </style>
 
 <script src="js/jquery.js"></script>
@@ -84,14 +98,17 @@
 			<div class="temperature normal" id="temperature_x">__._ºC</div>
 			<div class="temperature normal" id="temperature_y">__._ºC</div>
 			<div class="temperature normal" id="temperature_z">__._ºC</div>
-		</div>
-
+		</div>		
 		<div style="float: left;" class="col">
 			Position X:<input type="text" id="position_x" name="position X"
 				readonly="readonly" size="4">&nbsp; Y:<input type="text"
 				id="position_y" name="position Y" readonly="readonly" size="4">&nbsp;
 			Z:<input type="text" id="position_z" name="position Z"
 				readonly="readonly" size="4">&nbsp; <span class="units">inch</span>
+		</div>
+		<div style="float: left; justify-content:center; max-width: 10%"
+			class="col">
+			Touch Probe:<div class="touch-probe normal"></div>
 		</div>
 		<div class="col">
 			<span style="float: right; padding-right: 10px;" id="sse"></span> <span
@@ -195,6 +212,11 @@ get_session_info_index()
 		if (typeof update_limits === "function") {
 			update_limits(telemetry.limits);
 		}
+		
+		$("#touch_probe")
+			.removeClass("normal")
+			.removeClass("touch")
+			.addClass(telemetry.limits.probe ? "touch" : "normal");		
 		
 		var current_tab = $("#tabs").tabs('option', 'active');
 		if (current_tab == 3 && typeof(update_bullseye_position) === "function") {

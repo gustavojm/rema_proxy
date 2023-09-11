@@ -410,6 +410,7 @@ svg .tube:hover {
 							$("#session_name").text("Session: " + data.name);
 							scale = data.unit == "mm" ? 25.4 : 1;
 							tube_od = data.tube_od;
+							tubes = data.tubes;
 							aligned_tubes = data.aligned_tubes;
 						}
 						svg_load("../"
@@ -447,8 +448,7 @@ svg .tube:hover {
 							insp_plans_dropdown.css("background-color", $(
 									"option:selected", this).css(
 									"background-color"));
-							if ($("option:selected", this).val() == "") {							
-								console.log("here");
+							if ($("option:selected", this).val() == "") {								
 								$("#tubesheet_svg").find("circle").css("fill", "");
 								$("#tubesheet_svg").find("g").css("opacity", "");
 							}

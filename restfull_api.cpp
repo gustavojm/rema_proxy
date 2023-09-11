@@ -238,6 +238,7 @@ void inspection_sessions_info(const std::shared_ptr<restbed::Session> session) {
     nlohmann::json res = nlohmann::json::object();
     if (current_session.is_loaded()) {
         res = current_session;
+        res["tubes"] = current_session.tubes;
         res["aligned_tubes"] = current_session.aligned_tubes;
         res["is_loaded"] = true;
     } else {
@@ -411,6 +412,58 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> session) {
     }
 }
 
+void determine_tubesheet_z(const std::shared_ptr<restbed::Session> session) {
+    REMA &rema_instance = REMA::get_instance();
+
+    nlohmann::json res;
+    std::vector<sequence_step> seq;
+    sequence_step step_fw;
+    step_fw.axes = "Z";
+    step_fw.first_axis_setpoint = 0.2;
+    step_fw.second_axis_setpoint = 0;
+    step_fw.stop_on_probe = true;
+    step_fw.stop_on_condition = true;
+
+    sequence_step step_bw;
+    step_bw.axes = "Z";
+    step_bw.first_axis_setpoint = -0.2;
+    step_bw.second_axis_setpoint = 0;
+    step_bw.stop_on_probe = true;
+    step_bw.stop_on_condition = true;
+
+    seq.push_back(step_fw);
+    seq.push_back(step_bw);
+    seq.push_back(step_fw);
+    seq.push_back(step_bw);
+
+    rema_instance.execute_sequence(seq);
+
+    double sum_z = 0;
+    int count = 0;
+    for (auto step : seq) {
+        if (step.executed && step.execution_results.stopped_on_condition) {  // average all the touches (ask for stopped_on_probe
+            sum_z += step.execution_results.coords.z;
+            count++;
+        }
+    }
+
+    double z = sum_z / count;
+
+    sequence_step goto_tubesheet_step;
+    goto_tubesheet_step.axes = "Z";
+    goto_tubesheet_step.first_axis_setpoint = z;
+    goto_tubesheet_step.second_axis_setpoint = 0;
+    goto_tubesheet_step.stop_on_probe = true;                                // to reach the averaged z it should not stop on probe...
+    goto_tubesheet_step.stop_on_condition = true;
+
+    std::vector<sequence_step> goto_center_seq(1, goto_tubesheet_step);
+
+    rema_instance.execute_sequence(goto_center_seq);
+
+    close_session(session, restbed::OK, res);
+
+}
+
 void aligned_tubesheet_get(const std::shared_ptr<restbed::Session> session) {
     close_session(session, restbed::OK, nlohmann::json(current_session.calculate_aligned_tubes()));
 }
@@ -445,6 +498,7 @@ void restfull_api_create_endpoints(restbed::Service &service) {
                                              },
         {"tubes/{tube_id: .*}", {{"PUT", &tubes_set_status}}},
         {"determine-tube-center/{tube_id: .*}", {{"GET", &determine_tube_center}}},
+        {"determine-tubesheet-z", {{"GET", &determine_tubesheet_z}}},
         {"aligned-tubesheet-get", {{"GET", &aligned_tubesheet_get}}},
     };
 // @formatter:on
