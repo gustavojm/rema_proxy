@@ -53,6 +53,8 @@ public:
 
     explicit InspectionSession(std::filesystem::path inspection_session_file);
 
+    void process_csv();
+
     std::string load_plans();
 
     std::map<std::string, struct InspectionPlanEntry> inspection_plan_get(std::string insp_plan);
@@ -79,7 +81,7 @@ public:
                 buffer << std::put_time(gmt, "%A, %d %B %Y %H:%M");
                 std::string formattedFileTime = buffer.str();
 
-                InspectionSession insp_session(entry);
+                InspectionSession insp_session(entry.path().filename().replace_extension());
                 insp_session.last_write_time = buffer.str();
 
                 res.push_back(insp_session);
@@ -105,8 +107,6 @@ public:
     void set_selected_plan(std::string plan);
 
     std::string get_selected_plan() const;
-
-    void set_tube_inspected(std::string tube_id, bool state);
 
     void set_tube_inspected(std::string insp_plan,
             std::string tube_id, bool state);
@@ -142,10 +142,12 @@ public:
         std::set<std::pair<std::string, float>> y_labels;
     } svg;
     std::map<std::string, CalPointEntry> cal_points;
+    int total_tubes_in_plans = 0;
+    int total_tubes_inspected = 0;
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(InspectionSession, name,
         last_write_time, hx_directory, hx, tubesheet_csv, tubesheet_svg,
-        last_selected_plan, insp_plans, leg, tube_od, unit, cal_points)
+        last_selected_plan, insp_plans, leg, tube_od, unit, cal_points, total_tubes_in_plans, total_tubes_inspected)
 
 #endif 		// INSP_SESSION_HPP

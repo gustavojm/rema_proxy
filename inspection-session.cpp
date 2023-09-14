@@ -12,33 +12,13 @@
 #include "boost/program_options.hpp"
 #include "svg.hpp"
 
-InspectionSession::InspectionSession() :
-        loaded(false) {
+InspectionSession::InspectionSession() = default;
+
+InspectionSession::InspectionSession(std::filesystem::path inspection_session_file) {
+    load(inspection_session_file);
 }
 
-InspectionSession::InspectionSession(
-        std::filesystem::path inspection_session_file) {
-
-    std::ifstream i(inspection_session_file);
-    nlohmann::json j;
-    i >> j;
-    *this = j;
-    this->loaded = true;
-    this->name = inspection_session_file.filename().replace_extension();
-}
-
-bool InspectionSession::load(std::string session_name) {
-
-    std::filesystem::path session_path = insp_sessions_dir / (session_name + std::string(".json"));
-
-    std::ifstream i(session_path);
-
-    nlohmann::json j;
-    i >> j;
-    *this = j;
-    this->loaded = true;
-    this->name = session_name;
-
+void InspectionSession::process_csv() {
     std::filesystem::path csv_file = hx_directory / hx / "tubesheet.csv";
     std::cout << "Reading " << csv_file << "\n";
 
@@ -63,11 +43,8 @@ bool InspectionSession::load(std::string session_name) {
             svg.y_labels.insert(std::make_pair(y_label, hl_y));
         }
     }
-
     generate_svg();
     calculate_aligned_tubes();
-
-    return true;
 }
 
 InspectionSession::InspectionSession(std::string session_name,
@@ -104,6 +81,23 @@ InspectionSession::InspectionSession(std::string session_name,
     } catch (std::exception &e) {
         std::cout << e.what() << "\n";
     }
+
+    process_csv();
+}
+
+bool InspectionSession::load(std::string session_name) {
+    std::filesystem::path session_path = insp_sessions_dir / (session_name + std::string(".json"));
+    std::ifstream i(session_path);
+
+    nlohmann::json j;
+    i >> j;
+    *this = j;
+    this->loaded = true;
+    this->name = session_name;
+
+    process_csv();
+
+    return true;
 }
 
 std::string InspectionSession::load_plans() {
@@ -127,6 +121,7 @@ std::string InspectionSession::load_plans() {
             std::string tube_num_stripped = tube_num.substr(5);
             insp_plans[entry.path().filename().replace_extension()][tube_num_stripped] = InspectionPlanEntry {
                     seq, row, col, false };
+            total_tubes_in_plans++;
         }
     }
     loaded = true;
@@ -162,14 +157,10 @@ std::string InspectionSession::get_selected_plan() const {
     return last_selected_plan;
 }
 
-void InspectionSession::set_tube_inspected(std::string tube_id, bool state) {
-    insp_plans[last_selected_plan][tube_id].inspected = state;
-    changed = true;
-}
-
 void InspectionSession::set_tube_inspected(std::string insp_plan,
         std::string tube_id, bool state) {
     insp_plans[insp_plan][tube_id].inspected = state;
+    state ? total_tubes_inspected++ : total_tubes_inspected--;
     changed = true;
 }
 

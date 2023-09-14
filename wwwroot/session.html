@@ -2,6 +2,32 @@
 
 <script type="text/javascript" src="js/datatables.min.js"></script>
 
+<style type="text/css">
+.progress-bar {
+    width: 100%;
+    background-color: #ccc;
+    height: 20px;
+    position: relative; /* Needed for absolute positioning of the text */
+}
+
+/* Styles for the progress indicator */
+.progress {
+    height: 100%;
+    background-color: #4CAF50; /* Change this color to your desired progress bar color */
+    transition: width 0.3s ease-in-out;
+    position: relative; /* Needed for absolute positioning of the text */
+}
+
+/* Styles for the progress text */
+.progress-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff; /* Text color */
+}
+
+</style>
 
 <div id="new_session_div" style="overflow: hidden; width: 100%;">
 	<form id="session_create">
@@ -30,6 +56,7 @@
 				<th>Name</th>
 				<th>HX</th>
 				<th>Date</th>
+				<th>Progress</th>
 				<th>Options</th>
 			</tr>
 		</thead>
@@ -60,6 +87,18 @@
 							{
 								data : 'last_write_time'
 							},
+							{
+								data : null,
+								render : function(data, type, row) {
+									progress = (row.total_tubes_inspected / row.total_tubes_in_plans * 100).toFixed(1);
+									progress_text = progress + "%"
+									if (isNaN(progress)) {
+										progress = 0;
+										progress_text = "---";
+									}									
+									return '<div class="progress-bar"><div class="progress-text">'+ progress_text +'</div><div class="progress" style="width: ' + progress + '%;"></div></div>'
+								}
+							},							
 							{
 								data : null,
 								render : function(data, type, row) {

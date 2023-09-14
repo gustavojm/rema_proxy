@@ -170,7 +170,13 @@ void inspection_sessions_list(const std::shared_ptr<restbed::Session> session) {
     nlohmann::json res;
 
     for (auto session : InspectionSession::sessions_list()) {
-        res.push_back({{"name", session.name}, {"hx", session.hx }, {"last_write_time", session.last_write_time}});
+        res.push_back({
+            {"name", session.name},
+            {"hx", session.hx },
+            {"last_write_time", session.last_write_time},
+            {"total_tubes_in_plans", session.total_tubes_in_plans},
+            {"total_tubes_inspected", session.total_tubes_inspected}
+        });
     }
     close_session(session, restbed::OK, res);
 }
