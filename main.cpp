@@ -289,7 +289,12 @@ int main(const int, const char**) {
     settings->set_port(rtu_proxy_port);
     //settings->set_default_header("Connection", "close");
 
-    settings->set_default_header("Access-Control-Allow-Origin", "*");       // Enable Cross Origin Requests
+    settings->set_default_headers({
+            { "Connection", "keep-alive" },
+            { "Cache-Control", "no-cache" },
+            { "Access-Control-Allow-Origin", "*" } //Only required for demo purposes.
+    });
+
     settings->set_worker_limit(std::thread::hardware_concurrency());
 
     auto resource_server_side_events = make_shared<restbed::Resource>();
