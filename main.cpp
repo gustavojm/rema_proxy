@@ -195,7 +195,9 @@ void post_rtu_method_handler(const shared_ptr<restbed::Session> session,
                     std::cerr << "COMMUNICATIONS ERROR " << message << "\n";
                     session->close(OK, message, { { "Content-Length",
                             ::to_string(message.length()) }, { "Content-Type",
-                            "application/json; charset=utf-8" } });
+                            "application/json; charset=utf-8" },
+                            { "Cache-Control", "no-cache" }
+                    });
                 }
             });
 }
