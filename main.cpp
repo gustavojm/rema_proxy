@@ -196,7 +196,7 @@ void post_rtu_method_handler(const shared_ptr<restbed::Session> session,
                     session->close(OK, message, { { "Content-Length",
                             ::to_string(message.length()) }, { "Content-Type",
                             "application/json; charset=utf-8" },
-                            { "Cache-Control", "no-cache" }
+                            { "Cache-Control", "no-store" }
                     });
                 }
             });
@@ -293,7 +293,7 @@ int main(const int, const char**) {
 
     settings->set_default_headers({
             { "Connection", "keep-alive" },
-            { "Cache-Control", "no-cache" },
+            { "Cache-Control", "no-store" },
             { "Access-Control-Allow-Origin", "*" } //Only required for demo purposes.
     });
 
