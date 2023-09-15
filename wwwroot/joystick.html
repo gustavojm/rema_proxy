@@ -70,7 +70,7 @@
 				<div class="joystick-container" style="float: left;">
 					<div class="row">
 						<div class="joystick-limit-horizontal" data-limit="none"></div>
-						<div class="joystick-limit-horizontal" data-limit="up"></div>
+						<div class="joystick-limit-horizontal off" data-limit="up"></div>
 						<div class="joystick-limit-horizontal" data-limit="none"></div>
 					</div>
 					<div class="row">
@@ -81,11 +81,11 @@
 						<div class="joystick-limit-vertical" data-limit="none"></div>
 					</div>
 					<div class="row">
-						<div class="joystick-limit-vertical" data-limit="left"></div>
+						<div class="joystick-limit-vertical off" data-limit="left"></div>
 						<img alt="" src="images/left.png" class="joystick-arrow left" data-dir="left"> 
 						<img alt="" src="images/h.png" class="joystick-arrow" data-dir="none" id="home_xy"> 
 						<img alt="" src="images/right.png" class="joystick-arrow rigth" data-dir="right">
-						<div class="joystick-limit-vertical" data-limit="right"></div>
+						<div class="joystick-limit-vertical off" data-limit="right"></div>
 					</div>
 					<div class="row">
 						<div class="joystick-limit-vertical" data-limit="none"></div>
@@ -96,7 +96,7 @@
 					</div>
 					<div class="row">
 						<div class="joystick-limit-horizontal" data-limit="none"></div>
-						<div class="joystick-limit-horizontal" data-limit="down"></div>
+						<div class="joystick-limit-horizontal off" data-limit="down"></div>
 						<div class="joystick-limit-horizontal" data-limit="none"></div>
 					</div>
 				</div>
@@ -105,7 +105,7 @@
 				style="display: flex; background-color: #F3F3F3; margin: 2px; padding: 3px;">
 				<div class="joystick-container" style="float: left;">
 					<div class="row">
-						<div class="joystick-limit-horizontal" data-limit="in"></div>
+						<div class="joystick-limit-horizontal off" data-limit="in"></div>
 					</div>
 					<div class="row">
 						<img alt="" src="images/z_up.png" class="joystick-arrow"
@@ -118,7 +118,7 @@
 							data-dir="z_out">
 					</div>
 					<div class="row">
-						<div class="joystick-limit-horizontal" data-limit="out"></div>
+						<div class="joystick-limit-horizontal off" data-limit="out"></div>
 					</div>
 				</div>
 			</div>
@@ -281,11 +281,13 @@
 	function update_limits(limits) {
 		$.each(limits, function (limit, status) {
 			$("#joystick_div").find(`[data-limit='${limit}']`).each(function() {
-				$(this).removeClass("off");
-				$(this).removeClass("on");
-				$(this).addClass(status ? "on" : "off");
-			})		
-		})
+				if (status) {
+					$(this).switchClass("off", "on", 0);
+				} else {
+					$(this).switchClass("on", "off", 0);
+				}
+			});		
+		});
 	}
 
 	function set_home_xy(x, y) {
