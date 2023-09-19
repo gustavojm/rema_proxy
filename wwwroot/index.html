@@ -130,7 +130,6 @@
 
 <script type="text/javascript">
 
-scale = 1;
 tabs_initialized = false;
 
 function get_session_info_index() {
@@ -143,7 +142,6 @@ get_session_info_index()
 					active_tab = 0;
 					if (data.is_loaded) {
 						$(".units").text(data.unit);
-						scale = data.unit == "mm" ? 25.4 : 1;
 						active_tab = 3
 					}
 					
@@ -170,24 +168,21 @@ get_session_info_index()
 															entry.name)
 													.attr(
 															'data-offset_x',
-															entry.offset_x)
+															entry.offset.x)
 													.attr(
 															'data-offset_y',
-															entry.offset_y)														
+															entry.offset.y)														
 													.attr(
 															'data-offset_z',
-															entry.offset_z)														
+															entry.offset.z)														
 													.text(
 															entry.name));
 								});
 
 								tools_dropdown.change(function() {
-									offset_x = $("option:selected", this).data("offset_x");
-									offset_y = $("option:selected", this).data("offset_y");
-									offset_z = $("option:selected", this).data("offset_z");
-									$("#offset_x").val(offset_x * scale);
-									$("#offset_y").val(offset_y * scale);
-									$("#offset_z").val(offset_z * scale);
+									$("#offset_x").val($("option:selected", this).data("offset_x"));
+									$("#offset_y").val($("option:selected", this).data("offset_y"));
+									$("#offset_z").val($("option:selected", this).data("offset_z"));
 									var tool_name = $("option:selected", this).val();
 									$.post('/REST/tools/' + tool_name + '/select');								
 								});
@@ -200,10 +195,10 @@ get_session_info_index()
 				
 				
 
-	function update_ui(telemetry, scale) {		
-		var pos_x = telemetry.coords.x * scale + parseFloat($("#offset_x").val());
-		var pos_y = telemetry.coords.y * scale + parseFloat($("#offset_y").val());
-		var pos_z = telemetry.coords.z * scale + parseFloat($("#offset_z").val());
+	function update_ui(telemetry) {		
+		var pos_x = telemetry.coords.x;
+		var pos_y = telemetry.coords.y;
+		var pos_z = telemetry.coords.z;
 		$("#position_x").val(pos_x.toFixed(4));
 		$("#position_y").val(pos_y.toFixed(4));
 		$("#position_z").val(pos_z.toFixed(4));	
@@ -319,7 +314,7 @@ get_session_info_index()
 					}, 2000);		
 				}
 				if ("TELEMETRY" in jdata) {
-					update_ui(jdata.TELEMETRY, scale);
+					update_ui(jdata.TELEMETRY);
 				}
 				
 				if ("TEMP_INFO" in jdata) {

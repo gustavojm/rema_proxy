@@ -54,20 +54,27 @@
 					ajax : {
 						method : "GET",
 						url : "/REST/tools",
-						dataSrc : '',
+						dataSrc :function ( data ) {
+							var array_data = [];
+							$.each(data, function(id, tool) {
+								tool.file_name = id;
+								array_data.push(tool);
+							});
+							return array_data;
+						} 						
 					},
 					columns : [
 							{
 								data : 'name'
 							},
 							{
-								data : 'offset_x'
+								data : 'offset.x'
 							},
 							{
-								data : 'offset_y'
+								data : 'offset.y'
 							},
 							{
-								data : 'offset_z'
+								data : 'offset.z'
 							},
 							{
 								data : null,

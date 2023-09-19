@@ -55,7 +55,11 @@ void event_stream_handler() {
 
     try {
         rema_instance.telemetry_client.receive_async([&rema_instance](auto &rx_buffer) {rema_instance.update_telemetry(rx_buffer); });
-        res["TELEMETRY"] = rema_instance.telemetry;
+        struct telemetry ui_telemetry = rema_instance.telemetry;
+        Tool t = rema_instance.get_selected_tool();
+        ui_telemetry.coords = current_session.from_rema_to_ui(rema_instance.telemetry.coords, &t);
+
+        res["TELEMETRY"] = ui_telemetry;
 
         auto now = std::chrono::high_resolution_clock::now();
         auto elapsed_time = now - prev;

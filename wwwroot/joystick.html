@@ -225,11 +225,11 @@
 
 		var pars_obj = {};
 		if (dir == "z_in") {
-			pars_obj.first_axis_setpoint = negative_big_number;			
+			pars_obj.first_axis_setpoint = positive_big_number;			
 		}
 			
 		if (dir == "z_out") {
-			pars_obj.first_axis_setpoint = positive_big_number;				
+			pars_obj.first_axis_setpoint = negative_big_number;				
 		}
 		
 		if (!$.isEmptyObject(pars_obj)) {
@@ -290,39 +290,22 @@
 		});
 	}
 
-	function set_home_xy(x, y) {
+	function set_home_xy(tube_id = "") {		
 		$.ajax({
-			url : "/REMA/",
-			method : "POST",
+			url : "/REST/set-home-xy/" + tube_id,
+			method : "GET",
 			contentType : "application/json",
-			data : JSON.stringify({
-				commands : [ {
-					command : "SET_COORDS",
-					pars : {
-						position_x : x,
-						position_y : y,
-					}
-				} ]
-			}),
 			dataType : "json",
 			success : function(data) {				
 			}
 		});						
 	}
 
-	function set_home_z(z) {
+	function set_home_z(z = 0) {
 		$.ajax({
-			url : "/REMA/",
-			method : "POST",
+			url : "/REST/set-home-z/" + z,
+			method : "GET",
 			contentType : "application/json",
-			data : JSON.stringify({
-				commands : [ {
-					command : "SET_COORDS",
-					pars : {
-						position_z : z,
-					}
-				} ]
-			}),
 			dataType : "json",
 			success : function(data) {				
 			}
@@ -416,7 +399,7 @@
 
 		
 		$("#home_xy").click(function(e) {
-			tube_id = $("#tube_info_id").val();
+			tube_id = $("#tube_info_id").val() || "";
 			var x = 0, y = 0;
 			if (tube_id !== "") {						
 				x = tubes[tube_id].coords.x;
@@ -434,13 +417,13 @@
 							timeout: 25000,
 						})
 						.then(function(data) {							
-							set_home_xy(x / scale, y / scale);
+							set_home_xy(tube_id);
 						});
 					}
 				}
 			} else {
 				if (confirm("Are you sure you want to make current position X:" + x.toFixed(4) + ", Y:" + y.toFixed(4) + " ?")) {
-					set_home_xy(x, y);
+					set_home_xy(tube_id);
 				}				
 			}			
 		});

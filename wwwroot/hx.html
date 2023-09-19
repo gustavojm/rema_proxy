@@ -118,18 +118,17 @@ svg .tube:hover {
 			</div>
 			<div id="messages"
 				style="text-align: center; background-color: rgb(222, 221, 218); flex: 2; align-content: center; display: flex; align-items: center; justify-content: center;">
-				Messages ON CONDITIONa adfsiupo dsfaupoipiuo afdsp uioafdsupio
-				fadsuipo</div>
+			</div>
 		</div>
 		<div id="calibration_tab" class="right-side"
 			style="overflow: scroll; width: 20%; height: 100%; float: left; position: relative; display: none; flex-direction: column;">
 		</div>
 		
 	</div>
-	<div style="padding: 10px; width: 100%">
+	<div style="padding: 2px; width: 100%">
 		<div id="coordinates" style="float: left; width: 40%">Coordinates:</div>
-		<div id="session_name" style="float: left; width: 50%"></div>
-		<div style="float: right; width: 10%"><button id="calibration_inspection_btn">Calibration</button></div>
+		<div id="session_name" style="float: left; width: 40%"></div>
+		<div style="float: right; width: 20%; align-content: center; display: flex; align-items: center; justify-content: center; vertical-align: top;"><button id="calibration_inspection_btn">Calibration</button></div>
 	</div>
 </div>	
 
@@ -408,7 +407,7 @@ svg .tube:hover {
 						if (data.is_loaded) {
 							$(".units").text(data.unit);
 							$("#session_name").text("Session: " + data.name);
-							scale = data.unit == "mm" ? 25.4 : 1;
+							scale = data.scale;
 							tube_od = data.tube_od;
 							tubes = data.tubes;
 							aligned_tubes = data.aligned_tubes;
@@ -505,25 +504,11 @@ svg .tube:hover {
 		});
 		
 		$("#go_button").click(function() {
-			var pos_x = parseFloat($("#tube_info_x").val() || 0) / scale - (parseFloat($("#offset_x").val()) / scale);
-			var pos_y = parseFloat($("#tube_info_y").val() || 0) / scale - (parseFloat($("#offset_y").val()) / scale);
+			tube_id = $("#tube_info_id").val();
 
 			$.ajax({
-				url : "/REMA/",
-				method : "POST",
-				contentType : "application/json",
-				data : JSON.stringify({
-					commands : [{
-						command: "MOVE_CLOSED_LOOP",
-			 			 pars: {
-			 				axes : "XY",
-			 				first_axis_setpoint: pos_x,
-			 				second_axis_setpoint: pos_y,
-			 			}					 
- 			 		}
- 				]
-				}),
-				dataType : "json",
+				method : "GET",
+				url : "/REST/go-to-tube/" + tube_id,
 				success : function(data) {
 					console.log(data);
 				}

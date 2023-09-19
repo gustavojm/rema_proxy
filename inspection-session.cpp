@@ -78,6 +78,7 @@ InspectionSession::InspectionSession(std::string session_name,
                     vm);
         }
         po::notify(vm);
+        scale = (unit == "inch" ? 1 : 25.4);
     } catch (std::exception &e) {
         std::cout << e.what() << "\n";
     }
@@ -181,8 +182,13 @@ void InspectionSession::cal_points_delete(std::string tube_id)  {
     changed = true;
 }
 
-Point3D InspectionSession::get_tube_coordinates(std::string tube_id, bool ideal) {
-    return Point3D();
+Point3D InspectionSession::get_tube_coordinates(std::string tube_id, bool ideal = true) {
+    if (ideal) {
+        return tubes.at(tube_id).coords;
+    } else {
+        return aligned_tubes.at(tube_id);
+    }
+
 };
 
 void InspectionSession::generate_svg() {
@@ -340,6 +346,7 @@ std::map<std::string, Point3D>& InspectionSession::calculate_aligned_tubes() {
     open3d::geometry::PointCloud source_cloud;
     open3d::geometry::PointCloud target_cloud;
 
+    int used_points = 0;
     for (auto cal_point: cal_points) {
         if (cal_point.second.determined) {
             source_cloud.points_.push_back(
@@ -347,7 +354,7 @@ std::map<std::string, Point3D>& InspectionSession::calculate_aligned_tubes() {
 
             target_cloud.points_.push_back(
                     Eigen::Vector3d(cal_point.second.determined_coords.x, cal_point.second.determined_coords.y, cal_point.second.determined_coords.z));
-
+            used_points++;
         }
     }
 
@@ -358,12 +365,18 @@ std::map<std::string, Point3D>& InspectionSession::calculate_aligned_tubes() {
     icp_criteria.relative_rmse_ = 1e-6;
     auto result = open3d::registration::RegistrationICP(source_cloud,
             target_cloud, 1000, Eigen::Matrix4d::Identity(),
-            open3d::registration::TransformationEstimationPointToPoint(true),
+            open3d::registration::TransformationEstimationPointToPoint(false),
             icp_criteria);
 
     // Get the transformation matrix
-    Eigen::Matrix4d transformation_matrix = result.transformation_;
-    std::cout << transformation_matrix << std::endl;
+    Eigen::Matrix4d transformation_matrix = Eigen::Matrix4d::Identity();
+
+    if (used_points >= 2) {
+        Eigen::Matrix4d transformation_matrix = result.transformation_;
+        std::cout << transformation_matrix << std::endl;
+    } else {
+        std::cerr << "At least two alignment points are required \n";
+    }
 
     // Transform the source point cloud
     for (const auto &tube : tubes) {

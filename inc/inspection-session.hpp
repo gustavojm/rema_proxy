@@ -7,6 +7,7 @@
 #include <set>
 
 #include "points.hpp"
+#include "tool.hpp"
 
 template<typename TP>
 std::time_t to_time_t(TP tp) {
@@ -68,6 +69,30 @@ public:
     void generate_svg();
 
     bool load(std::string session_name);
+
+    Point3D from_rema_to_ui(Point3D coords, Tool* tool = nullptr) {
+        if (tool) {
+            return ((coords - tool->offset) * scale);
+        } else {
+            return (coords * scale);
+        }
+    }
+
+    double from_rema_to_ui(double meassure) {
+        return (meassure * scale);
+    }
+
+    Point3D from_ui_to_rema(Point3D coords, Tool* tool = nullptr) {
+        if (tool) {
+            return ((coords / scale) + tool->offset);
+        } else {
+            return (coords / scale);
+        }
+    }
+
+    double from_ui_to_rema(double meassure) {
+        return (meassure / scale);
+    }
 
     static std::vector<InspectionSession> sessions_list() {
         std::vector<InspectionSession> res;
@@ -133,6 +158,7 @@ public:
     bool loaded = false;
     bool changed = false;
     std::string unit = "inch";
+    double scale = 1;
     std::map<std::string, TubeEntry> tubes;
     std::map<std::string, Point3D> aligned_tubes;
     struct {
@@ -148,6 +174,6 @@ public:
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(InspectionSession, name,
         last_write_time, hx_directory, hx, tubesheet_csv, tubesheet_svg,
-        last_selected_plan, insp_plans, leg, tube_od, unit, cal_points, total_tubes_in_plans, total_tubes_inspected)
+        last_selected_plan, insp_plans, leg, tube_od, unit, scale, cal_points, total_tubes_in_plans, total_tubes_inspected)
 
 #endif 		// INSP_SESSION_HPP

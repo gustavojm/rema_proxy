@@ -27,15 +27,6 @@ void REMA::save_to_disk() const {
     file << j;
 }
 
-void REMA::set_selected_tool(std::string tool) {
-    last_selected_tool = tool;
-    save_to_disk();
-}
-
-std::filesystem::path REMA::get_selected_tool() const {
-    return last_selected_tool;
-}
-
 void REMA::update_telemetry(std::string &stream) {
     nlohmann::json json;
     try {
@@ -59,6 +50,42 @@ void REMA::update_telemetry(std::string &stream) {
     return;
 }
 
+void REMA::set_home_xy(double x, double y) {
+    execute_command({ { "command", "SET_COORDS" },
+        { "pars",
+                { { "position_x", x },
+                  { "position_y", y }
+                }
+        }});
+}
+
+void REMA::set_home_z(double z) {
+    execute_command({ { "command", "SET_COORDS" },
+        { "pars",
+                { { "position_z", z },
+                }
+        }});
+}
+
+void REMA::execute_command(nlohmann::json command) {
+    nlohmann::json to_rema;
+    to_rema["commands"].push_back(command);
+    std::string tx_buffer = to_rema.dump();
+
+    std::cout << "Enviando a RTU: " << tx_buffer << "\n";
+    command_client.send_blocking(tx_buffer);
+    command_client.receive_blocking();
+}
+
+void REMA::move_closed_loop(sequence_step step) {
+    execute_command({ { "command", "MOVE_CLOSED_LOOP" },
+        { "pars",
+                { { "axes", step.axes },
+                  { "first_axis_setpoint", step.first_axis_setpoint },
+                  { "second_axis_setpoint", step.second_axis_setpoint } } }
+    });
+}
+
 void REMA::execute_sequence(std::vector<sequence_step>& sequence) {
     while (is_sequence_in_progress) {
         cancel_sequence = true;
@@ -66,25 +93,11 @@ void REMA::execute_sequence(std::vector<sequence_step>& sequence) {
     cancel_sequence = false;
     is_sequence_in_progress = true;
 
-    std::string tx_buffer;
-    nlohmann::json to_rema;
+    execute_command({ { "command", "AXES_SOFT_STOP_ALL" }});
 
-    nlohmann::json command_soft_stop = { { "command", "AXES_SOFT_STOP_ALL" }};
-    to_rema["commands"].push_back(command_soft_stop);
     // Create an individual command object and add it to the array
     for (auto &step : sequence) {
-        nlohmann::json command = { { "command", "MOVE_CLOSED_LOOP" },
-                { "pars",
-                        { { "axes", step.axes }, { "first_axis_setpoint",
-                                step.first_axis_setpoint }, {
-                                "second_axis_setpoint",
-                                step.second_axis_setpoint } } } };
-        to_rema["commands"].clear();
-        to_rema["commands"].push_back(command);
-        tx_buffer = to_rema.dump();
-
-        std::cout << "Enviando a RTU: " << tx_buffer << "\n";
-        command_client.send_blocking(tx_buffer);
+        move_closed_loop(step);
         std::this_thread::sleep_for(std::chrono::milliseconds(100));                     // Wait for telemetry update...
 
         bool stopped_on_probe = false;

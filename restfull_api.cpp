@@ -20,6 +20,9 @@
 
 extern InspectionSession current_session;
 
+void close_session(const std::shared_ptr<restbed::Session>& session, int status) {
+    session->close(status, "", { { "Content-Type", "text/html ; charset=utf-8" }, { "Content-Length", "0"} });
+}
 
 void close_session(const std::shared_ptr<restbed::Session>& session, int status, std::string res) {
     session->close(status, res, { { "Content-Type", "text/html ; charset=utf-8" }, { "Content-Length", std::to_string(res.length())} });
@@ -57,7 +60,7 @@ void REMA_info(const std::shared_ptr<restbed::Session> session) {
     nlohmann::json res = nlohmann::json(nlohmann::json::value_t::object);
     REMA &rema_instance = REMA::get_instance();
 
-    res["tools"] = REMA::tools_list();
+    res["tools"] = rema_instance.tools;
     res["last_selected_tool"] = rema_instance.last_selected_tool;
     close_session(session, restbed::OK, res);
 }
@@ -93,8 +96,8 @@ void inspection_plans(const std::shared_ptr<restbed::Session> session) {
  * Tools related functions
  **/
 void tools_list(const std::shared_ptr<restbed::Session> session ) {
-    nlohmann::json res = REMA::tools_list();
-    close_session(session, restbed::OK, res);
+    REMA &rema_instance = REMA::get_instance();
+    close_session(session, restbed::OK, rema_instance.tools);
 }
 
 void tools_create(const std::shared_ptr<restbed::Session> session) {
@@ -121,7 +124,7 @@ void tools_create(const std::shared_ptr<restbed::Session> session) {
                         float offset_y = to_float(form_data.value("offset_y", "0"));
                         float offset_z = to_float(form_data.value("offset_z", "0"));
 
-                        Tool new_tool(tool_name, offset_x, offset_y, offset_z);
+                        Tool new_tool(tool_name, {offset_x, offset_y, offset_z});
                         res = "Tool created Successfully";
                         status = restbed::CREATED;
                     }
@@ -157,7 +160,7 @@ void tools_select(const std::shared_ptr<restbed::Session> session) {
     auto request = session->get_request();
     std::string tool_name = request->get_path_parameter("tool_name", "");
     REMA &rema_instance = REMA::get_instance();
-    rema_instance.set_selected_tool(tool_name);
+    rema_instance.set_last_selected_tool(tool_name);
     close_session(session, restbed::OK, std::string(""));
 }
 
@@ -355,7 +358,7 @@ void tubes_set_status(const std::shared_ptr<restbed::Session> session) {
     });
 }
 
-void determine_tube_center(const std::shared_ptr<restbed::Session> session) {
+void go_to_tube(const std::shared_ptr<restbed::Session> session) {
     REMA &rema_instance = REMA::get_instance();
     const auto request = session->get_request();
     std::string tube_id = request->get_path_parameter("tube_id", "");
@@ -363,13 +366,69 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> session) {
     nlohmann::json res;
 
     if (!tube_id.empty()) {
-        double scale = current_session.unit == "inch" ? 1 : 25.4;
-        double tube_radius = (current_session.tube_od / 2) / scale;
+        Tool t = rema_instance.get_selected_tool();
+        Point3D rema_coords = current_session.from_ui_to_rema(current_session.get_tube_coordinates(tube_id, false), &t);
+
+        sequence_step goto_tube_step;
+        goto_tube_step.axes = "XY";
+        goto_tube_step.first_axis_setpoint = rema_coords.x;
+        goto_tube_step.second_axis_setpoint = rema_coords.y;
+        goto_tube_step.stop_on_probe = true;
+        goto_tube_step.stop_on_condition = true;
+
+        rema_instance.move_closed_loop(goto_tube_step);
+
+        close_session(session, restbed::OK, res);
+    }
+}
+
+void set_home_xy(const std::shared_ptr<restbed::Session> session) {
+    REMA &rema_instance = REMA::get_instance();
+    Tool t = rema_instance.get_selected_tool();
+
+    const auto request = session->get_request();
+    std::string tube_id = request->get_path_parameter("tube_id", "");
+    if (!tube_id.empty()) {
+        Point3D tube_coords = current_session.from_ui_to_rema(current_session.get_tube_coordinates(tube_id, true), &t);
+        rema_instance.set_home_xy(tube_coords.x, tube_coords.y);
+    } else {
+        Point3D zero_coords = current_session.from_ui_to_rema(Point3D() , &t);
+        rema_instance.set_home_xy(zero_coords.x, zero_coords.y);
+    }
+    close_session(session, restbed::OK);
+}
+
+void set_home_z(const std::shared_ptr<restbed::Session> session) {
+    REMA &rema_instance = REMA::get_instance();
+    Tool t = rema_instance.get_selected_tool();
+
+    const auto request = session->get_request();
+    double z = request->get_path_parameter("z", 0.d);
+
+    nlohmann::json res;
+
+    double corrected_z = current_session.from_ui_to_rema(z) + t.offset.z;
+    rema_instance.set_home_z(corrected_z);
+    close_session(session, restbed::OK, res);
+}
+
+
+void determine_tube_center(const std::shared_ptr<restbed::Session> session) {
+    REMA &rema_instance = REMA::get_instance();
+    Tool t = rema_instance.get_selected_tool();
+    const auto request = session->get_request();
+    std::string tube_id = request->get_path_parameter("tube_id", "");
+
+    nlohmann::json res;
+
+    if (!tube_id.empty()) {
+        Tool t = rema_instance.get_selected_tool();
+        double tube_radius = current_session.from_ui_to_rema(current_session.tube_od / 2);
 
         constexpr int points_number = 5;
         static_assert(points_number % 2 != 0, "Number of points must be odd");
         std::vector<Point3D> reordered_points;
-        std::vector<Point3D> points = calculateCirclePoints(current_session.tubes[tube_id].coords / scale, tube_radius, points_number);
+        std::vector<Point3D> points = calculateCirclePoints(current_session.from_ui_to_rema(current_session.get_tube_coordinates(tube_id, true), &t), tube_radius, points_number);
 
         int i = 0;
         for (int n = 0; n < points_number; n++) {
@@ -400,7 +459,11 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> session) {
         }
         res["reached_coords"] = tube_boundary_points;
         Circle c = CircleFitByHyper(tube_boundary_points);
-        res["center"] = c.center;
+        res["center"] = {
+                {"x", c.center.x - t.offset.x},
+                {"y", c.center.y - t.offset.y},
+                {"z", c.center.z}
+        };
         res["radius"] = c.radius;
 
         sequence_step goto_center_step;
@@ -410,9 +473,7 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> session) {
         goto_center_step.stop_on_probe = true;
         goto_center_step.stop_on_condition = true;
 
-        std::vector<sequence_step> goto_center_seq(1, goto_center_step);
-
-        rema_instance.execute_sequence(goto_center_seq);
+        rema_instance.move_closed_loop(goto_center_step);
 
         close_session(session, restbed::OK, res);
     }
@@ -462,9 +523,7 @@ void determine_tubesheet_z(const std::shared_ptr<restbed::Session> session) {
     goto_tubesheet_step.stop_on_probe = true;                                // to reach the averaged z it should not stop on probe...
     goto_tubesheet_step.stop_on_condition = true;
 
-    std::vector<sequence_step> goto_center_seq(1, goto_tubesheet_step);
-
-    rema_instance.execute_sequence(goto_center_seq);
+    rema_instance.move_closed_loop(goto_tubesheet_step);
 
     close_session(session, restbed::OK, res);
 
@@ -503,8 +562,12 @@ void restfull_api_create_endpoints(restbed::Service &service) {
                                               {"DELETE", &cal_points_delete}}
                                              },
         {"tubes/{tube_id: .*}", {{"PUT", &tubes_set_status}}},
+        {"go-to-tube/{tube_id: .*}", {{"GET", &go_to_tube}}},
         {"determine-tube-center/{tube_id: .*}", {{"GET", &determine_tube_center}}},
+        {"set-home-xy/", {{"GET", &set_home_xy}}},
+        {"set-home-xy/{tube_id: .*}", {{"GET", &set_home_xy}}},
         {"determine-tubesheet-z", {{"GET", &determine_tubesheet_z}}},
+        {"set-home-z/{z: .*}", {{"GET", &set_home_z}}},
         {"aligned-tubesheet-get", {{"GET", &aligned_tubesheet_get}}},
     };
 // @formatter:on

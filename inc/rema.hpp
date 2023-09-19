@@ -81,16 +81,6 @@ public:
         return instance;
     }
 
-    static std::vector<Tool> tools_list() {
-        std::vector<Tool> res;
-
-        for (const auto &entry : std::filesystem::directory_iterator(tools_dir)) {
-            Tool t(entry.path());
-            res.push_back(t);
-        }
-        return res;
-    }
-
     static void delete_tool(std::string tool) {
         std::filesystem::remove(tools_dir / (tool + std::string(".json")));
     }
@@ -99,15 +89,30 @@ public:
 
     std::map<std::string, Point3D> calculate_aligned_tubes(InspectionSession& insp_sess, std::vector<Point3D> src_points, std::vector<Point3D> dst_points);
 
-    void set_selected_tool(std::string tool);
+    void set_last_selected_tool(std::string tool) {
+        last_selected_tool = tool;
+        save_to_disk();
+    }
 
-    std::filesystem::path get_selected_tool() const;
+    Tool get_selected_tool() const {
+        return tools.at(last_selected_tool);
+    }
 
     void save_to_disk() const;
 
+    void execute_command(nlohmann::json command);
+
+    void move_closed_loop(sequence_step step);
+
     void execute_sequence(std::vector<sequence_step>& sequence);
 
+    void set_home_xy(double x, double y);
+
+    void set_home_z(double x);
+
     bool loaded = false;
+
+    std::map<std::string, Tool> tools;
 
     std::string last_selected_tool;
 
@@ -127,8 +132,13 @@ private:
         std::ifstream i(path);
         nlohmann::json j;
         i >> j;
-        this->loaded = true;
         this->last_selected_tool = j["last_selected_tool"];
+
+        for (const auto &entry : std::filesystem::directory_iterator(tools_dir)) {
+            Tool t(entry.path());
+            tools[entry.path().filename().replace_extension()] = t;
+        }
+        this->loaded = true;
     }
 
     // C++ 11
