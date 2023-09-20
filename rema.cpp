@@ -17,6 +17,9 @@
 #include "rema.hpp"
 #include "inspection-session.hpp"
 #include "tool.hpp"
+#include "touch_probe.hpp"
+
+extern TouchProbeFSM tpFSM;
 
 void REMA::save_to_disk() const {
     std::ofstream file(rema_file);
@@ -37,6 +40,8 @@ void REMA::update_telemetry(std::string &stream) {
 
             if (json.contains("telemetry")) {
                 telemetry = json["telemetry"];
+                tpFSM.process(telemetry.limits.probe);
+                telemetry.limits.debounced_probe = tpFSM.isTouchDetected();
             }
 
             if (json.contains("temps")) {
@@ -111,7 +116,7 @@ void REMA::execute_sequence(std::vector<sequence_step>& sequence) {
                 std::cerr << e.what() << "\n";
             }
 
-            stopped_on_probe = telemetry.limits.probe && step.stop_on_probe;
+            stopped_on_probe = telemetry.limits.debounced_probe && step.stop_on_probe;
 
             if (step.axes == "XY") {
                 stopped_on_condition = telemetry.on_condition.x_y && step.stop_on_condition;

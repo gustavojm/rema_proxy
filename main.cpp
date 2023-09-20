@@ -29,6 +29,7 @@ InspectionSession current_session;
 vector<shared_ptr<restbed::Session>> sessions;
 
 using namespace std::chrono_literals;
+TouchProbeFSM tpFSM;
 
 std::map<std::string, std::string> mime_types = { { ".jpg", "image/jpg" }, {
         ".png", "image/png" }, { "svg", "image/svg+xml" },
@@ -48,7 +49,6 @@ void register_event_source_handler(const shared_ptr<restbed::Session> session) {
 }
 
 void event_stream_handler() {
-    static TouchProbeFSM tpFSM;
     static auto prev = std::chrono::high_resolution_clock::from_time_t(0);
 
     REMA &rema_instance = REMA::get_instance();
@@ -60,10 +60,6 @@ void event_stream_handler() {
         struct telemetry ui_telemetry = rema_instance.telemetry;
         Tool t = rema_instance.get_selected_tool();
         ui_telemetry.coords = current_session.from_rema_to_ui(rema_instance.telemetry.coords, &t);
-
-        tpFSM.process(ui_telemetry.limits.probe);
-        std::cout << "PROBE: " << tpFSM.isTouchDetected() << "\n";
-
         res["TELEMETRY"] = ui_telemetry;
 
         auto now = std::chrono::high_resolution_clock::now();

@@ -454,7 +454,7 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> session) {
         std::vector<Point3D> tube_boundary_points;
 
         for (auto step : seq) {
-            if (step.executed && step.execution_results.stopped_on_condition) {
+            if (step.executed && (step.execution_results.stopped_on_probe || step.execution_results.stopped_on_condition)) {
                 tube_boundary_points.push_back(step.execution_results.coords);
             }
         }

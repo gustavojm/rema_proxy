@@ -40,6 +40,7 @@ struct limits {
     bool in;
     bool out;
     bool probe;
+    bool debounced_probe;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(limits, left, right, up, down, in, out,
         probe)
