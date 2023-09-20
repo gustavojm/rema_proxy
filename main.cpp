@@ -22,6 +22,7 @@
 #include "websocket-server.hpp"
 #include "rema.hpp"
 #include "restfull_api.hpp"
+#include "touch_probe.hpp"
 
 InspectionSession current_session;
 
@@ -47,6 +48,7 @@ void register_event_source_handler(const shared_ptr<restbed::Session> session) {
 }
 
 void event_stream_handler() {
+    static TouchProbeFSM tpFSM;
     static auto prev = std::chrono::high_resolution_clock::from_time_t(0);
 
     REMA &rema_instance = REMA::get_instance();
@@ -58,6 +60,9 @@ void event_stream_handler() {
         struct telemetry ui_telemetry = rema_instance.telemetry;
         Tool t = rema_instance.get_selected_tool();
         ui_telemetry.coords = current_session.from_rema_to_ui(rema_instance.telemetry.coords, &t);
+
+        tpFSM.process(ui_telemetry.limits.probe);
+        std::cout << "PROBE: " << tpFSM.isTouchDetected() << "\n";
 
         res["TELEMETRY"] = ui_telemetry;
 

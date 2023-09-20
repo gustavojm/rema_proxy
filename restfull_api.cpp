@@ -231,6 +231,7 @@ void inspection_sessions_load(const std::shared_ptr<restbed::Session> session) {
     if (!session_name.empty()) {
         try {
             current_session.load(session_name);
+            current_session.process_csv();
             status = restbed::OK;
         } catch (std::exception &e) {
             res = e.what();

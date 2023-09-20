@@ -78,6 +78,7 @@ void REMA::execute_command(nlohmann::json command) {
 }
 
 void REMA::move_closed_loop(sequence_step step) {
+    tpFSM.newCommand();
     execute_command({ { "command", "MOVE_CLOSED_LOOP" },
         { "pars",
                 { { "axes", step.axes },

@@ -18,6 +18,12 @@ InspectionSession::InspectionSession(std::filesystem::path inspection_session_fi
     load(inspection_session_file);
 }
 
+void InspectionSession::copy_tubes_to_aligned_tubes() {
+    for (auto [id, tube] : tubes) {
+        aligned_tubes[id] = tube.coords;
+    }
+}
+
 void InspectionSession::process_csv() {
     std::filesystem::path csv_file = hx_directory / hx / "tubesheet.csv";
     std::cout << "Reading " << csv_file << "\n";
@@ -44,6 +50,9 @@ void InspectionSession::process_csv() {
         }
     }
     generate_svg();
+
+    copy_tubes_to_aligned_tubes();
+
     calculate_aligned_tubes();
 }
 
@@ -95,8 +104,6 @@ bool InspectionSession::load(std::string session_name) {
     *this = j;
     this->loaded = true;
     this->name = session_name;
-
-    process_csv();
 
     return true;
 }
@@ -358,34 +365,36 @@ std::map<std::string, Point3D>& InspectionSession::calculate_aligned_tubes() {
         }
     }
 
+    if (used_points < 2) {
+        std::cerr << "At least two alignment points are required \n";
+        copy_tubes_to_aligned_tubes();
+        return aligned_tubes;
+    }
+
     // Set ICP parameters and perform ICP
     open3d::registration::ICPConvergenceCriteria icp_criteria;
     icp_criteria.max_iteration_ = 50;
     icp_criteria.relative_fitness_ = 1e-6;
     icp_criteria.relative_rmse_ = 1e-6;
+
+    bool with_scaling = true;
     auto result = open3d::registration::RegistrationICP(source_cloud,
             target_cloud, 1000, Eigen::Matrix4d::Identity(),
-            open3d::registration::TransformationEstimationPointToPoint(false),
+            open3d::registration::TransformationEstimationPointToPoint(with_scaling),
             icp_criteria);
 
-    // Get the transformation matrix
-    Eigen::Matrix4d transformation_matrix = Eigen::Matrix4d::Identity();
-
-    if (used_points >= 2) {
-        Eigen::Matrix4d transformation_matrix = result.transformation_;
-        std::cout << transformation_matrix << std::endl;
-    } else {
-        std::cerr << "At least two alignment points are required \n";
-    }
+    Eigen::Matrix4d transformation_matrix = result.transformation_;
+    std::cout << transformation_matrix << std::endl;
 
     // Transform the source point cloud
-    for (const auto &tube : tubes) {
-        open3d::geometry::PointCloud one_tube_cloud;
-        one_tube_cloud.points_.push_back(
-                Eigen::Vector3d(tube.second.coords.x, tube.second.coords.y, tube.second.coords.z));
+    for (const auto& [id, tube] : tubes) {
 
-        one_tube_cloud.Transform(transformation_matrix);
-        aligned_tubes[tube.first] = {(*one_tube_cloud.points_.begin()).x(), (*one_tube_cloud.points_.begin()).y(), (*one_tube_cloud.points_.begin()).z()};
+        // Code from Open3D Geometry3D.cpp TransformPoints() method
+        Eigen::Vector4d point(tube.coords.x, tube.coords.y, tube.coords.z, 1.0);
+        Eigen::Vector4d new_point = transformation_matrix * point;
+        Eigen::Vector3d transformed_point = new_point.head<3>() / new_point(3);
+
+        aligned_tubes[id] = {transformed_point.x(), transformed_point.y(), transformed_point.z()};
     }
 
     return aligned_tubes;

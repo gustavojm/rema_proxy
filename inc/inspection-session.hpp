@@ -140,6 +140,8 @@ public:
         std::filesystem::remove(insp_sessions_dir / (session_name + std::string(".json")));
     }
 
+    void copy_tubes_to_aligned_tubes();
+
     std::map<std::string, Point3D>& calculate_aligned_tubes();
 
     std::map<std::string,
