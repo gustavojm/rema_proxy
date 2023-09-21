@@ -163,14 +163,9 @@
 		if (moving || forced) {
 
 			$.ajax({
-				url : "/REMA/",
-				method : "POST",
+				url : "/REST/axes-soft-stop-all",
+				method : "GET",
 				contentType : "application/json",
-				data : JSON.stringify({
-					commands : [ {
-						command : "AXES_SOFT_STOP_ALL",						
-					}, ]
-				}),
 				dataType : "json",
 				success : function(data) {
 
@@ -187,72 +182,16 @@
 			stop(forced = true);
 			return;
 		}
-		
-		var command_x = {};
-		var command_y = {};
-		var command_z = {};
-
-		var cmds = [];
-
-		var positive_big_number = 2147483647 / 2 ;
-		var negative_big_number = -positive_big_number;
-		
-		var pars_obj = {};		
-		if (dir.includes("left")) {
-			pars_obj.first_axis_setpoint = negative_big_number;			
-		}
-		
-		if (dir.includes("right")) {
-			pars_obj.first_axis_setpoint = positive_big_number;
-		}
-
-		if (dir.includes("up")) {
-			pars_obj.second_axis_setpoint = positive_big_number;
-		} 
-		
-		if (dir.includes("down")) {
-			pars_obj.second_axis_setpoint = negative_big_number;
-		}
-		
-		if (!$.isEmptyObject(pars_obj)) { 
-			pars_obj.axes = "XY"
-			cmds.push({
-				command : "MOVE_FREE_RUN",
-				pars : pars_obj,
-			});
-			moving = true;
-		}
-
-		var pars_obj = {};
-		if (dir == "z_in") {
-			pars_obj.first_axis_setpoint = positive_big_number;			
-		}
-			
-		if (dir == "z_out") {
-			pars_obj.first_axis_setpoint = negative_big_number;				
-		}
-		
-		if (!$.isEmptyObject(pars_obj)) {
-			pars_obj.axes = "Z"
-			command_z = {
-				command : "MOVE_FREE_RUN",
-				pars : pars_obj,				
-			};
-			cmds.push(command_z);
-			moving = true;
-		}
 
 		$.ajax({
-			url : "/REMA/",
-			method : "POST",
+			url : "/REST/move-free-run/" + dir,
+			method : "GET",
 			contentType : "application/json",
-			data : JSON.stringify({
-				commands : cmds,
-			}),
 			dataType : "json",
 			success : function(data) {
 			}
 		});
+		moving = true;
 	});
 
 	function update_switches() {
@@ -321,17 +260,11 @@
 
 		$("#emergency_stop").click(function() {
 			$.ajax({
-				url : "/REMA/",
-				method : "POST",
+				url : "/REST/axes-hard-stop-all",
+				method : "GET",
 				contentType : "application/json",
-				data : JSON.stringify({
-					commands : [ {
-						command : "AXES_HARD_STOP_ALL",						
-					}, ]
-				}),
 				dataType : "json",
 				success : function(data) {
-	
 				}
 			});
 			moving = false;

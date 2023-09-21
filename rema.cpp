@@ -74,6 +74,7 @@ void REMA::set_home_z(double z) {
 
 void REMA::execute_command(nlohmann::json command) {
     nlohmann::json to_rema;
+    tpFSM.newCommand();
     to_rema["commands"].push_back(command);
     std::string tx_buffer = to_rema.dump();
 
@@ -82,17 +83,29 @@ void REMA::execute_command(nlohmann::json command) {
     command_client.receive_blocking();
 }
 
-void REMA::move_closed_loop(sequence_step step) {
+void REMA::move_closed_loop(movement_cmd cmd) {
     tpFSM.newCommand();
     execute_command({ { "command", "MOVE_CLOSED_LOOP" },
         { "pars",
-                { { "axes", step.axes },
-                  { "first_axis_setpoint", step.first_axis_setpoint },
-                  { "second_axis_setpoint", step.second_axis_setpoint } } }
+                { { "axes", cmd.axes },
+                  { "first_axis_setpoint", cmd.first_axis_setpoint },
+                  { "second_axis_setpoint", cmd.second_axis_setpoint } } }
     });
 }
 
-void REMA::execute_sequence(std::vector<sequence_step>& sequence) {
+void REMA::axes_hard_stop_all() {
+    execute_command({ { "command", "AXES_HARD_STOP_ALL" }});
+    while (is_sequence_in_progress) {
+        cancel_sequence = true;
+    }
+    cancel_sequence = false;
+}
+
+void REMA::axes_soft_stop_all() {
+    execute_command({ { "command", "AXES_SOFT_STOP_ALL" }});
+}
+
+void REMA::execute_sequence(std::vector<movement_cmd>& sequence) {
     while (is_sequence_in_progress) {
         cancel_sequence = true;
     }
@@ -133,6 +146,7 @@ void REMA::execute_sequence(std::vector<sequence_step>& sequence) {
                 step.execution_results.stopped_on_probe = stopped_on_probe;
                 step.execution_results.stopped_on_condition = stopped_on_condition;
         }
-        is_sequence_in_progress = false;
     }
+    is_sequence_in_progress = false;
+    cancel_sequence = false;
 }

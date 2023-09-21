@@ -7,6 +7,7 @@
 #include <exception>
 #include <vector>
 #include <memory>
+#include <cstdint>
 
 #include "json.hpp"
 #include "inspection-session.hpp"
@@ -161,7 +162,7 @@ void tools_select(const std::shared_ptr<restbed::Session> session) {
     std::string tool_name = request->get_path_parameter("tool_name", "");
     REMA &rema_instance = REMA::get_instance();
     rema_instance.set_last_selected_tool(tool_name);
-    close_session(session, restbed::OK, std::string(""));
+    close_session(session, restbed::OK);
 }
 
 
@@ -359,6 +360,18 @@ void tubes_set_status(const std::shared_ptr<restbed::Session> session) {
     });
 }
 
+void axes_hard_stop_all(const std::shared_ptr<restbed::Session> session) {
+    REMA &rema_instance = REMA::get_instance();
+    rema_instance.axes_hard_stop_all();
+    close_session(session, restbed::OK);
+}
+
+void axes_soft_stop_all(const std::shared_ptr<restbed::Session> session) {
+    REMA &rema_instance = REMA::get_instance();
+    rema_instance.axes_soft_stop_all();
+    close_session(session, restbed::OK);
+}
+
 void go_to_tube(const std::shared_ptr<restbed::Session> session) {
     REMA &rema_instance = REMA::get_instance();
     const auto request = session->get_request();
@@ -370,18 +383,63 @@ void go_to_tube(const std::shared_ptr<restbed::Session> session) {
         Tool t = rema_instance.get_selected_tool();
         Point3D rema_coords = current_session.from_ui_to_rema(current_session.get_tube_coordinates(tube_id, false), &t);
 
-        sequence_step goto_tube_step;
-        goto_tube_step.axes = "XY";
-        goto_tube_step.first_axis_setpoint = rema_coords.x;
-        goto_tube_step.second_axis_setpoint = rema_coords.y;
-        goto_tube_step.stop_on_probe = true;
-        goto_tube_step.stop_on_condition = true;
+        movement_cmd goto_tube;
+        goto_tube.axes = "XY";
+        goto_tube.first_axis_setpoint = rema_coords.x;
+        goto_tube.second_axis_setpoint = rema_coords.y;
+        goto_tube.stop_on_probe = true;
+        goto_tube.stop_on_condition = true;
 
-        rema_instance.move_closed_loop(goto_tube_step);
+        rema_instance.move_closed_loop(goto_tube);
 
         close_session(session, restbed::OK, res);
     }
 }
+
+void move_free_run(const std::shared_ptr<restbed::Session> session) {
+    REMA &rema_instance = REMA::get_instance();
+    const auto request = session->get_request();
+    std::string dir = request->get_path_parameter("dir", "");
+
+    constexpr int positive_big_number = INT32_MAX - 100000;     // Consider that already_there() compares with MOT_PAP_POS_THRESHOLD;
+    constexpr int negative_big_number = INT32_MIN + 100000;     //
+
+    nlohmann::json pars_obj;
+
+    if (dir.find("left") != std::string::npos) {
+        pars_obj["axes"] = "XY";
+        pars_obj["first_axis_setpoint"] = negative_big_number;
+    }
+
+    if (dir.find("right") != std::string::npos) {
+        pars_obj["axes"] = "XY";
+        pars_obj["first_axis_setpoint"] = positive_big_number;
+    }
+
+    if (dir.find("up") != std::string::npos) {
+        pars_obj["axes"] = "XY";
+        pars_obj["second_axis_setpoint"] = positive_big_number;
+    }
+
+    if (dir.find("down") != std::string::npos) {
+        pars_obj["axes"] = "XY";
+        pars_obj["second_axis_setpoint"] = negative_big_number;
+    }
+
+    if (dir.find("z_in") != std::string::npos) {
+        pars_obj["axes"] = "Z";
+        pars_obj["first_axis_setpoint"] = positive_big_number;
+    }
+
+    if (dir.find("z_out") != std::string::npos) {
+        pars_obj["axes"] = "Z";
+        pars_obj["first_axis_setpoint"] = negative_big_number;
+    }
+
+    rema_instance.execute_command({{"command", "MOVE_FREE_RUN"}, {"pars", pars_obj}});
+    close_session(session, restbed::OK);
+}
+
 
 void set_home_xy(const std::shared_ptr<restbed::Session> session) {
     REMA &rema_instance = REMA::get_instance();
@@ -437,9 +495,9 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> session) {
             i += 2;
         }
 
-        std::vector<sequence_step> seq;
+        std::vector<movement_cmd> seq;
         for (auto point : reordered_points) {
-            sequence_step step;
+            movement_cmd step;
             step.axes = "XY";
             step.first_axis_setpoint = point.x;
             step.second_axis_setpoint = point.y;
@@ -467,14 +525,14 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> session) {
         };
         res["radius"] = c.radius;
 
-        sequence_step goto_center_step;
-        goto_center_step.axes = "XY";
-        goto_center_step.first_axis_setpoint = c.center.x;
-        goto_center_step.second_axis_setpoint = c.center.y;
-        goto_center_step.stop_on_probe = true;
-        goto_center_step.stop_on_condition = true;
+        movement_cmd goto_center;
+        goto_center.axes = "XY";
+        goto_center.first_axis_setpoint = c.center.x;
+        goto_center.second_axis_setpoint = c.center.y;
+        goto_center.stop_on_probe = true;
+        goto_center.stop_on_condition = true;
 
-        rema_instance.move_closed_loop(goto_center_step);
+        rema_instance.move_closed_loop(goto_center);
 
         close_session(session, restbed::OK, res);
     }
@@ -484,25 +542,21 @@ void determine_tubesheet_z(const std::shared_ptr<restbed::Session> session) {
     REMA &rema_instance = REMA::get_instance();
 
     nlohmann::json res;
-    std::vector<sequence_step> seq;
-    sequence_step step_fw;
-    step_fw.axes = "Z";
-    step_fw.first_axis_setpoint = 0.2;
-    step_fw.second_axis_setpoint = 0;
-    step_fw.stop_on_probe = true;
-    step_fw.stop_on_condition = true;
+    std::vector<movement_cmd> seq;
+    movement_cmd forewards;
+    forewards.axes = "Z";
+    forewards.first_axis_setpoint = 0.2;
+    forewards.second_axis_setpoint = 0;
+    forewards.stop_on_probe = true;
+    forewards.stop_on_condition = true;
 
-    sequence_step step_bw;
-    step_bw.axes = "Z";
-    step_bw.first_axis_setpoint = -0.2;
-    step_bw.second_axis_setpoint = 0;
-    step_bw.stop_on_probe = true;
-    step_bw.stop_on_condition = true;
+    movement_cmd backwards = forewards;
+    backwards.first_axis_setpoint = -0.2;
 
-    seq.push_back(step_fw);
-    seq.push_back(step_bw);
-    seq.push_back(step_fw);
-    seq.push_back(step_bw);
+    seq.push_back(forewards);
+    seq.push_back(backwards);
+    seq.push_back(forewards);
+    seq.push_back(backwards);
 
     rema_instance.execute_sequence(seq);
 
@@ -517,14 +571,14 @@ void determine_tubesheet_z(const std::shared_ptr<restbed::Session> session) {
 
     double z = sum_z / count;
 
-    sequence_step goto_tubesheet_step;
-    goto_tubesheet_step.axes = "Z";
-    goto_tubesheet_step.first_axis_setpoint = z;
-    goto_tubesheet_step.second_axis_setpoint = 0;
-    goto_tubesheet_step.stop_on_probe = true;                                // to reach the averaged z it should not stop on probe...
-    goto_tubesheet_step.stop_on_condition = true;
+    movement_cmd goto_tubeshet;
+    goto_tubeshet.axes = "Z";
+    goto_tubeshet.first_axis_setpoint = z;
+    goto_tubeshet.second_axis_setpoint = 0;
+    goto_tubeshet.stop_on_probe = true;                                // to reach the averaged z it should not stop on probe...
+    goto_tubeshet.stop_on_condition = true;
 
-    rema_instance.move_closed_loop(goto_tubesheet_step);
+    rema_instance.move_closed_loop(goto_tubeshet);
 
     close_session(session, restbed::OK, res);
 
@@ -564,12 +618,16 @@ void restfull_api_create_endpoints(restbed::Service &service) {
                                              },
         {"tubes/{tube_id: .*}", {{"PUT", &tubes_set_status}}},
         {"go-to-tube/{tube_id: .*}", {{"GET", &go_to_tube}}},
+        {"move-free-run/{dir: .*}", {{"GET", &move_free_run}}},
         {"determine-tube-center/{tube_id: .*}", {{"GET", &determine_tube_center}}},
         {"set-home-xy/", {{"GET", &set_home_xy}}},
         {"set-home-xy/{tube_id: .*}", {{"GET", &set_home_xy}}},
         {"determine-tubesheet-z", {{"GET", &determine_tubesheet_z}}},
         {"set-home-z/{z: .*}", {{"GET", &set_home_z}}},
         {"aligned-tubesheet-get", {{"GET", &aligned_tubesheet_get}}},
+        {"axes-hard-stop-all", {{"GET", &axes_hard_stop_all}}},
+        {"axes-soft-stop-all", {{"GET", &axes_soft_stop_all}}},
+
     };
 // @formatter:on
 

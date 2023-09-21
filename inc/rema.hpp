@@ -60,7 +60,7 @@ struct telemetry {
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(telemetry, coords, on_condition, stalled,
         limits)
 
-struct sequence_step {
+struct movement_cmd {
     std::string axes;
     double first_axis_setpoint;
     double second_axis_setpoint;
@@ -103,9 +103,13 @@ public:
 
     void execute_command(nlohmann::json command);
 
-    void move_closed_loop(sequence_step step);
+    void move_closed_loop(movement_cmd step);
 
-    void execute_sequence(std::vector<sequence_step>& sequence);
+    void axes_hard_stop_all();
+
+    void axes_soft_stop_all();
+
+    void execute_sequence(std::vector<movement_cmd>& sequence);
 
     void set_home_xy(double x, double y);
 
