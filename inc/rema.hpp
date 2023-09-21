@@ -114,7 +114,9 @@ public:
 
     void axes_soft_stop_all();
 
-    void execute_sequence(std::vector<movement_cmd>& sequence);
+    void cancel_sequence_in_progress();
+
+    bool execute_sequence(std::vector<movement_cmd>& sequence);
 
     void set_home_xy(double x, double y);
 

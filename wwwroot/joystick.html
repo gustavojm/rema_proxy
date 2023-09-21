@@ -5,6 +5,7 @@
 	media="all" />
 
 <script type="text/javascript" src="js/rcswitcher.js"></script>
+<script type="text/javascript" src="js/ajaxqueue.js"></script>
 <style>
 .joystick-container {
 	display: flex;
@@ -162,7 +163,7 @@
 
 		if (moving || forced) {
 
-			$.ajax({
+			$.ajaxQueue({
 				url : "/REST/axes-soft-stop-all",
 				method : "GET",
 				contentType : "application/json",
@@ -183,7 +184,7 @@
 			return;
 		}
 
-		$.ajax({
+		$.ajaxQueue({
 			url : "/REST/move-free-run/" + dir,
 			method : "GET",
 			contentType : "application/json",
@@ -259,7 +260,7 @@
 		});
 
 		$("#emergency_stop").click(function() {
-			$.ajax({
+			$.ajaxQueue({
 				url : "/REST/axes-hard-stop-all",
 				method : "GET",
 				contentType : "application/json",

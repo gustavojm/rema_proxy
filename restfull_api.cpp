@@ -368,6 +368,7 @@ void axes_hard_stop_all(const std::shared_ptr<restbed::Session> session) {
 }
 
 void axes_soft_stop_all(const std::shared_ptr<restbed::Session> session) {
+    std::cout << "received soft stop \n";
     REMA &rema_instance = REMA::get_instance();
     rema_instance.axes_soft_stop_all();
     close_session(session, restbed::OK);
@@ -437,6 +438,7 @@ void move_free_run(const std::shared_ptr<restbed::Session> session) {
         pars_obj["first_axis_setpoint"] = negative_big_number;
     }
 
+    rema_instance.axes_soft_stop_all();
     rema_instance.execute_command({{"command", "MOVE_FREE_RUN"}, {"pars", pars_obj}});
     close_session(session, restbed::OK);
 }
@@ -508,7 +510,10 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> session) {
             seq.push_back(step);
         }
 
-        rema_instance.execute_sequence(seq);
+        if (!rema_instance.execute_sequence(seq)) {
+            close_session(session, restbed::RESET_CONTENT);
+            return;
+        }
 
         std::vector<Point3D> tube_boundary_points;
 

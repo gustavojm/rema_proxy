@@ -23,6 +23,13 @@ extern TouchProbeFSM tpFSM;
 
 std::map<std::string, Tool> REMA::tools;
 
+void REMA::cancel_sequence_in_progress() {
+    while (is_sequence_in_progress) {
+        cancel_sequence = true;
+    }
+    cancel_sequence = false;
+}
+
 void REMA::save_to_disk() const {
     std::ofstream file(rema_file);
     nlohmann::json j;
@@ -96,23 +103,19 @@ void REMA::move_closed_loop(movement_cmd cmd) {
 }
 
 void REMA::axes_hard_stop_all() {
+    cancel_sequence_in_progress();
     execute_command({ { "command", "AXES_HARD_STOP_ALL" }});
-    while (is_sequence_in_progress) {
-        cancel_sequence = true;
-    }
-    cancel_sequence = false;
 }
 
 void REMA::axes_soft_stop_all() {
+    cancel_sequence_in_progress();
     execute_command({ { "command", "AXES_SOFT_STOP_ALL" }});
 }
 
-void REMA::execute_sequence(std::vector<movement_cmd>& sequence) {
-    while (is_sequence_in_progress) {
-        cancel_sequence = true;
-    }
-    cancel_sequence = false;
+bool REMA::execute_sequence(std::vector<movement_cmd>& sequence) {
+    cancel_sequence_in_progress();
     is_sequence_in_progress = true;
+    bool was_completed = true;
 
     execute_command({ { "command", "AXES_SOFT_STOP_ALL" }});
 
@@ -125,8 +128,8 @@ void REMA::execute_sequence(std::vector<movement_cmd>& sequence) {
         bool stopped_on_condition = false;
         do {
             try {
-                std::string stream = telemetry_client.receive_blocking();
-                update_telemetry(stream);
+                telemetry_client.receive_async([this](std::string &rx_buffer) {this->update_telemetry(rx_buffer); });
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));                     // Wait for telemetry update...
             } catch (std::exception &e) {                // handle exception
                 std::cerr << e.what() << "\n";
             }
@@ -141,6 +144,7 @@ void REMA::execute_sequence(std::vector<movement_cmd>& sequence) {
         } while (!(stopped_on_probe || stopped_on_condition || cancel_sequence ));
 
         if (cancel_sequence) {
+            was_completed = false;
             break;
         } else {
                 step.executed = true;
@@ -151,4 +155,5 @@ void REMA::execute_sequence(std::vector<movement_cmd>& sequence) {
     }
     is_sequence_in_progress = false;
     cancel_sequence = false;
+    return was_completed;
 }
