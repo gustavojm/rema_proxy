@@ -82,8 +82,13 @@ public:
         return instance;
     }
 
+    static void add_tool(Tool tool) {
+        tools[tool.name] = tool;
+    }
+
     static void delete_tool(std::string tool) {
         std::filesystem::remove(tools_dir / (tool + std::string(".json")));
+        tools.erase(tool);
     }
 
     void update_telemetry(std::string &stream);
@@ -117,7 +122,7 @@ public:
 
     bool loaded = false;
 
-    std::map<std::string, Tool> tools;
+    static std::map<std::string, Tool> tools;
 
     std::string last_selected_tool;
 

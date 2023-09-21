@@ -132,6 +132,44 @@
 
 tabs_initialized = false;
 
+function get_rema_info() {
+	$.get('/REST/REMA/info', function(data) {
+		var tools_dropdown = $('#tools');
+		tools_dropdown.empty();
+		$.each(
+				data.tools,
+				function(key, entry) {
+					tools_dropdown
+							.append($('<option></option>')
+									.attr(
+											'value',
+											entry.name)
+									.attr(
+											'data-offset_x',
+											entry.offset.x)
+									.attr(
+											'data-offset_y',
+											entry.offset.y)														
+									.attr(
+											'data-offset_z',
+											entry.offset.z)														
+									.text(
+											entry.name));
+				});
+	
+				tools_dropdown.change(function() {
+					$("#offset_x").val($("option:selected", this).data("offset_x"));
+					$("#offset_y").val($("option:selected", this).data("offset_y"));
+					$("#offset_z").val($("option:selected", this).data("offset_z"));
+					var tool_name = $("option:selected", this).val();
+					$.post('/REST/tools/' + tool_name + '/select');								
+				});
+		
+				tools_dropdown.val(data.last_selected_tool).change();	
+			}										
+	);			
+}
+
 function get_session_info_index() {
 	return $.get('/REST/current-session/info');
 }
@@ -155,41 +193,8 @@ get_session_info_index()
 							tabs_initialized = true;
 						}
 					});
-
-					$.get('/REST/REMA/info', function(data) {
-						var tools_dropdown = $('#tools');
-						$.each(
-								data.tools,
-								function(key, entry) {
-									tools_dropdown
-											.append($('<option></option>')
-													.attr(
-															'value',
-															entry.name)
-													.attr(
-															'data-offset_x',
-															entry.offset.x)
-													.attr(
-															'data-offset_y',
-															entry.offset.y)														
-													.attr(
-															'data-offset_z',
-															entry.offset.z)														
-													.text(
-															entry.name));
-								});
-
-								tools_dropdown.change(function() {
-									$("#offset_x").val($("option:selected", this).data("offset_x"));
-									$("#offset_y").val($("option:selected", this).data("offset_y"));
-									$("#offset_z").val($("option:selected", this).data("offset_z"));
-									var tool_name = $("option:selected", this).val();
-									$.post('/REST/tools/' + tool_name + '/select');								
-								});
-						
-								tools_dropdown.val(data.last_selected_tool).change();	
-							}										
-					);			
+					
+					get_rema_info();
 				}
 		);
 				

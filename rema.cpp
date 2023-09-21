@@ -21,6 +21,8 @@
 
 extern TouchProbeFSM tpFSM;
 
+std::map<std::string, Tool> REMA::tools;
+
 void REMA::save_to_disk() const {
     std::ofstream file(rema_file);
     nlohmann::json j;

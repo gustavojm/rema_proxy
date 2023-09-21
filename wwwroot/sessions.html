@@ -186,6 +186,7 @@
 					dialog.find("form")[0].reset();
 					dialog.dialog("close");
 					dialog.dialog("destroy");
+					$("#new_session_logs").val("");
 					create_dialog();
 					table.ajax.reload();
 				}

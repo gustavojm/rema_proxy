@@ -96,7 +96,6 @@
 		
 		table.on('draw.dt', function(e, settings, json, xhr) {			
 			$(".ui-icon-trash").on("click", function() {
-				console.log($(this).data);
 				var tool_name = $(this).data("name");
 				
 				var confirm_action = confirm("Are you sure you want to delete " + tool_name + " ?");
@@ -105,6 +104,7 @@
 						url : "/REST/tools/" + tool_name,
 						type : "DELETE",
 						success: function(data) {
+							get_rema_info();	// To reload the Tools selector
 							table.ajax.reload();
 						},
 						error: function(xhr, status, error) {
@@ -140,6 +140,7 @@
 						data: JSON.stringify(Object.fromEntries(new FormData(document.getElementById("tool_create")))),
 						success: function(data) {
 							$("#new_tool_logs").val(data);
+							get_rema_info();	// To reload the Tools selector
 							table.ajax.reload();
 							$(event.target).hide(); // Hides the "Create" button
 						},
@@ -158,6 +159,7 @@
 					dialog.find("form")[0].reset();
 					dialog.dialog("close");
 					dialog.dialog("destroy");
+					$("#new_tool_logs").val("");
 					create_dialog();
 					table.ajax.reload();
 				}

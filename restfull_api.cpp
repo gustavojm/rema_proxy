@@ -61,7 +61,7 @@ void REMA_info(const std::shared_ptr<restbed::Session> session) {
     nlohmann::json res = nlohmann::json(nlohmann::json::value_t::object);
     REMA &rema_instance = REMA::get_instance();
 
-    res["tools"] = rema_instance.tools;
+    res["tools"] = REMA::tools;
     res["last_selected_tool"] = rema_instance.last_selected_tool;
     close_session(session, restbed::OK, res);
 }
@@ -126,6 +126,7 @@ void tools_create(const std::shared_ptr<restbed::Session> session) {
                         float offset_z = to_float(form_data.value("offset_z", "0"));
 
                         Tool new_tool(tool_name, {offset_x, offset_y, offset_z});
+                        REMA::add_tool(new_tool);
                         res = "Tool created Successfully";
                         status = restbed::CREATED;
                     }
