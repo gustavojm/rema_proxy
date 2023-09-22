@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style type="text/css">
+
+.column_without_border {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+/*     border: 1px solid #ccc; */
+/*     border-radius: 5px; */
+/*     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); */
+    align-items: flex-start;
+    flex-grow: 2;
+    justify-content: center; /* align item horizontally */
+    align-items: center; /* align item vertically */
+    flex-basis: auto;
+}
+
+.row_without_border {
+	justify-content: center; /* align item horizontally */
+    align-items: center; /* align item vertically */
+	display: flex;
+	padding: 5px;
+	flex-direction: row;
+	flex-grow: 1;
+	position: relative;
+	width:100%;
+}
+
+</style>
+</head>
+<body>
+
+	<div id="incremental_dialog"
+		style="overflow: hidden; width: 100%; height: 100%; float: left; position: relative; display: flex; flex-direction: column;">
+		<form id="incremental_form_xy" style="overflow: hidden; width: 100%; height: 100%; float: left; position: relative; display: flex; flex-direction: column;">
+			<fieldset style="display: flex;">
+				<legend>Ejes XY</legend>
+				<div class="column_without_border" style="float: left;">
+					<div class="row_without_border">
+						<label>X: <input type="text" name="incremental_x" size="4"><span
+							class="units">inch</span>
+						</label>
+					</div>
+					<div class="row_without_border">
+						<label>Y: <input type="text" name="incremental_y" size="4"><span
+							class="units">inch</span>
+						</label>
+					</div>
+				</div>
+				<div class="column_without_border"
+					style="width: 40%; float: left; display: flex; vertical-align: middle; justify-content: center; align-items: center; flex-grow: 2;">
+					<input type="button" id="go_incremental_button_xy" value="GO"
+						style="width: 50%">
+				</div>
+			</fieldset>
+		</form>
+		<form id="incremental_form_z">
+			<fieldset style="display: flex;">
+				<legend>Eje Z</legend>
+				<div class="column_without_border" style="float: left;">
+					<div class="row_without_border">
+						<label>Z: <input type="text" name="incremental_z" size="4"><span
+							class="units">inch</span>
+						</label>
+					</div>
+				</div>
+				<div class="column_without_border"
+					style="width: 40%; float: left; display: flex; vertical-align: middle; justify-content: center; align-items: center; flex-grow: 2;">
+					<input type="button" id="go_incremental_button_z" value="GO"
+						style="position:relative; width: 50%">
+				</div>
+			</fieldset>
+		</form>
+	</div>
+</body>
+
+<script type="text/javascript">
+	$("#go_incremental_button_xy").click(
+			function(e) {
+				e.preventDefault();
+				$.ajax({
+					method : "POST",
+					url : "/REST/move-incremental",
+					data : JSON.stringify(Object.fromEntries(new FormData(
+							document.getElementById("incremental_form_xy")))),
+					success : function(data) {
+						console.log(data);
+					}
+				});
+			});
+
+	$("#go_incremental_button_z").click(
+			function(e) {
+				e.preventDefault();
+				$.ajax({
+					method : "POST",
+					url : "/REST/move-incremental",
+					data : JSON.stringify(Object.fromEntries(new FormData(
+							document.getElementById("incremental_form_z")))),
+					success : function(data) {
+						console.log(data);
+					}
+				});
+			});
+</script>
+
+</html>
+

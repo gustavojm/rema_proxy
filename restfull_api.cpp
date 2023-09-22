@@ -121,9 +121,9 @@ void tools_create(const std::shared_ptr<restbed::Session> session) {
                     if (!res.empty()) {
                         status = restbed::BAD_REQUEST;
                     } else {
-                        float offset_x = to_float(form_data.value("offset_x", "0"));
-                        float offset_y = to_float(form_data.value("offset_y", "0"));
-                        float offset_z = to_float(form_data.value("offset_z", "0"));
+                        double offset_x = to_double(form_data.value("offset_x", "0"));
+                        double offset_y = to_double(form_data.value("offset_y", "0"));
+                        double offset_z = to_double(form_data.value("offset_z", "0"));
 
                         Tool new_tool(tool_name, {offset_x, offset_y, offset_z});
                         REMA::add_tool(new_tool);
@@ -295,15 +295,15 @@ void cal_points_add_update(const std::shared_ptr<restbed::Session> session) {
 
                 try {
                     Point3D ideal_coords = {
-                            to_float(form_data.value("ideal_coords_x", "0")),
-                            to_float(form_data.value("ideal_coords_y", "0")),
-                            to_float(form_data.value("ideal_coords_z", "0")),
+                            to_double(form_data.value("ideal_coords_x", "0")),
+                            to_double(form_data.value("ideal_coords_y", "0")),
+                            to_double(form_data.value("ideal_coords_z", "0")),
                     };
 
                     Point3D determined_coords = {
-                            to_float(form_data.value("determined_coords_x", "0")),
-                            to_float(form_data.value("determined_coords_y", "0")),
-                            to_float(form_data.value("determined_coords_z", "0")),
+                            to_double(form_data.value("determined_coords_x", "0")),
+                            to_double(form_data.value("determined_coords_y", "0")),
+                            to_double(form_data.value("determined_coords_z", "0")),
                     };
                     if (!tube_id.empty()) {
                         current_session.cal_points_add_update(tube_id, form_data["col"], form_data["row"], ideal_coords, determined_coords);
@@ -441,6 +441,53 @@ void move_free_run(const std::shared_ptr<restbed::Session> session) {
     rema_instance.axes_soft_stop_all();
     rema_instance.execute_command({{"command", "MOVE_FREE_RUN"}, {"pars", pars_obj}});
     close_session(session, restbed::OK);
+}
+
+bool approximatelly_equal(double f1, double f2) {
+    return (fabs(f1 - f2) < 0.001d);
+}
+
+void move_incremental(const std::shared_ptr<restbed::Session> session) {
+    REMA &rema_instance = REMA::get_instance();
+    nlohmann::json pars_obj;
+    const auto request = session->get_request();
+    size_t content_length = request->get_header("Content-Length", 0);
+    session->fetch(content_length,
+            [&](const std::shared_ptr<restbed::Session> &session,
+                    const restbed::Bytes &body) {
+        nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
+
+        double incremental_x = 0.d;
+        double incremental_y = 0.d;
+        double incremental_z = 0.d;
+
+        if (form_data.contains("incremental_x")) {
+            incremental_x = to_double(form_data["incremental_x"]);
+            if (!approximatelly_equal(incremental_x, 0)) {
+                pars_obj["axes"] = "XY";
+                pars_obj["first_axis_delta"] = current_session.from_ui_to_rema(incremental_x);
+            }
+        }
+
+        if (form_data.contains("incremental_y")) {
+            incremental_y = to_double(form_data["incremental_y"]);
+            if (!approximatelly_equal(incremental_y, 0)) {
+                pars_obj["axes"] = "XY";
+                pars_obj["second_axis_delta"] = current_session.from_ui_to_rema(incremental_y);
+            }
+        }
+
+        if (form_data.contains("incremental_z")) {
+            incremental_z = to_double(form_data["incremental_z"]);
+            if (!approximatelly_equal(incremental_z, 0)) {
+                pars_obj["axes"] = "Z";
+                pars_obj["first_axis_delta"] = current_session.from_ui_to_rema(incremental_z);
+            }
+        }
+        rema_instance.axes_soft_stop_all();
+        rema_instance.execute_command({{"command", "MOVE_INCREMENTAL"}, {"pars", pars_obj}});
+        close_session(session, restbed::OK);
+    });
 }
 
 
@@ -625,6 +672,7 @@ void restfull_api_create_endpoints(restbed::Service &service) {
         {"tubes/{tube_id: .*}", {{"PUT", &tubes_set_status}}},
         {"go-to-tube/{tube_id: .*}", {{"GET", &go_to_tube}}},
         {"move-free-run/{dir: .*}", {{"GET", &move_free_run}}},
+        {"move-incremental", {{"POST", &move_incremental}}},
         {"determine-tube-center/{tube_id: .*}", {{"GET", &determine_tube_center}}},
         {"set-home-xy/", {{"GET", &set_home_xy}}},
         {"set-home-xy/{tube_id: .*}", {{"GET", &set_home_xy}}},

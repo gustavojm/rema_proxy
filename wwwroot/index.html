@@ -101,7 +101,7 @@
 			<div class="temperature normal" id="temperature_z">__._ºC</div>
 		</div>		
 		<div style="float: left;" class="col">
-			Position X:<input type="text" id="position_x" name="position X"
+			<a id="incremental_link">Position</a> &nbsp; X:<input type="text" id="position_x" name="position X"
 				readonly="readonly" size="4">&nbsp; Y:<input type="text"
 				id="position_y" name="position Y" readonly="readonly" size="4">&nbsp;
 			Z:<input type="text" id="position_z" name="position Z"
@@ -124,6 +124,7 @@
 	</div>
 
 	<div id="joystick_div" style="overflow: hidden;"></div>
+	<div id="incremental_div" style="overflow: hidden;"></div>
 
 
 </body>
@@ -258,6 +259,35 @@ get_session_info_index()
 		$("#temperature_z").removeClass().addClass("temperature").addClass(temp_ranges(temp_z));
 	}
 
+	function create_incremental_dialog() {
+		
+		$.when(
+			    $.get('incremental.html', function(data) {
+			        $('#incremental_div').html(data);
+			    }),
+			).done(function() {
+				var incremental = $("#incremental_div").dialog({
+					autoOpen : false,
+					//width : '30%',
+					title : "Incremental",
+					//position: { my: "center", at: "center", of: $("#tabs") },		// default to center
+					modal : true,
+					open: function(event, ui) {
+						
+					},
+					close: function(event, ui) {
+						
+					},
+
+				});	
+				$("#incremental_link").click(function() {
+					incremental.dialog("open");
+				}) 
+			});
+	}
+
+	
+	
 	function create_joystick() {
 		
 		$.when(
@@ -331,6 +361,7 @@ get_session_info_index()
 		sse.start();
 
 	    create_joystick();
+	    create_incremental_dialog();
 				
 	});
 		

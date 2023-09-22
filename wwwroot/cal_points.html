@@ -60,7 +60,7 @@ svg .tube.highlight_cal_tube  {
 <body>
 <div id="calibration_div">
 	<div style="display: flex; flex-direction: column; height: 100%; align-content: center;">
-		<div style="display: flex; flex-grow: 2;">
+		<div>
 			<table id="calibration_table" class="datatables display my-table"
 				style="width: 100%">
 				<thead>
@@ -230,7 +230,10 @@ $(function() {
 			{
 				deferRender: true,
 				select : true,
-				scrollX : true,						
+				//sScrollY : "400px",
+				scrollX : true,				
+				paging : false,
+				//dom : 'ftipr',
 				ajax : {
 					method : "GET",
 					dataType : 'json',
