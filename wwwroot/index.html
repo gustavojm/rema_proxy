@@ -83,8 +83,12 @@
 </body>
 
 <script type="text/javascript">
-
+decimals = 3
 tabs_initialized = false;
+
+function toFixedIfNecessary(value, dp) {
+	return +parseFloat(value).toFixed(dp);	
+}
 
 function get_rema_info() {
 	$.get('/REST/REMA/info', function(data) {
@@ -158,9 +162,9 @@ get_session_info_index()
 		var pos_x = telemetry.coords.x;
 		var pos_y = telemetry.coords.y;
 		var pos_z = telemetry.coords.z;
-		$("#position_x").val(pos_x.toFixed(4));
-		$("#position_y").val(pos_y.toFixed(4));
-		$("#position_z").val(pos_z.toFixed(4));	
+		$("#position_x").val(toFixedIfNecessary(pos_x, decimals));
+		$("#position_y").val(toFixedIfNecessary(pos_y, decimals));
+		$("#position_z").val(toFixedIfNecessary(pos_z, decimals));	
 
 		if (telemetry.on_condition.x_y) {
 			$("#messages").html("XY ON CONDITION");

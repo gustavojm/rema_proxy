@@ -10,13 +10,13 @@
 				<label>Tool Name: <input type="text" name="tool_name" /></label>
 			</div>
 			<div style="padding-bottom: 10px;">
-				<label>Offset X: <input type="text" name="offset_x" /></label>
+				<label>Offset X: <input type="text" name="offset_x" size="4"/>inch</label>
 			</div>
 			<div style="padding-bottom: 10px;">
-				<label>Offset Y: <input type="text" name="offset_y" /></label>
+				<label>Offset Y: <input type="text" name="offset_y" size="4"/>inch</label>
 			</div>
 			<div style="padding-bottom: 10px;">
-				<label>Offset Z: <input type="text" name="offset_z" /></label>
+				<label>Offset Z: <input type="text" name="offset_z" size="4"/>inch</label>
 			</div>			
 		</div>
 	</form>
@@ -87,7 +87,7 @@
 					],
 					columnDefs: [
 						{render: function (data, type, row) {
-								return (data.toFixed(4));
+								return (toFixedIfNecessary(data, decimals) + " inch");
 							},
 							target: [1, 2, 3]						
 						}	

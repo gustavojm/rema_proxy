@@ -27,7 +27,7 @@
 				</tbody>
 			</table>
 		</div>
-		<div class="row" style="width: 95%">
+		<div class="row" style="width: 100%">
 			<hr>
 		</div>
 		<div>
@@ -92,12 +92,12 @@ function show_cal_point_info(data, from_table = false) {
 		$("#cal_point_tube_id").val(data.tube_id);
 		$("#cal_tube_info_col").val(data.col);
 		$("#cal_tube_info_row").val(data.row);
-		$("#ideal_coords_x").val(data.ideal_coords.x);
-		$("#ideal_coords_y").val(data.ideal_coords.y);
-		$("#ideal_coords_z").val(data.ideal_coords.z);
-		$("#determined_coords_x").val(data.determined_coords.x);
-		$("#determined_coords_y").val(data.determined_coords.y);
-		$("#determined_coords_z").val(data.determined_coords.z);
+		$("#ideal_coords_x").val(toFixedIfNecessary(data.ideal_coords.x, decimals));
+		$("#ideal_coords_y").val(toFixedIfNecessary(data.ideal_coords.y, decimals));
+		$("#ideal_coords_z").val(toFixedIfNecessary(data.ideal_coords.z, decimals));
+		$("#determined_coords_x").val(toFixedIfNecessary(data.determined_coords.x, decimals));
+		$("#determined_coords_y").val(toFixedIfNecessary(data.determined_coords.y, decimals));
+		$("#determined_coords_z").val(toFixedIfNecessary(data.determined_coords.z, decimals));
 	}
 }
 
@@ -301,9 +301,9 @@ $(function() {
 				data.center.z *= scale;
 				drawCircle(svg, data.center, data.radius, scale);
 				
-				$("#determined_coords_x").val(data.center.x);
-				$("#determined_coords_y").val(data.center.y);
-				$("#determined_coords_z").val(data.center.z);			
+				$("#determined_coords_x").val(toFixedIfNecessary(data.center.x, decimals));
+				$("#determined_coords_y").val(toFixedIfNecessary(data.center.y, decimals));
+				$("#determined_coords_z").val(toFixedIfNecessary(data.center.z, decimals));			
 			})
 			.catch(function(e) {
 				if(e.statusText == 'timeout') {     

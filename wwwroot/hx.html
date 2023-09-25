@@ -103,8 +103,8 @@
 			point.x = event.clientX;
 			point.y = event.clientY;
 			var svgCoords = point.matrixTransform(svg.getScreenCTM().inverse());
-			var x = svgCoords.x.toFixed(4);
-			var y = -svgCoords.y.toFixed(4);					// Reverse the SVG Y coordinate to make it Cartesian
+			var x = toFixedIfNecessary(svgCoords.x, decimals);
+			var y = toFixedIfNecessary(-svgCoords.y, decimals);					// Reverse the SVG Y coordinate to make it Cartesian
 			document.getElementById("coordinates").innerHTML = "Coordinates: " + x
 					+ ", " + y;
 		}
@@ -250,8 +250,8 @@
 					.val(col);
 			$("#tube_info_row")
 					.val(row);
-			$("#tube_info_x").val(aligned_tubes[id].x);
-			$("#tube_info_y").val(aligned_tubes[id].y);
+			$("#tube_info_x").val(toFixedIfNecessary(aligned_tubes[id].x, decimals));
+			$("#tube_info_y").val(toFixedIfNecessary(aligned_tubes[id].y, decimals));
 			update_location_pin_position(
 					cx, cy);
 
@@ -284,8 +284,8 @@
 					"tube_id": id, 
 					"col": col,
 					"row": row,
-					"ideal_coords": {"x" : cx,
-									 "y" : cy,
+					"ideal_coords": {"x" : parseFloat(cx),
+									 "y" : parseFloat(cy),
 									 "z" : 0,
 					},
 					"determined_coords": {"x" : aligned_tubes[id].x,
