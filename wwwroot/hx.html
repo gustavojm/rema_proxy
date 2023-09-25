@@ -15,48 +15,10 @@
 <script type="text/javascript" src="js/dataTables.scroller.min.js"></script>
 <script type="text/javascript" src="js/rcswitcher.js"></script>
 
-<style>
-svg .tube.clicked {
-	fill: #29ABE2;
-}
-
-svg .tube:hover {
-	stroke: lime;
-}
-
-.dataTables_filter input {
-	width: 80px;
-}
-
-.nav-buttons {
-	width: 80px;
-	height: 30px;
-}
-
-.context-menu {
-	display: none;
-	position: absolute;
-	background: white;
-	border: 1px solid #ccc;
-	list-style: none;
-	margin: 0;
-	padding: 0;
-}
-
-.context-menu li {
-	padding: 1px 1px;
-	cursor: pointer;
-}
-
-.context-menu li:hover {
-	background: #f0f0f0;
-}
-</style>
-
 <div id="hx_tab"
 	style="overflow: visible; height: 92%; width: 100%; float: left; position: relative;">
 
-	<div style="position: relative; width: 100%; float: left; vertical-align: middle; height: 3%; display: flex; flex-direction: row;">
+	<div class="row" style="position: relative; width: 100%; float: left; vertical-align: middle; height: 3%;">
 		<div
 			style="position: relative; width: 50%; height: 100%; float: left; display: flex; flex: 1"
 			class="left-side">
@@ -69,12 +31,9 @@ svg .tube:hover {
 						Y:<input type="text" id="tube_info_y" name="y" size="4"> <span class="units">inch</span>											
 					</form>
 				</div>
-			<div
-				style="position: relative; width: 10%; float: right; height: 100%; vertical-align: middle; display: flex; flex-direction: row; flex: 1">
-				<div
-					style="float: left; text-align: right; align-items: center; display: flex; vertical-align: middle; padding-right: 10px;">Zoom:</div>
-				<div id="zoom_bar"
-					style="float: right; width: 50%; display: flex; align-items: center; justify-content: center; vertical-align: middle; margin-top: 8px;"></div>
+			<div class="row">
+				<div style="padding-right: 10px;">Zoom:</div>
+				<div id="zoom_bar" style="width:40%;"></div>
 			</div>
 		</div>
 		<div style="float: right; text-align: center;" class="right-side">
@@ -92,7 +51,7 @@ svg .tube:hover {
 				onmousemove="displayCoordinates(event)"></svg>
 		</div>
 		<div id="right" class="right-side" style="overflow: hidden; width: 20%; height: 100%; float: left; position: relative; display: flex; flex-direction: column;">
-			<div id="tubesheet_tab" style="overflow: scroll; width: 100%; height: 95%; float: left; position: relative; display: flex; flex-direction: column;">
+			<div id="tubesheet_tab" style="overflow: scroll; width: 100%; height: 95%; float: left;">
 				<div id="datatables_div">
 					<table id="insp_plan_table" class="datatables display my-table"
 						style="width: 100%">
@@ -110,7 +69,7 @@ svg .tube:hover {
 					</table>
 				</div>
 				<div id="tableNavigationButtons"
-					style="text-align: center; flex: 1; padding: 10px;">
+					style="text-align: center; padding: 10px;">
 					<button id="previous_btn" class="nav-buttons">Previous</button>
 					<button id="next_btn" class="nav-buttons">Next</button>
 					<button id="go_button" class="nav-buttons"

@@ -5,53 +5,6 @@
 <link rel="icon" type="image/x-icon" href="favicon.ico">
 <link rel="stylesheet" href="css/styles.css">
 
-<style type="text/css">
-.row {
-	display: flex;
-}
-
-.col {
-	display: flex;
-	flex: 1;
-	justify-content: center;
-	align-items: center;
-}
-
-.temperature {
-	margin: 2px;
-	padding: 3px;
-	justify-content: center;
-	align-items: center;
-}
-
-.normal {
-	background-color: green;
-}
-
-.danger {
-	background-color: yellow;
-}
-
-.high {
-	background-color: red;
-}
-
-.touch-probe {
-	margin: 2px;
-	padding: 3px;
-	height: 8px;
-	width: 8px;
-	align-items: center;
-	background-color: green;
-}
-
-.touch {
-	background-color: red;
-}
-
-
-</style>
-
 <script src="js/jquery.js"></script>
 <script src="js/jquery.sse.min.js"></script>
 
@@ -88,19 +41,19 @@
 	</div>
 	<div style="overflow: hidden; padding-top: 5px;" class="row">
 		<div style="float: left; justify-content: left; max-width: 10%"
-			class="col">
+			class="row">
 			<div>
 				<img alt="" src="images/logo nasa.png">
 			</div>
 		</div>
 		<div style="float: left; justify-content: left; max-width: 20%"
-			class="col">
+			class="row">
 			Temperatures:
 			<div class="temperature normal" id="temperature_x">__._ºC</div>
 			<div class="temperature normal" id="temperature_y">__._ºC</div>
 			<div class="temperature normal" id="temperature_z">__._ºC</div>
 		</div>		
-		<div style="float: left;" class="col">
+		<div style="float: left;" class="row">
 			<a id="incremental_link">Position</a> &nbsp; X:<input type="text" id="position_x" name="position X"
 				readonly="readonly" size="4">&nbsp; Y:<input type="text"
 				id="position_y" name="position Y" readonly="readonly" size="4">&nbsp;
@@ -108,15 +61,15 @@
 				readonly="readonly" size="4">&nbsp; <span class="units">inch</span>
 		</div>
 		<div style="float: left; justify-content:center; max-width: 10%"
-			class="col">
+			class="row">
 			Touch Probe:<div id="touch_probe" class="touch-probe"></div>
 		</div>
-		<div class="col">
+		<div class="row">
 			<span style="float: right; padding-right: 10px;" id="sse"></span> <span
 				style="float: right; color: red; opacity: 0;" id="reconnect">Connection 
 				Lost... <a href="#" id="reconnect_rema">Reconnect REMA</a>
 			</span>
-			<div style="float: left; display: none;" class="col"
+			<div style="float: left; display: none;" class="row"
 				id="joystick_btn_div">
 				<input type="button" value="Joystick" id="joystick_btn" />
 			</div>
@@ -272,8 +225,7 @@ get_session_info_index()
 					title : "Incremental",
 					//position: { my: "center", at: "center", of: $("#tabs") },		// default to center
 					modal : true,
-					open: function(event, ui) {
-						
+					open: function(event, ui) {						
 					},
 					close: function(event, ui) {
 						

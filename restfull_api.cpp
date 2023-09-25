@@ -61,7 +61,12 @@ void REMA_info(const std::shared_ptr<restbed::Session> session) {
     nlohmann::json res = nlohmann::json(nlohmann::json::value_t::object);
     REMA &rema_instance = REMA::get_instance();
 
-    res["tools"] = REMA::tools;
+    std::map<std::string, Tool> tools_to_ui;
+    for (auto [id, tool] : REMA::tools) {
+        tools_to_ui[id] = Tool(id , (tool.offset * current_session.scale));
+    }
+
+    res["tools"] = tools_to_ui;
     res["last_selected_tool"] = rema_instance.last_selected_tool;
     close_session(session, restbed::OK, res);
 }

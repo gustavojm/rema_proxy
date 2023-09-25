@@ -6,6 +6,11 @@ body {
   font-family: Verdana,Arial,sans-serif;   
 }
 
+input {
+	margin-bottom: 2px;
+	margin-right: 2px;
+}
+
 .ui-widget {
     font-size:0.9em !important;
 }
@@ -22,6 +27,10 @@ body {
 	overflow: hidden;
 }
 
+.dataTables_filter input {
+	width: 80px;
+}
+
 table.dataTable  {
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     font-size: 13px;
@@ -31,3 +40,174 @@ table.my-table tbody tr td {
     padding: 4px 8px 4px 8px;
 }
 
+.temperature {
+	margin: 2px;
+	padding: 3px;
+	justify-content: center;
+	align-items: center;
+}
+
+.normal {
+	background-color: green;
+}
+
+.danger {
+	background-color: yellow;
+}
+
+.high {
+	background-color: red;
+}
+
+.touch-probe {
+	margin: 2px;
+	padding: 3px;
+	height: 8px;
+	width: 8px;
+	align-items: center;
+	background-color: green;
+}
+
+.touch {
+	background-color: red;
+}
+
+svg .tube.highlight_cal_tube  {
+	fill: lightgreen;
+}
+
+.column {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding: 2px;
+    justify-content: center; 	/* align item horizontally */
+    align-items: center; 		/* align item vertically   */
+    flex-basis: auto;
+}
+
+.row {
+	display: flex;
+	flex-direction: row;
+	flex-grow: 1;
+	justify-content: center; /* align item horizontally */
+    align-items: center; /* align item vertically */
+}
+
+.border {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* joystick.html */
+.joystick-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin-top: 5px;
+	background-color: #F3F3F3;
+}
+
+.joystick-stop {
+	width: 50px;
+	height: 50px;
+	margin: 0px;
+	height: auto;
+}
+
+.emergency-stop {
+	width: 100px;
+	height: 100px;
+	margin: 0px;
+	height: auto;
+}
+
+.joystick-arrow {
+	width: 50px;
+	height: 50px;
+	margin: 0px;
+	height: auto;
+}
+
+.joystick-limit-vertical {
+	width: 5px;
+	height: 50px;
+	margin: 0px;
+}
+
+.joystick-limit-horizontal {
+	width: 50px;
+	height: 5px;
+	margin: 0px;
+}
+
+.off {
+	background-color: green;
+}
+
+.on {
+	background-color: red;
+}
+
+.joystick-arrow-disabled {
+	opacity: 0.5;
+}
+
+/* seesions.html */
+
+.progress-bar {
+    width: 100%;
+    background-color: #ccc;
+    height: 20px;
+    position: relative; /* Needed for absolute positioning of the text */
+}
+
+.progress {
+    height: 100%;
+    background-color: #4CAF50; /* Change this color to your desired progress bar color */
+    transition: width 0.3s ease-in-out;
+    position: relative; /* Needed for absolute positioning of the text */
+}
+
+.progress-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff; /* Text color */
+}
+
+/* HX.html */
+
+svg .tube.clicked {
+	fill: #29ABE2;
+}
+
+svg .tube:hover {
+	stroke: lime;
+}
+
+.nav-buttons {
+	width: 80px;
+	height: 30px;
+}
+
+.context-menu {
+	display: none;
+	position: absolute;
+	background: white;
+	border: 1px solid #ccc;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.context-menu li {
+	padding: 1px 1px;
+	cursor: pointer;
+}
+
+.context-menu li:hover {
+	background: #f0f0f0;
+}

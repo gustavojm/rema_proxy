@@ -7,55 +7,6 @@
 <link rel="stylesheet" type="text/css"
 	href="css/scroller.dataTables.min.css" />
 
-<style type="text/css">
-.container {
-    display: flex;
-    justify-content: space-between;
-    align-items: stretch;
-}
-
-
-svg .tube.highlight_cal_tube  {
-	fill: lightgreen;
-}
-
-.column {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    align-items: flex-start;
-    flex-grow: 2;
-    justify-content: center; /* align item horizontally */
-    align-items: center; /* align item vertically */
-    flex-basis: auto;
-}
-
-.row {
-	justify-content: center; /* align item horizontally */
-    align-items: center; /* align item vertically */
-	display: flex;
-	flex-direction: row;
-	flex-grow: 1;
-	position: relative;
-	width:100%;
-}
-
-.content {
-	justify-content: center; /* align item horizontally */
-    align-items: center; /* align item vertically */
-	display: flex;
-	flex-grow: 1;	
-	vertical-align: middle;	
-	align-items: center; 
-	align-content: center;
-}
-</style>
-
-
 </head>
 <body>
 <div id="calibration_div">
@@ -86,33 +37,34 @@ svg .tube.highlight_cal_tube  {
 					Col:<input type="text" size="4" id="cal_tube_info_col" name="col"> 
 					Row:<input type="text" size="4" id="cal_tube_info_row" name="row"> 
 				</div>
-				<div class="container">
-			        <div class="column" style="width: 65%">
-			        	<div class="row">
-			        		<div class="content"></div>
-			        		<div class="content">Ideal</div>
-			        		<div class="content">Determined</div>
+				<div class="row border">
+			        <div class="column" style="width: 35%">
+			        	<div class="row" style="position: relative; width:100%; justify-content: space-between;">
+			        		<div></div>
+			        		<div>Ideal</div>
+			        		<div>Determined</div>
 			        	</div>			            
-			            <div class="row">
-			            	<div class="content">X:</div>
-				            <div class="content"><input type="text" size="6" id="ideal_coords_x" name="ideal_coords_x"></div>
-				            <div class="content"><input type="text" size="6" id="determined_coords_x" name="determined_coords_x"></div>
+			            <div class="row" style="position: relative; width:100%; justify-content: space-between;">
+			            	<div>X:</div>
+				            <div><input type="text" size="6" id="ideal_coords_x" name="ideal_coords_x"></div>
+				            <div><input type="text" size="6" id="determined_coords_x" name="determined_coords_x"></div>
 			            </div>			            
-			           	<div class="row">
-			            	<div class="content">Y:</div>
-				            <div class="content"><input type="text" size="6" id="ideal_coords_y" name="ideal_coords_y"></div>
-				            <div class="content"><input type="text" size="6" id="determined_coords_y" name="determined_coords_y"></div>
+			           	<div class="row" style="position: relative; width:100%; justify-content: space-between;">
+			            	<div>Y:</div>
+				            <div><input type="text" size="6" id="ideal_coords_y" name="ideal_coords_y"></div>
+				            <div><input type="text" size="6" id="determined_coords_y" name="determined_coords_y"></div>
 			            </div>			            
-			            <div class="row">
-			            	<div class="content">Z:</div>
-				            <div class="content"><input type="text" size="6" id="ideal_coords_z" name="ideal_coords_z"></div>
-				            <div class="content"><input type="text" size="6" id="determined_coords_z" name="determined_coords_z"></div>
+			            <div class="row" style="position: relative; width:100%; justify-content: space-between;">
+			            	<div>Z:</div>
+				            <div><input type="text" size="6" id="ideal_coords_z" name="ideal_coords_z"></div>
+				            <div><input type="text" size="6" id="determined_coords_z" name="determined_coords_z"></div>
 			            </div>
 			        </div>
-			        <div class="column" style="vertical-align: middle; align-items: center; width: 35%">
-			        	<button style="position: relative; width:100%" id="copy_center">Copy</button>
-			            <button style="position: relative; width:100%" id="determine_center">Center</button>
-			            <button style="position: relative; width:100%" id="cal_point_add_update">Add/Update</button>
+			        <div class="column">
+			        	<div class="row">&nbsp;</div>
+			        	<button class="row" style="width:80%" id="copy_center">Copy</button>
+			            <button class="row" style="width:80%" id="determine_center">Center</button>
+			            <button class="row" style="width:80%" id="cal_point_add_update">Add/Update</button>
 			        </div>
 			    </div>
 			</form>				
@@ -230,7 +182,7 @@ $(function() {
 			{
 				deferRender: true,
 				select : true,
-				//sScrollY : "400px",
+				sScrollY : "400px",
 				scrollX : true,				
 				paging : false,
 				//dom : 'ftipr',
