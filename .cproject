@@ -25,7 +25,6 @@
 									<listOptionValue builtIn="false" value="/home/gustavo/CIAA/restbed/distribution/include"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/inc/rapidxml-1.13}&quot;"/>
 									<listOptionValue builtIn="false" value="/usr/include/eigen3"/>
-									<listOptionValue builtIn="false" value="/usr/include/Open3D"/>
 									<listOptionValue builtIn="false" value="/usr/include/eigen3/Eigen/src"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/inc}&quot;"/>
 								</option>
@@ -52,8 +51,9 @@
 									<listOptionValue builtIn="false" value="pthread"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.link.option.paths.1349331269" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" useByScannerDiscovery="false" valueType="libPaths">
-									<listOptionValue builtIn="false" value="/home/gustavo/CIAA/restbed/distribution/library/"/>
+									<listOptionValue builtIn="false" value="/home/gustavo/CIAA/restbed/distribution/library"/>
 								</option>
+								<option id="gnu.cpp.link.option.flags.68887843" name="Linker flags" superClass="gnu.cpp.link.option.flags" useByScannerDiscovery="false" value="" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.2030563247" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>

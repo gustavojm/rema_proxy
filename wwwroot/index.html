@@ -90,6 +90,11 @@ function toFixedIfNecessary(value, dp) {
 	return +parseFloat(value).toFixed(dp);	
 }
 
+function areFloatsEqual(a, b, epsilon = 0.0001) {
+	  return Math.abs(a - b) < epsilon;
+}
+
+
 function get_rema_info() {
 	$.get('/REST/REMA/info', function(data) {
 		var tools_dropdown = $('#tools');
@@ -157,6 +162,8 @@ get_session_info_index()
 		);
 				
 				
+	var prev_pos_x = 0;
+	var prev_pos_y = 0;
 
 	function update_ui(telemetry) {		
 		var pos_x = telemetry.coords.x;
@@ -186,6 +193,18 @@ get_session_info_index()
 			var current_tab = $("#tabs").tabs('option', 'active');
 			if (current_tab == 3 && typeof(update_bullseye_position) === "function") {
 				update_bullseye_position(pos_x, pos_y);
+				if (!(areFloatsEqual(pos_x, prev_pos_x) || areFloatsEqual(pos_y, prev_pos_y))) { 
+					if ($("#zoom_follow").prop("checked")) {
+						zoom_value = 1;
+						try {
+							zoom_value = $("#zoom_bar").slider("value")
+						} catch (e) {};
+						zoom_svg(zoom_value);
+					}
+					prev_pos_x = pos_x;
+					prev_pos_y = pos_y;
+				}
+				
 			}					
 		}
 	}

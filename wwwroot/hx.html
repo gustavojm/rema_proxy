@@ -34,6 +34,7 @@
 			<div class="row">
 				<div style="padding-right: 10px;">Zoom:</div>
 				<div id="zoom_bar" style="width:40%;"></div>
+				<input type="checkbox" id="zoom_follow" title="Follow" >
 			</div>
 		</div>
 		<div style="float: right; text-align: center;" class="right-side">
@@ -306,14 +307,53 @@
 		$(".right-side").width(98 - left_width + "%");
 	}
 
-	function zoom_svg(zoom, ar) {
-		$('#hx_svg').css("width", 100 * zoom + "%");
-		$('#hx_svg').css("height", 100 * zoom * ar + "%");
+	function zoom_svg(zoom) {
+		var tubesheet_svg = document.getElementById('tubesheet_svg');
+		if (tubesheet_svg) {
+			var box = tubesheet_svg.viewBox.baseVal;
+	
+			aspectRatio = box.width / box.height;
+			
+			$('#hx_svg').css("width", 100 * zoom + "%");
+			$('#hx_svg').css("height", 100 * zoom * aspectRatio + "%");
+	
+			var objDiv = document.getElementById("left_side_resizable");
+					
+			var tubesheet_svg = document.getElementById('tubesheet_svg');
+			var box = tubesheet_svg.viewBox.baseVal;
+	
+			if (document.getElementById('bullseye')) {
+				const transform = $("#bullseye").attr("transform")
+				if (transform) {
+			 		const translateMatch = transform.match(/translate\(([^,]+),([^)]+)\)/);
+			 		if (translateMatch) {
+			 			
+			 			// Coordinates of the translation done on "bullseye"
+			 		    const translateX = parseFloat(translateMatch[1]);	// translateMatch[1] contains the x-coordinate	 		    
+			 		    const translateY = parseFloat(translateMatch[2]);	// translateMatch[2] contains the y-coordinate
 		
-		var objDiv = document.getElementById("left_side_resizable");
-		objDiv.scrollTop = (objDiv.scrollHeight - objDiv.clientHeight) / 2;
-		objDiv.scrollLeft = (objDiv.scrollWidth - objDiv.clientWidth) / 2;
-		
+			 			// percentage related to the real coordinates of the HX
+			 			percentage_x = (((1 / box.width) * translateX) + 0.5);
+		 			    percentage_y = (((1 / box.height) * translateY) + 0.5);
+		 			    
+		 			    factor_x = objDiv.scrollWidth / box.width;
+		 			    factor_y = objDiv.scrollHeight / box.height;
+		 			    
+		 			    var factor = Math.min(factor_x, factor_y);		    
+		 			    
+		 			    padding_x = (objDiv.scrollWidth - (box.width * factor));
+		 			   	padding_y = (objDiv.scrollHeight - (box.height * factor));
+			 		    
+			 		    objDiv.scrollLeft = ((objDiv.scrollWidth - padding_x - objDiv.clientWidth) * (percentage_x)) + (padding_x / 2);
+		   			    objDiv.scrollTop = ((objDiv.scrollHeight - padding_y - objDiv.clientHeight) * ( 1 - percentage_y)) + (padding_y / 2);
+			 		}
+				} else {
+					// allways goes to the middle of the SVG
+					objDiv.scrollTop = (objDiv.scrollHeight - objDiv.clientHeight) / 2;
+					objDiv.scrollLeft = (objDiv.scrollWidth - objDiv.clientWidth) / 2;
+				}			
+			}
+		}
 	}
 
 	function svg_load(path, tube_od, scale) {
@@ -321,12 +361,6 @@
 				.load(
 						path,
 						function() {
-							var tubesheet_svg = document
-									.getElementById('tubesheet_svg');
-							var box = tubesheet_svg.viewBox.baseVal;
-
-							aspectRatio = box.width / box.height;
-
 							var tubes = $(
 									'#tubesheet_svg .tube_num, #tubesheet_svg circle ')
 									.click(
@@ -340,11 +374,11 @@
 								min : 1,
 								max : 10,
 								change : function(event, ui) {
-									zoom_svg(ui.value, aspectRatio);
+									zoom_svg(ui.value);
 								}
 							});
 
-							zoom_svg(zoom_bar.slider("value"), aspectRatio);
+							zoom_svg(zoom_bar.slider("value"));
 
 							$("#tubesheet_svg").svg({
 								onLoad : function (svg) {
@@ -471,7 +505,6 @@
 				method : "GET",
 				url : "/REST/go-to-tube/" + tube_id,
 				success : function(data) {
-					console.log(data);
 				}
 			});						
 		});	

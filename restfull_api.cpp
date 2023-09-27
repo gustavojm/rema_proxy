@@ -448,8 +448,8 @@ void move_free_run(const std::shared_ptr<restbed::Session> session) {
     close_session(session, restbed::OK);
 }
 
-bool approximatelly_equal(double f1, double f2) {
-    return (fabs(f1 - f2) < 0.001d);
+bool equals(double f1, double f2) {
+    return (fabs(f1 - f2) < 0.000001); /* EPSILON */
 }
 
 void move_incremental(const std::shared_ptr<restbed::Session> session) {
@@ -468,7 +468,7 @@ void move_incremental(const std::shared_ptr<restbed::Session> session) {
 
         if (form_data.contains("incremental_x")) {
             incremental_x = to_double(form_data["incremental_x"]);
-            if (!approximatelly_equal(incremental_x, 0)) {
+            if (!equals(incremental_x, 0)) {
                 pars_obj["axes"] = "XY";
                 pars_obj["first_axis_delta"] = current_session.from_ui_to_rema(incremental_x);
             }
@@ -476,7 +476,7 @@ void move_incremental(const std::shared_ptr<restbed::Session> session) {
 
         if (form_data.contains("incremental_y")) {
             incremental_y = to_double(form_data["incremental_y"]);
-            if (!approximatelly_equal(incremental_y, 0)) {
+            if (!equals(incremental_y, 0)) {
                 pars_obj["axes"] = "XY";
                 pars_obj["second_axis_delta"] = current_session.from_ui_to_rema(incremental_y);
             }
@@ -484,7 +484,7 @@ void move_incremental(const std::shared_ptr<restbed::Session> session) {
 
         if (form_data.contains("incremental_z")) {
             incremental_z = to_double(form_data["incremental_z"]);
-            if (!approximatelly_equal(incremental_z, 0)) {
+            if (!equals(incremental_z, 0)) {
                 pars_obj["axes"] = "Z";
                 pars_obj["first_axis_delta"] = current_session.from_ui_to_rema(incremental_z);
             }
