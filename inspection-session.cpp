@@ -1,5 +1,4 @@
-#include <Open3D/Geometry/PointCloud.h>
-#include <Open3D/Registration/Registration.h>
+#include <open3d/Open3D.h>
 #include <Eigen/Eigen>
 
 #include <iostream>
@@ -371,15 +370,15 @@ std::map<std::string, Point3D>& InspectionSession::calculate_aligned_tubes() {
     }
 
     // Set ICP parameters and perform ICP
-    open3d::registration::ICPConvergenceCriteria icp_criteria;
+    open3d::pipelines::registration::ICPConvergenceCriteria icp_criteria;
     icp_criteria.max_iteration_ = 50;
     icp_criteria.relative_fitness_ = 1e-6;
     icp_criteria.relative_rmse_ = 1e-6;
 
     bool with_scaling = true;
-    auto result = open3d::registration::RegistrationICP(source_cloud,
+    auto result = open3d::pipelines::registration::RegistrationICP(source_cloud,
             target_cloud, 1000, Eigen::Matrix4d::Identity(),
-            open3d::registration::TransformationEstimationPointToPoint(with_scaling),
+            open3d::pipelines::registration::TransformationEstimationPointToPoint(with_scaling),
             icp_criteria);
 
     Eigen::Matrix4d transformation_matrix = result.transformation_;
