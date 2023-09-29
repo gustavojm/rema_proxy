@@ -1,10 +1,7 @@
 #ifndef REMA_HPP
 #define REMA_HPP
 
-#include <Open3D/Geometry/PointCloud.h>
-#include <Open3D/Registration/ColoredICP.h>
-#include <Open3D/IO/ClassIO/ImageIO.h>
-#include <Eigen/Eigen>
+#include <open3d/Open3D.h>
 
 #include <string>
 #include <mutex>

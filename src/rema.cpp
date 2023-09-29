@@ -1,6 +1,4 @@
-#include <Open3D/Geometry/PointCloud.h>
-#include <Open3D/Registration/ColoredICP.h>
-#include <Open3D/IO/ClassIO/ImageIO.h>
+#include <open3d/Open3D.h>
 #include <Eigen/Eigen>
 #include <iostream>
 #include <vector>
