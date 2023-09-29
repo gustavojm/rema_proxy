@@ -38,8 +38,9 @@ void netClient::connect() {
     run();
 
     // Determine whether a connection was successfully established.
-    if (error)
+    if (error) {
         throw std::system_error(error);
+    }
 
     isConnected = true;
 }

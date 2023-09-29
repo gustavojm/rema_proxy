@@ -77,5 +77,3 @@ target_link_libraries(REMA_proxy PRIVATE
                         ${OPENSSL_CRYPTO_LIBRARY} 
                         ${OPENSSL_SSL_LIBRARY}
                      )
-
-message(STATUS "Restbed found. -------------------------> " ${Restbed_LIBRARIES})

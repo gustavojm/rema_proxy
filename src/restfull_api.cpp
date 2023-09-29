@@ -462,9 +462,9 @@ void move_incremental(const std::shared_ptr<restbed::Session> session) {
                     const restbed::Bytes &body) {
         nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
 
-        double incremental_x = 0.d;
-        double incremental_y = 0.d;
-        double incremental_z = 0.d;
+        double incremental_x = 0.f;
+        double incremental_y = 0.f;
+        double incremental_z = 0.f;
 
         if (form_data.contains("incremental_x")) {
             incremental_x = to_double(form_data["incremental_x"]);
@@ -517,7 +517,7 @@ void set_home_z(const std::shared_ptr<restbed::Session> session) {
     Tool t = rema_instance.get_selected_tool();
 
     const auto request = session->get_request();
-    double z = request->get_path_parameter("z", 0.d);
+    double z = request->get_path_parameter("z", 0.f);
 
     nlohmann::json res;
 
