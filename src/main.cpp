@@ -14,7 +14,6 @@
 #include <iostream>
 
 #include <boost/asio.hpp>
-#include <boost/program_options.hpp>
 #include "syslogger.hpp"
 #include "json.hpp"
 #include "csv.h"
@@ -220,43 +219,27 @@ void failed_filter_validation_handler(
 }
 
 int main(const int, const char**) {
-    int rtu_proxy_port;
+    int rema_proxy_port = 4321;
 
     REMA &rema_instance = REMA::get_instance();
 
-    namespace po = boost::program_options;
-
     try {
-        po::options_description json_proxy_settings("JSON Proxy Settings");
-        json_proxy_settings.add_options()("JSON_PROXY.port",
-                po::value<int>(&rtu_proxy_port)->default_value(1980),
-                "Port number");
+        std::ifstream i("config.json");
 
-        std::string rtu_host;
-        std::string rtu_service;
-        po::options_description rtu_settings("RTU Settings");
-        rtu_settings.add_options()("RTU.ip",
-                po::value<std::string>(&rtu_host)->default_value("192.168.2.20"),
-                "IP Address")("RTU.port",
-                po::value<std::string>(&rtu_service)->default_value("5020"), "Port Number");
+        nlohmann::json config;
+        i >> config;
 
-        po::options_description config_file_settings;
-        config_file_settings.add(json_proxy_settings).add(rtu_settings);
-
-        po::variables_map vm;
-        po::store(
-                po::parse_config_file<char>("config.ini", config_file_settings),
-                vm);
-        po::notify(vm);
+        rema_proxy_port = config["REMA_PROXY"].value("port", 4321);
+        std::string rtu_host = config["RTU"].value("ip", "192.168.2.20");
+        std::string rtu_service = std::to_string(config["RTU"].value("port", 5020));
 
         rema_instance.command_client.set_host(rtu_host);
         rema_instance.command_client.set_service(rtu_service);
 
-
         rema_instance.telemetry_client.set_host(rtu_host);
         rema_instance.telemetry_client.set_service(std::to_string(std::stoi(rtu_service) + 1));
 
-        std::cout << "REMA Proxy Server running on " << rtu_proxy_port << "\n";
+        std::cout << "REMA Proxy Server running on " << rema_proxy_port << "\n";
 
         rema_instance.command_client.connect();
         rema_instance.telemetry_client.connect();
@@ -293,7 +276,7 @@ int main(const int, const char**) {
     resource_HXs->set_method_handler("GET", get_HXs_method_handler);
 
     auto settings = make_shared<restbed::Settings>();
-    settings->set_port(rtu_proxy_port);
+    settings->set_port(rema_proxy_port);
     //settings->set_default_header("Connection", "close");
 
     settings->set_default_headers({
