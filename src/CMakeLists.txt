@@ -62,14 +62,14 @@ endif()
 # Find Open3D
 find_package(Open3D REQUIRED)
 find_package(Eigen3 REQUIRED)
-find_package(Restbed REQUIRED)
+#find_package(Restbed REQUIRED)
 find_package(Boost REQUIRED COMPONENTS program_options)
 find_package(OpenSSL REQUIRED)
 
 
 target_include_directories(${PROJECT_NAME} PRIVATE
                               ${Open3D_INCLUDE_DIRS}
-                              ${Restbed_INCLUDE_DIRS}
+#                              ${Restbed_INCLUDE_DIRS}
                               ${Boost_INCLUDE_DIRS}
                               "../inc"
                            )
@@ -79,7 +79,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
                           Eigen3::Eigen        
                           Boost::program_options
                           ssl          
-                          ${Restbed_LIBRARIES}
+                          restbed
+#                          ${Restbed_LIBRARIES}
                           ${OPENSSL_CRYPTO_LIBRARY} 
                           ${OPENSSL_SSL_LIBRARY}
                      )

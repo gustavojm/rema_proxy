@@ -2,6 +2,10 @@
 
 An interface for a Cartesian XYZ robot for Heat Exchangers Inspection
 
+## Requirements
+
+Restbed library should be located in `/usr/local/include/` all the headers from `restbed/distribution/include`
+                                     `/usr/local/lib/` the shared library from `restbed/distribution/librestbed.a`
 
 ### Installing
 
@@ -20,7 +24,7 @@ To build the project, all you need to do
 
 ```bash
 mkdir build
-cmake ./build
+cmake . -B ./build/
 cmake --build ./build/
 ```
 
