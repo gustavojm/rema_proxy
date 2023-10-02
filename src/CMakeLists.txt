@@ -1,9 +1,14 @@
 # Create the executable and compile all .cpp files in the SOURCE directory
+set(HEADERS_DIR ../inc)
+
 file(GLOB SOURCES *.cpp)
 
 file (GLOB HEADERS
-    ../inc/*.hpp
+    ${HEADERS_DIR}/*.hpp
 )
+
+set(SOURCES ${SOURCES} PARENT_SCOPE)
+set(HEADERS ${HEADERS} PARENT_SCOPE)
 
 if(${PROJECT_NAME}_BUILD_EXECUTABLE)
   add_executable(${PROJECT_NAME} ${SOURCES})
@@ -71,7 +76,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
                               ${Open3D_INCLUDE_DIRS}
 #                              ${Restbed_INCLUDE_DIRS}
                               ${Boost_INCLUDE_DIRS}
-                              "../inc"
+                              ${HEADERS_DIR}
                            )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE 
