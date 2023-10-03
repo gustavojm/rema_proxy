@@ -11,8 +11,8 @@ public:
     Tool() {
     }
 
-    Tool(std::string name, Point3D offset) :
-            name(name), offset(offset) {
+    Tool(std::string tool_name, Point3D offset_) :
+            name(tool_name), offset(offset_) {
         save_to_disk();
     }
 

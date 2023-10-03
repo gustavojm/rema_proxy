@@ -42,8 +42,8 @@ void register_event_source_handler(const shared_ptr<restbed::Session> session) {
                     "Access-Control-Allow-Origin", "*" } //Only required for demo purposes.
     };
 
-    session->yield(OK, headers, [](const shared_ptr<restbed::Session> session) {
-        sessions.push_back(session);
+    session->yield(OK, headers, [](const shared_ptr<restbed::Session> session_ptr) {
+        sessions.push_back(session_ptr);
     });
 }
 
@@ -89,8 +89,8 @@ void event_stream_handler() {
     if (!res.empty()) {
         sessions.erase(
                 std::remove_if(sessions.begin(), sessions.end(),
-                        [](const shared_ptr<Session> &a) {
-                            return a->is_closed();
+                        [](const shared_ptr<Session> &session_ptr) {
+                            return session_ptr->is_closed();
                         }),
                 sessions.end());
 
@@ -175,7 +175,7 @@ void post_rtu_method_handler(const shared_ptr<restbed::Session> session,
     size_t content_length = request->get_header("Content-Length", 0);
 
     session->fetch(content_length,
-            [&](const shared_ptr<restbed::Session> &session,
+            [&](const shared_ptr<restbed::Session> &session_ptr,
                     const Bytes &body) {
 
                 std::string tx_buffer(body.begin(), body.end());
@@ -188,7 +188,7 @@ void post_rtu_method_handler(const shared_ptr<restbed::Session> session,
                     if (!stream.empty()) {
                         //stream.pop_back(); // Erase null character at the end of stream response
 
-                        session->close(OK, stream, { { "Content-Length",
+                        session_ptr->close(OK, stream, { { "Content-Length",
                                 ::to_string(stream.length()) }, {
                                 "Content-Type",
                                 "application/json; charset=utf-8" } });
@@ -197,7 +197,7 @@ void post_rtu_method_handler(const shared_ptr<restbed::Session> session,
                 } catch (std::exception &e) {
                     std::string message = std::string(e.what());
                     std::cerr << "COMMUNICATIONS ERROR " << message << "\n";
-                    session->close(OK, message, { { "Content-Length",
+                    session_ptr->close(OK, message, { { "Content-Length",
                             ::to_string(message.length()) }, { "Content-Type",
                             "application/json; charset=utf-8" },
                             { "Cache-Control", "no-store" }
@@ -219,7 +219,7 @@ void failed_filter_validation_handler(
 }
 
 int main(const int, const char**) {
-    int rema_proxy_port = 4321;
+    uint16_t rema_proxy_port = 4321;
 
     REMA &rema_instance = REMA::get_instance();
 
@@ -230,7 +230,7 @@ int main(const int, const char**) {
             nlohmann::json config;
             config_file >> config;
 
-            rema_proxy_port = config["REMA_PROXY"].value("port", 4321);
+            rema_proxy_port = static_cast<uint16_t>(config["REMA_PROXY"].value("port", 4321));
             std::string rtu_host = config["RTU"].value("ip", "192.168.2.20");
             std::string rtu_service = std::to_string(config["RTU"].value("port", 5020));
 

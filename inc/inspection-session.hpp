@@ -125,8 +125,8 @@ public:
         return changed;
     }
 
-    inline void set_changed(bool changed) {
-        this->changed = changed;
+    inline void set_changed(bool status) {
+        changed = status;
     }
 
     void set_selected_plan(std::string plan);

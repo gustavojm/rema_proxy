@@ -110,7 +110,7 @@ void tools_create(const std::shared_ptr<restbed::Session> session) {
     const auto request = session->get_request();
     size_t content_length = request->get_header("Content-Length", 0);
     session->fetch(content_length,
-            [&](const std::shared_ptr<restbed::Session> &session,
+            [&]([[maybe_unused]]const std::shared_ptr<restbed::Session> &session_ptr,
                     const restbed::Bytes &body) {
 
                 nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
@@ -179,13 +179,13 @@ void tools_select(const std::shared_ptr<restbed::Session> session) {
 void inspection_sessions_list(const std::shared_ptr<restbed::Session> session) {
     nlohmann::json res;
 
-    for (auto session : InspectionSession::sessions_list()) {
+    for (auto insp_session : InspectionSession::sessions_list()) {
         res.push_back({
-            {"name", session.name},
-            {"hx", session.hx },
-            {"last_write_time", session.last_write_time},
-            {"total_tubes_in_plans", session.total_tubes_in_plans},
-            {"total_tubes_inspected", session.total_tubes_inspected}
+            {"name", insp_session.name},
+            {"hx", insp_session.hx },
+            {"last_write_time", insp_session.last_write_time},
+            {"total_tubes_in_plans", insp_session.total_tubes_in_plans},
+            {"total_tubes_inspected", insp_session.total_tubes_inspected}
         });
     }
     close_session(session, restbed::OK, res);
@@ -195,7 +195,7 @@ void inspection_sessions_create(const std::shared_ptr<restbed::Session> session)
     const auto request = session->get_request();
     size_t content_length = request->get_header("Content-Length", 0);
     session->fetch(content_length,
-            [&](const std::shared_ptr<restbed::Session> &session,
+            [&]([[maybe_unused]]const std::shared_ptr<restbed::Session> &session_ptr,
                     const restbed::Bytes &body) {
 
                 nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
@@ -232,9 +232,8 @@ void inspection_sessions_create(const std::shared_ptr<restbed::Session> session)
 void inspection_sessions_load(const std::shared_ptr<restbed::Session> session) {
     auto request = session->get_request();
     std::string session_name = request->get_path_parameter("session_name", "");
-
-    std::string res;
     int status;
+    std::string res;
     if (!session_name.empty()) {
         try {
             current_session.load(session_name);
@@ -248,7 +247,7 @@ void inspection_sessions_load(const std::shared_ptr<restbed::Session> session) {
         res = "No session selected";
         status = restbed::INTERNAL_SERVER_ERROR;
     }
-    close_session(session, restbed::OK, res);
+    close_session(session, status, res);
 }
 
 void inspection_sessions_info(const std::shared_ptr<restbed::Session> session) {
@@ -291,7 +290,7 @@ void cal_points_add_update(const std::shared_ptr<restbed::Session> session) {
 
     size_t content_length = request->get_header("Content-Length", 0);
     session->fetch(content_length,
-            [&](const std::shared_ptr<restbed::Session> &session,
+            [&]([[maybe_unused]]const std::shared_ptr<restbed::Session> &session_ptr,
                     const restbed::Bytes &body) {
 
                 nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
@@ -351,7 +350,7 @@ void tubes_set_status(const std::shared_ptr<restbed::Session> session) {
     std::string session_name = request->get_path_parameter("session_name", "");
 
     session->fetch(content_length,
-            [&](const std::shared_ptr<restbed::Session> &session,
+            [&]([[maybe_unused]]const std::shared_ptr<restbed::Session> &session_ptr,
                     const restbed::Bytes &body) {
 
                 nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
@@ -458,13 +457,13 @@ void move_incremental(const std::shared_ptr<restbed::Session> session) {
     const auto request = session->get_request();
     size_t content_length = request->get_header("Content-Length", 0);
     session->fetch(content_length,
-            [&](const std::shared_ptr<restbed::Session> &session,
+            [&]([[maybe_unused]]const std::shared_ptr<restbed::Session> &session_ptr,
                     const restbed::Bytes &body) {
         nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
 
-        double incremental_x = 0.d;
-        double incremental_y = 0.d;
-        double incremental_z = 0.d;
+        double incremental_x = 0.0f;
+        double incremental_y = 0.0f;
+        double incremental_z = 0.0f;
 
         if (form_data.contains("incremental_x")) {
             incremental_x = to_double(form_data["incremental_x"]);
@@ -517,7 +516,7 @@ void set_home_z(const std::shared_ptr<restbed::Session> session) {
     Tool t = rema_instance.get_selected_tool();
 
     const auto request = session->get_request();
-    double z = request->get_path_parameter("z", 0.d);
+    double z = request->get_path_parameter("z", 0.0f);
 
     nlohmann::json res;
 
@@ -536,7 +535,6 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> session) {
     nlohmann::json res;
 
     if (!tube_id.empty()) {
-        Tool t = rema_instance.get_selected_tool();
         double tube_radius = current_session.from_ui_to_rema(current_session.tube_od / 2);
 
         constexpr int points_number = 5;

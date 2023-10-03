@@ -77,7 +77,7 @@ public:
                         shared_from_this()));
     }
 
-    void do_send_hello(beast::error_code ec, std::size_t bytes_transferred)  {
+    void do_send_hello([[maybe_unused]] beast::error_code ec, [[maybe_unused]] std::size_t bytes_transferred)  {
         beast::flat_buffer buffer;
         auto mutable_buffer = buffer.prepare(1000);
 

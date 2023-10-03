@@ -22,10 +22,10 @@ static inline double distance(const Point3D &p1, const Point3D &p2) {
 
 static inline double calculate_sigma(const std::vector<Point3D> &data,
         const Circle &circle) {
-    double sum = 0.d;
+    double sum = 0.0f;
     double dx, dy;
 
-    for (int i = 0; i < data.size(); i++) {
+    for (size_t i = 0; i < data.size(); i++) {
         dx = data[i].x - circle.center.x;
         dy = data[i].y - circle.center.y;
         double s = std::sqrt(dx * dx + dy * dy) - circle.radius;
@@ -76,7 +76,7 @@ static inline std::pair<double, double> calculate_means(
  * @author: Nikolai Chernov  (September 2012)
  */
 static inline Circle CircleFitByHyper(std::vector<Point3D> data) {
-    int i, iter, IterMAX = 99;
+    int iter, IterMAX = 99;
 
     double Xi, Yi, Zi;
     double Mz, Mxy, Mxx, Myy, Mxz, Myz, Mzz, Cov_xy, Var_z;
@@ -100,7 +100,7 @@ static inline Circle CircleFitByHyper(std::vector<Point3D> data) {
     // Computing moments
     Mxx = Myy = Mxy = Mxz = Myz = Mzz = 0.;
 
-    for (i = 0; i < data.size(); i++) {
+    for (size_t i = 0; i < data.size(); i++) {
         Xi = data[i].x - mean_x;   //  centered x-coordinates
         Yi = data[i].y - mean_y;   //  centered y-coordinates
         Zi = Xi * Xi + Yi * Yi;
@@ -190,7 +190,6 @@ static inline Circle CircleFitByHyper(std::vector<Point3D> data) {
  *@author: Nikolai Chernov  (September 2012)
  */
 static inline Circle CircleFitByKasa(std::vector<Point3D> &data) {
-    int i;
     double Xi, Yi, Zi;
     double Mxy, Mxx, Myy, Mxz, Myz;
     double B, C, G11, G12, G22, D1, D2;
@@ -203,7 +202,7 @@ static inline Circle CircleFitByKasa(std::vector<Point3D> &data) {
     // Computing moments
     Mxx = Myy = Mxy = Mxz = Myz = 0.;
 
-    for (i = 0; i < data.size(); i++) {
+    for (size_t i = 0; i < data.size(); i++) {
         Xi = data[i].x - mean_x;   //  centered x-coordinates
         Yi = data[i].y - mean_y;   //  centered y-coordinates
         Zi = Xi * Xi + Yi * Yi;
@@ -265,7 +264,7 @@ static inline Circle CircleFitByKasa(std::vector<Point3D> &data) {
  * @author: Nikolai Chernov  (September 2012)
  */
 static inline Circle CircleFitByPratt(const std::vector<Point3D> &data) {
-    int i, iter, IterMAX = 99;
+    int iter, IterMAX = 99;
 
     double Xi, Yi, Zi;
     double Mz, Mxy, Mxx, Myy, Mxz, Myz, Mzz, Cov_xy, Var_z;
@@ -281,7 +280,7 @@ static inline Circle CircleFitByPratt(const std::vector<Point3D> &data) {
     // Computing moments
     Mxx = Myy = Mxy = Mxz = Myz = Mzz = 0.;
 
-    for (i = 0; i < data.size(); i++) {
+    for (size_t i = 0; i < data.size(); i++) {
         Xi = data[i].x - mean_x;   //  centered x-coordinates
         Yi = data[i].y - mean_y;   //  centered y-coordinates
         Zi = Xi * Xi + Yi * Yi;
@@ -369,7 +368,7 @@ static inline Circle CircleFitByPratt(const std::vector<Point3D> &data) {
  * @author: Nikolai Chernov  (September 2012)
  */
 static inline Circle CircleFitByTaubin(std::vector<Point3D> data) {
-    int i, iter, IterMAX = 99;
+    int iter, IterMAX = 99;
 
     double Xi, Yi, Zi;
     double Mz, Mxy, Mxx, Myy, Mxz, Myz, Mzz, Cov_xy, Var_z;
@@ -385,7 +384,7 @@ static inline Circle CircleFitByTaubin(std::vector<Point3D> data) {
     // Computing moments
     Mxx = Myy = Mxy = Mxz = Myz = Mzz = 0.;
 
-    for (i = 0; i < data.size(); i++) {
+    for (size_t i = 0; i < data.size(); i++) {
         Xi = data[i].x - mean_x;   //  centered x-coordinates
         Yi = data[i].y - mean_y;   //  centered y-coordinates
         Zi = Xi * Xi + Yi * Yi;
@@ -469,8 +468,8 @@ static inline Circle CircleFitByTaubin(std::vector<Point3D> data) {
  */
 static inline std::pair<int, Circle> CircleFitByLevenbergMarquardtFull(
         const std::vector<Point3D> &data, const Circle &circleIni,
-        double LambdaIni, Circle &circle) {
-    int code, i, iter, inner, IterMAX = 99;
+        double LambdaIni,[[maybe_unused]] Circle &circle) {
+    int code, iter, inner, IterMAX = 99;
     double factorUp = 10., factorDown = 0.04, lambda, ParLimit = 1.e+6;
     double dx, dy, ri, u, v;
     double Mu, Mv, Muu, Mvv, Muv, Mr, UUl, VVl, Nl, F1, F2, F3, dX, dY, dR;
@@ -503,7 +502,7 @@ static inline std::pair<int, Circle> CircleFitByLevenbergMarquardtFull(
     // Computing moments
     Mu = Mv = Muu = Mvv = Muv = Mr = 0.;
 
-    for (i = 0; i < data.size(); i++) {
+    for (size_t i = 0; i < data.size(); i++) {
         dx = data[i].x - Old.center.x;
         dy = data[i].y - Old.center.y;
         ri = std::sqrt(dx * dx + dy * dy);

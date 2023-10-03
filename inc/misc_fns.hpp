@@ -25,14 +25,14 @@ static inline float to_float(std::string input) {
 static inline double to_double(std::string input) {
     float res;
     if (input.empty()) {
-            res = 0.0d; // Set to 0 if the input string is empty
+            res = 0.0f; // Set to 0 if the input string is empty
         } else {
             try {
                 res = std::stod(input);
             } catch (const std::invalid_argument& e) {
                 // Handle invalid input (e.g., non-numeric string)
                 std::cerr << "Invalid input: " << e.what() << std::endl;
-                res = 0.0d; // Set to 0 in case of invalid input
+                res = 0.0f; // Set to 0 in case of invalid input
             }
         }
     return res;

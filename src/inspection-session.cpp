@@ -33,14 +33,14 @@ void InspectionSession::process_csv() {
     std::string tube_id;
     while (in.read_row(x_label, y_label, cl_x, cl_y, hl_x, hl_y, tube_id)) {
         if (leg == "cold" || leg == "both") {
-            tubes.insert( { std::string(std::string("CL_") + tube_id.substr(5)),
+            tubes.insert( { std::string("CL_") + tube_id.substr(5),
                     { x_label, y_label, {cl_x, cl_y, 0 }} });
             svg.x_labels.insert(std::make_pair(x_label, cl_x));
             svg.y_labels.insert(std::make_pair(y_label, cl_y));
         }
 
         if (leg == "hot" || leg == "both") {
-            tubes.insert( { std::string(std::string("HL_") + tube_id.substr(5)),
+            tubes.insert( { std::string("HL_") + tube_id.substr(5),
                     { x_label, y_label, {hl_x, hl_y, 0 }} });
             svg.x_labels.insert(std::make_pair(x_label, hl_x));
             svg.y_labels.insert(std::make_pair(y_label, hl_y));
@@ -54,8 +54,8 @@ void InspectionSession::process_csv() {
 }
 
 InspectionSession::InspectionSession(std::string session_name,
-        std::filesystem::path hx) : name(session_name),
-        hx(hx) {
+        std::filesystem::path hx_path) : name(session_name),
+        hx(hx_path) {
 
     hx_directory = std::filesystem::path("HXs");
 
@@ -241,7 +241,7 @@ void InspectionSession::generate_svg() {
     float stroke_width = stof(font_size) / 10;
 
     std::string style =
-            std::string(".tube {stroke: black; stroke-width: "+ std::to_string(stroke_width) + " ; fill: white;} ")
+                    ".tube {stroke: black; stroke-width: "+ std::to_string(stroke_width) + " ; fill: white;} "
                     + ".tube_num { text-anchor: middle; alignment-baseline: middle; font-family: sans-serif; font-size: "
                     + font_size
                     + "px; fill: black;}"

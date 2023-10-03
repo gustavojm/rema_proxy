@@ -13,12 +13,12 @@ using boost::asio::ip::tcp;
 
 class netClient {
 public:
-	void set_host(const std::string host) {
-		this->host = host;
+	void set_host(const std::string host_) {
+		host = host_;
 	}
 
-	void set_service(std::string service) {
-		this->service = service;
+	void set_service(std::string service_port) {
+		service = service_port;
 	}
 
 	std::string get_host() {

@@ -6,7 +6,7 @@ public:
 
     Point3D() {};
 
-    Point3D(double x, double y, double z) : x(x), y(y), z(z) {};
+    Point3D(double x_, double y_, double z_) : x(x_), y(y_), z(z_) {};
 
     Point3D operator*(double scalar) const {
         return Point3D(x * scalar, y * scalar, z * scalar);
