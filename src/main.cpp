@@ -223,27 +223,30 @@ int main(const int, const char**) {
 
     REMA &rema_instance = REMA::get_instance();
 
-    try {
-        std::ifstream i("config.json");
+    std::filesystem::path config_file_path = "config.json";
+    try {                
+        std::ifstream config_file(config_file_path);
+        if (config_file.is_open()) {
+            nlohmann::json config;
+            config_file >> config;
 
-        nlohmann::json config;
-        i >> config;
+            rema_proxy_port = config["REMA_PROXY"].value("port", 4321);
+            std::string rtu_host = config["RTU"].value("ip", "192.168.2.20");
+            std::string rtu_service = std::to_string(config["RTU"].value("port", 5020));
 
-        rema_proxy_port = config["REMA_PROXY"].value("port", 4321);
-        std::string rtu_host = config["RTU"].value("ip", "192.168.2.20");
-        std::string rtu_service = std::to_string(config["RTU"].value("port", 5020));
+            rema_instance.command_client.set_host(rtu_host);
+            rema_instance.command_client.set_service(rtu_service);
 
-        rema_instance.command_client.set_host(rtu_host);
-        rema_instance.command_client.set_service(rtu_service);
+            rema_instance.telemetry_client.set_host(rtu_host);
+            rema_instance.telemetry_client.set_service(std::to_string(std::stoi(rtu_service) + 1));
 
-        rema_instance.telemetry_client.set_host(rtu_host);
-        rema_instance.telemetry_client.set_service(std::to_string(std::stoi(rtu_service) + 1));
+            std::cout << "REMA Proxy Server running on " << rema_proxy_port << "\n";
 
-        std::cout << "REMA Proxy Server running on " << rema_proxy_port << "\n";
-
-        rema_instance.command_client.connect();
-        rema_instance.telemetry_client.connect();
-
+            rema_instance.command_client.connect();
+            rema_instance.telemetry_client.connect();
+        } else {
+            std::cout << config_file_path << "not found \n";
+        }
     } catch (std::exception &e) {
         std::cout << e.what() << std::endl;
     }

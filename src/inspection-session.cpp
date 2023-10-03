@@ -7,7 +7,6 @@
 #include <map>
 #include <csv.h>
 #include "inspection-session.hpp"
-#include "boost/program_options.hpp"
 #include "svg.hpp"
 
 InspectionSession::InspectionSession() = default;
@@ -64,28 +63,19 @@ InspectionSession::InspectionSession(std::string session_name,
     tubesheet_svg = hx_directory / hx / "tubesheet.svg";
 
     try {
-        namespace po = boost::program_options;
-        po::options_description settings_desc("HX Settings");
-        settings_desc.add_options()("leg",
-                po::value<std::string>(&leg)->default_value("both"),
-                "Leg (hot, cold, both)");
-        settings_desc.add_options()("tube_od",
-                po::value<float>(&tube_od)->default_value(1.f),
-                "Tube Outside Diameter");
-        settings_desc.add_options()("unit",
-                po::value<std::string>(&unit)->default_value("inch"),
-                "inch/mm");
+        std::filesystem::path config_file_path = hx_directory / hx / "config.json";
+        std::ifstream config_file(config_file_path);
+        if (config_file.is_open()){
+            nlohmann::json config;
+            config_file >> config;
 
-        po::variables_map vm;
-
-        std::filesystem::path config = hx_directory / hx / "config.ini";
-        if (std::filesystem::exists(config)) {
-            std::ifstream config_is = std::ifstream(config);
-            po::store(po::parse_config_file(config_is, settings_desc, true),
-                    vm);
+            leg = config.value("leg", "both");
+            tube_od = config.value("tube_od", 1.f);
+            unit = config.value("unit", "inch");
+            scale = (unit == "inch" ? 1 : 25.4);
+        } else {
+            std::cout << config_file_path << "not found \n";
         }
-        po::notify(vm);
-        scale = (unit == "inch" ? 1 : 25.4);
     } catch (std::exception &e) {
         std::cout << e.what() << "\n";
     }
@@ -199,7 +189,6 @@ Point3D InspectionSession::get_tube_coordinates(std::string tube_id, bool ideal 
 void InspectionSession::generate_svg() {
     std::cout << "Generating SVG..." << "\n";
 
-    namespace po = boost::program_options;
     float min_x, width;
     float min_y, height;
     std::string font_size;
@@ -209,46 +198,25 @@ void InspectionSession::generate_svg() {
     std::vector<std::string> config_y_labels_coords;
 
     try {
-        po::options_description settings_desc("HX Settings");
-        settings_desc.add_options()("min_x",
-                po::value<float>(&min_x)->default_value(0),
-                "viewBox X minimum coord");
-        settings_desc.add_options()("width",
-                po::value<float>(&width)->default_value(0), "viewBoxWidth");
-        settings_desc.add_options()("min_y",
-                po::value<float>(&min_y)->default_value(0),
-                "viewBox Y minimum coord");
-        settings_desc.add_options()("height",
-                po::value<float>(&height)->default_value(0), "viewBox Height");
-        settings_desc.add_options()("font_size",
-                po::value<std::string>(&font_size)->default_value("0.25"),
-                "Number font size in px");
-        settings_desc.add_options()("x_labels",
-                po::value<std::string>(&x_labels_param)->default_value("0"),
-                "Where to locate x axis labels, can use several coords separated by space");
-        settings_desc.add_options()("y_labels",
-                po::value<std::string>(&y_labels_param)->default_value("0"),
-                "Where to locate x axis labels, can use several coords separated by space");
-        settings_desc.add_options()("help,h", "Help screen"); // what an strange syntax...
-        // ("config", po::value<std::string>(), "Config file");
-        po::variables_map vm;
+        std::filesystem::path config_file_path = hx_directory / hx / "config.json";
+        std::ifstream config_file(config_file_path);
 
-        //po::store(po::parse_command_line(argc, argv, settings_desc), vm);
-        std::filesystem::path config = hx_directory / hx / "config.ini";
-        if (std::filesystem::exists(config)) {
-            std::ifstream config_is = std::ifstream(config);
-            po::store(po::parse_config_file(config_is, settings_desc, true),
-                    vm);
+        if (config_file.is_open()) {
+            nlohmann::json config;
+            config_file >> config;
+
+            min_x = config.value("min_x", 0.0f);        
+            min_y = config.value("min_y", 0.0f);
+            width = config.value("width", 0.0f);
+            height = config.value("height", 0.f);
+            font_size = config.value("font_size", "0.25");   // Number font size in px  
+            x_labels_param = config.value("x_labels", "0");  // Where to locate x axis labels, can use several coords separated by space
+            y_labels_param = config.value("y_labels", "0");  // Where to locate y axis labels, can use several coords separated by space
+            boost::split(config_x_labels_coords, x_labels_param, boost::is_any_of(" "));
+            boost::split(config_y_labels_coords, y_labels_param, boost::is_any_of(" "));
+        } else {
+            std::cout << config_file_path << "not found \n";
         }
-        po::notify(vm);
-
-        if (vm.count("help")) {
-            std::cout << settings_desc << '\n';
-        }
-
-        boost::split(config_x_labels_coords, x_labels_param, boost::is_any_of(" "));
-        boost::split(config_y_labels_coords, y_labels_param, boost::is_any_of(" "));
-
     } catch (std::exception &e) {
         std::cout << e.what() << std::endl;
     }

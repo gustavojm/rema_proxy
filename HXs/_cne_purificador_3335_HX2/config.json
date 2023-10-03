@@ -1,0 +1,10 @@
+{
+    "leg" : "both",
+    "tube_od" : 0.625,
+    "min_x" : -2.689,
+    "width" : 42,
+    "min_y" : -10,
+    "height" : 20,
+    "x_labels" : "-3.5 3.5",
+    "y_labels" : "-0.7 38"
+}

@@ -333,8 +333,8 @@
 			 		    const translateY = parseFloat(translateMatch[2]);	// translateMatch[2] contains the y-coordinate
 		
 			 			// percentage related to the real coordinates of the HX
-			 			percentage_x = (((1 / box.width) * translateX) + 0.5);
-		 			    percentage_y = (((1 / box.height) * translateY) + 0.5);
+			 			percentage_x = (((1 / (box.width)) * (translateX - box.x)));
+		 			    percentage_y = (((1 / (box.height)) * (translateY - box.y)));
 		 			    
 		 			    factor_x = objDiv.scrollWidth / box.width;
 		 			    factor_y = objDiv.scrollHeight / box.height;
@@ -343,7 +343,6 @@
 		 			    
 		 			    padding_x = (objDiv.scrollWidth - (box.width * factor));
 		 			   	padding_y = (objDiv.scrollHeight - (box.height * factor));
-			 		    
 			 		    objDiv.scrollLeft = ((objDiv.scrollWidth - padding_x - objDiv.clientWidth) * (percentage_x)) + (padding_x / 2);
 		   			    objDiv.scrollTop = ((objDiv.scrollHeight - padding_y - objDiv.clientHeight) * ( 1 - percentage_y)) + (padding_y / 2);
 			 		}
