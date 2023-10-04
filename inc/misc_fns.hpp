@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <regex>
 #include <algorithm>
 
 static inline float to_float(std::string input) {
@@ -38,5 +39,9 @@ static inline double to_double(std::string input) {
     return res;
 }
 
+bool isValidIPv4(const std::string &str) {
+    std::regex ipv4Regex("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$");
+    return std::regex_match(str, ipv4Regex);
+}
 
 #endif     // MISC_FNS_HPP

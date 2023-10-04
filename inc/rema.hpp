@@ -11,8 +11,9 @@
 #include "points.hpp"
 #include "inspection-session.hpp"
 
+static inline std::filesystem::path config_file_path = "config.json";
+
 static inline std::filesystem::path rema_dir = std::filesystem::path("rema");
-static inline std::filesystem::path rema_file = rema_dir / "rema.json";
 static inline std::filesystem::path tools_dir = rema_dir / "tools";
 
 struct temps {
@@ -72,8 +73,8 @@ struct movement_cmd {
 class REMA {
 public:
     static REMA& get_instance() {
-        static REMA instance(rema_file);    // Guaranteed to be destroyed.
-                                            // Instantiated on first use.
+        static REMA instance;     // Guaranteed to be destroyed.
+        instance.load_config();      // Instantiated on first use.
         return instance;
     }
 
@@ -86,20 +87,24 @@ public:
         tools.erase(tool);
     }
 
+    void connect(std::string rtu_host, std::string rtu_service);
+
     void update_telemetry(std::string &stream);
 
     std::map<std::string, Point3D> calculate_aligned_tubes(InspectionSession& insp_sess, std::vector<Point3D> src_points, std::vector<Point3D> dst_points);
 
     void set_last_selected_tool(std::string tool) {
         last_selected_tool = tool;
-        save_to_disk();
+        save_config();
     }
 
     Tool get_selected_tool() const {
         return tools.at(last_selected_tool);
     }
 
-    void save_to_disk() const;
+    void load_config();
+
+    void save_config();
 
     void execute_command(nlohmann::json command);
 
@@ -128,6 +133,7 @@ public:
 
     bool is_sequence_in_progress;
     bool cancel_sequence;
+    nlohmann::json config;
 
     // Telemetry values
     std::mutex mtx;
@@ -135,12 +141,7 @@ public:
     struct temps temps;
 
 private:
-    REMA(std::filesystem::path path) {
-        std::ifstream i(path);
-        nlohmann::json j;
-        i >> j;
-        this->last_selected_tool = j["last_selected_tool"];
-
+    REMA() {
         for (const auto &entry : std::filesystem::directory_iterator(tools_dir)) {
             Tool t(entry.path());
             tools[entry.path().filename().replace_extension()] = t;

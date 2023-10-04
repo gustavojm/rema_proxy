@@ -26,13 +26,36 @@ void REMA::cancel_sequence_in_progress() {
     cancel_sequence = false;
 }
 
-void REMA::save_to_disk() const {
-    std::ofstream file(rema_file);
-    nlohmann::json j;
+void REMA::load_config() {
+    try {                
+        std::ifstream config_file(config_file_path);
+        if (config_file.is_open()) {
+            config_file >> config;
+            this->last_selected_tool = config["REMA"]["last_selected_tool"];
+        } else {
+            std::cout << config_file_path << "not found \n";
+        }
+    } catch (std::exception &e) {
+        std::cout << e.what() << std::endl;
+    }
+}
 
+void REMA::save_config() {
+    std::ofstream file(config_file_path);
     // Default JSON deserialization not possible because REMA is not default constructible (to enforce singleton pattern)
-    j["last_selected_tool"] = last_selected_tool;
-    file << j;
+    config["REMA"]["last_selected_tool"] = last_selected_tool;
+    file << config;
+}
+
+void REMA::connect(std::string rtu_host, std::string rtu_service) {
+    command_client.set_host(rtu_host);
+    command_client.set_service(rtu_service);
+
+    telemetry_client.set_host(rtu_host);
+    telemetry_client.set_service(std::to_string(std::stoi(rtu_service) + 1));
+
+    command_client.connect();
+    telemetry_client.connect();
 }
 
 void REMA::update_telemetry(std::string &stream) {
@@ -83,7 +106,7 @@ void REMA::execute_command(nlohmann::json command) {
     to_rema["commands"].push_back(command);
     std::string tx_buffer = to_rema.dump();
 
-    std::cout << "Enviando a RTU: " << tx_buffer << "\n";
+    std::cout << "Enviando a REMA: " << tx_buffer << "\n";
     command_client.send_blocking(tx_buffer);
     command_client.receive_blocking();
 }

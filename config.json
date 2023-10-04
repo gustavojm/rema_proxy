@@ -1,9 +1,1 @@
-{
-  "REMA_PROXY": {
-    "port": 4321
-  },
-  "RTU": {
-    "ip": "192.168.2.20",
-    "port": 5020
-  }
-}
+{"REMA":{"last_selected_tool":"Soldadora","network":{"ip":"192.168.2.20","port":5020}},"REMA_PROXY":{"port":4321}}

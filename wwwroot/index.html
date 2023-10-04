@@ -65,9 +65,9 @@
 			Touch Probe:<div id="touch_probe" class="touch-probe"></div>
 		</div>
 		<div class="row">
-			<span style="float: right; padding-right: 10px;" id="sse"></span> <span
-				style="float: right; color: red; opacity: 0;" id="reconnect">Connection 
-				Lost... <a href="#" id="reconnect_rema">Reconnect REMA</a>
+			<span style="float: right; padding-right: 10px;" id="sse"></span> 
+			<span style="float: right; color: red; opacity: 0;" id="reconnect_span">
+				Connection Lost... <a href="#" id="reconnect_rema">Reconnect REMA</a>
 			</span>
 			<div style="float: left; display: none;" class="row"
 				id="joystick_btn_div">
@@ -78,13 +78,14 @@
 
 	<div id="joystick_div" style="overflow: hidden;"></div>
 	<div id="incremental_div" style="overflow: hidden;"></div>
-
-
+	<div id="reconnect_div" style="overflow: hidden;"></div>
+	<div id="network_settings_div" style="overflow: hidden;"></div>
 </body>
 
 <script type="text/javascript">
 decimals = 3
 tabs_initialized = false;
+reconnect_dialog_shown = false;
 
 function toFixedIfNecessary(value, dp) {
 	return +parseFloat(value).toFixed(dp);	
@@ -98,6 +99,13 @@ function areFloatsEqual(a, b, epsilon = 0.0001) {
 function get_rema_info() {
 	$.get('/REST/REMA/info', function(data) {
 		var tools_dropdown = $('#tools');
+		reconnect_div_html = '<div class="row"><img src="images/disconnected.png" class="reconnect" style="margin-right:10px;">'+
+							 "REMA Host: " + data.host + ":" + data.service + 
+							 '</div>';							 
+		$("#reconnect_div").html(reconnect_div_html);
+
+		$("#rema_ip_address").val(data.host);
+		$("#rema_port").val(data.service);
 		tools_dropdown.empty();
 		$.each(
 				data.tools,
@@ -235,30 +243,76 @@ get_session_info_index()
 		$("#temperature_z").removeClass().addClass("temperature").addClass(temp_ranges(temp_z));
 	}
 
+	function create_reconnect_dialog() {
+		
+		$("#reconnect_div").dialog({
+			autoOpen : false,
+			//width : '30%',
+			title : "Connection Lost",
+			//position: { my: "center", at: "center", of: $("#tabs") },		// default to center
+			modal : true,
+			buttons : [ {
+				text : "Reconnect REMA",
+				icon: "ui-icon-transfer-e-w",
+				click : function(event) {
+					$("#reconnect_rema").trigger("click");
+				}
+			}],										
+			open: function(event, ui) {						
+			},
+			close: function(event, ui) {						
+			},
+		});	
+	}
+
+	function create_network_settings_dialog() {
+		$.when(
+			$.get('network_settings.html', function(data) {
+				$('#network_settings_div').html(data);
+			}),
+		).done(function() {
+			$("#network_settings_tabs").tabs();
+			$("#network_settings_div").dialog({
+				modal: true,
+				width: 350,
+				title : "Network Settings",
+				buttons: {
+					"Cancel": function () {
+						$(this).dialog("close");
+					}
+				},
+				close: function () {
+					// Clear form fields on close
+					$("#network_settings_form")[0].reset();
+				}
+			});
+		});
+	}
+
 	function create_incremental_dialog() {
 		
 		$.when(
-			    $.get('incremental.html', function(data) {
-			        $('#incremental_div').html(data);
-			    }),
-			).done(function() {
-				var incremental = $("#incremental_div").dialog({
-					autoOpen : false,
-					//width : '30%',
-					title : "Incremental",
-					//position: { my: "center", at: "center", of: $("#tabs") },		// default to center
-					modal : true,
-					open: function(event, ui) {						
-					},
-					close: function(event, ui) {
-						
-					},
+			$.get('incremental.html', function(data) {
+				$('#incremental_div').html(data);
+			}),
+		).done(function() {
+			var incremental = $("#incremental_div").dialog({
+				autoOpen : false,
+				//width : '30%',
+				title : "Incremental",
+				//position: { my: "center", at: "center", of: $("#tabs") },		// default to center
+				modal : true,
+				open: function(event, ui) {						
+				},
+				close: function(event, ui) {
+					
+				},
 
-				});	
-				$("#incremental_link").click(function() {
-					incremental.dialog("open");
-				}) 
-			});
+			});	
+			$("#incremental_link").click(function() {
+				incremental.dialog("open");
+			}) 
+		});
 	}
 
 	
@@ -291,7 +345,7 @@ get_session_info_index()
 	
 	$(function() {			
 	
-		$("#reconnect_rema").click(function(){
+		$("#reconnect_rema").on("click", function(){
 			$.ajax({
 				method : "POST",
 				dataType : 'json',
@@ -312,16 +366,22 @@ get_session_info_index()
 					}, 2000);
 				}
 				
-				if ("SHOW_CONNECT" in jdata) {
-					$("#reconnect").animate({
+				if ("SHOW_CONNECT" in jdata) {					
+					if (!reconnect_dialog_shown) {
+						$("#reconnect_div").dialog("open");
+						reconnect_dialog_shown = true;						
+					}
+					$("#reconnect_span").animate({
 						opacity : 1
 					}, 0);						
 				}
 				
 				if ("HIDE_CONNECT" in jdata) {
-					$("#reconnect").animate({
+					$("#reconnect_div").dialog("close");		
+					reconnect_dialog_shown = false;
+					$("#reconnect_span").animate({
 						opacity : 0
-					}, 2000);		
+					}, 2000);						
 				}
 				if ("TELEMETRY" in jdata) {
 					update_ui(jdata.TELEMETRY);
@@ -337,6 +397,8 @@ get_session_info_index()
 
 	    create_joystick();
 	    create_incremental_dialog();
+		create_reconnect_dialog();
+		create_network_settings_dialog();
 				
 	});
 		

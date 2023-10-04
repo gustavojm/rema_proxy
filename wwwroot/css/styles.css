@@ -210,3 +210,8 @@ svg .tube:hover {
 .context-menu li:hover {
 	background: #f0f0f0;
 }
+
+.reconnect {
+	width: 60px;
+	height: 60px;
+}

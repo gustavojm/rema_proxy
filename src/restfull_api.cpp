@@ -68,6 +68,8 @@ void REMA_info(const std::shared_ptr<restbed::Session> session) {
 
     res["tools"] = tools_to_ui;
     res["last_selected_tool"] = rema_instance.last_selected_tool;
+    res["host"] = rema_instance.command_client.get_host();
+    res["service"] = rema_instance.command_client.get_service();
     close_session(session, restbed::OK, res);
 }
 
@@ -451,6 +453,42 @@ bool equals(double f1, double f2) {
     return (fabs(f1 - f2) < 0.000001); /* EPSILON */
 }
 
+
+void change_network_settings(const std::shared_ptr<restbed::Session> session) {
+    REMA &rema_instance = REMA::get_instance();
+    nlohmann::json pars_obj;
+    const auto request = session->get_request();
+    size_t content_length = request->get_header("Content-Length", 0);
+    session->fetch(content_length,
+            [&]([[maybe_unused]]const std::shared_ptr<restbed::Session> &session_ptr,
+                    const restbed::Bytes &body) {
+        nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
+        
+        if (isValidIPv4(form_data["ipaddr"])) {
+            std::string rtu_host = form_data["ipaddr"];
+            std::string rtu_port = form_data["port"];
+
+            rema_instance.config["REMA"]["network"]["ip"] = rtu_host;
+            rema_instance.config["REMA"]["network"]["port"] = std::stoi(rtu_port);
+            rema_instance.save_config();
+
+            if (form_data.contains("change_remote_network_settings")) {
+                pars_obj["ipaddr"] = rtu_host;
+                pars_obj["port"] = std::stoi(rtu_port);
+                pars_obj["gw"] = form_data["ipaddr"];
+                pars_obj["netmask"] = "255.255.255.0";
+                rema_instance.execute_command({{"command", "NETWORK_SETTINGS"}, {"pars", pars_obj}});
+            }
+
+            rema_instance.connect(rtu_host, rtu_port);
+
+        }                      
+        close_session(session, restbed::OK);
+    });
+}
+
+
+
 void move_incremental(const std::shared_ptr<restbed::Session> session) {
     REMA &rema_instance = REMA::get_instance();
     nlohmann::json pars_obj;
@@ -684,6 +722,7 @@ void restfull_api_create_endpoints(restbed::Service &service) {
         {"aligned-tubesheet-get", {{"GET", &aligned_tubesheet_get}}},
         {"axes-hard-stop-all", {{"GET", &axes_hard_stop_all}}},
         {"axes-soft-stop-all", {{"GET", &axes_soft_stop_all}}},
+        {"change-network-settings", {{"POST", &change_network_settings}}},
 
     };
 // @formatter:on
