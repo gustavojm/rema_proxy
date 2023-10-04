@@ -12,7 +12,6 @@
 <script src="js/jquery-ui.min.js"></script>
 </head>
 
-
 <body>
 
 	<div id="tabs" style="height: 94.5%">
@@ -43,7 +42,7 @@
 		<div style="float: left; justify-content: left; max-width: 10%"
 			class="row">
 			<div>
-				<img alt="" src="images/logo nasa.png">
+				<img alt="" src="images/logo nasa.png" id="logo_nasa">
 			</div>
 		</div>
 		<div style="float: left; justify-content: left; max-width: 20%"
@@ -99,11 +98,14 @@ function areFloatsEqual(a, b, epsilon = 0.0001) {
 function get_rema_info() {
 	$.get('/REST/REMA/info', function(data) {
 		var tools_dropdown = $('#tools');
-		reconnect_div_html = '<div class="row"><img src="images/disconnected.png" class="reconnect" style="margin-right:10px;">'+
+		reconnect_div_html = '<div class="row"><img src="images/disconnected.png" class="reconnect" id="disconnected_img" style="margin-right:10px;">'+
 							 "REMA Host: " + data.host + ":" + data.service + 
 							 '</div>';							 
 		$("#reconnect_div").html(reconnect_div_html);
-
+		$("#disconnected_img").click(function() {
+			$("#network_settings_div").dialog("open");
+		});
+		
 		$("#rema_ip_address").val(data.host);
 		$("#rema_port").val(data.service);
 		tools_dropdown.empty();
@@ -271,8 +273,8 @@ get_session_info_index()
 				$('#network_settings_div').html(data);
 			}),
 		).done(function() {
-			$("#network_settings_tabs").tabs();
-			$("#network_settings_div").dialog({
+			network_settings = $("#network_settings_div").dialog({
+				autoOpen : false,
 				modal: true,
 				width: 350,
 				title : "Network Settings",
@@ -286,6 +288,10 @@ get_session_info_index()
 					$("#network_settings_form")[0].reset();
 				}
 			});
+
+			$("#logo_nasa").click(function() {
+				network_settings.dialog("open");
+			}) 
 		});
 	}
 
