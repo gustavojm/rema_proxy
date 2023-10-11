@@ -1,4 +1,13 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.21)
+
+# This template attempts to be "fetch_content"-able
+# so that it works well with tools like CPM or other
+# manual dependency management
+
+# Only set the cxx_standard if it is not set by someone else
+if (NOT DEFINED CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 17)
+endif()
 
 #
 # Project details

@@ -74,7 +74,6 @@ find_package(OpenSSL REQUIRED)
 
 target_include_directories(${PROJECT_NAME} PRIVATE
                               ${Open3D_INCLUDE_DIRS}
-#                              ${Restbed_INCLUDE_DIRS}
                               ${Boost_INCLUDE_DIRS}
                               ${HEADERS_DIR}
                            )
@@ -85,7 +84,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
                           Boost::program_options
                           ssl          
                           restbed
-#                          ${Restbed_LIBRARIES}
                           ${OPENSSL_CRYPTO_LIBRARY} 
                           ${OPENSSL_SSL_LIBRARY}
                      )
