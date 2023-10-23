@@ -8,6 +8,7 @@
 #include <vector>
 #include <memory>
 #include <cstdint>
+#include <spdlog/spdlog.h>
 
 #include "json.hpp"
 #include "inspection-session.hpp"
@@ -17,7 +18,6 @@
 #include "points.hpp"
 #include "circle_fns.hpp"
 #include "misc_fns.hpp"
-#include "debug.hpp"
 
 extern InspectionSession current_session;
 
@@ -133,6 +133,7 @@ void tools_create(const std::shared_ptr<restbed::Session> session) {
                         double offset_z = to_double(form_data.value("offset_z", "0"));
 
                         Tool new_tool(tool_name, {offset_x, offset_y, offset_z});
+                        new_tool.save_to_disk();
                         REMA::add_tool(new_tool);
                         res = "Tool created Successfully";
                         status = restbed::CREATED;
@@ -374,7 +375,7 @@ void axes_hard_stop_all(const std::shared_ptr<restbed::Session> session) {
 }
 
 void axes_soft_stop_all(const std::shared_ptr<restbed::Session> session) {
-    lDebug(Info, "Received soft stop");
+    SPDLOG_INFO("Received soft stop");
     REMA &rema_instance = REMA::get_instance();
     rema_instance.axes_soft_stop_all();
     close_session(session, restbed::OK);
@@ -727,7 +728,7 @@ void restfull_api_create_endpoints(restbed::Service &service) {
     };
 // @formatter:on
 
-    //lDebug(Info, "Creando endpoints");
+    //SPDLOG_INFO("Creando endpoints");
     for (auto [path, resources] : rest_resources) {
         auto resource_rest = std::make_shared<restbed::Resource>();
         resource_rest->set_path(std::string("/REST/").append(path));

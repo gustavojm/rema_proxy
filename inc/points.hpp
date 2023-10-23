@@ -1,6 +1,8 @@
 #ifndef POINTS_HPP
 #define POINTS_HPP
 
+#include <spdlog/spdlog.h>
+
 class Point3D {
 public:
 
@@ -16,7 +18,7 @@ public:
     if (scalar != 0) {
            return Point3D(x / scalar, y / scalar, z / scalar);
        } else {
-           std::cerr << "Error: Division by zero" << std::endl;
+            SPDLOG_ERROR("Division by zero");
            // You can handle the error however you prefer
            return *this; // Return the original point in this case
        }

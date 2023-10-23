@@ -1,14 +1,16 @@
 #include <open3d/Open3D.h>
 #include <Eigen/Eigen>
+#include <spdlog/spdlog.h>
 
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <map>
 #include <csv.h>
+#include <spdlog/spdlog.h>
+
 #include "inspection-session.hpp"
 #include "svg.hpp"
-#include "debug.hpp"
 
 InspectionSession::InspectionSession() = default;
 
@@ -24,7 +26,7 @@ void InspectionSession::copy_tubes_to_aligned_tubes() {
 
 void InspectionSession::process_csv() {
     std::filesystem::path csv_file = hx_directory / hx / "tubesheet.csv";
-    lDebug(Info, "Reading %s", csv_file.c_str());
+    SPDLOG_INFO("Reading {}", csv_file.string());
 
     io::CSVReader<7, io::trim_chars<' ', '\t'>, io::no_quote_escape<';'>> in(csv_file);
     in.read_header(io::ignore_extra_column, "x_label", "y_label", "cl_x",
@@ -75,10 +77,10 @@ InspectionSession::InspectionSession(std::string session_name,
             unit = config.value("unit", "inch");
             scale = (unit == "inch" ? 1 : 25.4);
         } else {
-            lDebug(Warn, "%s not found", config_file_path.c_str());
+            SPDLOG_WARN("{} not found", config_file_path.string());
         }
     } catch (std::exception &e) {
-        lDebug(Warn, "%s", e.what());
+        SPDLOG_WARN(e.what());
     }
 
     process_csv();
@@ -188,7 +190,7 @@ Point3D InspectionSession::get_tube_coordinates(std::string tube_id, bool ideal 
 };
 
 void InspectionSession::generate_svg() {
-    lDebug(Info, "Generating SVG...");
+    SPDLOG_INFO("Generating SVG...");
 
     float min_x, width;
     float min_y, height;
@@ -216,10 +218,10 @@ void InspectionSession::generate_svg() {
             boost::split(config_x_labels_coords, x_labels_param, boost::is_any_of(" "));
             boost::split(config_y_labels_coords, y_labels_param, boost::is_any_of(" "));
         } else {
-            lDebug(Warn, "%s not found", config_file_path.c_str());
+            SPDLOG_WARN("{} not found", config_file_path.string());
         }
     } catch (std::exception &e) {
-        lDebug(Warn, "%s", e.what());
+        SPDLOG_WARN(e.what());
     }
 
     float tube_r = tube_od / 2;
@@ -305,7 +307,7 @@ void InspectionSession::generate_svg() {
 
 
 std::map<std::string, Point3D>& InspectionSession::calculate_aligned_tubes() {    
-    lDebug(Info, "Aligning Tubes...");
+    SPDLOG_INFO("Aligning Tubes...");
     //std::vector<Point3D> src_points = { { 1.625, 0.704, 0 },
     //        {16.656, 2.815, 0},
     //        {71.125, 3.518, 0},
@@ -333,7 +335,7 @@ std::map<std::string, Point3D>& InspectionSession::calculate_aligned_tubes() {
     }
 
     if (used_points < 2) {
-        std::cerr << "At least two alignment points are required \n";
+        SPDLOG_ERROR("At least two alignment points are required");
         copy_tubes_to_aligned_tubes();
         return aligned_tubes;
     }

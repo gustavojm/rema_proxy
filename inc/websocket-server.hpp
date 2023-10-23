@@ -15,6 +15,7 @@
 #include <vector>
 #include <chrono>
 #include <websocket-server.hpp>
+#include <spdlog/spdlog.h>
 
 namespace beast = boost::beast;
 // from <boost/beast.hpp>
@@ -31,7 +32,7 @@ using tcp = boost::asio::ip::tcp;
 
 // Report a failure
 inline void fail(beast::error_code ec, char const *what) {
-    std::cerr << what << ": " << ec.message() << "\n";
+    SPDLOG_ERROR( "{}: {}", what, ec.message());
 }
 
 // Echoes back all received WebSocket messages

@@ -12,8 +12,9 @@
 #include <chrono>
 #include <thread>
 #include <iostream>
-
+#include <spdlog/spdlog.h>
 #include <boost/asio.hpp>
+
 #include "syslogger.hpp"
 #include "json.hpp"
 #include "csv.h"
@@ -22,9 +23,7 @@
 #include "rema.hpp"
 #include "restfull_api.hpp"
 #include "touch_probe.hpp"
-#include "debug.hpp"
 
-enum debugLevels debugLevel = debugLevels::Info;
 InspectionSession current_session;
 
 vector<shared_ptr<restbed::Session>> sessions;
@@ -68,8 +67,8 @@ void event_stream_handler() {
         if (elapsed_time > std::chrono::milliseconds(500)) {
             res["TEMP_INFO"] = rema_instance.temps;
         }
-    } catch (std::exception &e) {
-        std::cerr << "Telemetry connection lost..." << "\n";
+    } catch (std::exception &e) {        
+        SPDLOG_ERROR("Telemetry connection lost... {}", e.what());
     }
 
     if (!rema_instance.command_client.isConnected || !rema_instance.telemetry_client.isConnected) {
@@ -197,8 +196,8 @@ void post_rtu_method_handler(const shared_ptr<restbed::Session> session,
 
                     }
                 } catch (std::exception &e) {
-                    std::string message = std::string(e.what());
-                    std::cerr << "COMMUNICATIONS ERROR " << message << "\n";
+                    std::string message = e.what();
+                    SPDLOG_ERROR("COMMUNICATIONS ERROR {}", e.what());
                     session_ptr->close(OK, message, { { "Content-Length",
                             ::to_string(message.length()) }, { "Content-Type",
                             "application/json; charset=utf-8" },
@@ -212,22 +211,24 @@ void failed_filter_validation_handler(
         const shared_ptr<restbed::Session> session) {
     const auto request = session->get_request();
     auto headers = request->get_headers();
-    lDebug(Warn, "Invalid: ");
+    SPDLOG_WARN("Invalid: ");
     for (auto h : headers) {
-        lDebug(Warn, "%s - %s", h.first.c_str(), h.second.c_str());
+        SPDLOG_WARN("{} - {}", h.first, h.second);
     }
 
     session->close(400);
 }
 
 int main(const int, const char**) {
+    spdlog::set_pattern("[%H:%M:%S %z] [%^%L%$] [%g:%#] [thread %t] %v");
+
     uint16_t rema_proxy_port = 4321;
 
     REMA &rema_instance = REMA::get_instance();
     rema_proxy_port = static_cast<uint16_t>(rema_instance.config["REMA_PROXY"].value("port", 4321));
     std::string rtu_host = rema_instance.config["REMA"]["network"].value("ip", "192.168.2.20");
     std::string rtu_service = std::to_string(rema_instance.config["REMA"]["network"].value("port", 5020));
-    lDebug(Info, "REMA Proxy Server running on %i", rema_proxy_port);  
+    SPDLOG_INFO("REMA Proxy Server running on {}", rema_proxy_port);   
 
     rema_instance.connect(rtu_host, rtu_service);
 
@@ -293,6 +294,6 @@ int main(const int, const char**) {
     service.start(settings);
 
 //    websocket_thread.join();
-
+    return 0;
 }
 

@@ -6,6 +6,7 @@
 #include <cmath>
 #include <regex>
 #include <algorithm>
+#include <spdlog/spdlog.h>
 
 static inline float to_float(std::string input) {
     float res;
@@ -16,7 +17,7 @@ static inline float to_float(std::string input) {
                 res = std::stof(input);
             } catch (const std::invalid_argument& e) {
                 // Handle invalid input (e.g., non-numeric string)
-                std::cerr << "Invalid input: " << e.what() << std::endl;
+                SPDLOG_ERROR("Invalid input: {}", e.what());
                 res = 0.0f; // Set to 0 in case of invalid input
             }
         }
@@ -32,7 +33,7 @@ static inline double to_double(std::string input) {
                 res = std::stod(input);
             } catch (const std::invalid_argument& e) {
                 // Handle invalid input (e.g., non-numeric string)
-                std::cerr << "Invalid input: " << e.what() << std::endl;
+                SPDLOG_ERROR("Invalid input: {}", e.what());
                 res = 0.0f; // Set to 0 in case of invalid input
             }
         }

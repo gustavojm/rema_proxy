@@ -71,6 +71,8 @@ find_package(Eigen3 REQUIRED)
 find_package(Boost REQUIRED COMPONENTS program_options)
 find_package(OpenSSL REQUIRED)
 
+# Find spdlog package
+find_package(spdlog REQUIRED)
 
 target_include_directories(${PROJECT_NAME} PRIVATE
                               ${Open3D_INCLUDE_DIRS}
@@ -82,6 +84,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
                           Open3D::Open3D
                           Eigen3::Eigen        
                           Boost::program_options
+                          spdlog::spdlog
                           ssl          
                           restbed
                           ${OPENSSL_CRYPTO_LIBRARY} 

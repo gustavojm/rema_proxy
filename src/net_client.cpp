@@ -11,7 +11,7 @@
 #include <boost/asio/io_context.hpp>
 #include <json.hpp>
 #include <net_client.hpp>
-#include "debug.hpp"
+#include <spdlog/spdlog.h>
 
 using boost::asio::ip::tcp;
 
@@ -20,7 +20,7 @@ void netClient::connect() {
     auto endpoints = tcp::resolver(io_context_).resolve(host, service);
 
     for (auto endpoint : endpoints) {
-        lDebug(Info, "Connecting to: %s : %s", endpoint.host_name().c_str(), endpoint.service_name().c_str());
+        SPDLOG_INFO("Connecting to: {} : {}", endpoint.host_name(), endpoint.service_name());
     }
 
     // Start the asynchronous operation itself. The lambda that is used as a
@@ -65,7 +65,7 @@ void netClient::receive_async(std::function<void(std::string &rx_buffer)> callba
                             "Error receiving message: " + error.message());
                 }
 
-                //lDebug(Info, "Received message is: %s", input_buffer_.c_str());
+                //SPDLOG_INFO("Received message is: {}", input_buffer_);
                 std::string line(input_buffer_.substr(0, n - 1));
                 callback(line);
                 input_buffer_.erase(0, n);

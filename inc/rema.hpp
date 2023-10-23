@@ -73,8 +73,7 @@ struct movement_cmd {
 class REMA {
 public:
     static REMA& get_instance() {
-        static REMA instance;     // Guaranteed to be destroyed.
-        instance.load_config();      // Instantiated on first use.
+        static REMA instance;     // Guaranteed to be destroyed. Instantiated on first use.
         return instance;
     }
 
@@ -142,11 +141,17 @@ public:
 
 private:
     REMA() {
-        for (const auto &entry : std::filesystem::directory_iterator(tools_dir)) {
-            Tool t(entry.path());
-            tools[entry.path().filename().replace_extension()] = t;
+        try {
+            load_config();         
+            for (const auto &entry : std::filesystem::directory_iterator(tools_dir)) {
+                Tool t(entry.path());
+                tools[entry.path().filename().replace_extension()] = t;
+            }
+            this->loaded = true;
+        } catch (std::exception &e) {
+            SPDLOG_WARN(e.what());
         }
-        this->loaded = true;
+
     }
 
     // C++ 11

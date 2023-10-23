@@ -9,12 +9,12 @@
 #include <map>
 #include <csv.h>
 #include <json.hpp>
+#include <spdlog/spdlog.h>
 
 #include "rema.hpp"
 #include "inspection-session.hpp"
 #include "tool.hpp"
 #include "touch_probe.hpp"
-#include "debug.hpp"
 
 extern TouchProbeFSM tpFSM;
 
@@ -34,11 +34,11 @@ void REMA::load_config() {
             config_file >> config;
             this->last_selected_tool = config["REMA"]["last_selected_tool"];
         } else {
-            lDebug(Warn, "%s not found", config_file_path.c_str());
+            SPDLOG_WARN("{} not found", config_file_path.string());
+            std::exit(1);
         }
     } catch (std::exception &e) {
-        lDebug(Warn, "%s", e.what());
-
+        SPDLOG_WARN(e.what());
     }
 }
 
@@ -78,8 +78,7 @@ void REMA::update_telemetry(std::string &stream) {
             }
         }
     } catch (std::exception &e) {
-        std::string message = std::string(e.what());
-        std::cerr << "TELEMETRY COMMUNICATIONS ERROR " << message << "\n";
+        SPDLOG_ERROR("TELEMETRY COMMUNICATIONS ERROR {}", e.what());
     }
     return;
 }
@@ -107,7 +106,7 @@ void REMA::execute_command(nlohmann::json command) {
     to_rema["commands"].push_back(command);
     std::string tx_buffer = to_rema.dump();
 
-    lDebug(Info, "Enviando a REMA: %s",tx_buffer.c_str());
+    SPDLOG_INFO("Enviando a REMA: {}", tx_buffer);
     command_client.send_blocking(tx_buffer);
     command_client.receive_blocking();
 }
@@ -151,7 +150,7 @@ bool REMA::execute_sequence(std::vector<movement_cmd>& sequence) {
                 telemetry_client.receive_async([this](std::string &rx_buffer) {this->update_telemetry(rx_buffer); });
                 std::this_thread::sleep_for(std::chrono::milliseconds(10));                     // Wait for telemetry update...
             } catch (std::exception &e) {                // handle exception
-                std::cerr << e.what() << "\n";
+                SPDLOG_ERROR(e.what());
             }
 
             stopped_on_probe = telemetry.limits.debounced_probe && step.stop_on_probe;
