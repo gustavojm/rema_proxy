@@ -17,7 +17,7 @@
 #include "points.hpp"
 #include "circle_fns.hpp"
 #include "misc_fns.hpp"
-
+#include "debug.hpp"
 
 extern InspectionSession current_session;
 
@@ -374,7 +374,7 @@ void axes_hard_stop_all(const std::shared_ptr<restbed::Session> session) {
 }
 
 void axes_soft_stop_all(const std::shared_ptr<restbed::Session> session) {
-    std::cout << "received soft stop \n";
+    lDebug(Info, "Received soft stop");
     REMA &rema_instance = REMA::get_instance();
     rema_instance.axes_soft_stop_all();
     close_session(session, restbed::OK);
@@ -727,7 +727,7 @@ void restfull_api_create_endpoints(restbed::Service &service) {
     };
 // @formatter:on
 
-    //std::cout << "Creando endpoints" << "\n";
+    //lDebug(Info, "Creando endpoints");
     for (auto [path, resources] : rest_resources) {
         auto resource_rest = std::make_shared<restbed::Resource>();
         resource_rest->set_path(std::string("/REST/").append(path));
@@ -736,7 +736,6 @@ void restfull_api_create_endpoints(restbed::Service &service) {
 
         for (ResourceEntry r : resources) {
             resource_rest->set_method_handler(r.method, r.callback);
-            //std::cout << "127.0.0.1:4321/REST/" << path << ", " << r.method << "\n";
         }
         service.publish(resource_rest);
     }

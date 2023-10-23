@@ -8,6 +8,7 @@
 #include <csv.h>
 #include "inspection-session.hpp"
 #include "svg.hpp"
+#include "debug.hpp"
 
 InspectionSession::InspectionSession() = default;
 
@@ -23,7 +24,7 @@ void InspectionSession::copy_tubes_to_aligned_tubes() {
 
 void InspectionSession::process_csv() {
     std::filesystem::path csv_file = hx_directory / hx / "tubesheet.csv";
-    std::cout << "Reading " << csv_file << "\n";
+    lDebug(Info, "Reading %s", csv_file.c_str());
 
     io::CSVReader<7, io::trim_chars<' ', '\t'>, io::no_quote_escape<';'>> in(csv_file);
     in.read_header(io::ignore_extra_column, "x_label", "y_label", "cl_x",
@@ -74,10 +75,10 @@ InspectionSession::InspectionSession(std::string session_name,
             unit = config.value("unit", "inch");
             scale = (unit == "inch" ? 1 : 25.4);
         } else {
-            std::cout << config_file_path << "not found \n";
+            lDebug(Warn, "%s not found", config_file_path.c_str());
         }
     } catch (std::exception &e) {
-        std::cout << e.what() << "\n";
+        lDebug(Warn, "%s", e.what());
     }
 
     process_csv();
@@ -187,7 +188,7 @@ Point3D InspectionSession::get_tube_coordinates(std::string tube_id, bool ideal 
 };
 
 void InspectionSession::generate_svg() {
-    std::cout << "Generating SVG..." << "\n";
+    lDebug(Info, "Generating SVG...");
 
     float min_x, width;
     float min_y, height;
@@ -215,10 +216,10 @@ void InspectionSession::generate_svg() {
             boost::split(config_x_labels_coords, x_labels_param, boost::is_any_of(" "));
             boost::split(config_y_labels_coords, y_labels_param, boost::is_any_of(" "));
         } else {
-            std::cout << config_file_path << "not found \n";
+            lDebug(Warn, "%s not found", config_file_path.c_str());
         }
     } catch (std::exception &e) {
-        std::cout << e.what() << std::endl;
+        lDebug(Warn, "%s", e.what());
     }
 
     float tube_r = tube_od / 2;
@@ -303,8 +304,8 @@ void InspectionSession::generate_svg() {
 }
 
 
-std::map<std::string, Point3D>& InspectionSession::calculate_aligned_tubes() {
-    std::cout << "Aligning Tubes... \n";
+std::map<std::string, Point3D>& InspectionSession::calculate_aligned_tubes() {    
+    lDebug(Info, "Aligning Tubes...");
     //std::vector<Point3D> src_points = { { 1.625, 0.704, 0 },
     //        {16.656, 2.815, 0},
     //        {71.125, 3.518, 0},

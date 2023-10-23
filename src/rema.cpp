@@ -14,6 +14,7 @@
 #include "inspection-session.hpp"
 #include "tool.hpp"
 #include "touch_probe.hpp"
+#include "debug.hpp"
 
 extern TouchProbeFSM tpFSM;
 
@@ -33,10 +34,11 @@ void REMA::load_config() {
             config_file >> config;
             this->last_selected_tool = config["REMA"]["last_selected_tool"];
         } else {
-            std::cout << config_file_path << "not found \n";
+            lDebug(Warn, "%s not found", config_file_path.c_str());
         }
     } catch (std::exception &e) {
-        std::cout << e.what() << std::endl;
+        lDebug(Warn, "%s", e.what());
+
     }
 }
 
@@ -63,7 +65,6 @@ void REMA::update_telemetry(std::string &stream) {
     try {
         std::lock_guard<std::mutex> lock(mtx);
         if (!stream.empty()) {
-            //cout << stream << endl;
             json = nlohmann::json::parse(stream);
 
             if (json.contains("telemetry")) {
@@ -106,7 +107,7 @@ void REMA::execute_command(nlohmann::json command) {
     to_rema["commands"].push_back(command);
     std::string tx_buffer = to_rema.dump();
 
-    std::cout << "Enviando a REMA: " << tx_buffer << "\n";
+    lDebug(Info, "Enviando a REMA: %s",tx_buffer.c_str());
     command_client.send_blocking(tx_buffer);
     command_client.receive_blocking();
 }

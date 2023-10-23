@@ -22,7 +22,9 @@
 #include "rema.hpp"
 #include "restfull_api.hpp"
 #include "touch_probe.hpp"
+#include "debug.hpp"
 
+enum debugLevels debugLevel = debugLevels::Info;
 InspectionSession current_session;
 
 vector<shared_ptr<restbed::Session>> sessions;
@@ -210,9 +212,9 @@ void failed_filter_validation_handler(
         const shared_ptr<restbed::Session> session) {
     const auto request = session->get_request();
     auto headers = request->get_headers();
-    std::cout << "invalid: " << std::endl;
+    lDebug(Warn, "Invalid: ");
     for (auto h : headers) {
-        cout << h.first << " - " << h.second << endl;
+        lDebug(Warn, "%s - %s", h.first.c_str(), h.second.c_str());
     }
 
     session->close(400);
@@ -225,7 +227,7 @@ int main(const int, const char**) {
     rema_proxy_port = static_cast<uint16_t>(rema_instance.config["REMA_PROXY"].value("port", 4321));
     std::string rtu_host = rema_instance.config["REMA"]["network"].value("ip", "192.168.2.20");
     std::string rtu_service = std::to_string(rema_instance.config["REMA"]["network"].value("port", 5020));
-    std::cout << "REMA Proxy Server running on " << rema_proxy_port << "\n";
+    lDebug(Info, "REMA Proxy Server running on %i", rema_proxy_port);  
 
     rema_instance.connect(rtu_host, rtu_service);
 
