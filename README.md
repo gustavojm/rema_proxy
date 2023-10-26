@@ -24,7 +24,7 @@ To build the project, all you need to do
 
 ```bash
 mkdir build
-cmake . -B ./build/
+cmake -S . -B ./build/
 cmake --build ./build/
 ```
 
@@ -34,13 +34,20 @@ cmake --build ./build --target install --config Release
 # a more general syntax for that command is:
 cmake --build <build_directory> --target install --config <desired_config>
 ```
+
+Change project settings  
+```bash
+ccmake ./build
+```
+
+
 ## Generating the documentation
 
 In order to generate documentation for the project, you need to configure the build
 to use Doxygen. This is easily done, by modifying the workflow shown above as follows:
 
 ```bash
-ccmake .
+ccmake ./build
 cmake --build . --target doxygen-docs
 ```
 
