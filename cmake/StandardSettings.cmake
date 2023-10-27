@@ -93,3 +93,7 @@ if(${PROJECT_NAME}_ENABLE_ASAN)
     add_compile_options(-fsanitize=address)
     add_link_options(-fsanitize=address)
 endif()
+
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    set(CMAKE_INSTALL_PREFIX "$ENV{HOME}/${PROJECT_NAME}" CACHE PATH "Installation prefix" FORCE)
+endif()

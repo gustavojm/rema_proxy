@@ -23,22 +23,28 @@ After finishing getting a copy of the project...
 To build the project, all you need to do
 
 ```bash
-mkdir build
 cmake -S . -B ./build/
 cmake --build ./build/
 ```
 
-```bash
-cmake --build ./build --target install --config Release
-
-# a more general syntax for that command is:
-cmake --build <build_directory> --target install --config <desired_config>
-```
-
-Change project settings  
+Change project settings, specify CMAKE_INSTALL_PREFIX 
 ```bash
 ccmake ./build
 ```
+
+```bash
+cmake --build ./build/ --target install
+```
+
+Run the installed project  
+```bash
+cd ~/REMA_Proxy
+./REMA_Proxy
+```
+
+Open a web browser 
+
+http://127.0.0.1:4321/static/index.html#
 
 
 ## Generating the documentation
