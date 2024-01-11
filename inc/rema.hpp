@@ -107,6 +107,8 @@ public:
 
     void execute_command(nlohmann::json command);
 
+    void execute_command_no_wait(nlohmann::json command);
+
     void move_closed_loop(movement_cmd step);
 
     void axes_hard_stop_all();

@@ -111,6 +111,17 @@ void REMA::execute_command(nlohmann::json command) {
     command_client.receive_blocking();
 }
 
+void REMA::execute_command_no_wait(nlohmann::json command) {
+    nlohmann::json to_rema;
+    tpFSM.newCommand();
+    to_rema["commands"].push_back(command);
+    std::string tx_buffer = to_rema.dump();
+
+    SPDLOG_INFO("Enviando a REMA: {}", tx_buffer);
+    command_client.send_blocking(tx_buffer);
+}
+
+
 void REMA::move_closed_loop(movement_cmd cmd) {
     tpFSM.newCommand();
     execute_command({ { "command", "MOVE_CLOSED_LOOP" },

@@ -48,12 +48,12 @@
             method : "POST",
             contentType : "application/json",
             data: JSON.stringify(Object.fromEntries(new FormData(document.getElementById("network_settings_form")))),
-            dataType : "json",
             success : function(data) {
                 alert("Settings saved successfully!");
+                location.reload();
             }
         });
-		$("#network_settings_div").dialog("close");
+		$("#network_settings_div").dialog("close");        
 	});
 
 </script>
