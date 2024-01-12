@@ -38,8 +38,9 @@
 			</div>
 		</div>
 		<div style="float: right; text-align: center;" class="right-side">
-			<input type="checkbox" name="leg_switch" id="leg_switch"> <select
-				id="insp_plans"></select>
+			<span id="calibration_points_span" style="display: none;">Calibration Points</span>
+			<span id="leg_switch_span"><input type="checkbox" name="leg_switch" id="leg_switch"></span>
+			 <select id="insp_plans"></select>
 		</div>
 	</div>
 
@@ -652,8 +653,14 @@
 			$("#calibration_tab").toggle();
 			if ($(this).text() == "Calibration") {
 				$(this).text("Inspection Plan");
+				$("#leg_switch_span").hide();
+				$("#insp_plans").hide();
+				$("#calibration_points_span").show();
 			} else {
 				$(this).text("Calibration");
+				$("#leg_switch_span").show();
+				$("#insp_plans").show();
+				$("#calibration_points_span").hide();
 			}
 		});
 		
