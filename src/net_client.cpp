@@ -38,10 +38,8 @@ void netClient::connect() {
     run();
 
     // Determine whether a connection was successfully established.
-    if (error)
-        throw std::system_error(error);
-
-    isConnected = true;
+    if (!error)
+        isConnected = true;
 }
 
 void netClient::receive_async(std::function<void(std::string &rx_buffer)> callback) {
