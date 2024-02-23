@@ -410,8 +410,8 @@ void move_free_run(const std::shared_ptr<restbed::Session> rest_session) {
     const auto request = rest_session->get_request();
     std::string dir = request->get_path_parameter("dir", "");
 
-    constexpr int positive_big_number = INT32_MAX - 100000;     // Consider that already_there() compares with MOT_PAP_POS_THRESHOLD;
-    constexpr int negative_big_number = INT32_MIN + 100000;     //
+    constexpr int positive_big_number = INT32_MAX / 2;  // This value goes into bresenham error determination that needs to be multiplied by 2   
+    constexpr int negative_big_number = INT32_MIN / 2;     
 
     nlohmann::json pars_obj;
 
