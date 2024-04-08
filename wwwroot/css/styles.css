@@ -162,9 +162,19 @@ svg .tube.highlight_cal_tube  {
     position: relative; /* Needed for absolute positioning of the text */
 }
 
+.progress-min-mark {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	left: 100%; /* Adjust as needed */
+	background-color: red;
+	height: 100%;
+	width: 0.1%;
+}
+
 .progress {
     height: 100%;
-    background-color: #4CAF50; /* Change this color to your desired progress bar color */
+    background-color: #4CAF50; /* Change this color to your desired progress bar color */ 
     transition: width 0.3s ease-in-out;
     position: relative; /* Needed for absolute positioning of the text */
 }
