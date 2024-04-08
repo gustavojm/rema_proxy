@@ -18,7 +18,6 @@
 		<ul>
 			<li><a href="sessions.html">Sessions</a></li>
 			<li><a href="tubesheet.html">Tubesheet</a></li>
-			<li><a href="closed_loop.html">Closed Loop</a></li>
 			<li><a href="hx.html">HX</a></li>
 			<li><a href="config.html">Config</a></li>
 			<li><a href="logs.html">Logs</a></li>
@@ -153,7 +152,7 @@ get_session_info_index()
 					active_tab = 0;
 					if (data.is_loaded) {
 						$(".units").text(data.unit);
-						active_tab = 3
+						active_tab = 2
 					}
 					
 					$("#tabs").tabs({
@@ -183,12 +182,15 @@ get_session_info_index()
 		$("#position_y").val(toFixedIfNecessary(pos_y, decimals));
 		$("#position_z").val(toFixedIfNecessary(pos_z, decimals));	
 
-		if (telemetry.on_condition.x_y) {
-			$("#messages").html("XY ON CONDITION");
-		} else {
-			$("#messages").html("");
+		message = "";
+		if (telemetry.stalled.x || telemetry.stalled.y || telemetry.stalled.z) {
+			message = "STALLED " + (telemetry.stalled.x ? "X" : "") + (telemetry.stalled.y ? "Y" : "") + (telemetry.stalled.z ? "Z" : "");
+		} else if (telemetry.on_condition.x_y) {
+			message = "ON CONDITION XY";
 		}
-		
+
+		$("#messages").html(message);
+
 		if (typeof update_limits === "function") {
 			update_limits(telemetry.limits);
 		}
@@ -201,7 +203,7 @@ get_session_info_index()
 		
 		if (tabs_initialized) {
 			var current_tab = $("#tabs").tabs('option', 'active');
-			if (current_tab == 3 && typeof(update_bullseye_position) === "function") {
+			if (current_tab == 2 && typeof(update_bullseye_position) === "function") {
 				update_bullseye_position(pos_x, pos_y);
 				if ((!areFloatsEqual(pos_x, prev_pos_x) || !areFloatsEqual(pos_y, prev_pos_y))) { 
 					if ($("#zoom_follow").prop("checked")) {
