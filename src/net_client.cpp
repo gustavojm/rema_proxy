@@ -19,7 +19,7 @@ void netClient::connect() {
     // Resolve the host name and service to a list of endpoints.
     auto endpoints = tcp::resolver(io_context_).resolve(host, service);
 
-    for (auto endpoint : endpoints) {
+    for (auto const &endpoint : endpoints) {
         SPDLOG_INFO("Connecting to: {} : {}", endpoint.host_name(), endpoint.service_name());
     }
 
@@ -38,8 +38,9 @@ void netClient::connect() {
     run();
 
     // Determine whether a connection was successfully established.
-    if (!error)
+    if (!error) {
         isConnected = true;
+    }
 }
 
 void netClient::receive_async(std::function<void(std::string &rx_buffer)> callback) {
@@ -49,13 +50,11 @@ void netClient::receive_async(std::function<void(std::string &rx_buffer)> callba
     // than a lambda.
     std::lock_guard<std::mutex> lock(mtx);
     boost::system::error_code error;
-    std::size_t n = 0;
     boost::asio::async_read_until(socket_,
             boost::asio::dynamic_buffer(input_buffer_), '\0',
             [&](const boost::system::error_code &result_error,
                     std::size_t result_n) {
                 error = result_error;
-                n = result_n;
 
                 if (error) {
                     isConnected = false;
@@ -64,9 +63,9 @@ void netClient::receive_async(std::function<void(std::string &rx_buffer)> callba
                 }
 
                 //SPDLOG_INFO("Received message is: {}", input_buffer_);
-                std::string line(input_buffer_.substr(0, n - 1));
+                std::string line(input_buffer_.substr(0, result_n - 1));
                 callback(line);
-                input_buffer_.erase(0, n);
+                input_buffer_.erase(0, result_n);
             });
 
     // Run the operation until it completes, or until the timeout.

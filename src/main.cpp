@@ -58,8 +58,8 @@ void event_stream_handler() {
     try {
         rema_instance.telemetry_client.receive_async([&rema_instance](auto &rx_buffer) {rema_instance.update_telemetry(rx_buffer); });
         struct telemetry ui_telemetry = rema_instance.telemetry;
-        Tool t = rema_instance.get_selected_tool();
-        ui_telemetry.coords = current_session.from_rema_to_ui(rema_instance.telemetry.coords, &t);
+        Tool tool = rema_instance.get_selected_tool();
+        ui_telemetry.coords = current_session.from_rema_to_ui(rema_instance.telemetry.coords, &tool);
         res["TELEMETRY"] = ui_telemetry;
 
         auto now = std::chrono::high_resolution_clock::now();
@@ -96,13 +96,13 @@ void event_stream_handler() {
                 sessions.end());
 
         const auto message = "data: " + nlohmann::to_string(res) + "\n\n";
-        for (auto session : sessions) {
+        for (const auto &session : sessions) {
             session->yield(message);
         }
     }
 }
 
-void get_HXs_method_handler(const shared_ptr<Session> session) {
+void get_HXs_method_handler(const shared_ptr<Session> &session) {
     const auto request = session->get_request();
 
     const string filename = request->get_path_parameter("filename");
@@ -137,7 +137,7 @@ void get_HXs_method_handler(const shared_ptr<Session> session) {
     }
 }
 
-void get_method_handler(const shared_ptr<Session> session) {
+void get_method_handler(const shared_ptr<Session> &session) {
     const auto request = session->get_request();
 
     const string filename = request->get_path_parameter("filename");
@@ -169,7 +169,7 @@ void get_method_handler(const shared_ptr<Session> session) {
     }
 }
 
-void post_rtu_method_handler(const shared_ptr<restbed::Session> session,
+void post_rtu_method_handler(const shared_ptr<restbed::Session> &session,
         REMA &rema) {
     const auto request = session->get_request();
 
@@ -208,12 +208,12 @@ void post_rtu_method_handler(const shared_ptr<restbed::Session> session,
 }
 
 void failed_filter_validation_handler(
-        const shared_ptr<restbed::Session> session) {
+        const shared_ptr<restbed::Session> &session) {
     const auto request = session->get_request();
     auto headers = request->get_headers();
     SPDLOG_WARN("Invalid: ");
-    for (auto h : headers) {
-        SPDLOG_WARN("{} - {}", h.first, h.second);
+    for (auto header : headers) {
+        SPDLOG_WARN("{} - {}", header.first, header.second);
     }
 
     session->close(400);

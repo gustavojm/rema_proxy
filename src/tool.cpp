@@ -9,20 +9,20 @@
 
 extern std::filesystem::path tools_dir;
 
-Tool::Tool(std::filesystem::path tool_file) {
-    std::ifstream i(tool_file);
+Tool::Tool(const std::filesystem::path &tool_file) {
+    std::ifstream i_file_stream(tool_file);
 
-    nlohmann::json j;
-    i >> j;
-    *this = j;
+    nlohmann::json json;
+    i_file_stream >> json;
+    *this = json;
     this->name = tool_file.filename().replace_extension();
 }
 
 void Tool::save_to_disk() const {
     std::filesystem::path tool_file = tools_dir / (name + std::string(".json"));
 
-    std::ofstream file(tool_file);
-    nlohmann::json j(*this);
-    j.erase("name");
-    file << j;
+    std::ofstream o_file_stream(tool_file);
+    nlohmann::json json(*this);
+    json.erase("name");
+    o_file_stream << json;
 }

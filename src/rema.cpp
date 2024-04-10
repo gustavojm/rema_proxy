@@ -3,11 +3,9 @@
 #include <algorithm>
 #include <csv.h>
 
-#include <iostream>
 #include <fstream>
 #include <string>
 #include <map>
-#include <csv.h>
 #include <json.hpp>
 #include <spdlog/spdlog.h>
 
@@ -49,7 +47,7 @@ void REMA::save_config() {
     file << config;
 }
 
-void REMA::connect(std::string rtu_host, std::string rtu_service) {
+void REMA::connect(const std::string &rtu_host, const std::string &rtu_service) {
     command_client.set_host(rtu_host);
     command_client.set_service(rtu_service);
 
@@ -80,7 +78,6 @@ void REMA::update_telemetry(std::string &stream) {
     } catch (std::exception &e) {
         SPDLOG_ERROR("TELEMETRY COMMUNICATIONS ERROR {}", e.what());
     }
-    return;
 }
 
 void REMA::set_home_xy(double x, double y) {
@@ -100,7 +97,7 @@ void REMA::set_home_z(double z) {
         }});
 }
 
-void REMA::execute_command(nlohmann::json command) {
+void REMA::execute_command(const nlohmann::json &command) {
     nlohmann::json to_rema;
     tpFSM.newCommand();
     to_rema["commands"].push_back(command);
@@ -111,7 +108,7 @@ void REMA::execute_command(nlohmann::json command) {
     command_client.receive_blocking();
 }
 
-void REMA::execute_command_no_wait(nlohmann::json command) {
+void REMA::execute_command_no_wait(const nlohmann::json &command) {
     nlohmann::json to_rema;
     tpFSM.newCommand();
     to_rema["commands"].push_back(command);
@@ -173,14 +170,14 @@ bool REMA::execute_sequence(std::vector<movement_cmd>& sequence) {
             }
         } while (!(stopped_on_probe || stopped_on_condition || cancel_sequence ));
 
-        if (cancel_sequence) {
+        if (!cancel_sequence) {
+            step.executed = true;
+            step.execution_results.coords = telemetry.coords;
+            step.execution_results.stopped_on_probe = stopped_on_probe;
+            step.execution_results.stopped_on_condition = stopped_on_condition;
+        } else {
             was_completed = false;
             break;
-        } else {
-                step.executed = true;
-                step.execution_results.coords = telemetry.coords;
-                step.execution_results.stopped_on_probe = stopped_on_probe;
-                step.execution_results.stopped_on_condition = stopped_on_condition;
         }
     }
     is_sequence_in_progress = false;

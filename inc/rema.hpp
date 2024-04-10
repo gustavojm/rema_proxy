@@ -86,7 +86,7 @@ public:
         tools.erase(tool);
     }
 
-    void connect(std::string rtu_host, std::string rtu_service);
+    void connect(const std::string &rtu_host, const std::string &rtu_service);
 
     void update_telemetry(std::string &stream);
 
@@ -105,11 +105,11 @@ public:
 
     void save_config();
 
-    void execute_command(nlohmann::json command);
+    void execute_command(const nlohmann::json &command);
 
-    void execute_command_no_wait(nlohmann::json command);
+    void execute_command_no_wait(const nlohmann::json &command);
 
-    void move_closed_loop(movement_cmd step);
+    void move_closed_loop(movement_cmd cmd);
 
     void axes_hard_stop_all();
 
@@ -121,7 +121,7 @@ public:
 
     void set_home_xy(double x, double y);
 
-    void set_home_z(double x);
+    void set_home_z(double z);
 
     bool loaded = false;
 

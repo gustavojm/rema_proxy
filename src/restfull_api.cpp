@@ -25,11 +25,11 @@ void close_rest_session(const std::shared_ptr<restbed::Session>& rest_session, i
     rest_session->close(status, "", { { "Content-Type", "text/html ; charset=utf-8" }, { "Content-Length", "0"} });
 }
 
-void close_rest_session(const std::shared_ptr<restbed::Session>& rest_session, int status, std::string res) {
+void close_rest_session(const std::shared_ptr<restbed::Session>& rest_session, int status, const std::string &res) {
     rest_session->close(status, res, { { "Content-Type", "text/html ; charset=utf-8" }, { "Content-Length", std::to_string(res.length())} });
 }
 
-void close_rest_session(const std::shared_ptr<restbed::Session>& rest_session, int status, nlohmann::json json_res) {
+void close_rest_session(const std::shared_ptr<restbed::Session>& rest_session, int status, const nlohmann::json &json_res) {
     std::string res = json_res.dump();
     rest_session->close(status, res, { { "Content-Type", "application/json ; charset=utf-8" }, { "Content-Length", std::to_string(res.length())} });
 }
@@ -42,9 +42,9 @@ struct ResourceEntry {
 /**
  * REMA related functions
  **/
-void REMA_connect(const std::shared_ptr<restbed::Session> rest_session) {
+void REMA_connect(const std::shared_ptr<restbed::Session> &rest_session) {
     std::string res;
-    int status;
+    int status = restbed::OK;
     try {
         REMA &rema_instance = REMA::get_instance();
         rema_instance.command_client.connect();
@@ -57,7 +57,7 @@ void REMA_connect(const std::shared_ptr<restbed::Session> rest_session) {
     close_rest_session(rest_session, status, res);
 }
 
-void REMA_info(const std::shared_ptr<restbed::Session> rest_session) {
+void REMA_info(const std::shared_ptr<restbed::Session> &rest_session) {
     nlohmann::json res = nlohmann::json(nlohmann::json::value_t::object);
     REMA &rema_instance = REMA::get_instance();
 
@@ -76,11 +76,11 @@ void REMA_info(const std::shared_ptr<restbed::Session> rest_session) {
 /**
  * HX related functions
  **/
-void HXs_list_(const std::shared_ptr<restbed::Session> rest_session) {
+void HXs_list_(const std::shared_ptr<restbed::Session> &rest_session) {
     close_rest_session(rest_session, restbed::OK, nlohmann::json(HXs_list()));
 }
 
-void HXs_tubesheet_load(const std::shared_ptr<restbed::Session> rest_session) {
+void HXs_tubesheet_load(const std::shared_ptr<restbed::Session> &rest_session) {
     close_rest_session(rest_session, restbed::OK,  nlohmann::json(current_session.tubes));
 }
 
@@ -88,7 +88,7 @@ void HXs_tubesheet_load(const std::shared_ptr<restbed::Session> rest_session) {
  * Inspection Plans related functions
  **/
 
-void inspection_plans(const std::shared_ptr<restbed::Session> rest_session) {
+void inspection_plans(const std::shared_ptr<restbed::Session> &rest_session) {
     const auto request = rest_session->get_request();
     std::string insp_plan = request->get_path_parameter("insp_plan", "");
 
@@ -103,12 +103,11 @@ void inspection_plans(const std::shared_ptr<restbed::Session> rest_session) {
 /**
  * Tools related functions
  **/
-void tools_list(const std::shared_ptr<restbed::Session> rest_session ) {
-    REMA &rema_instance = REMA::get_instance();
-    close_rest_session(rest_session, restbed::OK, rema_instance.tools);
+void tools_list(const std::shared_ptr<restbed::Session> &rest_session ) {
+    close_rest_session(rest_session, restbed::OK, REMA::tools);
 }
 
-void tools_create(const std::shared_ptr<restbed::Session> rest_session) {
+void tools_create(const std::shared_ptr<restbed::Session> &rest_session) {
     const auto request = rest_session->get_request();
     size_t content_length = request->get_header("Content-Length", 0);
     rest_session->fetch(content_length,
@@ -117,7 +116,7 @@ void tools_create(const std::shared_ptr<restbed::Session> rest_session) {
 
                 nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
                 std::string res;
-                int status;
+                int status = restbed::OK;
 
                 std::string tool_name = form_data["tool_name"];
                 if (tool_name.empty()) {
@@ -150,12 +149,12 @@ void tools_create(const std::shared_ptr<restbed::Session> rest_session) {
     });
 }
 
-void tools_delete(const std::shared_ptr<restbed::Session> rest_session) {
+void tools_delete(const std::shared_ptr<restbed::Session> &rest_session) {
     const auto request = rest_session->get_request();
     std::string tool_name = request->get_path_parameter("tool_name", "");
 
     std::string res;
-    int status;
+    int status = restbed::OK;
     try {
         REMA::delete_tool(tool_name);
         status = restbed::NO_CONTENT;
@@ -166,7 +165,7 @@ void tools_delete(const std::shared_ptr<restbed::Session> rest_session) {
     close_rest_session(rest_session, status, res);
 }
 
-void tools_select(const std::shared_ptr<restbed::Session> rest_session) {
+void tools_select(const std::shared_ptr<restbed::Session> &rest_session) {
     auto request = rest_session->get_request();
     std::string tool_name = request->get_path_parameter("tool_name", "");
     REMA &rema_instance = REMA::get_instance();
@@ -179,10 +178,10 @@ void tools_select(const std::shared_ptr<restbed::Session> rest_session) {
  * Inspection Sessions related functions
  **/
 
-void inspection_sessions_list(const std::shared_ptr<restbed::Session> rest_session) {
+void inspection_sessions_list(const std::shared_ptr<restbed::Session> &rest_session) {
     nlohmann::json res;
 
-    for (auto insp_session : InspectionSession::sessions_list()) {
+    for (auto &insp_session : InspectionSession::sessions_list()) {
         res.push_back({
             {"name", insp_session.name},
             {"hx", insp_session.hx },
@@ -203,7 +202,7 @@ void inspection_sessions_create(const std::shared_ptr<restbed::Session> rest_ses
 
                 nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
                 std::string res;
-                int status;
+                int status = restbed::OK;
                 std::string session_name = form_data["session_name"];
                 if (session_name.empty()) {
                     res += "No filename specified \n";
@@ -232,10 +231,10 @@ void inspection_sessions_create(const std::shared_ptr<restbed::Session> rest_ses
 }
 
 
-void inspection_sessions_load(const std::shared_ptr<restbed::Session> rest_session) {
+void inspection_sessions_load(const std::shared_ptr<restbed::Session> &rest_session) {
     auto request = rest_session->get_request();
     std::string session_name = request->get_path_parameter("session_name", "");
-    int status;
+    int status = restbed::OK;
     std::string res;
     if (!session_name.empty()) {
         try {
@@ -253,7 +252,7 @@ void inspection_sessions_load(const std::shared_ptr<restbed::Session> rest_sessi
     close_rest_session(rest_session, status, res);
 }
 
-void inspection_sessions_info(const std::shared_ptr<restbed::Session> rest_session) {
+void inspection_sessions_info(const std::shared_ptr<restbed::Session> &rest_session) {
     nlohmann::json res = nlohmann::json::object();
     if (current_session.is_loaded()) {
         res = current_session;
@@ -266,7 +265,7 @@ void inspection_sessions_info(const std::shared_ptr<restbed::Session> rest_sessi
     close_rest_session(rest_session, restbed::OK, res);
 }
 
-void inspection_sessions_delete(const std::shared_ptr<restbed::Session> rest_session) {
+void inspection_sessions_delete(const std::shared_ptr<restbed::Session> &rest_session) {
     auto request = rest_session->get_request();
     std::string session_name = request->get_path_parameter("session_name", "");
     try {
@@ -283,7 +282,7 @@ void inspection_sessions_delete(const std::shared_ptr<restbed::Session> rest_ses
  * Calibration Points related functions
  **/
 
-void cal_points_list(const std::shared_ptr<restbed::Session> rest_session) {
+void cal_points_list(const std::shared_ptr<restbed::Session> &rest_session) {
     close_rest_session(rest_session, restbed::OK, nlohmann::json(current_session.cal_points));
 }
 
@@ -298,7 +297,7 @@ void cal_points_add_update(const std::shared_ptr<restbed::Session> rest_session)
 
                 nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
                 std::string res;
-                int status;
+                int status = restbed::OK;
 
                 try {
                     Point3D ideal_coords = {
@@ -328,12 +327,12 @@ void cal_points_add_update(const std::shared_ptr<restbed::Session> rest_session)
 };
 
 
-void cal_points_delete(const std::shared_ptr<restbed::Session> rest_session) {
+void cal_points_delete(const std::shared_ptr<restbed::Session> &rest_session) {
     const auto request = rest_session->get_request();
     std::string tube_id = request->get_path_parameter("tube_id", "");
 
     std::string res;
-    int status;
+    int status = restbed::OK;
     if (tube_id.empty()) {
         res = "No tube specified";
         status = restbed::INTERNAL_SERVER_ERROR;
@@ -368,20 +367,20 @@ void tubes_set_status(const std::shared_ptr<restbed::Session> rest_session) {
     });
 }
 
-void axes_hard_stop_all(const std::shared_ptr<restbed::Session> rest_session) {
+void axes_hard_stop_all(const std::shared_ptr<restbed::Session> &rest_session) {
     REMA &rema_instance = REMA::get_instance();
     rema_instance.axes_hard_stop_all();
     close_rest_session(rest_session, restbed::OK);
 }
 
-void axes_soft_stop_all(const std::shared_ptr<restbed::Session> rest_session) {
+void axes_soft_stop_all(const std::shared_ptr<restbed::Session> &rest_session) {
     SPDLOG_INFO("Received soft stop");
     REMA &rema_instance = REMA::get_instance();
     rema_instance.axes_soft_stop_all();
     close_rest_session(rest_session, restbed::OK);
 }
 
-void go_to_tube(const std::shared_ptr<restbed::Session> rest_session) {
+void go_to_tube(const std::shared_ptr<restbed::Session> &rest_session) {
     REMA &rema_instance = REMA::get_instance();
     const auto request = rest_session->get_request();
     std::string tube_id = request->get_path_parameter("tube_id", "");
@@ -389,8 +388,8 @@ void go_to_tube(const std::shared_ptr<restbed::Session> rest_session) {
     nlohmann::json res;
 
     if (!tube_id.empty()) {
-        Tool t = rema_instance.get_selected_tool();
-        Point3D rema_coords = current_session.from_ui_to_rema(current_session.get_tube_coordinates(tube_id, false), &t);
+        Tool tool = rema_instance.get_selected_tool();
+        Point3D rema_coords = current_session.from_ui_to_rema(current_session.get_tube_coordinates(tube_id, false), &tool);
 
         movement_cmd goto_tube;
         goto_tube.axes = "XY";
@@ -405,7 +404,7 @@ void go_to_tube(const std::shared_ptr<restbed::Session> rest_session) {
     }
 }
 
-void move_free_run(const std::shared_ptr<restbed::Session> rest_session) {
+void move_free_run(const std::shared_ptr<restbed::Session> &rest_session) {
     REMA &rema_instance = REMA::get_instance();
     const auto request = rest_session->get_request();
     std::string dir = request->get_path_parameter("dir", "");
@@ -455,7 +454,7 @@ bool equals(double f1, double f2) {
 }
 
 
-void change_network_settings(const std::shared_ptr<restbed::Session> rest_session) {
+void change_network_settings(const std::shared_ptr<restbed::Session> &rest_session) {
     REMA &rema_instance = REMA::get_instance();
     nlohmann::json pars_obj;
     const auto request = rest_session->get_request();
@@ -496,7 +495,7 @@ void change_network_settings(const std::shared_ptr<restbed::Session> rest_sessio
 
 
 
-void move_incremental(const std::shared_ptr<restbed::Session> rest_session) {
+void move_incremental(const std::shared_ptr<restbed::Session> &rest_session) {
     REMA &rema_instance = REMA::get_instance();
     nlohmann::json pars_obj;
     const auto request = rest_session->get_request();
@@ -506,9 +505,9 @@ void move_incremental(const std::shared_ptr<restbed::Session> rest_session) {
                     const restbed::Bytes &body) {
         nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
 
-        double incremental_x = 0.0f;
-        double incremental_y = 0.0f;
-        double incremental_z = 0.0f;
+        double incremental_x = 0.0;
+        double incremental_y = 0.0;
+        double incremental_z = 0.0;
 
         if (form_data.contains("incremental_x")) {
             incremental_x = to_double(form_data["incremental_x"]);
@@ -540,40 +539,40 @@ void move_incremental(const std::shared_ptr<restbed::Session> rest_session) {
 }
 
 
-void set_home_xy(const std::shared_ptr<restbed::Session> rest_session) {
+void set_home_xy(const std::shared_ptr<restbed::Session> &rest_session) {
     REMA &rema_instance = REMA::get_instance();
-    Tool t = rema_instance.get_selected_tool();
+    Tool tool = rema_instance.get_selected_tool();
 
     const auto request = rest_session->get_request();
     std::string tube_id = request->get_path_parameter("tube_id", "");
     if (!tube_id.empty()) {
-        Point3D tube_coords = current_session.from_ui_to_rema(current_session.get_tube_coordinates(tube_id, true), &t);
+        Point3D tube_coords = current_session.from_ui_to_rema(current_session.get_tube_coordinates(tube_id, true), &tool);
         rema_instance.set_home_xy(tube_coords.x, tube_coords.y);
     } else {
-        Point3D zero_coords = current_session.from_ui_to_rema(Point3D() , &t);
+        Point3D zero_coords = current_session.from_ui_to_rema(Point3D() , &tool);
         rema_instance.set_home_xy(zero_coords.x, zero_coords.y);
     }
     close_rest_session(rest_session, restbed::OK);
 }
 
-void set_home_z(const std::shared_ptr<restbed::Session> rest_session) {
+void set_home_z(const std::shared_ptr<restbed::Session> &rest_session) {
     REMA &rema_instance = REMA::get_instance();
-    Tool t = rema_instance.get_selected_tool();
+    Tool tool = rema_instance.get_selected_tool();
 
     const auto request = rest_session->get_request();
-    double z = request->get_path_parameter("z", 0.0f);
+    double z = request->get_path_parameter("z", 0.0);
 
     nlohmann::json res;
 
-    double corrected_z = current_session.from_ui_to_rema(z) + t.offset.z;
+    double corrected_z = current_session.from_ui_to_rema(z) + tool.offset.z;
     rema_instance.set_home_z(corrected_z);
     close_rest_session(rest_session, restbed::OK, res);
 }
 
 
-void determine_tube_center(const std::shared_ptr<restbed::Session> rest_session) {
+void determine_tube_center(const std::shared_ptr<restbed::Session> &rest_session) {
     REMA &rema_instance = REMA::get_instance();
-    Tool t = rema_instance.get_selected_tool();
+    Tool tool = rema_instance.get_selected_tool();
     const auto request = rest_session->get_request();
     std::string tube_id = request->get_path_parameter("tube_id", "");
 
@@ -585,7 +584,7 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> rest_session)
         constexpr int points_number = 5;
         static_assert(points_number % 2 != 0, "Number of points must be odd");
         std::vector<Point3D> reordered_points;
-        std::vector<Point3D> points = calculateCirclePoints(current_session.from_ui_to_rema(current_session.get_tube_coordinates(tube_id, true), &t), tube_radius, points_number);
+        std::vector<Point3D> points = calculateCirclePoints(current_session.from_ui_to_rema(current_session.get_tube_coordinates(tube_id, true), &tool), tube_radius, points_number);
 
         int i = 0;
         for (int n = 0; n < points_number; n++) {
@@ -594,7 +593,7 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> rest_session)
         }
 
         std::vector<movement_cmd> seq;
-        for (auto point : reordered_points) {
+        for (auto &point : reordered_points) {
             movement_cmd step;
             step.axes = "XY";
             step.first_axis_setpoint = point.x;
@@ -612,24 +611,24 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> rest_session)
 
         std::vector<Point3D> tube_boundary_points;
 
-        for (auto step : seq) {
+        for (const auto &step : seq) {
             if (step.executed && (step.execution_results.stopped_on_probe || step.execution_results.stopped_on_condition)) {
                 tube_boundary_points.push_back(step.execution_results.coords);
             }
         }
         res["reached_coords"] = tube_boundary_points;
-        Circle c = CircleFitByHyper(tube_boundary_points);
+        Circle circle = CircleFitByHyper(tube_boundary_points);
         res["center"] = {
-                {"x", c.center.x - t.offset.x},
-                {"y", c.center.y - t.offset.y},
-                {"z", c.center.z}
+                {"x", circle.center.x - tool.offset.x},
+                {"y", circle.center.y - tool.offset.y},
+                {"z", circle.center.z}
         };
-        res["radius"] = c.radius;
+        res["radius"] = circle.radius;
 
         movement_cmd goto_center;
         goto_center.axes = "XY";
-        goto_center.first_axis_setpoint = c.center.x;
-        goto_center.second_axis_setpoint = c.center.y;
+        goto_center.first_axis_setpoint = circle.center.x;
+        goto_center.second_axis_setpoint = circle.center.y;
         goto_center.stop_on_probe = true;
         goto_center.stop_on_condition = true;
 
@@ -639,7 +638,7 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> rest_session)
     }
 }
 
-void determine_tubesheet_z(const std::shared_ptr<restbed::Session> rest_session) {
+void determine_tubesheet_z(const std::shared_ptr<restbed::Session> &rest_session) {
     REMA &rema_instance = REMA::get_instance();
 
     nlohmann::json res;
@@ -663,7 +662,7 @@ void determine_tubesheet_z(const std::shared_ptr<restbed::Session> rest_session)
 
     double sum_z = 0;
     int count = 0;
-    for (auto step : seq) {
+    for (const auto &step : seq) {
         if (step.executed && step.execution_results.stopped_on_condition) {  // average all the touches (ask for stopped_on_probe
             sum_z += step.execution_results.coords.z;
             count++;
@@ -685,7 +684,7 @@ void determine_tubesheet_z(const std::shared_ptr<restbed::Session> rest_session)
 
 }
 
-void aligned_tubesheet_get(const std::shared_ptr<restbed::Session> rest_session) {
+void aligned_tubesheet_get(const std::shared_ptr<restbed::Session> &rest_session) {
     close_rest_session(rest_session, restbed::OK, nlohmann::json(current_session.calculate_aligned_tubes()));
 }
 
@@ -741,8 +740,8 @@ void restfull_api_create_endpoints(restbed::Service &service) {
         //resource_rest->set_failed_filter_validation_handler(
         //        failed_filter_validation_handler);
 
-        for (ResourceEntry r : resources) {
-            resource_rest->set_method_handler(r.method, r.callback);
+        for (ResourceEntry &res : resources) {
+            resource_rest->set_method_handler(res.method, res.callback);
         }
         service.publish(resource_rest);
     }

@@ -50,21 +50,21 @@ class InspectionSession {
 public:
     InspectionSession();
 
-    explicit InspectionSession(std::string session_name, std::filesystem::path hx);
+    explicit InspectionSession(const std::string &session_name, const std::filesystem::path &hx);
 
-    explicit InspectionSession(std::filesystem::path inspection_session_file);
+    explicit InspectionSession(const std::filesystem::path &inspection_session_file);
 
     void process_csv();
 
     std::string load_plans();
 
-    std::map<std::string, struct InspectionPlanEntry> inspection_plan_get(std::string insp_plan);
+    std::map<std::string, struct InspectionPlanEntry> inspection_plan_get(const std::string &insp_plan);
 
-    void cal_points_add_update(std::string tube_id, std::string col, std::string row, Point3D ideal_coords, Point3D determined_coords);
+    void cal_points_add_update(const std::string &tube_id, const std::string &col, const std::string &row, Point3D &ideal_coords, Point3D &determined_coords);
 
-    void cal_points_delete(std::string id);
+    void cal_points_delete(const std::string &id);
 
-    Point3D get_tube_coordinates(std::string tube_id, bool ideal);
+    Point3D get_tube_coordinates(const std::string &tube_id, bool ideal);
 
     void generate_svg();
 
@@ -129,12 +129,12 @@ public:
         changed = status;
     }
 
-    void set_selected_plan(std::string plan);
+    void set_selected_plan(std::string &plan);
 
     std::string get_selected_plan() const;
 
-    void set_tube_inspected(std::string insp_plan,
-            std::string tube_id, bool state);
+    void set_tube_inspected(std::string &insp_plan,
+            std::string &tube_id, bool state);
 
     static void delete_session(std::string session_name) {
         std::filesystem::remove(insp_sessions_dir / (session_name + std::string(".json")));

@@ -7,14 +7,13 @@
 #include <string>
 #include <map>
 #include <csv.h>
-#include <spdlog/spdlog.h>
 
 #include "inspection-session.hpp"
 #include "svg.hpp"
 
 InspectionSession::InspectionSession() = default;
 
-InspectionSession::InspectionSession(std::filesystem::path inspection_session_file) {
+InspectionSession::InspectionSession(const std::filesystem::path &inspection_session_file) {
     load(inspection_session_file);
 }
 
@@ -56,8 +55,8 @@ void InspectionSession::process_csv() {
     calculate_aligned_tubes();
 }
 
-InspectionSession::InspectionSession(std::string session_name,
-        std::filesystem::path hx_path) : name(session_name),
+InspectionSession::InspectionSession(const std::string &session_name,
+        const std::filesystem::path &hx_path) : name(session_name),
         hx(hx_path) {
 
     hx_directory = std::filesystem::path("HXs");
@@ -73,7 +72,7 @@ InspectionSession::InspectionSession(std::string session_name,
             config_file >> config;
 
             leg = config.value("leg", "both");
-            tube_od = config.value("tube_od", 1.f);
+            tube_od = config.value("tube_od", 1.F);
             unit = config.value("unit", "inch");
             scale = (unit == "inch" ? 1 : 25.4);
         } else {
@@ -88,11 +87,11 @@ InspectionSession::InspectionSession(std::string session_name,
 
 bool InspectionSession::load(std::string session_name) {
     std::filesystem::path session_path = insp_sessions_dir / (session_name + std::string(".json"));
-    std::ifstream i(session_path);
+    std::ifstream i_file_stream(session_path);
 
-    nlohmann::json j;
-    i >> j;
-    *this = j;
+    nlohmann::json json;
+    i_file_stream >> json;
+    *this = json;
     this->loaded = true;
     this->name = session_name;
 
@@ -127,27 +126,27 @@ std::string InspectionSession::load_plans() {
     return out.str();
 }
 
-std::map<std::string, struct InspectionPlanEntry> InspectionSession::inspection_plan_get(std::string insp_plan) {
+std::map<std::string, InspectionPlanEntry> InspectionSession::inspection_plan_get(const std::string &insp_plan) {
     last_selected_plan = insp_plan;
 
     auto it = insp_plans.find(insp_plan);
     if (it != insp_plans.end()) {
         return it->second;
     } else  {
-        return std::map<std::string, struct InspectionPlanEntry>();
+        return std::map<std::string, InspectionPlanEntry>();
     }
 }
 
 void InspectionSession::save_to_disk() const {
     std::filesystem::path session_file = insp_sessions_dir / (name + std::string(".json"));
     std::ofstream file(session_file);
-    nlohmann::json j(*this);
-    j.erase("name");
-    j.erase("last_write_time");
-    file << j;
+    nlohmann::json json(*this);
+    json.erase("name");
+    json.erase("last_write_time");
+    file << json;
 }
 
-void InspectionSession::set_selected_plan(std::string plan) {
+void InspectionSession::set_selected_plan(std::string &plan) {
     last_selected_plan = plan;
     changed = true;
 }
@@ -156,14 +155,14 @@ std::string InspectionSession::get_selected_plan() const {
     return last_selected_plan;
 }
 
-void InspectionSession::set_tube_inspected(std::string insp_plan,
-        std::string tube_id, bool state) {
+void InspectionSession::set_tube_inspected(std::string &insp_plan,
+        std::string &tube_id, bool state) {
     insp_plans[insp_plan][tube_id].inspected = state;
     state ? total_tubes_inspected++ : total_tubes_inspected--;
     changed = true;
 }
 
-void InspectionSession::cal_points_add_update(std::string tube_id, std::string col, std::string row, Point3D ideal_coords, Point3D determined_coords)  {
+void InspectionSession::cal_points_add_update(const std::string &tube_id, const std::string &col, const std::string &row, Point3D &ideal_coords, Point3D &determined_coords)  {
     CalPointEntry cpe = {
             col,
             row,
@@ -175,12 +174,12 @@ void InspectionSession::cal_points_add_update(std::string tube_id, std::string c
     changed = true;
 }
 
-void InspectionSession::cal_points_delete(std::string tube_id)  {
+void InspectionSession::cal_points_delete(const std::string &tube_id)  {
     cal_points.erase(tube_id);
     changed = true;
 }
 
-Point3D InspectionSession::get_tube_coordinates(std::string tube_id, bool ideal = true) {
+Point3D InspectionSession::get_tube_coordinates(const std::string &tube_id, bool ideal = true) {
     if (ideal) {
         return tubes.at(tube_id).coords;
     } else {
@@ -208,10 +207,10 @@ void InspectionSession::generate_svg() {
             nlohmann::json config;
             config_file >> config;
 
-            min_x = config.value("min_x", 0.0f);        
-            min_y = config.value("min_y", 0.0f);
-            width = config.value("width", 0.0f);
-            height = config.value("height", 0.f);
+            min_x = config.value("min_x", 0.0F);        
+            min_y = config.value("min_y", 0.0F);
+            width = config.value("width", 0.0F);
+            height = config.value("height", 0.0F);
             font_size = config.value("font_size", "0.25");   // Number font size in px  
             x_labels_param = config.value("x_labels", "0");  // Where to locate x axis labels, can use several coords separated by space
             y_labels_param = config.value("y_labels", "0");  // Where to locate y axis labels, can use several coords separated by space
@@ -229,7 +228,7 @@ void InspectionSession::generate_svg() {
     // Create the SVG document
     rapidxml::xml_document<char> document;
     rapidxml::xml_document<char> *doc = &document;
-    auto svg_node = doc->allocate_node(rapidxml::node_element, "svg");
+    auto *svg_node = doc->allocate_node(rapidxml::node_element, "svg");
 
     append_attributes(doc, svg_node,
             { { "xmlns", "http://www.w3.org/2000/svg" }, { "version", "1.1" },
@@ -238,7 +237,7 @@ void InspectionSession::generate_svg() {
                     + " " + std::to_string(min_y) + " " + std::to_string(width)
                     + " " + std::to_string(height) }, });
 
-    auto style_node = doc->allocate_node(rapidxml::node_element, "style");
+    auto *style_node = doc->allocate_node(rapidxml::node_element, "style");
     append_attributes(doc, style_node, { { "type", "text/css" } });
 
     float stroke_width = stof(font_size) / 10;
@@ -255,20 +254,20 @@ void InspectionSession::generate_svg() {
     svg_node->append_node(style_node);
     doc->append_node(svg_node);
 
-    auto cartesian_g_node = doc->allocate_node(rapidxml::node_element, "g");
+    auto *cartesian_g_node = doc->allocate_node(rapidxml::node_element, "g");
     append_attributes(doc, cartesian_g_node, { { "id", "cartesian" },
             { "transform", "scale(1,-1)" } }
     );
     svg_node->append_node(cartesian_g_node);
 
-    auto x_axis = add_dashed_line(doc, 0, min_y, 0, min_y + height, stof(font_size));
-    auto y_axis = add_dashed_line(doc, min_x, 0, min_x + width, 0, stof(font_size));
+    auto *x_axis = add_dashed_line(doc, 0, min_y, 0, min_y + height, stof(font_size));
+    auto *y_axis = add_dashed_line(doc, min_x, 0, min_x + width, 0, stof(font_size));
     cartesian_g_node->append_node(x_axis);
     cartesian_g_node->append_node(y_axis);
 
-    for (auto config_coord : config_x_labels_coords) {
+    for (const auto &config_coord : config_x_labels_coords) {
         for (auto [label, coord] : svg.x_labels) {
-            auto label_x = add_label(doc, coord,
+            auto *label_x = add_label(doc, coord,
                     std::stof(config_coord), label.c_str());
             append_attributes(doc, label_x,
                       { { "transform-origin", std::to_string(coord) + " " + config_coord },
@@ -278,9 +277,9 @@ void InspectionSession::generate_svg() {
         }
     }
 
-    for (auto config_coord : config_y_labels_coords) {
+    for (const auto &config_coord : config_y_labels_coords) {
         for (auto [label, coord] : svg.y_labels) {
-            auto label_y = add_label(doc, std::stof(config_coord),
+            auto *label_y = add_label(doc, std::stof(config_coord),
                     coord, label.c_str());
             append_attributes(doc, label_y,
                     { { "transform-origin", config_coord + " " + std::to_string(coord) },
@@ -294,7 +293,7 @@ void InspectionSession::generate_svg() {
     for (const auto &tube_pair : tubes) {
         auto tube = tube_pair.second;
 
-        auto tube_node = add_tube(doc, tube, tube_pair.first, tube_r);
+        auto *tube_node = add_tube(doc, tube, tube_pair.first, tube_r);
         cartesian_g_node->append_node(tube_node);
     }
 
@@ -323,12 +322,12 @@ std::map<std::string, Point3D>& InspectionSession::calculate_aligned_tubes() {
     open3d::geometry::PointCloud target_cloud;
 
     int used_points = 0;
-    for (auto cal_point: cal_points) {
+    for (const auto &cal_point: cal_points) {
         if (cal_point.second.determined) {
-            source_cloud.points_.push_back(
+            source_cloud.points_.emplace_back(
                     Eigen::Vector3d(cal_point.second.ideal_coords.x, cal_point.second.ideal_coords.y, cal_point.second.ideal_coords.z));
 
-            target_cloud.points_.push_back(
+            target_cloud.points_.emplace_back(
                     Eigen::Vector3d(cal_point.second.determined_coords.x, cal_point.second.determined_coords.y, cal_point.second.determined_coords.z));
             used_points++;
         }
