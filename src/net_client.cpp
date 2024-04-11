@@ -83,13 +83,13 @@ std::string netClient::receive_blocking() {
     // than a lambda.
     std::lock_guard<std::mutex> lock(mtx);
     boost::system::error_code error;
-    std::size_t n = 0;
+    std::size_t bytes_transferred = 0;
     boost::asio::async_read_until(socket_,
             boost::asio::dynamic_buffer(input_buffer_), '\0',
             [&](const boost::system::error_code &result_error,
                     std::size_t result_n) {
                 error = result_error;
-                n = result_n;
+                bytes_transferred = result_n;
             });
 
     // Run the operation until it completes, or until the timeout.
@@ -101,8 +101,8 @@ std::string netClient::receive_blocking() {
         throw std::system_error(error);
     }
 
-    std::string line(input_buffer_.substr(0, n - 1));
-    input_buffer_.erase(0, n);
+    std::string line(input_buffer_.substr(0, bytes_transferred - 1));
+    input_buffer_.erase(0, bytes_transferred);
     return line;
 }
 

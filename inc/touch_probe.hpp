@@ -19,7 +19,7 @@ enum class State {
 
 class TouchProbeFSM {
 public:
-    TouchProbeFSM() : currentState(State::Idle), debounceCount(0) {}
+    TouchProbeFSM() noexcept: currentState(State::Idle), debounceCount(0) {}
 
     void process(bool touch_probe) {
         switch (currentState) {

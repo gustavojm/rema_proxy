@@ -26,7 +26,7 @@
 
 InspectionSession current_session;
 
-vector<shared_ptr<restbed::Session>> sessions;
+vector<shared_ptr<restbed::Session>> sse_sessions;
 
 using namespace std::chrono_literals;
 TouchProbeFSM tpFSM;
@@ -36,15 +36,15 @@ std::map<std::string, std::string> mime_types = { { ".jpg", "image/jpg" }, {
         { ".css", "text/css" }, { ".js", "text/javascript" }, { ".ico",
                 "image/x-icon" } };
 
-void register_event_source_handler(const shared_ptr<restbed::Session> session) {
+void register_event_source_handler(const shared_ptr<restbed::Session> &session) {
     const auto headers = multimap<string, string> {
             { "Connection", "keep-alive" }, { "Cache-Control", "no-cache" }, {
                     "Content-Type", "text/event-stream" }, {
                     "Access-Control-Allow-Origin", "*" } //Only required for demo purposes.
     };
 
-    session->yield(OK, headers, [](const shared_ptr<restbed::Session> session_ptr) {
-        sessions.push_back(session_ptr);
+    session->yield(OK, headers, [](const shared_ptr<restbed::Session> &session_ptr) {
+        sse_sessions.push_back(session_ptr);
     });
 }
 
@@ -88,15 +88,15 @@ void event_stream_handler() {
     }
 
     if (!res.empty()) {
-        sessions.erase(
-                std::remove_if(sessions.begin(), sessions.end(),
+        sse_sessions.erase(
+                std::remove_if(sse_sessions.begin(), sse_sessions.end(),
                         [](const shared_ptr<Session> &session_ptr) {
                             return session_ptr->is_closed();
                         }),
-                sessions.end());
+                sse_sessions.end());
 
         const auto message = "data: " + nlohmann::to_string(res) + "\n\n";
-        for (const auto &session : sessions) {
+        for (const auto &session : sse_sessions) {
             session->yield(message);
         }
     }
@@ -112,15 +112,15 @@ void get_HXs_method_handler(const shared_ptr<Session> &session) {
         path.erase(path.begin());
     }
 
-    std::filesystem::path f { path };
-    ifstream stream(f, ifstream::in);
+    std::filesystem::path file_path { path };
+    ifstream stream(file_path, ifstream::in);
 
     if (stream.is_open()) {
         const string body = string(istreambuf_iterator<char>(stream),
                 istreambuf_iterator<char>());
 
         std::string content_type;
-        std::string ext = f.filename().extension();
+        std::string ext = file_path.filename().extension();
         if (auto elem = mime_types.find(ext); elem != mime_types.end()) {
             content_type = (*elem).second;
         } else {
@@ -142,17 +142,17 @@ void get_method_handler(const shared_ptr<Session> &session) {
 
     const string filename = request->get_path_parameter("filename");
 
-    std::filesystem::path f { "./wwwroot/"
+    std::filesystem::path file_path { "./wwwroot/"
             + request->get_path().substr(std::string("/static/").length()) };
 
-    ifstream stream(f, ifstream::in);
+    ifstream stream(file_path, ifstream::in);
 
     if (stream.is_open()) {
         const string body = string(istreambuf_iterator<char>(stream),
                 istreambuf_iterator<char>());
 
         std::string content_type;
-        std::string ext = f.filename().extension();
+        std::string ext = file_path.filename().extension();
         if (auto elem = mime_types.find(ext); elem != mime_types.end()) {
             content_type = (*elem).second;
         } else {
@@ -232,15 +232,13 @@ int main(const int, const char**) {
 
     rema_instance.connect(rtu_host, rtu_service);
 
-    using namespace std::placeholders;
-    auto post_rtu_method_handler_bound = std::bind(post_rtu_method_handler,
-            _1, std::ref(rema_instance)); // std::bind always passes by value unles std::ref
-
     auto resource_rtu = make_shared<restbed::Resource>();
     resource_rtu->set_path("/REMA");
     resource_rtu->set_failed_filter_validation_handler(
             failed_filter_validation_handler);
-    resource_rtu->set_method_handler("POST", post_rtu_method_handler_bound);
+    resource_rtu->set_method_handler("POST", [&rema_instance](const std::shared_ptr<restbed::Session> &session) {
+        post_rtu_method_handler(session, rema_instance);
+    });
 
     auto resource_html_file = make_shared<restbed::Resource>();
 

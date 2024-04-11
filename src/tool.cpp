@@ -7,7 +7,7 @@
 #include "rema.hpp"
 #include "tool.hpp"
 
-extern std::filesystem::path tools_dir;
+extern const std::filesystem::path tools_dir;
 
 Tool::Tool(const std::filesystem::path &tool_file) {
     std::ifstream i_file_stream(tool_file);

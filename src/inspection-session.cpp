@@ -11,7 +11,7 @@
 #include "inspection-session.hpp"
 #include "svg.hpp"
 
-InspectionSession::InspectionSession() = default;
+InspectionSession::InspectionSession() noexcept = default;
 
 InspectionSession::InspectionSession(const std::filesystem::path &inspection_session_file) {
     load(inspection_session_file);
@@ -133,7 +133,7 @@ std::map<std::string, InspectionPlanEntry> InspectionSession::inspection_plan_ge
     if (it != insp_plans.end()) {
         return it->second;
     } else  {
-        return std::map<std::string, InspectionPlanEntry>();
+        return {};
     }
 }
 

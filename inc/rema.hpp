@@ -11,10 +11,9 @@
 #include "points.hpp"
 #include "inspection-session.hpp"
 
-static inline std::filesystem::path config_file_path = "config.json";
-
-static inline std::filesystem::path rema_dir = std::filesystem::path("rema");
-static inline std::filesystem::path tools_dir = rema_dir / "tools";
+extern const std::filesystem::path config_file_path;
+extern const std::filesystem::path rema_dir;
+extern const std::filesystem::path tools_dir;
 
 struct temps {
     double x, y, z;

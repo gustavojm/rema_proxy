@@ -23,7 +23,8 @@ static inline std::filesystem::path insp_sessions_dir = std::filesystem::path(
 class InspectionPlanEntry {
 public:
     int seq;
-    std::string row, col;
+    std::string row; 
+    std::string col;
     bool inspected;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(InspectionPlanEntry, seq, row, col, inspected)
@@ -48,7 +49,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(TubeEntry, x_label, y_label, coords)
 
 class InspectionSession {
 public:
-    InspectionSession();
+    InspectionSession() noexcept;
 
     explicit InspectionSession(const std::string &session_name, const std::filesystem::path &hx);
 

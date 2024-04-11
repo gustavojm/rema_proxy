@@ -586,10 +586,10 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> &rest_session
         std::vector<Point3D> reordered_points;
         std::vector<Point3D> points = calculateCirclePoints(current_session.from_ui_to_rema(current_session.get_tube_coordinates(tube_id, true), &tool), tube_radius, points_number);
 
-        int i = 0;
+        int vertex = 0;
         for (int n = 0; n < points_number; n++) {
-            reordered_points.push_back(points[i % points_number]);
-            i += 2;
+            reordered_points.push_back(points[vertex % points_number]);
+            vertex += 2;
         }
 
         std::vector<movement_cmd> seq;

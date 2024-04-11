@@ -16,6 +16,10 @@
 
 extern TouchProbeFSM tpFSM;
 
+const inline std::filesystem::path config_file_path = "config.json";
+const inline std::filesystem::path rema_dir = std::filesystem::path("rema");
+const inline std::filesystem::path tools_dir = rema_dir / "tools";
+
 std::map<std::string, Tool> REMA::tools;
 
 void REMA::cancel_sequence_in_progress() {
