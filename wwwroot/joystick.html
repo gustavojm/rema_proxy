@@ -29,7 +29,7 @@
 					<div class="row">
 						<div class="joystick-limit-vertical off" data-limit="left"></div>
 						<img alt="" src="images/left.png" class="joystick-arrow left" data-dir="left"> 
-						<img alt="" src="images/h.png" class="joystick-arrow" data-dir="none" id="home_xy"> 
+						<img alt="" src="images/h.png" class="joystick-arrow-home" data-dir="none" id="home_xy"> 
 						<img alt="" src="images/right.png" class="joystick-arrow rigth" data-dir="right">
 						<div class="joystick-limit-vertical off" data-limit="right"></div>
 					</div>
@@ -57,7 +57,7 @@
 						<img alt="" src="images/z_up.png" class="joystick-arrow"
 							data-dir="z_in">
 					</div>
-					<img alt="" src="images/h.png" class="joystick-arrow"
+					<img alt="" src="images/h.png" class="joystick-arrow-home"
 						data-dir="none" id="home_z">
 					<div class="row">
 						<img alt="" src="images/z_down.png" class="joystick-arrow"
@@ -329,6 +329,28 @@
 		
 		
 	});
+
+// $(document).keydown(function(e){
+// 	console.log(e.which);
+//     switch(e.which) {
+//         case 71:
+// 			$("#go_button").trigger("click");
+//         	break;
+// 		case 72:
+// 			tube_id = $("#tube_info_id").val() || "";
+// 			set_home_xy(tube_id);
+//         	break;
+
+// 		default:
+// 			return true;
+
+//     }
+
+//     // prevent default action (eg. page moving up/down)
+//     // but consider accessibility (eg. user may want to use keys to choose a radio button)
+//     e.preventDefault();
+// });
+
 </script>
 
 </html>
