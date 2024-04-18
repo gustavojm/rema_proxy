@@ -74,6 +74,15 @@ find_package(OpenSSL REQUIRED)
 # Find spdlog package
 find_package(spdlog REQUIRED)
 
+# Add restbed library path (change this path to where your library is located)
+set(RESTBED_DIR "/usr/local")
+
+# Find restbed library
+find_library(RESTBED_LIB librestbed.a PATHS ${RESTBED_DIR}/lib)
+
+# Include restbed headers
+include_directories(${RESTBED_DIR}/include)
+
 target_include_directories(${PROJECT_NAME} PRIVATE
                               ${Open3D_INCLUDE_DIRS}
                               ${Boost_INCLUDE_DIRS}
@@ -86,7 +95,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
                           Boost::program_options
                           spdlog::spdlog
                           ssl          
-                          restbed
+                          ${RESTBED_LIB}
                           ${OPENSSL_CRYPTO_LIBRARY} 
                           ${OPENSSL_SSL_LIBRARY}
                      )

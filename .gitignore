@@ -5,6 +5,7 @@ Debug/*
 CMakeCache.*
 CMakeFiles/*
 [Tt]esting/*
+*.deb
 
 ### VisualStudioCode ###
 #.vscode/*

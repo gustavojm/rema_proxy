@@ -107,13 +107,12 @@ void tools_list(const std::shared_ptr<restbed::Session> &rest_session ) {
     close_rest_session(rest_session, restbed::OK, REMA::tools);
 }
 
-void tools_create(const std::shared_ptr<restbed::Session> &rest_session) {
+void tools_create(const std::shared_ptr<restbed::Session> rest_session) {
     const auto request = rest_session->get_request();
     size_t content_length = request->get_header("Content-Length", 0);
     rest_session->fetch(content_length,
             [&]([[maybe_unused]]const std::shared_ptr<restbed::Session> &session_ptr,
                     const restbed::Bytes &body) {
-
                 nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
                 std::string res;
                 int status = restbed::OK;
@@ -130,12 +129,12 @@ void tools_create(const std::shared_ptr<restbed::Session> &rest_session) {
                         double offset_x = to_double(form_data.value("offset_x", "0"));
                         double offset_y = to_double(form_data.value("offset_y", "0"));
                         double offset_z = to_double(form_data.value("offset_z", "0"));
-
                         Tool new_tool(tool_name, {offset_x, offset_y, offset_z});
                         new_tool.save_to_disk();
                         REMA::add_tool(new_tool);
                         res = "Tool created Successfully";
                         status = restbed::CREATED;
+
                     }
                 } catch (const std::invalid_argument &e) {
                     res += "Offsets wrong";
@@ -145,8 +144,9 @@ void tools_create(const std::shared_ptr<restbed::Session> &rest_session) {
                         res = e.what();
                         status = restbed::INTERNAL_SERVER_ERROR;
                 }
-                close_rest_session(rest_session, status, res);
-    });
+                close_rest_session(session_ptr, status, res);
+            }
+    );
 }
 
 void tools_delete(const std::shared_ptr<restbed::Session> &rest_session) {
@@ -193,7 +193,7 @@ void inspection_sessions_list(const std::shared_ptr<restbed::Session> &rest_sess
     close_rest_session(rest_session, restbed::OK, res);
 }
 
-void inspection_sessions_create(const std::shared_ptr<restbed::Session> rest_session) {
+void inspection_sessions_create(const std::shared_ptr<restbed::Session> &rest_session) {
     const auto request = rest_session->get_request();
     size_t content_length = request->get_header("Content-Length", 0);
     rest_session->fetch(content_length,
@@ -226,7 +226,7 @@ void inspection_sessions_create(const std::shared_ptr<restbed::Session> rest_ses
                     res += "Error creating InspectionSession \n";
                     status = restbed::INTERNAL_SERVER_ERROR;
                 }
-                close_rest_session(rest_session, status, res);
+                close_rest_session(session_ptr, status, res);
     });
 }
 
@@ -322,7 +322,7 @@ void cal_points_add_update(const std::shared_ptr<restbed::Session> rest_session)
                     res += e.what();
                     status = restbed::INTERNAL_SERVER_ERROR;
                 }
-                close_rest_session(rest_session, status, res);
+                close_rest_session(session_ptr, status, res);
     });
 };
 
@@ -363,7 +363,7 @@ void tubes_set_status(const std::shared_ptr<restbed::Session> rest_session) {
                 current_session.set_tube_inspected(insp_plan, tube_id, checked);
                 nlohmann::json res = nlohmann::json::object();
                 res[tube_id] = checked;
-                close_rest_session(rest_session, restbed::OK, res);
+                close_rest_session(session_ptr, restbed::OK, res);
     });
 }
 
@@ -489,52 +489,49 @@ void change_network_settings(const std::shared_ptr<restbed::Session> &rest_sessi
                 }
             }
         }                
-        close_rest_session(rest_session, restbed::OK);              
+        close_rest_session(session_ptr, restbed::OK);              
     });
 }
 
 
 
 void move_incremental(const std::shared_ptr<restbed::Session> &rest_session) {
-    REMA &rema_instance = REMA::get_instance();
-    nlohmann::json pars_obj;
+    REMA &rema_instance = REMA::get_instance();    
     const auto request = rest_session->get_request();
-    size_t content_length = request->get_header("Content-Length", 0);
+    size_t content_length = request->get_header("Content-Length", 0);    
     rest_session->fetch(content_length,
             [&]([[maybe_unused]]const std::shared_ptr<restbed::Session> &session_ptr,
                     const restbed::Bytes &body) {
-        nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
-
-        double incremental_x = 0.0;
-        double incremental_y = 0.0;
-        double incremental_z = 0.0;
-
-        if (form_data.contains("incremental_x")) {
-            incremental_x = to_double(form_data["incremental_x"]);
-            if (!equals(incremental_x, 0)) {
-                pars_obj["axes"] = "XY";
-                pars_obj["first_axis_delta"] = current_session.from_ui_to_rema(incremental_x);
-            }
-        }
-
-        if (form_data.contains("incremental_y")) {
-            incremental_y = to_double(form_data["incremental_y"]);
-            if (!equals(incremental_y, 0)) {
-                pars_obj["axes"] = "XY";
-                pars_obj["second_axis_delta"] = current_session.from_ui_to_rema(incremental_y);
-            }
-        }
-
-        if (form_data.contains("incremental_z")) {
-            incremental_z = to_double(form_data["incremental_z"]);
-            if (!equals(incremental_z, 0)) {
-                pars_obj["axes"] = "Z";
-                pars_obj["first_axis_delta"] = current_session.from_ui_to_rema(incremental_z);
-            }
-        }
-        rema_instance.axes_soft_stop_all();
-        rema_instance.execute_command({{"command", "MOVE_INCREMENTAL"}, {"pars", pars_obj}});
-        close_rest_session(rest_session, restbed::OK);
+                        std::string s(body.begin(), body.end());
+                nlohmann::json pars_obj;
+                nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
+                double incremental_x = 0.0;
+                double incremental_y = 0.0;
+                double incremental_z = 0.0;
+                if (form_data.contains("incremental_x")) {
+                    incremental_x = to_double(form_data["incremental_x"]);
+                    if (!equals(incremental_x, 0)) {
+                        pars_obj["axes"] = "XY";
+                        pars_obj["first_axis_delta"] = current_session.from_ui_to_rema(incremental_x);
+                    }
+                }
+                if (form_data.contains("incremental_y")) {
+                    incremental_y = to_double(form_data["incremental_y"]);
+                    if (!equals(incremental_y, 0)) {
+                        pars_obj["axes"] = "XY";
+                        pars_obj["second_axis_delta"] = current_session.from_ui_to_rema(incremental_y);
+                    }
+                }
+                if (form_data.contains("incremental_z")) {
+                    incremental_z = to_double(form_data["incremental_z"]);
+                    if (!equals(incremental_z, 0)) {
+                        pars_obj["axes"] = "Z";
+                        pars_obj["first_axis_delta"] = current_session.from_ui_to_rema(incremental_z);
+                    }
+                }
+                rema_instance.axes_soft_stop_all();
+                rema_instance.execute_command({{"command", "MOVE_INCREMENTAL"}, {"pars", pars_obj}});
+                close_rest_session(session_ptr, restbed::OK);
     });
 }
 

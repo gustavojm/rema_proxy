@@ -76,11 +76,11 @@ public:
         return instance;
     }
 
-    static void add_tool(Tool tool) {
+    static void add_tool(const Tool &tool) {
         tools[tool.name] = tool;
     }
 
-    static void delete_tool(std::string tool) {
+    static void delete_tool(const std::string &tool) {
         std::filesystem::remove(tools_dir / (tool + std::string(".json")));
         tools.erase(tool);
     }
@@ -97,16 +97,19 @@ public:
     }
 
     Tool get_selected_tool() const {
-        return tools.at(last_selected_tool);
+        if (tools.find(last_selected_tool) != tools.end()) {
+            return tools.at(last_selected_tool);
+        }
+        return {};
     }
 
     void load_config();
 
     void save_config();
 
-    void execute_command(const nlohmann::json &command);
+    void execute_command(const nlohmann::json command);
 
-    void execute_command_no_wait(const nlohmann::json &command);
+    void execute_command_no_wait(const nlohmann::json command);
 
     void move_closed_loop(movement_cmd cmd);
 
