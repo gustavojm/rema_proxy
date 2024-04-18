@@ -1,0 +1,21 @@
+-s dir
+--name rema-proxy
+--license agpl3
+--version 1.0
+--architecture all
+--depends libspdlog-dev
+--depends libssl-dev
+--depends libopen3d-dev
+--description "REMA Web Interface Proxy Server"
+--url "https://github.com/gustavojm/rema_proxy"
+--maintainer "Gustavo J. Malano <gmalano@na-sa.com.ar>"
+
+build/bin/Debug/REMA_Proxy=./rema_proxy/bin/REMA_Proxy
+config.json=./rema_proxy/config.json
+rema/=./rema_proxy/rema/
+wwwroot/=./rema_proxy/wwwroot/
+HXs/=./rema_proxy/HXs/
+empty_folder/=./rema_proxy/insp_sessions/
+
+
+
