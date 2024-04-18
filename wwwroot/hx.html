@@ -15,6 +15,10 @@
 <script type="text/javascript" src="js/dataTables.scroller.min.js"></script>
 <script type="text/javascript" src="js/rcswitcher.js"></script>
 
+<style>
+	#insp_plan_table > tbody >	tr { height: 27px; }
+</style>
+
 <div id="hx_tab"
 	style="overflow: visible; height: 92%; width: 100%; float: left; position: relative;">
 
@@ -344,8 +348,9 @@
 		 			    
 		 			    padding_x = (objDiv.scrollWidth - (box.width * factor));
 		 			   	padding_y = (objDiv.scrollHeight - (box.height * factor));
+
 			 		    objDiv.scrollLeft = ((objDiv.scrollWidth - padding_x - objDiv.clientWidth) * (percentage_x)) + (padding_x / 2);
-		   			    objDiv.scrollTop = ((objDiv.scrollHeight - padding_y - objDiv.clientHeight) * ( 1 - percentage_y)) + (padding_y / 2);
+						objDiv.scrollTop = ((objDiv.scrollHeight - padding_y - objDiv.clientHeight) * (0.5 - percentage_y)) + (padding_y / 2);
 			 		}
 				} else {
 					// allways goes to the middle of the SVG
@@ -519,7 +524,7 @@
 							sScrollY : "550px",
 							//sScrollY : "calc(100% - 380px)",
 							scroller: {
-						        rowHeight: 28
+						        rowHeight: 27
 						    },
 							scrollX : true,						
 							//paging: false,							
