@@ -8,7 +8,7 @@
 <script type="text/javascript" src="js/ajaxqueue.js"></script>
 </head>
 <body>
-	<div id="outer">
+	<div id="outer" tabindex="0" style="outline: none">		<!--tabindex="0" outline: none to make the div selectable and receive keydown-->
 		<div id="up"
 			style="display: flex; justify-content: center; align-items: center;">
 			<div id="left"
@@ -21,23 +21,23 @@
 					</div>
 					<div class="row">
 						<div class="joystick-limit-vertical" data-limit="none"></div>
-						<img alt="" src="images/up_left.png" class="joystick-arrow up left" data-dir="up_left"> 
-						<img alt="" src="images/up.png" class="joystick-arrow up" data-dir="up"> 
-						<img alt="" src="images/up_right.png" class="joystick-arrow up right" data-dir="up_right">
+						<img alt="" src="images/up_left.png" class="joystick-arrow up left" data-dir="up_left" title="KeyPad 7"> 
+						<img alt="" src="images/up.png" class="joystick-arrow up" data-dir="up" title="KeyPad 8"> 
+						<img alt="" src="images/up_right.png" class="joystick-arrow up right" data-dir="up_right" title="KeyPad 9">
 						<div class="joystick-limit-vertical" data-limit="none"></div>
 					</div>
 					<div class="row">
 						<div class="joystick-limit-vertical off" data-limit="left"></div>
-						<img alt="" src="images/left.png" class="joystick-arrow left" data-dir="left"> 
-						<img alt="" src="images/h.png" class="joystick-arrow-home" data-dir="none" id="home_xy"> 
-						<img alt="" src="images/right.png" class="joystick-arrow rigth" data-dir="right">
+						<img alt="" src="images/left.png" class="joystick-arrow left" data-dir="left" title="KeyPad 4"> 
+						<img alt="" src="images/h.png" class="joystick-arrow-home" data-dir="none" id="home_xy" title="KeyPad 5"> 
+						<img alt="" src="images/right.png" class="joystick-arrow rigth" data-dir="right" title="KeyPad 6">
 						<div class="joystick-limit-vertical off" data-limit="right"></div>
 					</div>
 					<div class="row">
 						<div class="joystick-limit-vertical" data-limit="none"></div>
-						<img alt="" src="images/down_left.png" class="joystick-arrow down left" data-dir="down_left"> 
-						<img alt="" src="images/down.png" class="joystick-arrow down" data-dir="down"> 
-						<img alt="" src="images/down_right.png" class="joystick-arrow down right" data-dir="down_right">
+						<img alt="" src="images/down_left.png" class="joystick-arrow down left" data-dir="down_left" title="KeyPad 1"> 
+						<img alt="" src="images/down.png" class="joystick-arrow down" data-dir="down" title="KeyPad 2"> 
+						<img alt="" src="images/down_right.png" class="joystick-arrow down right" data-dir="down_right" title="KeyPad 3">
 						<div class="joystick-limit-vertical" data-limit="none"></div>
 					</div>
 					<div class="row">
@@ -55,13 +55,13 @@
 					</div>
 					<div class="row">
 						<img alt="" src="images/z_up.png" class="joystick-arrow"
-							data-dir="z_in">
+							data-dir="z_in" title="KeyPad +">
 					</div>
 					<img alt="" src="images/h.png" class="joystick-arrow-home"
-						data-dir="none" id="home_z">
+						data-dir="none" id="home_z" title="Z"">
 					<div class="row">
 						<img alt="" src="images/z_down.png" class="joystick-arrow"
-							data-dir="z_out">
+							data-dir="z_out" title="KeyPad -">
 					</div>
 					<div class="row">
 						<div class="joystick-limit-horizontal off" data-limit="out"></div>
@@ -77,7 +77,7 @@
 			<div style="float: left; padding: 15px;">
 				<div style="text-align: center;">
 					<div style="padding-top: 5px;">
-							<img alt="" src="images/stop_red.png" class="emergency-stop" id="emergency_stop">
+							<img alt="" src="images/stop_red.png" class="emergency-stop" id="emergency_stop" title="Ctrl + Space">
 					</div>
 				</div>
 			</div>
@@ -121,8 +121,8 @@
 		}
 	}
 
-	$(".joystick-arrow").mousedown(function() {
-		var dir = $(this).data("dir");
+	function mousedown_fn(btn) {
+		var dir = $(btn).data("dir");
 		
 		if (dir == "none") {
 			stop(forced = true);
@@ -138,6 +138,10 @@
 			}
 		});
 		moving = true;
+	}
+
+	$(".joystick-arrow").mousedown(function() {		
+		mousedown_fn(this);
 	});
 
 	function update_switches() {
@@ -277,7 +281,8 @@
 		update_switches(false); // brings current status from REMA
 
 		
-		$("#home_xy").click(function(e) {
+		$("#home_xy").click(function(e, orig_event) {
+			e = e || orig_event;
 			tube_id = $("#tube_info_id").val() || "";
 			var x = 0, y = 0;
 			if (tube_id !== "") {						
@@ -307,7 +312,8 @@
 			}			
 		});
 		
-		$("#home_z").click(function(e) {
+		$("#home_z").click(function(e, orig_event) {
+			e = e || orig_event;
 			if (e.shiftKey) {
 				if (confirm("Are you sure you want to determine the position of the tubesheet and make it position Z:0 ?")) {
 					$.ajax({
@@ -330,26 +336,62 @@
 		
 	});
 
-// $(document).keydown(function(e){
-// 	console.log(e.which);
-//     switch(e.which) {
-//         case 71:
-// 			$("#go_button").trigger("click");
-//         	break;
-// 		case 72:
-// 			tube_id = $("#tube_info_id").val() || "";
-// 			set_home_xy(tube_id);
-//         	break;
+	keysPressed = {};
 
-// 		default:
-// 			return true;
+	function isKeyDown(keyCode) {
+	    return keysPressed[keyCode] === true;
+	}
 
-//     }
+    $("#outer").keydown(function(e){
 
-//     // prevent default action (eg. page moving up/down)
-//     // but consider accessibility (eg. user may want to use keys to choose a radio button)
-//     e.preventDefault();
-// });
+		if (isKeyDown(e.keyCode)) {			// Repeated event?
+			return;
+		}
+
+		keysPressed[e.keyCode] = true;
+
+		switch(e.keyCode) {
+			case 36:			// 7 from keypad with numlock off
+				mousedown_fn($('[data-dir="up_left"]'));
+				break;
+			case 38:			// 8 from keypad with numlock off
+				mousedown_fn($('[data-dir="up"]'));
+				break;
+			case 33:			// 9 from keypad with numlock off
+				mousedown_fn($('[data-dir="up_right"]'));
+				break;
+			case 37:			// 4 from keypad with numlock off
+				mousedown_fn($('[data-dir="left"]'));	
+				break;
+			case 39:			// 6 from keypad with numlock off
+				mousedown_fn($('[data-dir="right"]'));
+				break;
+			case 35:			// 1 from keypad with numlock off
+				mousedown_fn($('[data-dir="down_left"]'));
+				break;
+			case 40:			// 2 from keypad with numlock off
+				mousedown_fn($('[data-dir="down"]'));
+				break;
+			case 34:			// 3 from keypad with numlock off
+				mousedown_fn($('[data-dir="down_right"]'));	
+				break;
+			
+			case 107:			// + from keypad
+				mousedown_fn($('[data-dir="z_in"]'));		
+				break;				
+			case 109:			// - from keypad
+				mousedown_fn($('[data-dir="z_out"]'));		
+				break;
+									
+			default:					
+				return true;
+		}			
+	});
+
+	$("#outer").keyup(function(e){
+		delete keysPressed[e.keyCode];
+		stop();
+	});
 
 </script>
 

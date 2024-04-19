@@ -410,6 +410,35 @@ get_session_info_index()
 
 	});
 		
+    $(document).keydown(function(e){
+		const formElements = ['INPUT', 'TEXTAREA', 'SELECT', 'OPTION'];
+		e = e || window.event;
+		if (!formElements.includes(e.target.tagName)) {
+			switch(e.keyCode) {
+				case 32:			// SPACE BAR
+					if(e.ctrlKey) {
+						$("#emergency_stop").trigger("click");
+						e.preventDefault();
+						return false;
+						break;
+					}
+				case 71:			// g
+					tube_id = $("#tube_info_id").val();
+					if(tube_id) {
+						$("#go_button").trigger("click");
+					}
+					break;
+				case 90:			// z
+					$("#home_z").trigger("click", e);
+					break;
+				case 12:			// 5 from keypad with numlock ofF
+					tube_id = $("#tube_info_id").val() || "";
+					$("#home_xy").trigger("click", e);
+					break;					
+			}
+		}
+	});
+
 </script>
 
 </html>
