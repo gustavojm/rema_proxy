@@ -111,41 +111,41 @@ void tools_create(const std::shared_ptr<restbed::Session> rest_session) {
     const auto request = rest_session->get_request();
     size_t content_length = request->get_header("Content-Length", 0);
     rest_session->fetch(content_length,
-            [&]([[maybe_unused]]const std::shared_ptr<restbed::Session> &session_ptr,
-                    const restbed::Bytes &body) {
-                nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
-                std::string res;
-                int status = restbed::OK;
+        [&]([[maybe_unused]]const std::shared_ptr<restbed::Session> &session_ptr,
+                const restbed::Bytes &body) {
+            nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
+            std::string res;
+            int status = restbed::OK;
 
-                std::string tool_name = form_data["tool_name"];
-                if (tool_name.empty()) {
-                    res = "No tool name specified";
-                }
-
-                try {
-                    if (!res.empty()) {
-                        status = restbed::BAD_REQUEST;
-                    } else {
-                        double offset_x = to_double(form_data.value("offset_x", "0"));
-                        double offset_y = to_double(form_data.value("offset_y", "0"));
-                        double offset_z = to_double(form_data.value("offset_z", "0"));
-                        Tool new_tool(tool_name, {offset_x, offset_y, offset_z});
-                        new_tool.save_to_disk();
-                        REMA::add_tool(new_tool);
-                        res = "Tool created Successfully";
-                        status = restbed::CREATED;
-
-                    }
-                } catch (const std::invalid_argument &e) {
-                    res += "Offsets wrong";
-                    status = restbed::BAD_REQUEST;
-                }
-                catch (const std::exception &e) {
-                        res = e.what();
-                        status = restbed::INTERNAL_SERVER_ERROR;
-                }
-                close_rest_session(session_ptr, status, res);
+            std::string tool_name = form_data["tool_name"];
+            if (tool_name.empty()) {
+                res = "No tool name specified";
             }
+
+            try {
+                if (!res.empty()) {
+                    status = restbed::BAD_REQUEST;
+                } else {
+                    double offset_x = to_double(form_data.value("offset_x", "0"));
+                    double offset_y = to_double(form_data.value("offset_y", "0"));
+                    double offset_z = to_double(form_data.value("offset_z", "0"));
+                    Tool new_tool(tool_name, {offset_x, offset_y, offset_z});
+                    new_tool.save_to_disk();
+                    REMA::add_tool(new_tool);
+                    res = "Tool created Successfully";
+                    status = restbed::CREATED;
+
+                }
+            } catch (const std::invalid_argument &e) {
+                res += "Offsets wrong";
+                status = restbed::BAD_REQUEST;
+            }
+            catch (const std::exception &e) {
+                    res = e.what();
+                    status = restbed::INTERNAL_SERVER_ERROR;
+            }
+            close_rest_session(session_ptr, status, res);
+        }
     );
 }
 
@@ -197,37 +197,38 @@ void inspection_sessions_create(const std::shared_ptr<restbed::Session> &rest_se
     const auto request = rest_session->get_request();
     size_t content_length = request->get_header("Content-Length", 0);
     rest_session->fetch(content_length,
-            [&]([[maybe_unused]]const std::shared_ptr<restbed::Session> &session_ptr,
-                    const restbed::Bytes &body) {
+        [&]([[maybe_unused]]const std::shared_ptr<restbed::Session> &session_ptr,
+                const restbed::Bytes &body) {
 
-                nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
-                std::string res;
-                int status = restbed::OK;
-                std::string session_name = form_data["session_name"];
-                if (session_name.empty()) {
-                    res += "No filename specified \n";
-                }
+            nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
+            std::string res;
+            int status = restbed::OK;
+            std::string session_name = form_data["session_name"];
+            if (session_name.empty()) {
+                res += "No filename specified \n";
+            }
 
-                if (form_data["hx"].empty()) {
-                    res += "No HX specified \n";
-                }
+            if (form_data["hx"].empty()) {
+                res += "No HX specified \n";
+            }
 
-                try {
-                    if (!res.empty()) {
-                        status = restbed::BAD_REQUEST;
-                    } else {
-                        InspectionSession new_session(session_name, std::filesystem::path(form_data["hx"]));
-                        res = new_session.load_plans();
-                        new_session.save_to_disk();
-                        current_session = new_session;
-                        status = restbed::CREATED;
-                    }
-                } catch (const std::exception &e) {
-                    res += "Error creating InspectionSession \n";
-                    status = restbed::INTERNAL_SERVER_ERROR;
+            try {
+                if (!res.empty()) {
+                    status = restbed::BAD_REQUEST;
+                } else {
+                    InspectionSession new_session(session_name, std::filesystem::path(form_data["hx"]));
+                    res = new_session.load_plans();
+                    new_session.save_to_disk();
+                    current_session = new_session;
+                    status = restbed::CREATED;
                 }
-                close_rest_session(session_ptr, status, res);
-    });
+            } catch (const std::exception &e) {
+                res += "Error creating InspectionSession \n";
+                status = restbed::INTERNAL_SERVER_ERROR;
+            }
+            close_rest_session(session_ptr, status, res);
+        }
+    );
 }
 
 
@@ -292,38 +293,39 @@ void cal_points_add_update(const std::shared_ptr<restbed::Session> rest_session)
 
     size_t content_length = request->get_header("Content-Length", 0);
     rest_session->fetch(content_length,
-            [&]([[maybe_unused]]const std::shared_ptr<restbed::Session> &session_ptr,
-                    const restbed::Bytes &body) {
+        [&]([[maybe_unused]]const std::shared_ptr<restbed::Session> &session_ptr,
+                const restbed::Bytes &body) {
 
-                nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
-                std::string res;
-                int status = restbed::OK;
+            nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
+            std::string res;
+            int status = restbed::OK;
 
-                try {
-                    Point3D ideal_coords = {
-                            to_double(form_data.value("ideal_coords_x", "0")),
-                            to_double(form_data.value("ideal_coords_y", "0")),
-                            to_double(form_data.value("ideal_coords_z", "0")),
-                    };
+            try {
+                Point3D ideal_coords = {
+                        to_double(form_data.value("ideal_coords_x", "0")),
+                        to_double(form_data.value("ideal_coords_y", "0")),
+                        to_double(form_data.value("ideal_coords_z", "0")),
+                };
 
-                    Point3D determined_coords = {
-                            to_double(form_data.value("determined_coords_x", "0")),
-                            to_double(form_data.value("determined_coords_y", "0")),
-                            to_double(form_data.value("determined_coords_z", "0")),
-                    };
-                    if (!tube_id.empty()) {
-                        current_session.cal_points_add_update(tube_id, form_data["col"], form_data["row"], ideal_coords, determined_coords);
-                        status = restbed::OK;
-                    } else {
-                        res += "No tube specified";
-                        status = restbed::BAD_REQUEST;
-                    }
-                } catch(std::exception &e) {
-                    res += e.what();
-                    status = restbed::INTERNAL_SERVER_ERROR;
+                Point3D determined_coords = {
+                        to_double(form_data.value("determined_coords_x", "0")),
+                        to_double(form_data.value("determined_coords_y", "0")),
+                        to_double(form_data.value("determined_coords_z", "0")),
+                };
+                if (!tube_id.empty()) {
+                    current_session.cal_points_add_update(tube_id, form_data["col"], form_data["row"], ideal_coords, determined_coords);
+                    status = restbed::OK;
+                } else {
+                    res += "No tube specified";
+                    status = restbed::BAD_REQUEST;
                 }
-                close_rest_session(session_ptr, status, res);
-    });
+            } catch(std::exception &e) {
+                res += e.what();
+                status = restbed::INTERNAL_SERVER_ERROR;
+            }
+            close_rest_session(session_ptr, status, res);
+        }
+    );
 };
 
 
@@ -352,19 +354,20 @@ void tubes_set_status(const std::shared_ptr<restbed::Session> rest_session) {
     std::string session_name = request->get_path_parameter("session_name", "");
 
     rest_session->fetch(content_length,
-            [&]([[maybe_unused]]const std::shared_ptr<restbed::Session> &session_ptr,
-                    const restbed::Bytes &body) {
+        [&]([[maybe_unused]]const std::shared_ptr<restbed::Session> &session_ptr,
+                const restbed::Bytes &body) {
 
-                nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
-                std::string res_string;
+            nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
+            std::string res_string;
 
-                std::string insp_plan = form_data["insp_plan"];
-                bool checked = form_data["checked"];
-                current_session.set_tube_inspected(insp_plan, tube_id, checked);
-                nlohmann::json res = nlohmann::json::object();
-                res[tube_id] = checked;
-                close_rest_session(session_ptr, restbed::OK, res);
-    });
+            std::string insp_plan = form_data["insp_plan"];
+            bool checked = form_data["checked"];
+            current_session.set_tube_inspected(insp_plan, tube_id, checked);
+            nlohmann::json res = nlohmann::json::object();
+            res[tube_id] = checked;
+            close_rest_session(session_ptr, restbed::OK, res);
+        }
+    );
 }
 
 void axes_hard_stop_all(const std::shared_ptr<restbed::Session> &rest_session) {
@@ -460,37 +463,38 @@ void change_network_settings(const std::shared_ptr<restbed::Session> &rest_sessi
     const auto request = rest_session->get_request();
     size_t content_length = request->get_header("Content-Length", 0);
     rest_session->fetch(content_length,
-            [&]([[maybe_unused]]const std::shared_ptr<restbed::Session> &session_ptr,
-                    const restbed::Bytes &body) {
-        nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
-        
-        if (isValidIPv4(form_data["ipaddr"])) {
-            std::string rtu_host = form_data["ipaddr"];
-            std::string rtu_port = form_data["port"];
+        [&]([[maybe_unused]]const std::shared_ptr<restbed::Session> &session_ptr,
+                const restbed::Bytes &body) {
+            nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
+            
+            if (isValidIPv4(form_data["ipaddr"])) {
+                std::string rtu_host = form_data["ipaddr"];
+                std::string rtu_port = form_data["port"];
 
-            rema_instance.config["REMA"]["network"]["ip"] = rtu_host;
-            rema_instance.config["REMA"]["network"]["port"] = std::stoi(rtu_port);
-            rema_instance.save_config();
+                rema_instance.config["REMA"]["network"]["ip"] = rtu_host;
+                rema_instance.config["REMA"]["network"]["port"] = std::stoi(rtu_port);
+                rema_instance.save_config();
 
-            if (form_data.contains("change_remote_network_settings")) {
-                pars_obj["ipaddr"] = rtu_host;
-                pars_obj["port"] = std::stoi(rtu_port);
-                pars_obj["gw"] = form_data["ipaddr"];
-                pars_obj["netmask"] = "255.255.255.0";
-                rema_instance.execute_command_no_wait({{"command", "NETWORK_SETTINGS"}, {"pars", pars_obj}});
-            }
-
-            for (int retry = 0; retry < 3; ++retry) {
-                try {
-                    rema_instance.connect(rtu_host, rtu_port);
-                } catch (const std::exception& e) {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(500));
-                    SPDLOG_INFO("Retrying...");
+                if (form_data.contains("change_remote_network_settings")) {
+                    pars_obj["ipaddr"] = rtu_host;
+                    pars_obj["port"] = std::stoi(rtu_port);
+                    pars_obj["gw"] = form_data["ipaddr"];
+                    pars_obj["netmask"] = "255.255.255.0";
+                    rema_instance.execute_command_no_wait({{"command", "NETWORK_SETTINGS"}, {"pars", pars_obj}});
                 }
-            }
-        }                
-        close_rest_session(session_ptr, restbed::OK);              
-    });
+
+                for (int retry = 0; retry < 3; ++retry) {
+                    try {
+                        rema_instance.connect(rtu_host, rtu_port);
+                    } catch (const std::exception& e) {
+                        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                        SPDLOG_INFO("Retrying...");
+                    }
+                }
+            }                
+            close_rest_session(session_ptr, restbed::OK);              
+        }
+    );
 }
 
 
@@ -500,39 +504,40 @@ void move_incremental(const std::shared_ptr<restbed::Session> &rest_session) {
     const auto request = rest_session->get_request();
     size_t content_length = request->get_header("Content-Length", 0);    
     rest_session->fetch(content_length,
-            [&]([[maybe_unused]]const std::shared_ptr<restbed::Session> &session_ptr,
-                    const restbed::Bytes &body) {
-                        std::string s(body.begin(), body.end());
-                nlohmann::json pars_obj;
-                nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
-                double incremental_x = 0.0;
-                double incremental_y = 0.0;
-                double incremental_z = 0.0;
-                if (form_data.contains("incremental_x")) {
-                    incremental_x = to_double(form_data["incremental_x"]);
-                    if (!equals(incremental_x, 0)) {
-                        pars_obj["axes"] = "XY";
-                        pars_obj["first_axis_delta"] = current_session.from_ui_to_rema(incremental_x);
-                    }
+        [&]([[maybe_unused]]const std::shared_ptr<restbed::Session> &session_ptr,
+                const restbed::Bytes &body) {
+                    std::string s(body.begin(), body.end());
+            nlohmann::json pars_obj;
+            nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
+            double incremental_x = 0.0;
+            double incremental_y = 0.0;
+            double incremental_z = 0.0;
+            if (form_data.contains("incremental_x")) {
+                incremental_x = to_double(form_data["incremental_x"]);
+                if (!equals(incremental_x, 0)) {
+                    pars_obj["axes"] = "XY";
+                    pars_obj["first_axis_delta"] = current_session.from_ui_to_rema(incremental_x);
                 }
-                if (form_data.contains("incremental_y")) {
-                    incremental_y = to_double(form_data["incremental_y"]);
-                    if (!equals(incremental_y, 0)) {
-                        pars_obj["axes"] = "XY";
-                        pars_obj["second_axis_delta"] = current_session.from_ui_to_rema(incremental_y);
-                    }
+            }
+            if (form_data.contains("incremental_y")) {
+                incremental_y = to_double(form_data["incremental_y"]);
+                if (!equals(incremental_y, 0)) {
+                    pars_obj["axes"] = "XY";
+                    pars_obj["second_axis_delta"] = current_session.from_ui_to_rema(incremental_y);
                 }
-                if (form_data.contains("incremental_z")) {
-                    incremental_z = to_double(form_data["incremental_z"]);
-                    if (!equals(incremental_z, 0)) {
-                        pars_obj["axes"] = "Z";
-                        pars_obj["first_axis_delta"] = current_session.from_ui_to_rema(incremental_z);
-                    }
+            }
+            if (form_data.contains("incremental_z")) {
+                incremental_z = to_double(form_data["incremental_z"]);
+                if (!equals(incremental_z, 0)) {
+                    pars_obj["axes"] = "Z";
+                    pars_obj["first_axis_delta"] = current_session.from_ui_to_rema(incremental_z);
                 }
-                rema_instance.axes_soft_stop_all();
-                rema_instance.execute_command({{"command", "MOVE_INCREMENTAL"}, {"pars", pars_obj}});
-                close_rest_session(session_ptr, restbed::OK);
-    });
+            }
+            rema_instance.axes_soft_stop_all();
+            rema_instance.execute_command({{"command", "MOVE_INCREMENTAL"}, {"pars", pars_obj}});
+            close_rest_session(session_ptr, restbed::OK);
+        }
+    );
 }
 
 

@@ -33,9 +33,9 @@
 		<div>
 			<form id="cal_point_info">			
 				<div class="row" style="padding-bottom: 10px;">
-				Tube Id:<input type="text" size="4" id="cal_point_tube_id" name="tube_id"> 
-					Col:<input type="text" size="4" id="cal_tube_info_col" name="col"> 
-					Row:<input type="text" size="4" id="cal_tube_info_row" name="row"> 
+				Tube Id:<input type="text" size="4" id="cal_point_tube_id" name="tube_id" readonly> 
+					Col:<input type="text" size="4" id="cal_tube_info_col" name="col" readonly> 
+					Row:<input type="text" size="4" id="cal_tube_info_row" name="row" readonly> 
 				</div>
 				<div class="row border" style="margin-left: 5px;">
 			        <div class="column" style="width: 35%">
@@ -46,18 +46,18 @@
 			        	</div>			            
 			            <div class="row" style="position: relative; width:100%; justify-content: space-between;">
 			            	<div>X:</div>
-				            <div><input type="text" size="6" id="ideal_coords_x" name="ideal_coords_x"></div>
-				            <div><input type="text" size="6" id="determined_coords_x" name="determined_coords_x"></div>
+				            <div><input type="text" size="6" id="ideal_coords_x" name="ideal_coords_x" readonly></div>
+				            <div><input type="text" size="6" id="determined_coords_x" name="determined_coords_x" maxlength="6" data-inputmask-alias="decimal" data-inputmask-digits="3"></div>
 			            </div>			            
 			           	<div class="row" style="position: relative; width:100%; justify-content: space-between;">
 			            	<div>Y:</div>
-				            <div><input type="text" size="6" id="ideal_coords_y" name="ideal_coords_y"></div>
-				            <div><input type="text" size="6" id="determined_coords_y" name="determined_coords_y"></div>
+				            <div><input type="text" size="6" id="ideal_coords_y" name="ideal_coords_y" readonly></div>
+				            <div><input type="text" size="6" id="determined_coords_y" name="determined_coords_y" maxlength="6" data-inputmask-alias="decimal" data-inputmask-digits="3"></div>
 			            </div>			            
 			            <div class="row" style="position: relative; width:100%; justify-content: space-between;">
 			            	<div>Z:</div>
-				            <div><input type="text" size="6" id="ideal_coords_z" name="ideal_coords_z"></div>
-				            <div><input type="text" size="6" id="determined_coords_z" name="determined_coords_z"></div>
+				            <div><input type="text" size="6" id="ideal_coords_z" name="ideal_coords_z" readonly></div>
+				            <div><input type="text" size="6" id="determined_coords_z" name="determined_coords_z" maxlength="6" data-inputmask-alias="decimal" data-inputmask-digits="3"></div>
 			            </div>
 			        </div>
 			        <div class="column">

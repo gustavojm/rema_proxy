@@ -101,7 +101,7 @@ void REMA::set_home_z(double z) {
         }});
 }
 
-void REMA::execute_command(const nlohmann::json command) {
+void REMA::execute_command(const nlohmann::json command) {      // do not change command to a reference
     nlohmann::json to_rema;
     tpFSM.newCommand();
     to_rema["commands"].push_back(command);
@@ -112,7 +112,7 @@ void REMA::execute_command(const nlohmann::json command) {
     command_client.receive_blocking();
 }
 
-void REMA::execute_command_no_wait(const nlohmann::json command) {
+void REMA::execute_command_no_wait(const nlohmann::json command) {      // do not change command to a reference
     nlohmann::json to_rema;
     tpFSM.newCommand();
     to_rema["commands"].push_back(command);

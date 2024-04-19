@@ -8,6 +8,8 @@
 <script src="js/jquery.js"></script>
 <script src="js/jquery.sse.min.js"></script>
 
+<script src="js/jquery.inputmask.js"></script>
+
 <link rel="stylesheet" href="css/jquery-ui.css">
 <script src="js/jquery-ui.min.js"></script>
 </head>
@@ -323,8 +325,6 @@ get_session_info_index()
 		});
 	}
 
-	
-	
 	function create_joystick() {
 		
 		$.when(
@@ -351,7 +351,7 @@ get_session_info_index()
 			});
 	}
 	
-	$(function() {			
+	$(function() {
 	
 		$("#reconnect_rema").on("click", function(){
 			$.ajax({
@@ -406,11 +406,10 @@ get_session_info_index()
 	    create_joystick();
 	    create_incremental_dialog();
 		create_reconnect_dialog();
-		create_network_settings_dialog();
-				
+		create_network_settings_dialog();		
+
 	});
 		
-	
 </script>
 
 </html>

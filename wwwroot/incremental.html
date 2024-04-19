@@ -11,12 +11,12 @@
 				<legend>Ejes XY</legend>
 				<div class="column" style="float: left;">
 					<div class="row_without_border">
-						<label>X: <input type="text" name="incremental_x" size="4"><span
+						<label>X: <input type="text" name="incremental_x" size="4" maxlength="8" data-inputmask-alias="decimal" data-inputmask-digits="3"><span
 							class="units">inch</span>
 						</label>
 					</div>
 					<div class="row_without_border">
-						<label>Y: <input type="text" name="incremental_y" size="4"><span
+						<label>Y: <input type="text" name="incremental_y" size="4" maxlength="8" data-inputmask-alias="decimal" data-inputmask-digits="3"><span
 							class="units">inch</span>
 						</label>
 					</div>
@@ -33,7 +33,7 @@
 				<legend>Eje Z</legend>
 				<div class="column" style="float: left;">
 					<div class="row_without_border">
-						<label>Z: <input type="text" name="incremental_z" size="4"><span
+						<label>Z: <input type="text" name="incremental_z" size="4" maxlength="8" data-inputmask-alias="decimal" data-inputmask-digits="3"><span
 							class="units">inch</span>
 						</label>
 					</div>
@@ -50,32 +50,38 @@
 
 <script type="text/javascript">
 	$("#go_incremental_button_xy").click(
-			function(e) {
-				e.preventDefault();
-				$.ajax({
-					method : "POST",
-					url : "/REST/move-incremental",
-					data : JSON.stringify(Object.fromEntries(new FormData(
-							document.getElementById("incremental_form_xy")))),
-					success : function(data) {
-						console.log(data);
-					}
-				});
+		function(e) {
+			e.preventDefault();
+			$.ajax({
+				method : "POST",
+				url : "/REST/move-incremental",
+				data : JSON.stringify(Object.fromEntries(new FormData(
+						document.getElementById("incremental_form_xy")))),
+				success : function(data) {
+					console.log(data);
+				}
 			});
+		}
+	);
 
 	$("#go_incremental_button_z").click(
-			function(e) {
-				e.preventDefault();
-				$.ajax({
-					method : "POST",
-					url : "/REST/move-incremental",
-					data : JSON.stringify(Object.fromEntries(new FormData(
-							document.getElementById("incremental_form_z")))),
-					success : function(data) {
-						console.log(data);
-					}
-				});
+		function(e) {
+			e.preventDefault();
+			$.ajax({
+				method : "POST",
+				url : "/REST/move-incremental",
+				data : JSON.stringify(Object.fromEntries(new FormData(
+						document.getElementById("incremental_form_z")))),
+				success : function(data) {
+					console.log(data);
+				}
 			});
+		}
+	);
+
+	$(function() {		
+		$(":input").inputmask();
+	});
 </script>
 
 </html>
