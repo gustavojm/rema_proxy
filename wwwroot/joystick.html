@@ -302,7 +302,14 @@
 						})
 						.then(function(data) {							
 							set_home_xy(tube_id);
-						});
+						})
+						.catch(function(e) {
+							alert("Error: " + e.responseJSON.error);
+							if(e.statusText == 'timeout') {     
+				    			// TODO Send a cancel command? 
+								alert('Timeout');
+							}
+						});			
 					}
 				}
 			} else {

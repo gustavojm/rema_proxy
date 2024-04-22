@@ -291,6 +291,7 @@ $(function() {
 				method : "GET",
 				url : "/REST/determine-tube-center/" + cal_point_id,
 				data : JSON.stringify(),
+				dataType : "json",
 				timeout: 25000,
 			}))
 			.then(function(data) {
@@ -306,9 +307,10 @@ $(function() {
 				$("#determined_coords_z").val(toFixedIfNecessary(data.center.z, decimals));			
 			})
 			.catch(function(e) {
+				alert("Error: " + e.responseJSON.error);
 				if(e.statusText == 'timeout') {     
 				    // TODO Send a cancel command? 
-					alert('Please have the touch prove inserted into the tube to be detected');
+					alert('Timeout');
 			    
 				  }
 			});			

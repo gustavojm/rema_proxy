@@ -71,7 +71,7 @@ void REMA::update_telemetry(std::string &stream) {
 
             if (json.contains("telemetry")) {
                 telemetry = json["telemetry"];
-                tpFSM.process(telemetry.limits.probe);
+                tpFSM.process(!telemetry.limits.probe);
                 telemetry.limits.debounced_probe = tpFSM.isTouchDetected();
             }
 
@@ -107,7 +107,7 @@ void REMA::execute_command(const nlohmann::json command) {      // do not change
     to_rema["commands"].push_back(command);
     std::string tx_buffer = to_rema.dump();
 
-    SPDLOG_INFO("Enviando a REMA: {}", tx_buffer);
+    SPDLOG_INFO("Sending to REMA: {}", tx_buffer);
     command_client.send_blocking(tx_buffer);
     command_client.receive_blocking();
 }

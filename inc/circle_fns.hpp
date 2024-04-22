@@ -597,7 +597,7 @@ static inline std::pair<int, Circle> CircleFitByLevenbergMarquardtFull(
     return {code, New};
 }
 
-static inline std::vector<Point3D> calculateCirclePoints(Point3D center,
+static inline std::vector<Point3D> calculateCirclePoints(const Point3D &center,
         double radius, int numPoints) {
     std::vector<Point3D> points;
 
@@ -610,8 +610,9 @@ static inline std::vector<Point3D> calculateCirclePoints(Point3D center,
         Point3D point;
         point.x = center.x + radius * cos(radians);
         point.y = center.y + radius * sin(radians);
+        point.z = 0;
 
-        points.push_back( { point.x, point.y, 0 });
+        points.push_back(point);
         //std::cout << "Point " << i + 1 << ": (" << point.x << ", " << point.y << ")\n";
     }
     return points;

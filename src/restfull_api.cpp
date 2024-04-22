@@ -575,18 +575,28 @@ void set_home_z(const std::shared_ptr<restbed::Session> &rest_session) {
 void determine_tube_center(const std::shared_ptr<restbed::Session> &rest_session) {
     REMA &rema_instance = REMA::get_instance();
     Tool tool = rema_instance.get_selected_tool();
+    double probe_wiggle_factor = 1.2;
+    double half_probe_wiggle_factor = 1 + ((probe_wiggle_factor - 1) / 2);
     const auto request = rest_session->get_request();
     std::string tube_id = request->get_path_parameter("tube_id", "");
 
     nlohmann::json res;
 
     if (!tube_id.empty()) {
-        double tube_radius = current_session.from_ui_to_rema(current_session.tube_od / 2);
+        double tube_radius = current_session.tube_od / 2;
+        Point3D ideal_center = current_session.get_tube_coordinates(tube_id, true);
+
+        if (auto distance = std::abs(rema_instance.telemetry.coords.distance_xy(ideal_center)); distance > tube_radius * probe_wiggle_factor ) {
+            res["error"] = "Please have the touch probe inserted into the tube to be detected";
+            close_rest_session(rest_session, restbed::CONFLICT, res);
+            return;
+        }
 
         constexpr int points_number = 5;
         static_assert(points_number % 2 != 0, "Number of points must be odd");
         std::vector<Point3D> reordered_points;
-        std::vector<Point3D> points = calculateCirclePoints(current_session.from_ui_to_rema(current_session.get_tube_coordinates(tube_id, true), &tool), tube_radius, points_number);
+        std::vector<Point3D> points = calculateCirclePoints(current_session.from_ui_to_rema(ideal_center, &tool), 
+                                                                current_session.from_ui_to_rema(tube_radius) * half_probe_wiggle_factor, points_number);
 
         int vertex = 0;
         for (int n = 0; n < points_number; n++) {
@@ -607,7 +617,8 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> &rest_session
         }
 
         if (!rema_instance.execute_sequence(seq)) {
-            close_rest_session(rest_session, restbed::RESET_CONTENT);
+            res["error"] = "Executing sequence";
+            close_rest_session(rest_session, restbed::RESET_CONTENT, res);
             return;
         }
 
@@ -627,16 +638,21 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> &rest_session
         };
         res["radius"] = circle.radius;
 
-        movement_cmd goto_center;
-        goto_center.axes = "XY";
-        goto_center.first_axis_setpoint = circle.center.x;
-        goto_center.second_axis_setpoint = circle.center.y;
-        goto_center.stop_on_probe = true;
-        goto_center.stop_on_condition = true;
+        int status = restbed::OK;
+        if (auto distance = std::abs(rema_instance.telemetry.coords.distance_xy(circle.center)); distance > tube_radius * probe_wiggle_factor ) {
+            res["error"] = fmt::format("Point determined too far away, would break probe x: {}, y: {}", circle.center.x, circle.center.y);
+            status = restbed::CONFLICT;
+        } else {            
+            movement_cmd goto_center;
+            goto_center.axes = "XY";
+            goto_center.first_axis_setpoint = circle.center.x;
+            goto_center.second_axis_setpoint = circle.center.y;
+            goto_center.stop_on_probe = true;
+            goto_center.stop_on_condition = true;
+            rema_instance.move_closed_loop(goto_center);
+        }
 
-        rema_instance.move_closed_loop(goto_center);
-
-        close_rest_session(rest_session, restbed::OK, res);
+        close_rest_session(rest_session, status, res);
     }
 }
 

@@ -76,6 +76,17 @@ public:
         return os;
     }
 
+    // Distance of two 3D points
+    double distance(const Point3D& other) const {
+        return sqrt(std::pow((x - other.x), 2) + std::pow((y - other.y), 2) + std::pow((z - other.z), 2));
+    }
+
+    // Distance of two 3D points only in XY
+    double distance_xy(const Point3D& other) const {
+        return sqrt(std::pow((x - other.x), 2) + std::pow((y - other.y), 2));
+    }
+
+
     double x = 0;
     double y = 0;
     double z = 0;
