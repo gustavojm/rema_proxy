@@ -289,7 +289,7 @@ $(function() {
 		Promise.resolve(
 			$.ajax({
 				method : "GET",
-				url : "/REST/determine-tube-center/" + cal_point_id,
+				url : "/REST/determine-tube-center/" + cal_point_id + "/false",
 				data : JSON.stringify(),
 				dataType : "json",
 				timeout: 25000,

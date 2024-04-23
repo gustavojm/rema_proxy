@@ -576,6 +576,7 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> &rest_session
     double half_probe_wiggle_factor = 1 + ((probe_wiggle_factor - 1) / 2);
     const auto request = rest_session->get_request();
     std::string tube_id = request->get_path_parameter("tube_id", "");
+    std::string set_home = request->get_path_parameter("set_home", "");
 
     nlohmann::json res;
 
@@ -652,7 +653,7 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> &rest_session
                 return;
             } else {
                 auto step = goto_center_seq.begin();
-                if (step->executed && step->execution_results.stopped_on_condition) {
+                if (step->executed && step->execution_results.stopped_on_condition && set_home=="true") {
                     rema_instance.set_home_xy(ideal_center.x - tool.offset.x, ideal_center.y - tool.offset.y);
                 }
             }            
@@ -663,6 +664,8 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> &rest_session
 }
 
 void determine_tubesheet_z(const std::shared_ptr<restbed::Session> &rest_session) {
+    const auto request = rest_session->get_request();
+    std::string set_home = request->get_path_parameter("set_home", "");
     REMA &rema_instance = REMA::get_instance();
 
     nlohmann::json res;
@@ -685,7 +688,7 @@ void determine_tubesheet_z(const std::shared_ptr<restbed::Session> &rest_session
     double sum_z = 0;
     int count = 0;
     for (const auto &step : seq) {
-        if (step.executed && step.execution_results.stopped_on_probe) {  // average all the touches (ask for stopped_on_probe)
+        if (step.executed && step.execution_results.stopped_on_probe && set_home=="true") {  // average all the touches (ask for stopped_on_probe)
             sum_z += step.execution_results.coords.z;
             count++;
         }
@@ -750,10 +753,10 @@ void restfull_api_create_endpoints(restbed::Service &service) {
         {"go-to-tube/{tube_id: .*}", {{"GET", &go_to_tube}}},
         {"move-free-run/{dir: .*}", {{"GET", &move_free_run}}},
         {"move-incremental", {{"POST", &move_incremental}}},
-        {"determine-tube-center/{tube_id: .*}", {{"GET", &determine_tube_center}}},
+        {"determine-tube-center/{tube_id: .*}/{set_home: .*}", {{"GET", &determine_tube_center}}},
         {"set-home-xy/", {{"GET", &set_home_xy}}},
         {"set-home-xy/{tube_id: .*}", {{"GET", &set_home_xy}}},
-        {"determine-tubesheet-z", {{"GET", &determine_tubesheet_z}}},
+        {"determine-tubesheet-z/{set_home: .*}", {{"GET", &determine_tubesheet_z}}},
         {"set-home-z/{z: .*}", {{"GET", &set_home_z}}},
         {"aligned-tubesheet-get", {{"GET", &aligned_tubesheet_get}}},
         {"axes-hard-stop-all", {{"GET", &axes_hard_stop_all}}},
