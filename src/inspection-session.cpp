@@ -181,11 +181,15 @@ void InspectionSession::cal_points_delete(const std::string &tube_id)  {
 
 Point3D InspectionSession::get_tube_coordinates(const std::string &tube_id, bool ideal = true) {
     if (ideal) {
-        return tubes.at(tube_id).coords;
+        if (auto iter = tubes.find(tube_id); iter != tubes.end()) {
+            return iter->second.coords;
+        }
     } else {
-        return aligned_tubes.at(tube_id);
+        if (auto iter = aligned_tubes.find(tube_id); iter != aligned_tubes.end()) {
+            return iter->second;
+        }
     }
-
+    return {};
 };
 
 void InspectionSession::generate_svg() {

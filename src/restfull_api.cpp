@@ -398,9 +398,6 @@ void go_to_tube(const std::shared_ptr<restbed::Session> &rest_session) {
         goto_tube.axes = "XY";
         goto_tube.first_axis_setpoint = rema_coords.x;
         goto_tube.second_axis_setpoint = rema_coords.y;
-        goto_tube.stop_on_probe = true;
-        goto_tube.stop_on_condition = true;
-
         rema_instance.move_closed_loop(goto_tube);
 
         close_rest_session(rest_session, restbed::OK, res);
@@ -610,9 +607,6 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> &rest_session
             step.axes = "XY";
             step.first_axis_setpoint = point.x;
             step.second_axis_setpoint = point.y;
-            step.stop_on_probe = true;
-            step.stop_on_condition = true;
-
             seq.push_back(step);
         }
 
@@ -629,27 +623,39 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> &rest_session
                 tube_boundary_points.push_back(step.execution_results.coords);
             }
         }
-        res["reached_coords"] = tube_boundary_points;
-        Circle circle = CircleFitByHyper(tube_boundary_points);
-        res["center"] = {
-                {"x", circle.center.x - tool.offset.x},
-                {"y", circle.center.y - tool.offset.y},
-                {"z", circle.center.z}
-        };
-        res["radius"] = circle.radius;
 
         int status = restbed::OK;
+        Circle circle = CircleFitByHyper(tube_boundary_points);
+
         if (auto distance = std::abs(rema_instance.telemetry.coords.distance_xy(circle.center)); distance > tube_radius * probe_wiggle_factor ) {
             res["error"] = fmt::format("Point determined too far away, would break probe x: {}, y: {}", circle.center.x, circle.center.y);
             status = restbed::CONFLICT;
         } else {            
+
+            std::vector<movement_cmd> goto_center_seq;
             movement_cmd goto_center;
             goto_center.axes = "XY";
             goto_center.first_axis_setpoint = circle.center.x;
             goto_center.second_axis_setpoint = circle.center.y;
-            goto_center.stop_on_probe = true;
-            goto_center.stop_on_condition = true;
-            rema_instance.move_closed_loop(goto_center);
+            goto_center_seq.push_back(goto_center);
+
+            res["center"] = {
+                    {"x", circle.center.x - tool.offset.x},
+                    {"y", circle.center.y - tool.offset.y},
+                    {"z", circle.center.z}
+            };
+            res["radius"] = circle.radius;
+
+            if (!rema_instance.execute_sequence(goto_center_seq)) {
+                res["error"] = "Executing sequence";
+                close_rest_session(rest_session, restbed::RESET_CONTENT, res);
+                return;
+            } else {
+                auto step = goto_center_seq.begin();
+                if (step->executed && step->execution_results.stopped_on_condition) {
+                    rema_instance.set_home_xy(ideal_center.x - tool.offset.x, ideal_center.y - tool.offset.y);
+                }
+            }            
         }
 
         close_rest_session(rest_session, status, res);
@@ -665,8 +671,6 @@ void determine_tubesheet_z(const std::shared_ptr<restbed::Session> &rest_session
     forewards.axes = "Z";
     forewards.first_axis_setpoint = 0.2;
     forewards.second_axis_setpoint = 0;
-    forewards.stop_on_probe = true;
-    forewards.stop_on_condition = true;
 
     movement_cmd backwards = forewards;
     backwards.first_axis_setpoint = -0.2;
@@ -681,7 +685,7 @@ void determine_tubesheet_z(const std::shared_ptr<restbed::Session> &rest_session
     double sum_z = 0;
     int count = 0;
     for (const auto &step : seq) {
-        if (step.executed && step.execution_results.stopped_on_condition) {  // average all the touches (ask for stopped_on_probe
+        if (step.executed && step.execution_results.stopped_on_probe) {  // average all the touches (ask for stopped_on_probe)
             sum_z += step.execution_results.coords.z;
             count++;
         }
@@ -689,17 +693,25 @@ void determine_tubesheet_z(const std::shared_ptr<restbed::Session> &rest_session
 
     double z = sum_z / count;
 
-    movement_cmd goto_tubeshet;
-    goto_tubeshet.axes = "Z";
-    goto_tubeshet.first_axis_setpoint = z;
-    goto_tubeshet.second_axis_setpoint = 0;
-    goto_tubeshet.stop_on_probe = true;                                // to reach the averaged z it should not stop on probe...
-    goto_tubeshet.stop_on_condition = true;
+    std::vector<movement_cmd> goto_tubesheet_seq;
+    movement_cmd goto_tubesheet;
+    goto_tubesheet.axes = "Z";
+    goto_tubesheet.first_axis_setpoint = z;
+    goto_tubesheet.second_axis_setpoint = 0;
+    goto_tubesheet_seq.push_back(goto_tubesheet);
 
-    rema_instance.move_closed_loop(goto_tubeshet);
+    if (!rema_instance.execute_sequence(goto_tubesheet_seq)) {
+        res["error"] = "Executing sequence";
+        close_rest_session(rest_session, restbed::RESET_CONTENT, res);
+        return;
+    } else {
+        auto step = goto_tubesheet_seq.begin();
+        if (step->executed && step->execution_results.stopped_on_condition) {
+            rema_instance.set_home_z(0);
+        }
+    }            
 
     close_rest_session(rest_session, restbed::OK, res);
-
 }
 
 void aligned_tubesheet_get(const std::shared_ptr<restbed::Session> &rest_session) {

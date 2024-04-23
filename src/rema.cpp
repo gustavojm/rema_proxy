@@ -12,9 +12,6 @@
 #include "rema.hpp"
 #include "inspection-session.hpp"
 #include "tool.hpp"
-#include "touch_probe.hpp"
-
-extern TouchProbeFSM tpFSM;
 
 const inline std::filesystem::path config_file_path = "config.json";
 const inline std::filesystem::path rema_dir = std::filesystem::path("rema");
@@ -71,8 +68,6 @@ void REMA::update_telemetry(std::string &stream) {
 
             if (json.contains("telemetry")) {
                 telemetry = json["telemetry"];
-                tpFSM.process(!telemetry.limits.probe);
-                telemetry.limits.debounced_probe = tpFSM.isTouchDetected();
             }
 
             if (json.contains("temps")) {
@@ -103,7 +98,6 @@ void REMA::set_home_z(double z) {
 
 void REMA::execute_command(const nlohmann::json command) {      // do not change command to a reference
     nlohmann::json to_rema;
-    tpFSM.newCommand();
     to_rema["commands"].push_back(command);
     std::string tx_buffer = to_rema.dump();
 
@@ -114,7 +108,6 @@ void REMA::execute_command(const nlohmann::json command) {      // do not change
 
 void REMA::execute_command_no_wait(const nlohmann::json command) {      // do not change command to a reference
     nlohmann::json to_rema;
-    tpFSM.newCommand();
     to_rema["commands"].push_back(command);
     std::string tx_buffer = to_rema.dump();
 
@@ -124,7 +117,6 @@ void REMA::execute_command_no_wait(const nlohmann::json command) {      // do no
 
 
 void REMA::move_closed_loop(movement_cmd cmd) {
-    tpFSM.newCommand();
     execute_command({ { "command", "MOVE_CLOSED_LOOP" },
         { "pars",
                 { { "axes", cmd.axes },
@@ -165,16 +157,16 @@ bool REMA::execute_sequence(std::vector<movement_cmd>& sequence) {
                 SPDLOG_ERROR(e.what());
             }
 
-            stopped_on_probe = telemetry.limits.debounced_probe && step.stop_on_probe;
-
             if (step.axes == "XY") {
-                stopped_on_condition = telemetry.on_condition.x_y && step.stop_on_condition;
+                stopped_on_probe = telemetry.probe.x_y;
+                stopped_on_condition = telemetry.on_condition.x_y;
             } else {
-                stopped_on_condition = telemetry.on_condition.z && step.stop_on_condition;
+                stopped_on_probe = telemetry.probe.z;
+                stopped_on_condition = telemetry.on_condition.z;
             }
         } while (!(stopped_on_probe || stopped_on_condition || cancel_sequence ));
 
-        if (!cancel_sequence) {
+        if (!cancel_sequence) {            
             step.executed = true;
             step.execution_results.coords = telemetry.coords;
             step.execution_results.stopped_on_probe = stopped_on_probe;

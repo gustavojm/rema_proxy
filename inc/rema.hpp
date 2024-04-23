@@ -20,12 +20,12 @@ struct temps {
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(temps, x, y, z)
 
-struct stalled {
+struct individual_axes {
     bool x;
     bool y;
     bool z;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(stalled, x, y, z)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(individual_axes, x, y, z)
 
 struct limits {
     bool left;
@@ -34,33 +34,31 @@ struct limits {
     bool down;
     bool in;
     bool out;
-    bool probe;
-    bool debounced_probe;
+    bool probe;    
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(limits, left, right, up, down, in, out,
         probe)
 
-struct on_condition {
+struct compound_axes {
     bool x_y = false;
     bool z = false;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(on_condition, x_y, z)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(compound_axes, x_y, z)
 
 struct telemetry {
     struct Point3D coords;
-    struct on_condition on_condition;
-    struct stalled stalled;
+    struct compound_axes on_condition;
+    struct compound_axes probe;
+    struct individual_axes stalled;
     struct limits limits;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(telemetry, coords, on_condition, stalled,
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(telemetry, coords, on_condition, probe, stalled,
         limits)
 
 struct movement_cmd {
     std::string axes;
     double first_axis_setpoint;
     double second_axis_setpoint;
-    bool stop_on_probe = true;
-    bool stop_on_condition = true;
     bool executed = false;
     struct {
         Point3D coords;
@@ -97,8 +95,8 @@ public:
     }
 
     Tool get_selected_tool() const {
-        if (tools.find(last_selected_tool) != tools.end()) {
-            return tools.at(last_selected_tool);
+        if (auto iter = tools.find(last_selected_tool); iter != tools.end()) {
+            return iter->second;
         }
         return {};
     }

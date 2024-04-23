@@ -22,14 +22,12 @@
 #include "websocket-server.hpp"
 #include "rema.hpp"
 #include "restfull_api.hpp"
-#include "touch_probe.hpp"
 
 InspectionSession current_session;
 
 vector<shared_ptr<restbed::Session>> sse_sessions;
 
 using namespace std::chrono_literals;
-TouchProbeFSM tpFSM;
 
 std::map<std::string, std::string> mime_types = { { ".jpg", "image/jpg" }, {
         ".png", "image/png" }, { "svg", "image/svg+xml" },

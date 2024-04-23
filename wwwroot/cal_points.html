@@ -307,12 +307,12 @@ $(function() {
 				$("#determined_coords_z").val(toFixedIfNecessary(data.center.z, decimals));			
 			})
 			.catch(function(e) {
-				alert("Error: " + e.responseJSON.error);
 				if(e.statusText == 'timeout') {     
 				    // TODO Send a cancel command? 
-					alert('Timeout');
-			    
-				  }
+					alert('Timeout');		    
+				} else {
+					alert("Error: " + e.responseJSON.error);
+				}
 			});			
 	});	
 

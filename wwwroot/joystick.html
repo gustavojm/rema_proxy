@@ -180,7 +180,7 @@
 	}
 
 	function set_home_xy(tube_id = "") {		
-		$.ajax({
+		$.ajaxQueue({
 			url : "/REST/set-home-xy/" + tube_id,
 			method : "GET",
 			contentType : "application/json",
@@ -191,7 +191,7 @@
 	}
 
 	function set_home_z(z = 0) {
-		$.ajax({
+		$.ajaxQueue({
 			url : "/REST/set-home-z/" + z,
 			method : "GET",
 			contentType : "application/json",
@@ -294,21 +294,20 @@
 					alert("Please, select a tube");
 				} else {
 					if (confirm("Are you sure you want to determine current tube center and make it position X:" + toFixedIfNecessary(x, decimals) + ", Y:" + toFixedIfNecessary(y, decimals) + " ?")) {
-						$.ajax({
+						$.ajaxQueue({
 							method : "GET",
 							url : "/REST/determine-tube-center/" + tube_id,
 							data : JSON.stringify(),
 							timeout: 25000,
 						})
-						.then(function(data) {							
-							set_home_xy(tube_id);
-						})
 						.catch(function(e) {
-							alert("Error: " + e.responseJSON.error);
 							if(e.statusText == 'timeout') {     
 				    			// TODO Send a cancel command? 
 								alert('Timeout');
+							} else {
+								alert("Error: " + e.responseJSON.error);
 							}
+
 						});			
 					}
 				}
@@ -323,15 +322,12 @@
 			e = e || orig_event;
 			if (e.shiftKey) {
 				if (confirm("Are you sure you want to determine the position of the tubesheet and make it position Z:0 ?")) {
-					$.ajax({
+					$.ajaxQueue({
 						method : "GET",
 						url : "/REST/determine-tubesheet-z/",
 						data : JSON.stringify(),
 						timeout: 25000,
 					})
-					.then(function(data) {							
-						set_home_z(0);
-					});
 				}
 			} else {
 				if (confirm("Are you sure you want to make current position Z:0 ?")) {
