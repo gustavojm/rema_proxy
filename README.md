@@ -1,8 +1,21 @@
 # REMA Proxy
 
-An interface for a Cartesian XYZ robot for Heat Exchangers Inspection
+An interface for a Multipurpose Cartesian XYZ robot for Heat Exchangers
 
-## Requirements
+### Installing
+
+apt install ./rema_proxy.deb
+
+Open a web browser 
+
+http://127.0.0.1:4321/static/index.html#
+
+Change initial connection settings by modifying config.json if required
+
+
+## For Developers
+
+## Requirements 
 
 Restbed library should be located in `/usr/local/include/` all the headers from `restbed/distribution/include`
                                      `/usr/local/lib/` the shared library from `restbed/distribution/librestbed.a`

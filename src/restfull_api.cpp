@@ -11,7 +11,7 @@
 #include <spdlog/spdlog.h>
 
 #include "json.hpp"
-#include "inspection-session.hpp"
+#include "session.hpp"
 #include "tool.hpp"
 #include "rema.hpp"
 #include "HXs.hpp"
@@ -19,7 +19,7 @@
 #include "circle_fns.hpp"
 #include "misc_fns.hpp"
 
-extern InspectionSession current_session;
+extern Session current_session;
 
 void close_rest_session(const std::shared_ptr<restbed::Session>& rest_session, int status) {
     rest_session->close(status, "", { { "Content-Type", "text/html ; charset=utf-8" }, { "Content-Length", "0"} });
@@ -85,16 +85,16 @@ void HXs_tubesheet_load(const std::shared_ptr<restbed::Session> &rest_session) {
 }
 
 /**
- * Inspection Plans related functions
+ * Plans related functions
  **/
 
-void inspection_plans(const std::shared_ptr<restbed::Session> &rest_session) {
+void plans(const std::shared_ptr<restbed::Session> &rest_session) {
     const auto request = rest_session->get_request();
-    std::string insp_plan = request->get_path_parameter("insp_plan", "");
+    std::string plan = request->get_path_parameter("plan", "");
 
     nlohmann::json res;
-    if (!insp_plan.empty()) {
-         res = current_session.inspection_plan_get(insp_plan);
+    if (!plan.empty()) {
+         res = current_session.plan_get(plan);
     }    
     close_rest_session(rest_session, restbed::OK, res);
 }
@@ -102,6 +102,7 @@ void inspection_plans(const std::shared_ptr<restbed::Session> &rest_session) {
 /**
  * Tools related functions
  **/
+
 void tools_list(const std::shared_ptr<restbed::Session> &rest_session ) {
     close_rest_session(rest_session, restbed::OK, REMA::tools);
 }
@@ -173,25 +174,25 @@ void tools_select(const std::shared_ptr<restbed::Session> &rest_session) {
 }
 
 /**
- * Inspection Sessions related functions
+ * Sessions related functions
  **/
 
-void inspection_sessions_list(const std::shared_ptr<restbed::Session> &rest_session) {
+void sessions_list(const std::shared_ptr<restbed::Session> &rest_session) {
     nlohmann::json res;
 
-    for (auto &insp_session : InspectionSession::sessions_list()) {
+    for (auto &session : Session::sessions_list()) {
         res.push_back({
-            {"name", insp_session.name},
-            {"hx", insp_session.hx },
-            {"last_write_time", insp_session.last_write_time},
-            {"total_tubes_in_plans", insp_session.total_tubes_in_plans},
-            {"total_tubes_inspected", insp_session.total_tubes_inspected}
+            {"name", session.name},
+            {"hx", session.hx },
+            {"last_write_time", session.last_write_time},
+            {"total_tubes_in_plans", session.total_tubes_in_plans},
+            {"total_tubes_executed", session.total_tubes_executed}
         });
     }
     close_rest_session(rest_session, restbed::OK, res);
 }
 
-void inspection_sessions_create(const std::shared_ptr<restbed::Session> &rest_session) {
+void sessions_create(const std::shared_ptr<restbed::Session> &rest_session) {
     const auto request = rest_session->get_request();
     size_t content_length = request->get_header("Content-Length", 0);
     rest_session->fetch(content_length,
@@ -214,14 +215,14 @@ void inspection_sessions_create(const std::shared_ptr<restbed::Session> &rest_se
                 if (!res.empty()) {
                     status = restbed::BAD_REQUEST;
                 } else {
-                    InspectionSession new_session(session_name, std::filesystem::path(form_data["hx"]));
+                    Session new_session(session_name, std::filesystem::path(form_data["hx"]));
                     res = new_session.load_plans();
                     new_session.save_to_disk();
                     current_session = new_session;
                     status = restbed::CREATED;
                 }
             } catch (const std::exception &e) {
-                res += "Error creating InspectionSession \n";
+                res += "Error creating Session \n";
                 status = restbed::INTERNAL_SERVER_ERROR;
             }
             close_rest_session(rest_session_ptr, status, res);
@@ -229,7 +230,7 @@ void inspection_sessions_create(const std::shared_ptr<restbed::Session> &rest_se
     );
 }
 
-void inspection_sessions_load(const std::shared_ptr<restbed::Session> &rest_session) {
+void sessions_load(const std::shared_ptr<restbed::Session> &rest_session) {
     auto request = rest_session->get_request();
     std::string session_name = request->get_path_parameter("session_name", "");
     int status = restbed::OK;
@@ -250,7 +251,7 @@ void inspection_sessions_load(const std::shared_ptr<restbed::Session> &rest_sess
     close_rest_session(rest_session, status, res);
 }
 
-void inspection_sessions_info(const std::shared_ptr<restbed::Session> &rest_session) {
+void sessions_info(const std::shared_ptr<restbed::Session> &rest_session) {
     nlohmann::json res = nlohmann::json::object();
     if (current_session.is_loaded()) {
         res = current_session;
@@ -263,11 +264,11 @@ void inspection_sessions_info(const std::shared_ptr<restbed::Session> &rest_sess
     close_rest_session(rest_session, restbed::OK, res);
 }
 
-void inspection_sessions_delete(const std::shared_ptr<restbed::Session> &rest_session) {
+void sessions_delete(const std::shared_ptr<restbed::Session> &rest_session) {
     auto request = rest_session->get_request();
     std::string session_name = request->get_path_parameter("session_name", "");
     try {
-        InspectionSession::delete_session(session_name);
+        Session::delete_session(session_name);
         close_rest_session(rest_session, restbed::OK, nlohmann::json(current_session));
         return;
     } catch (const std::filesystem::filesystem_error &e) {
@@ -356,9 +357,9 @@ void tubes_set_status(const std::shared_ptr<restbed::Session> rest_session) {
             nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
             std::string res_string;
 
-            std::string insp_plan = form_data["insp_plan"];
+            std::string plan = form_data["plan"];
             bool checked = form_data["checked"];
-            current_session.set_tube_inspected(insp_plan, tube_id, checked);
+            current_session.set_tube_executed(plan, tube_id, checked);
             nlohmann::json res = nlohmann::json::object();
             res[tube_id] = checked;
             close_rest_session(rest_session_ptr, restbed::OK, res);
@@ -724,23 +725,23 @@ void restfull_api_create_endpoints(restbed::Service &service) {
         {"REMA/info", {{"GET", &REMA_info}}},
         {"HXs", {{"GET", &HXs_list_}}},
         {"HXs/tubesheet/load", {{"GET", &HXs_tubesheet_load}}},
-        {"inspection-plans", {{"GET", &inspection_plans}}},
-        {"inspection-plans/{insp_plan: .*}", {{"GET", &inspection_plans}}},
+        {"plans", {{"GET", &plans}}},
+        {"plans/{plan: .*}", {{"GET", &plans}}},
         {"tools", {{"GET", &tools_list},
                    {"POST", &tools_create},
                   }
         },
         {"tools/{tool_name: .*}", {{"DELETE", &tools_delete}}},
         {"tools/{tool_name: .*}/select", {{"POST", &tools_select}}},
-        {"inspection-sessions", {{"GET", &inspection_sessions_list},
-                                 {"POST", &inspection_sessions_create},
+        {"sessions", {{"GET", &sessions_list},
+                                 {"POST", &sessions_create},
                                 },
         },
-        {"inspection-sessions/{session_name: .*}", {{"GET", &inspection_sessions_load},
-                                                    {"DELETE", &inspection_sessions_delete}
+        {"sessions/{session_name: .*}", {{"GET", &sessions_load},
+                                                    {"DELETE", &sessions_delete}
                                                    }
         },
-        {"current-session/info", {{"GET", &inspection_sessions_info}}},
+        {"current-session/info", {{"GET", &sessions_info}}},
         {"calibration-points", {{"GET", &cal_points_list}}},
         {"calibration-points/{tube_id: .*}", {{"PUT", &cal_points_add_update},
                                               {"DELETE", &cal_points_delete}}

@@ -1,5 +1,5 @@
-#ifndef INSP_SESSION_HPP
-#define INSP_SESSION_HPP
+#ifndef SESSION_HPP
+#define SESSION_HPP
 
 #include <string>
 #include <filesystem>
@@ -17,17 +17,17 @@ std::time_t to_time_t(TP tp) {
     return std::chrono::system_clock::to_time_t(sctp);
 }
 
-static inline std::filesystem::path insp_sessions_dir = std::filesystem::path(
-        "insp_sessions");
+static inline std::filesystem::path sessions_dir = std::filesystem::path(
+        "sessions");
 
-class InspectionPlanEntry {
+class PlanEntry {
 public:
     int seq;
     std::string row; 
     std::string col;
-    bool inspected;
+    bool executed;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(InspectionPlanEntry, seq, row, col, inspected)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(PlanEntry, seq, row, col, executed)
 
 class CalPointEntry {
 public:
@@ -47,19 +47,19 @@ public:
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(TubeEntry, x_label, y_label, coords)
 
-class InspectionSession {
+class Session {
 public:
-    InspectionSession() noexcept;
+    Session() noexcept;
 
-    explicit InspectionSession(const std::string &session_name, const std::filesystem::path &hx);
+    explicit Session(const std::string &session_name, const std::filesystem::path &hx);
 
-    explicit InspectionSession(const std::filesystem::path &inspection_session_file);
+    explicit Session(const std::filesystem::path &session_file);
 
     void process_csv();
 
     std::string load_plans();
 
-    std::map<std::string, struct InspectionPlanEntry> inspection_plan_get(const std::string &insp_plan);
+    std::map<std::string, struct PlanEntry> plan_get(const std::string &plan);
 
     void cal_points_add_update(const std::string &tube_id, const std::string &col, const std::string &row, Point3D &ideal_coords, Point3D &determined_coords);
 
@@ -95,11 +95,11 @@ public:
         return (meassure / scale);
     }
 
-    static std::vector<InspectionSession> sessions_list() {
-        std::vector<InspectionSession> res;
+    static std::vector<Session> sessions_list() {
+        std::vector<Session> res;
 
         for (const auto &entry : std::filesystem::directory_iterator(
-                insp_sessions_dir)) {
+                sessions_dir)) {
             if (entry.is_regular_file()) {
                 std::time_t tt = to_time_t(entry.last_write_time());
                 std::tm *gmt = std::gmtime(&tt);
@@ -107,10 +107,10 @@ public:
                 buffer << std::put_time(gmt, "%A, %d %B %Y %H:%M");
                 std::string formattedFileTime = buffer.str();
 
-                InspectionSession insp_session(entry.path().filename().replace_extension());
-                insp_session.last_write_time = buffer.str();
+                Session session(entry.path().filename().replace_extension());
+                session.last_write_time = buffer.str();
 
-                res.push_back(insp_session);
+                res.push_back(session);
             }
         }
         return res;
@@ -134,11 +134,11 @@ public:
 
     std::string get_selected_plan() const;
 
-    void set_tube_inspected(std::string &insp_plan,
+    void set_tube_executed(std::string &plan,
             std::string &tube_id, bool state);
 
     static void delete_session(std::string session_name) {
-        std::filesystem::remove(insp_sessions_dir / (session_name + std::string(".json")));
+        std::filesystem::remove(sessions_dir / (session_name + std::string(".json")));
     }
 
     void copy_tubes_to_aligned_tubes();
@@ -147,7 +147,7 @@ public:
 
     std::map<std::string,
             std::map<std::string,
-                    struct InspectionPlanEntry>> insp_plans;
+                    struct PlanEntry>> plans;
 
     std::string name;
     std::filesystem::path hx_directory;
@@ -172,11 +172,11 @@ public:
     } svg;
     std::map<std::string, CalPointEntry> cal_points;
     int total_tubes_in_plans = 0;
-    int total_tubes_inspected = 0;
+    int total_tubes_executed = 0;
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(InspectionSession, name,
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Session, name,
         last_write_time, hx_directory, hx, tubesheet_csv, tubesheet_svg,
-        last_selected_plan, insp_plans, leg, tube_od, unit, scale, cal_points, total_tubes_in_plans, total_tubes_inspected)
+        last_selected_plan, plans, leg, tube_od, unit, scale, cal_points, total_tubes_in_plans, total_tubes_executed)
 
-#endif 		// INSP_SESSION_HPP
+#endif 		// SESSION_HPP

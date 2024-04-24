@@ -10,7 +10,7 @@
 #include <spdlog/spdlog.h>
 
 #include "rema.hpp"
-#include "inspection-session.hpp"
+#include "session.hpp"
 #include "tool.hpp"
 
 const inline std::filesystem::path config_file_path = "config.json";

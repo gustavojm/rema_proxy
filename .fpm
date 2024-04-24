@@ -15,7 +15,7 @@ config.json=./rema_proxy/config.json
 rema/=./rema_proxy/rema/
 wwwroot/=./rema_proxy/wwwroot/
 HXs/=./rema_proxy/HXs/
-empty_folder/=./rema_proxy/insp_sessions/
+empty_folder/=./rema_proxy/sessions/
 
 
 

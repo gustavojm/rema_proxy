@@ -8,22 +8,22 @@
 #include <map>
 #include <csv.h>
 
-#include "inspection-session.hpp"
+#include "session.hpp"
 #include "svg.hpp"
 
-InspectionSession::InspectionSession() noexcept = default;
+Session::Session() noexcept = default;
 
-InspectionSession::InspectionSession(const std::filesystem::path &inspection_session_file) {
-    load(inspection_session_file);
+Session::Session(const std::filesystem::path &session_file) {
+    load(session_file);
 }
 
-void InspectionSession::copy_tubes_to_aligned_tubes() {
+void Session::copy_tubes_to_aligned_tubes() {
     for (auto [id, tube] : tubes) {
         aligned_tubes[id] = tube.coords;
     }
 }
 
-void InspectionSession::process_csv() {
+void Session::process_csv() {
     std::filesystem::path csv_file = hx_directory / hx / "tubesheet.csv";
     SPDLOG_INFO("Reading {}", csv_file.string());
 
@@ -55,7 +55,7 @@ void InspectionSession::process_csv() {
     calculate_aligned_tubes();
 }
 
-InspectionSession::InspectionSession(const std::string &session_name,
+Session::Session(const std::string &session_name,
         const std::filesystem::path &hx_path) : name(session_name),
         hx(hx_path) {
 
@@ -85,8 +85,8 @@ InspectionSession::InspectionSession(const std::string &session_name,
     process_csv();
 }
 
-bool InspectionSession::load(std::string session_name) {
-    std::filesystem::path session_path = insp_sessions_dir / (session_name + std::string(".json"));
+bool Session::load(std::string session_name) {
+    std::filesystem::path session_path = sessions_dir / (session_name + std::string(".json"));
     std::ifstream i_file_stream(session_path);
 
     nlohmann::json json;
@@ -98,11 +98,11 @@ bool InspectionSession::load(std::string session_name) {
     return true;
 }
 
-std::string InspectionSession::load_plans() {
+std::string Session::load_plans() {
     std::stringstream out;
-    std::filesystem::path insp_plans_path = hx_directory / hx / "insp_plans";
+    std::filesystem::path plans_path = hx_directory / hx / "plans";
     for (const auto &entry : std::filesystem::directory_iterator(
-            insp_plans_path)) {
+            plans_path)) {
         if (!(entry.path().filename().extension() == ".csv")) {
             continue;
         }
@@ -117,7 +117,7 @@ std::string InspectionSession::load_plans() {
         std::string tube_num;
         while (ip.read_row(seq, row, col, tube_num)) {
             std::string tube_num_stripped = tube_num.substr(5);
-            insp_plans[entry.path().filename().replace_extension()][tube_num_stripped] = InspectionPlanEntry {
+            plans[entry.path().filename().replace_extension()][tube_num_stripped] = PlanEntry {
                     seq, row, col, false };
             total_tubes_in_plans++;
         }
@@ -126,19 +126,19 @@ std::string InspectionSession::load_plans() {
     return out.str();
 }
 
-std::map<std::string, InspectionPlanEntry> InspectionSession::inspection_plan_get(const std::string &insp_plan) {
-    last_selected_plan = insp_plan;
+std::map<std::string, PlanEntry> Session::plan_get(const std::string &plan) {
+    last_selected_plan = plan;
 
-    auto it = insp_plans.find(insp_plan);
-    if (it != insp_plans.end()) {
+    auto it = plans.find(plan);
+    if (it != plans.end()) {
         return it->second;
     } else  {
         return {};
     }
 }
 
-void InspectionSession::save_to_disk() const {
-    std::filesystem::path session_file = insp_sessions_dir / (name + std::string(".json"));
+void Session::save_to_disk() const {
+    std::filesystem::path session_file = sessions_dir / (name + std::string(".json"));
     std::ofstream file(session_file);
     nlohmann::json json(*this);
     json.erase("name");
@@ -146,23 +146,23 @@ void InspectionSession::save_to_disk() const {
     file << json;
 }
 
-void InspectionSession::set_selected_plan(std::string &plan) {
+void Session::set_selected_plan(std::string &plan) {
     last_selected_plan = plan;
     changed = true;
 }
 
-std::string InspectionSession::get_selected_plan() const {
+std::string Session::get_selected_plan() const {
     return last_selected_plan;
 }
 
-void InspectionSession::set_tube_inspected(std::string &insp_plan,
+void Session::set_tube_executed(std::string &plan,
         std::string &tube_id, bool state) {
-    insp_plans[insp_plan][tube_id].inspected = state;
-    state ? total_tubes_inspected++ : total_tubes_inspected--;
+    plans[plan][tube_id].executed = state;
+    state ? total_tubes_executed++ : total_tubes_executed--;
     changed = true;
 }
 
-void InspectionSession::cal_points_add_update(const std::string &tube_id, const std::string &col, const std::string &row, Point3D &ideal_coords, Point3D &determined_coords)  {
+void Session::cal_points_add_update(const std::string &tube_id, const std::string &col, const std::string &row, Point3D &ideal_coords, Point3D &determined_coords)  {
     CalPointEntry cpe = {
             col,
             row,
@@ -174,12 +174,12 @@ void InspectionSession::cal_points_add_update(const std::string &tube_id, const 
     changed = true;
 }
 
-void InspectionSession::cal_points_delete(const std::string &tube_id)  {
+void Session::cal_points_delete(const std::string &tube_id)  {
     cal_points.erase(tube_id);
     changed = true;
 }
 
-Point3D InspectionSession::get_tube_coordinates(const std::string &tube_id, bool ideal = true) {
+Point3D Session::get_tube_coordinates(const std::string &tube_id, bool ideal = true) {
     if (ideal) {
         if (auto iter = tubes.find(tube_id); iter != tubes.end()) {
             return iter->second.coords;
@@ -192,7 +192,7 @@ Point3D InspectionSession::get_tube_coordinates(const std::string &tube_id, bool
     return {};
 };
 
-void InspectionSession::generate_svg() {
+void Session::generate_svg() {
     SPDLOG_INFO("Generating SVG...");
 
     float min_x, width;
@@ -309,7 +309,7 @@ void InspectionSession::generate_svg() {
 }
 
 
-std::map<std::string, Point3D>& InspectionSession::calculate_aligned_tubes() {    
+std::map<std::string, Point3D>& Session::calculate_aligned_tubes() {    
     SPDLOG_INFO("Aligning Tubes...");
     //std::vector<Point3D> src_points = { { 1.625, 0.704, 0 },
     //        {16.656, 2.815, 0},

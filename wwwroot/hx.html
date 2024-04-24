@@ -16,7 +16,7 @@
 <script type="text/javascript" src="js/rcswitcher.js"></script>
 
 <style>
-	#insp_plan_table > tbody >	tr { height: 27px; }
+	#plan_table > tbody >	tr { height: 27px; }
 </style>
 
 <div id="hx_tab"
@@ -44,7 +44,7 @@
 		<div style="float: right; text-align: center;" class="right-side">
 			<span id="calibration_points_span" style="display: none;">Calibration Points</span>
 			<span id="leg_switch_span"><input type="checkbox" name="leg_switch" id="leg_switch"></span>
-			 <select id="insp_plans"></select>
+			 <select id="plans"></select>
 		</div>
 	</div>
 
@@ -59,7 +59,7 @@
 		<div id="right" class="right-side" style="overflow: hidden; width: 20%; height: 100%; float: left; position: relative; display: flex; flex-direction: column;">
 			<div id="tubesheet_tab" style="overflow: auto; width: 100%; height: 95%; float: left;">
 				<div id="datatables_div">
-					<table id="insp_plan_table" class="datatables display my-table"
+					<table id="plan_table" class="datatables display my-table"
 						style="width: 100%">
 						<thead>
 							<tr>
@@ -67,7 +67,7 @@
 								<th>ID</th>
 								<th>Col</th>
 								<th>Row</th>
-								<th>Inspected</th>
+								<th>Executed</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -94,7 +94,7 @@
 	<div style="padding: 2px; width: 100%">
 		<div id="coordinates" style="float: left; width: 35%">Coordinates:</div>
 		<div id="session_name" style="float: left; width: 35%"></div>
-		<div style="float: right; width: 22%; align-content: center; display: flex; align-items: center; justify-content: center; vertical-align: top;"><button id="calibration_inspection_btn">Calibration</button></div>
+		<div style="float: right; width: 22%; align-content: center; display: flex; align-items: center; justify-content: center; vertical-align: top;"><button id="calibration_plan_btn">Calibration</button></div>
 	</div>
 </div>	
 
@@ -207,7 +207,7 @@
 
 	//Shows information of the selected tube either on the datatables or the HX itself
 	function show_tube_info(g, from_table = false) {
-		var table = $('#insp_plan_table').DataTable();
+		var table = $('#plan_table').DataTable();
 		var tubes = $(
 				'#tubesheet_svg .tube_num, #tubesheet_svg circle ');
 		var clickmark = 'clicked';
@@ -415,23 +415,23 @@
 						svg_load("../"
 								+ (data.tubesheet_svg || "/static/no_session_loaded.svg"), tube_od, scale);
 
-						var insp_plans_dropdown = $('#insp_plans');
-						var table = $('#insp_plan_table').DataTable();
-						insp_plans_dropdown.empty();
-						insp_plans_dropdown
-								.append('<option value="">Choose an Inspection Plan</option>');
-						insp_plans_dropdown.prop('selectedIndex', 0);
+						var plans_dropdown = $('#plans');
+						var table = $('#plan_table').DataTable();
+						plans_dropdown.empty();
+						plans_dropdown
+								.append('<option value="">Choose a Plan</option>');
+						plans_dropdown.prop('selectedIndex', 0);
 
-						// Populate dropdown with list of Inspection Plans 		
+						// Populate dropdown with list of Plans 		
 						var pastel_colors = [ "#ffadad", "#ffd6a5",
 								"#fdffb6", "#caffbf", "#9bf6ff", "#a0c4ff",
 								"#bdb2ff", "#ffc6ff", "#ffffbb" ];
 						var color = 0;
 						$
 								.each(
-										data.insp_plans,
+										data.plans,
 										function(key, entry) {
-											insp_plans_dropdown
+											plans_dropdown
 													.append($(
 															'<option style="background-color:' + pastel_colors[color] + '; "></option>')
 															.attr(
@@ -443,16 +443,15 @@
 											color %= pastel_colors.length;
 										});
 
-						insp_plans_dropdown.change(function() {
-							insp_plans_dropdown.css("background-color", $(
+						plans_dropdown.change(function() {
+							plans_dropdown.css("background-color", $(
 									"option:selected", this).css(
 									"background-color"));
 							if ($("option:selected", this).val() == "") {								
 								$("#tubesheet_svg").find("circle").css("fill", "");
 								$("#tubesheet_svg").find("g").css("opacity", "");
-							}
-							
-							table.ajax.url("/REST/inspection-plans/" + $(this).val());
+							}							
+							table.ajax.url("/REST/plans/" + $(this).val());
 							table.ajax.reload();
 						});
 						
@@ -466,7 +465,7 @@
 					});
 
 		
-	// Grays out inspected tubes on the SVG
+	// Grays out executed tubes on the SVG
 	function gray_out_tube(g, status) {
 		$(g).css("opacity", status == true ? 0.25 : 1);
 	}
@@ -514,9 +513,9 @@
 			});						
 		});	
 
-		var insp_plans_dropdown = $('#insp_plans');
+		var plans_dropdown = $('#plans');
 
-		var table = $('#insp_plan_table')
+		var table = $('#plan_table')
 				.DataTable(
 						{
 							deferRender: true,
@@ -531,7 +530,7 @@
 							ajax : {
 								method : "GET",
 								dataType : 'json',
-								url : "/REST/inspection-plans",
+								url : "/REST/plans",
 								dataSrc :function ( data ) {
 									var array_data = [];
 									$.each(data, function(id, tube) {
@@ -555,15 +554,15 @@
 										data : 'row'
 									},
 									{
-										data : 'inspected',
+										data : 'executed',
 										render : function(data, type, row) {											
-											// Highlight the tubes belonging to this inspection plan on the HX 
+											// Highlight the tubes belonging to this plan on the HX 
 											$("#HL_" + row.tube_id,
 													$("#tubesheet_svg"))
 													.children("circle")
 													.css(
 															"fill",
-															insp_plans_dropdown
+															plans_dropdown
 																	.css("background-color"));
 											
 											gray_out_tube("#HL_" + row.tube_id, data);
@@ -574,7 +573,7 @@
 													.children("circle")
 													.css(
 															"fill",
-															insp_plans_dropdown
+															plans_dropdown
 																	.css("background-color"));
 											
 											gray_out_tube("#CL_" + row.tube_id, data);
@@ -587,7 +586,7 @@
 									}, ],
 						});		
 
-		$('#insp_plan_table tbody').on(
+		$('#plan_table tbody').on(
 				'click',
 				'tr',
 				function() {
@@ -630,8 +629,8 @@
 		    }
 		});
 		
-		// Mark/unmark a tube as inspected
-		$("#insp_plan_table").on('change', "input[type='checkbox']", function(e) {			// Using Event Delegates
+		// Mark/unmark a tube as executed
+		$("#plan_table").on('change', "input[type='checkbox']", function(e) {			// Using Event Delegates
 		    var tube_id = $(this).val();
 		
 			$.ajax({
@@ -640,7 +639,7 @@
 				url : "/REST/tubes/" + tube_id,
 				contentType : "application/json",
 				data : JSON.stringify({
-						insp_plan : $("#insp_plans").val(),
+						plan : $("#plans").val(),
 						checked : $(this).prop("checked"), 					
 					}),
 			});
@@ -653,18 +652,18 @@
 				.getElementById("left_side_resizable"));
 							
 		
-		$("#calibration_inspection_btn").click(function(e) {
+		$("#calibration_plan_btn").click(function(e) {
 			$("#tubesheet_tab").toggle();
 			$("#calibration_tab").toggle();
 			if ($(this).text() == "Calibration") {
-				$(this).text("Inspection Plan");
+				$(this).text("Plan");
 				$("#leg_switch_span").hide();
-				$("#insp_plans").hide();
+				$("#plans").hide();
 				$("#calibration_points_span").show();
 			} else {
 				$(this).text("Calibration");
 				$("#leg_switch_span").show();
-				$("#insp_plans").show();
+				$("#plans").show();
 				$("#calibration_points_span").hide();
 			}
 		});

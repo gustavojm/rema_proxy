@@ -47,7 +47,7 @@
 				{
 					ajax : {
 						method : "GET",
-						url : "/REST/inspection-sessions",
+						url : "/REST/sessions",
 						dataSrc : '',
 					},
 					columns : [
@@ -63,7 +63,7 @@
 							{
 								data : null,
 								render : function(data, type, row) {
-									progress = (row.total_tubes_inspected / row.total_tubes_in_plans * 100).toFixed(1);
+									progress = (row.total_tubes_executed / row.total_tubes_in_plans * 100).toFixed(1);
 									progress_text = progress + "%"
 									if (isNaN(progress)) {
 										progress = 0;
@@ -87,9 +87,9 @@
 		
 		table.on('draw.dt', function(e, settings, json, xhr) {			
 			$(".ui-icon-play").on("click", function() {
-				var insp_session_name = $(this).data("name");
+				var session_name = $(this).data("name");
 				$.ajax({
-						url: '/REST/inspection-sessions/' + insp_session_name,
+						url: '/REST/sessions/' + session_name,
 						success: function () {
 							alert("Session loaded successfully");
 							window.location.reload(true);
@@ -101,12 +101,12 @@
 			})
 			
 			$(".ui-icon-trash").on("click", function() {
-				var insp_session_name = $(this).data("name");
+				var session_name = $(this).data("name");
 				
-				var confirm_action = confirm("Are you sure you want to delete " + insp_session_name + " ?");
+				var confirm_action = confirm("Are you sure you want to delete " + session_name + " ?");
 		        if (confirm_action) {
 		        	$.ajax({
-						url : "/REST/inspection-sessions/" + insp_session_name,
+						url : "/REST/sessions/" + session_name,
 						type : "DELETE",
 						success: function(data) {
 							table.ajax.reload();
@@ -139,7 +139,7 @@
 				//icon: "ui-icon-heart",
 				click : function(event) {
 					$.ajax({										
-						url: '/REST/inspection-sessions',
+						url: '/REST/sessions',
 						method: "POST",
 						data: JSON.stringify(Object.fromEntries(new FormData(document.getElementById("session_create")))), 
 						success: function(data) {

@@ -172,7 +172,7 @@ if(${PROJECT_NAME}_BUILD_EXECUTABLE)
 
   # Install any supporting files or directories
   install(DIRECTORY 
-    ${CMAKE_SOURCE_DIR}/insp_sessions 
+    ${CMAKE_SOURCE_DIR}/sessions 
     ${CMAKE_SOURCE_DIR}/rema
     ${CMAKE_SOURCE_DIR}/wwwroot
     ${CMAKE_SOURCE_DIR}/HXs

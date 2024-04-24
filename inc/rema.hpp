@@ -9,7 +9,7 @@
 
 #include "tool.hpp"
 #include "points.hpp"
-#include "inspection-session.hpp"
+#include "session.hpp"
 
 extern const std::filesystem::path config_file_path;
 extern const std::filesystem::path rema_dir;
@@ -86,8 +86,6 @@ public:
     void connect(const std::string &rtu_host, const std::string &rtu_service);
 
     void update_telemetry(std::string &stream);
-
-    std::map<std::string, Point3D> calculate_aligned_tubes(InspectionSession& insp_sess, std::vector<Point3D> src_points, std::vector<Point3D> dst_points);
 
     void set_last_selected_tool(std::string tool) {
         last_selected_tool = tool;
