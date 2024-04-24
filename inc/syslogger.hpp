@@ -12,29 +12,24 @@
 using namespace std;
 using namespace restbed;
 
-class SyslogLogger : public Logger
-{
+class SyslogLogger : public Logger {
     public:
-        void stop( void )
-        {
+        void stop( void ) {
             return;
         }
 
-        void start( const shared_ptr< const Settings >& )
-        {
+        void start( const shared_ptr< const Settings >& ) {
             return;
         }
 
-        void log( const Level level, const char* format, ... )
-        {
+        void log( const Level level, const char* format, ... ) {
             setlogmask( LOG_UPTO( LOG_DEBUG ) );
 
             openlog( "JSON_proxy Restbed", LOG_CONS | LOG_PID | LOG_NDELAY, LOG_LOCAL1 );
 
             int priority = 0;
 
-            switch ( level )
-            {
+            switch ( level ) {
                 case FATAL:
                     priority = LOG_CRIT;
                     break;
@@ -68,10 +63,8 @@ class SyslogLogger : public Logger
             closelog( );
         }
 
-        void log_if( bool expression, const Level level, const char* format, ... )
-        {
-            if ( expression )
-            {
+        void log_if( bool expression, const Level level, const char* format, ... ) {
+            if ( expression ) {
                 va_list arguments;
 
                 va_start( arguments, format );

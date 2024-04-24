@@ -282,7 +282,9 @@
 
 		
 		$("#home_xy").click(function(e, orig_event) {
-			e = e || orig_event;
+			if (orig_event) {
+				e = orig_event;
+			}		
 			tube_id = $("#tube_info_id").val() || "";
 			var x = 0, y = 0;
 			if (tube_id !== "") {						
@@ -307,7 +309,6 @@
 							} else {
 								alert("Error: " + e.responseJSON.error);
 							}
-
 						});			
 					}
 				}
@@ -319,15 +320,25 @@
 		});
 		
 		$("#home_z").click(function(e, orig_event) {
-			e = e || orig_event;
+			if (orig_event) {
+				e = orig_event;
+			}		
 			if (e.shiftKey) {
 				if (confirm("Are you sure you want to determine the position of the tubesheet and make it position Z:0 ?")) {
 					$.ajaxQueue({
 						method : "GET",
-						url : "/REST/determine-tubesheet-z/true",
+						url : "/REST/determine-tubesheet-z",
 						data : JSON.stringify(),
 						timeout: 25000,
 					})
+					.catch(function(e) {
+						if(e.statusText == 'timeout') {     
+							// TODO Send a cancel command? 
+							alert('Timeout');
+						} else {
+							alert("Error: " + e.responseJSON.error);
+						}
+					});			
 				}
 			} else {
 				if (confirm("Are you sure you want to make current position Z:0 ?")) {

@@ -99,7 +99,6 @@ void inspection_plans(const std::shared_ptr<restbed::Session> &rest_session) {
     close_rest_session(rest_session, restbed::OK, res);
 }
 
-
 /**
  * Tools related functions
  **/
@@ -111,7 +110,7 @@ void tools_create(const std::shared_ptr<restbed::Session> rest_session) {
     const auto request = rest_session->get_request();
     size_t content_length = request->get_header("Content-Length", 0);
     rest_session->fetch(content_length,
-        [&]([[maybe_unused]]const std::shared_ptr<restbed::Session> &session_ptr,
+        [&]([[maybe_unused]]const std::shared_ptr<restbed::Session> &rest_session_ptr,
                 const restbed::Bytes &body) {
             nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
             std::string res;
@@ -144,7 +143,7 @@ void tools_create(const std::shared_ptr<restbed::Session> rest_session) {
                     res = e.what();
                     status = restbed::INTERNAL_SERVER_ERROR;
             }
-            close_rest_session(session_ptr, status, res);
+            close_rest_session(rest_session_ptr, status, res);
         }
     );
 }
@@ -173,7 +172,6 @@ void tools_select(const std::shared_ptr<restbed::Session> &rest_session) {
     close_rest_session(rest_session, restbed::OK);
 }
 
-
 /**
  * Inspection Sessions related functions
  **/
@@ -197,7 +195,7 @@ void inspection_sessions_create(const std::shared_ptr<restbed::Session> &rest_se
     const auto request = rest_session->get_request();
     size_t content_length = request->get_header("Content-Length", 0);
     rest_session->fetch(content_length,
-        [&]([[maybe_unused]]const std::shared_ptr<restbed::Session> &session_ptr,
+        [&]([[maybe_unused]]const std::shared_ptr<restbed::Session> &rest_session_ptr,
                 const restbed::Bytes &body) {
 
             nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
@@ -226,11 +224,10 @@ void inspection_sessions_create(const std::shared_ptr<restbed::Session> &rest_se
                 res += "Error creating InspectionSession \n";
                 status = restbed::INTERNAL_SERVER_ERROR;
             }
-            close_rest_session(session_ptr, status, res);
+            close_rest_session(rest_session_ptr, status, res);
         }
     );
 }
-
 
 void inspection_sessions_load(const std::shared_ptr<restbed::Session> &rest_session) {
     auto request = rest_session->get_request();
@@ -293,7 +290,7 @@ void cal_points_add_update(const std::shared_ptr<restbed::Session> rest_session)
 
     size_t content_length = request->get_header("Content-Length", 0);
     rest_session->fetch(content_length,
-        [&]([[maybe_unused]]const std::shared_ptr<restbed::Session> &session_ptr,
+        [&]([[maybe_unused]]const std::shared_ptr<restbed::Session> &rest_session_ptr,
                 const restbed::Bytes &body) {
 
             nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
@@ -323,11 +320,10 @@ void cal_points_add_update(const std::shared_ptr<restbed::Session> rest_session)
                 res += e.what();
                 status = restbed::INTERNAL_SERVER_ERROR;
             }
-            close_rest_session(session_ptr, status, res);
+            close_rest_session(rest_session_ptr, status, res);
         }
     );
 };
-
 
 void cal_points_delete(const std::shared_ptr<restbed::Session> &rest_session) {
     const auto request = rest_session->get_request();
@@ -354,7 +350,7 @@ void tubes_set_status(const std::shared_ptr<restbed::Session> rest_session) {
     std::string session_name = request->get_path_parameter("session_name", "");
 
     rest_session->fetch(content_length,
-        [&]([[maybe_unused]]const std::shared_ptr<restbed::Session> &session_ptr,
+        [&]([[maybe_unused]]const std::shared_ptr<restbed::Session> &rest_session_ptr,
                 const restbed::Bytes &body) {
 
             nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
@@ -365,7 +361,7 @@ void tubes_set_status(const std::shared_ptr<restbed::Session> rest_session) {
             current_session.set_tube_inspected(insp_plan, tube_id, checked);
             nlohmann::json res = nlohmann::json::object();
             res[tube_id] = checked;
-            close_rest_session(session_ptr, restbed::OK, res);
+            close_rest_session(rest_session_ptr, restbed::OK, res);
         }
     );
 }
@@ -453,14 +449,13 @@ bool equals(double f1, double f2) {
     return (fabs(f1 - f2) < 0.000001); /* EPSILON */
 }
 
-
 void change_network_settings(const std::shared_ptr<restbed::Session> &rest_session) {
     REMA &rema_instance = REMA::get_instance();
     nlohmann::json pars_obj;
     const auto request = rest_session->get_request();
     size_t content_length = request->get_header("Content-Length", 0);
     rest_session->fetch(content_length,
-        [&]([[maybe_unused]]const std::shared_ptr<restbed::Session> &session_ptr,
+        [&]([[maybe_unused]]const std::shared_ptr<restbed::Session> &rest_session_ptr,
                 const restbed::Bytes &body) {
             nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
             
@@ -489,19 +484,17 @@ void change_network_settings(const std::shared_ptr<restbed::Session> &rest_sessi
                     }
                 }
             }                
-            close_rest_session(session_ptr, restbed::OK);              
+            close_rest_session(rest_session_ptr, restbed::OK);              
         }
     );
 }
-
-
 
 void move_incremental(const std::shared_ptr<restbed::Session> &rest_session) {
     REMA &rema_instance = REMA::get_instance();    
     const auto request = rest_session->get_request();
     size_t content_length = request->get_header("Content-Length", 0);    
     rest_session->fetch(content_length,
-        [&]([[maybe_unused]]const std::shared_ptr<restbed::Session> &session_ptr,
+        [&]([[maybe_unused]]const std::shared_ptr<restbed::Session> &rest_session_ptr,
                 const restbed::Bytes &body) {
                     std::string s(body.begin(), body.end());
             nlohmann::json pars_obj;
@@ -532,11 +525,10 @@ void move_incremental(const std::shared_ptr<restbed::Session> &rest_session) {
             }
             rema_instance.axes_soft_stop_all();
             rema_instance.execute_command({{"command", "MOVE_INCREMENTAL"}, {"pars", pars_obj}});
-            close_rest_session(session_ptr, restbed::OK);
+            close_rest_session(rest_session_ptr, restbed::OK);
         }
     );
 }
-
 
 void set_home_xy(const std::shared_ptr<restbed::Session> &rest_session) {
     REMA &rema_instance = REMA::get_instance();
@@ -568,7 +560,6 @@ void set_home_z(const std::shared_ptr<restbed::Session> &rest_session) {
     close_rest_session(rest_session, restbed::OK, res);
 }
 
-
 void determine_tube_center(const std::shared_ptr<restbed::Session> &rest_session) {
     REMA &rema_instance = REMA::get_instance();
     Tool tool = rema_instance.get_selected_tool();
@@ -576,7 +567,7 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> &rest_session
     double half_probe_wiggle_factor = 1 + ((probe_wiggle_factor - 1) / 2);
     const auto request = rest_session->get_request();
     std::string tube_id = request->get_path_parameter("tube_id", "");
-    std::string set_home = request->get_path_parameter("set_home", "");
+    bool set_home = request->get_path_parameter("set_home", "") == "true";
 
     nlohmann::json res;
 
@@ -598,7 +589,7 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> &rest_session
 
         int vertex = 0;
         for (int n = 0; n < points_number; n++) {
-            reordered_points.push_back(points[vertex % points_number]);
+            reordered_points.push_back(points[vertex % points_number]); // To touch the tube boundary following a star pattern
             vertex += 2;
         }
 
@@ -632,7 +623,6 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> &rest_session
             res["error"] = fmt::format("Point determined too far away, would break probe x: {}, y: {}", circle.center.x, circle.center.y);
             status = restbed::CONFLICT;
         } else {            
-
             std::vector<movement_cmd> goto_center_seq;
             movement_cmd goto_center;
             goto_center.axes = "XY";
@@ -649,11 +639,11 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> &rest_session
 
             if (!rema_instance.execute_sequence(goto_center_seq)) {
                 res["error"] = "Executing sequence";
-                close_rest_session(rest_session, restbed::RESET_CONTENT, res);
+                status = restbed::CONFLICT;
                 return;
-            } else {
+            } else if (set_home) {
                 auto step = goto_center_seq.begin();
-                if (step->executed && step->execution_results.stopped_on_condition && set_home=="true") {
+                if (step->executed && step->execution_results.stopped_on_condition) {
                     rema_instance.set_home_xy(ideal_center.x - tool.offset.x, ideal_center.y - tool.offset.y);
                 }
             }            
@@ -665,56 +655,62 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> &rest_session
 
 void determine_tubesheet_z(const std::shared_ptr<restbed::Session> &rest_session) {
     const auto request = rest_session->get_request();
-    std::string set_home = request->get_path_parameter("set_home", "");
     REMA &rema_instance = REMA::get_instance();
 
     nlohmann::json res;
     std::vector<movement_cmd> seq;
     movement_cmd forewards;
     forewards.axes = "Z";
-    forewards.first_axis_setpoint = 0.2;
+    forewards.first_axis_setpoint = 0.5;
     forewards.second_axis_setpoint = 0;
 
     movement_cmd backwards = forewards;
-    backwards.first_axis_setpoint = -0.2;
+    backwards.first_axis_setpoint = -0.5;
 
     seq.push_back(forewards);
     seq.push_back(backwards);
     seq.push_back(forewards);
     seq.push_back(backwards);
-
+ 
     rema_instance.execute_sequence(seq);
 
     double sum_z = 0;
     int count = 0;
     for (const auto &step : seq) {
-        if (step.executed && step.execution_results.stopped_on_probe && set_home=="true") {  // average all the touches (ask for stopped_on_probe)
+        if (step.executed && step.execution_results.stopped_on_probe) {
             sum_z += step.execution_results.coords.z;
             count++;
         }
     }
 
-    double z = sum_z / count;
+    int status = restbed::OK;
 
-    std::vector<movement_cmd> goto_tubesheet_seq;
-    movement_cmd goto_tubesheet;
-    goto_tubesheet.axes = "Z";
-    goto_tubesheet.first_axis_setpoint = z;
-    goto_tubesheet.second_axis_setpoint = 0;
-    goto_tubesheet_seq.push_back(goto_tubesheet);
-
-    if (!rema_instance.execute_sequence(goto_tubesheet_seq)) {
-        res["error"] = "Executing sequence";
-        close_rest_session(rest_session, restbed::RESET_CONTENT, res);
-        return;
+    int required_touches = 2;
+    if (count < required_touches) {
+        status = restbed::CONFLICT;
+        res["error"] = fmt::format("Probe didn't touch the tubesheet enough times. \nTouch count = {}, required {} or more", count, required_touches);
     } else {
-        auto step = goto_tubesheet_seq.begin();
-        if (step->executed && step->execution_results.stopped_on_condition) {
-            rema_instance.set_home_z(0);
-        }
-    }            
+        double z = sum_z / count;
 
-    close_rest_session(rest_session, restbed::OK, res);
+        std::vector<movement_cmd> goto_tubesheet_seq;
+        movement_cmd goto_tubesheet;
+        goto_tubesheet.axes = "Z";
+        goto_tubesheet.first_axis_setpoint = z;
+        goto_tubesheet.second_axis_setpoint = 0;
+        goto_tubesheet_seq.push_back(goto_tubesheet);
+
+        if (!rema_instance.execute_sequence(goto_tubesheet_seq)) {
+            res["error"] = "Executing sequence";
+            status = restbed::RESET_CONTENT;
+        } else {
+            auto step = goto_tubesheet_seq.begin();
+            if (step->executed && step->execution_results.stopped_on_condition) {
+                rema_instance.set_home_z(0);
+            }
+        }            
+    }
+
+    close_rest_session(rest_session, status, res);
 }
 
 void aligned_tubesheet_get(const std::shared_ptr<restbed::Session> &rest_session) {
@@ -756,7 +752,7 @@ void restfull_api_create_endpoints(restbed::Service &service) {
         {"determine-tube-center/{tube_id: .*}/{set_home: .*}", {{"GET", &determine_tube_center}}},
         {"set-home-xy/", {{"GET", &set_home_xy}}},
         {"set-home-xy/{tube_id: .*}", {{"GET", &set_home_xy}}},
-        {"determine-tubesheet-z/{set_home: .*}", {{"GET", &determine_tubesheet_z}}},
+        {"determine-tubesheet-z", {{"GET", &determine_tubesheet_z}}},
         {"set-home-z/{z: .*}", {{"GET", &set_home_z}}},
         {"aligned-tubesheet-get", {{"GET", &aligned_tubesheet_get}}},
         {"axes-hard-stop-all", {{"GET", &axes_hard_stop_all}}},

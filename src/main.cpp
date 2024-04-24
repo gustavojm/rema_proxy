@@ -41,8 +41,8 @@ void register_event_source_handler(const shared_ptr<restbed::Session> &session) 
                     "Access-Control-Allow-Origin", "*" } //Only required for demo purposes.
     };
 
-    session->yield(OK, headers, [](const shared_ptr<restbed::Session> &session_ptr) {
-        sse_sessions.push_back(session_ptr);
+    session->yield(OK, headers, [](const shared_ptr<restbed::Session> &rest_session_ptr) {
+        sse_sessions.push_back(rest_session_ptr);
     });
 }
 
@@ -88,8 +88,8 @@ void event_stream_handler() {
     if (!res.empty()) {
         sse_sessions.erase(
                 std::remove_if(sse_sessions.begin(), sse_sessions.end(),
-                        [](const shared_ptr<Session> &session_ptr) {
-                            return session_ptr->is_closed();
+                        [](const shared_ptr<Session> &rest_session_ptr) {
+                            return rest_session_ptr->is_closed();
                         }),
                 sse_sessions.end());
 
@@ -174,7 +174,7 @@ void post_rtu_method_handler(const shared_ptr<restbed::Session> &session,
     size_t content_length = request->get_header("Content-Length", 0);
 
     session->fetch(content_length,
-            [&](const shared_ptr<restbed::Session> &session_ptr,
+            [&](const shared_ptr<restbed::Session> &rest_session_ptr,
                     const Bytes &body) {
 
                 std::string tx_buffer(body.begin(), body.end());
@@ -187,7 +187,7 @@ void post_rtu_method_handler(const shared_ptr<restbed::Session> &session,
                     if (!stream.empty()) {
                         //stream.pop_back(); // Erase null character at the end of stream response
 
-                        session_ptr->close(OK, stream, { { "Content-Length",
+                        rest_session_ptr->close(OK, stream, { { "Content-Length",
                                 ::to_string(stream.length()) }, {
                                 "Content-Type",
                                 "application/json; charset=utf-8" } });
@@ -196,7 +196,7 @@ void post_rtu_method_handler(const shared_ptr<restbed::Session> &session,
                 } catch (std::exception &e) {
                     std::string message = e.what();
                     SPDLOG_ERROR("COMMUNICATIONS ERROR {}", e.what());
-                    session_ptr->close(OK, message, { { "Content-Length",
+                    rest_session_ptr->close(OK, message, { { "Content-Length",
                             ::to_string(message.length()) }, { "Content-Type",
                             "application/json; charset=utf-8" },
                             { "Cache-Control", "no-store" }
