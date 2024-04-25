@@ -57,6 +57,10 @@ public:
 
     void process_csv();
 
+    void load_plan_from_disk(std::filesystem::path plan_file);
+
+    void load_plan(std::string plan_name, std::istream &stream);
+
     std::string load_plans();
 
     std::map<std::string, struct PlanEntry> plan_get(const std::string &plan);

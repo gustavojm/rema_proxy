@@ -22,6 +22,7 @@
 #include "websocket-server.hpp"
 #include "rema.hpp"
 #include "restfull_api.hpp"
+#include "multipart.h"
 
 Session current_session;
 
@@ -205,6 +206,55 @@ void post_rtu_method_handler(const std::shared_ptr<restbed::Session> &session,
             });
 }
 
+void file_upload_handler(const std::shared_ptr<restbed::Session> &session) {
+    const auto request = session->get_request();
+    size_t content_length = request->get_header("Content-Length", 0);
+
+    session->fetch(content_length,   
+            [&](const std::shared_ptr<restbed::Session> &rest_session_ptr,
+                    const restbed::Bytes &body) {
+
+                std::string buffer(body.begin(), body.end());
+                std::cout << buffer;
+
+                multipart::message multipart_msg(request->get_headers(), buffer);
+
+                for (auto part : multipart_msg.parts) {
+                    std::cout << ":::::\n";
+                    for (auto header : part.headers) {
+                        std::cout << "---------\n";
+                        std::cout << header.value.first << " = " << header.value.second << "\n";
+                        std::cout << "---------\n";
+
+                        for (auto param : header.params) {
+                            std::cout << "---PARAMS----\n";
+                            std::cout << param.first << " = " << param.second << "\n";
+                            if (param.first == "filename") {
+                                std::filesystem::path filename(param.second);
+                                std::istringstream istream(part.body); // this is an input stream
+                                current_session.load_plan(filename.replace_extension(), istream);
+                                current_session.save_to_disk();
+                                
+                            }
+                        }
+                    }
+                    std::cout << "---BODY---\n";
+                    std::cout << part.body << "\n";
+                    std::cout << ":::::\n";
+
+                }
+
+                std::string stream = "File uploaded correctly";
+
+                rest_session_ptr->close(restbed::OK, stream, { { "Content-Length",
+                                std::to_string(stream.length()) }, {
+                                "Content-Type",
+                                "application/json; charset=utf-8" } });
+
+            });
+}
+
+
 void failed_filter_validation_handler(
         const std::shared_ptr<restbed::Session> &session) {
     const auto request = session->get_request();
@@ -255,6 +305,13 @@ int main(const int, const char**) {
             failed_filter_validation_handler);
     resource_HXs->set_method_handler("GET", get_HXs_method_handler);
 
+    auto resource_upload = std::make_shared<restbed::Resource>();
+    resource_upload->set_path("/REMA/upload");
+    resource_upload->set_failed_filter_validation_handler(
+            failed_filter_validation_handler);
+    resource_upload->set_method_handler("POST", file_upload_handler);
+
+
     auto settings = std::make_shared<restbed::Settings>();
     settings->set_port(rema_proxy_port);
     //settings->set_default_header("Connection", "close");
@@ -276,6 +333,7 @@ int main(const int, const char**) {
     service.publish(resource_rtu);
     service.publish(resource_HXs);
     service.publish(resource_html_file);
+    service.publish(resource_upload);
     service.publish(resource_server_side_events);
 
     restfull_api_create_endpoints(service);

@@ -98,6 +98,28 @@ bool Session::load(std::string session_name) {
     return true;
 }
 
+void Session::load_plan(std::string plan_name, std::istream &stream) {
+    // Parse the CSV file to extract the data for the plan
+    io::CSVReader<4, io::trim_chars<' ', '\t'>, io::no_quote_escape<';'>> ip(
+            plan_name, stream);
+    ip.read_header(io::ignore_extra_column, "SEQ", "ROW", "COL", "TUBE");
+    int seq;
+    std::string row, col;
+    std::string tube_num;
+    while (ip.read_row(seq, row, col, tube_num)) {
+        std::string tube_num_stripped = tube_num.substr(5);
+        plans[plan_name][tube_num_stripped] = PlanEntry {
+                seq, row, col, false };
+        total_tubes_in_plans++;
+    }
+}
+
+void Session::load_plan_from_disk(std::filesystem::path plan_file) {
+    std::ifstream filestream(plan_file);
+    std::istream &inputstream = filestream;
+    load_plan(plan_file.filename().replace_extension(), inputstream);
+}
+
 std::string Session::load_plans() {
     std::stringstream out;
     std::filesystem::path plans_path = hx_directory / hx / "plans";
@@ -107,20 +129,7 @@ std::string Session::load_plans() {
             continue;
         }
         out << "Procesando plan: " << entry.path().filename() << "\n";
-
-        // Parse the CSV file to extract the data for the plan
-        io::CSVReader<4, io::trim_chars<' ', '\t'>, io::no_quote_escape<';'> > ip(
-                entry.path());
-        ip.read_header(io::ignore_extra_column, "SEQ", "ROW", "COL", "TUBE");
-        int seq;
-        std::string row, col;
-        std::string tube_num;
-        while (ip.read_row(seq, row, col, tube_num)) {
-            std::string tube_num_stripped = tube_num.substr(5);
-            plans[entry.path().filename().replace_extension()][tube_num_stripped] = PlanEntry {
-                    seq, row, col, false };
-            total_tubes_in_plans++;
-        }
+        load_plan_from_disk(entry);
     }
     loaded = true;
     return out.str();
