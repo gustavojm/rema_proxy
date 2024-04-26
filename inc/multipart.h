@@ -1,7 +1,12 @@
-#pragma once
+#ifndef MULTIMAP_HPP
+#define MULTIMAP_HPP
+
 #include <sstream>
 #include <string>
 #include <vector>
+#include <map>
+#include <unordered_map>
+#include <filesystem>
 
 /// Encapsulates anything related to processing and organizing `multipart/xyz` messages
 namespace multipart {
@@ -170,3 +175,5 @@ namespace multipart {
         }
     };
 } // namespace multipart
+
+#endif      // MULTIMAP_HPP

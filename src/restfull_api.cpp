@@ -99,6 +99,18 @@ void plans(const std::shared_ptr<restbed::Session> &rest_session) {
     close_rest_session(rest_session, restbed::OK, res);
 }
 
+void plans_delete(const std::shared_ptr<restbed::Session> &rest_session) {
+    const auto request = rest_session->get_request();
+    std::string plan = request->get_path_parameter("plan", "");
+
+    nlohmann::json res;
+    if (!plan.empty()) {
+         current_session.plan_remove(plan);
+    }    
+    close_rest_session(rest_session, restbed::OK);
+}
+
+
 /**
  * Tools related functions
  **/
@@ -726,7 +738,10 @@ void restfull_api_create_endpoints(restbed::Service &service) {
         {"HXs", {{"GET", &HXs_list_}}},
         {"HXs/tubesheet/load", {{"GET", &HXs_tubesheet_load}}},
         {"plans", {{"GET", &plans}}},
-        {"plans/{plan: .*}", {{"GET", &plans}}},
+        {"plans/{plan: .*}", {{"GET", &plans},
+                              {"DELETE", &plans_delete}
+                             }
+        },
         {"tools", {{"GET", &tools_list},
                    {"POST", &tools_create},
                   }

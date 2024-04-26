@@ -1,0 +1,154 @@
+<link rel="stylesheet" type="text/css" href="css/datatables.min.css" />
+
+<script type="text/javascript" src="js/datatables.min.js"></script>
+
+
+<div id="new_hxs_div" style="overflow: hidden; width: 100%;">
+	<form id="hxs_create">
+		<div>
+			<div style="padding-bottom: 10px;">
+				<label>HXs Name: <input type="text" name="hxs_name" /></label>
+			</div>
+			<div style="padding-bottom: 10px;">
+				<label>Offset X: <input type="text" name="offset_x" size="4" maxlength="6" data-inputmask-alias="decimal" data-inputmask-digits="3"/>inch</label>
+			</div>
+			<div style="padding-bottom: 10px;">
+				<label>Offset Y: <input type="text" name="offset_y" size="4" maxlength="6" data-inputmask-alias="decimal" data-inputmask-digits="3"/>inch</label>
+			</div>
+			<div style="padding-bottom: 10px;">
+				<label>Offset Z: <input type="text" name="offset_z" size="4" maxlength="6" data-inputmask-alias="decimal" data-inputmask-digits="3"/>inch</label>
+			</div>			
+		</div>
+	</form>
+	<div style="padding-bottom: 10px; padding-top: 10px;">
+		<textarea id="new_hxs_logs" style="width: 100%" readonly="readonly"></textarea>
+	</div>	
+</div>
+
+<div id="hxs_tab"
+	style="overflow: scroll; width: 100%; position: relative;">
+	<input type="button" value="New HXs" id="new_hxs_btn" />
+
+	<table id="hxs_table" class="datatables display" style="width: 100%">
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Options</th>
+			</tr>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
+</div>
+
+<script type="text/javascript">
+	var table;
+	
+	function load_hxs() {
+
+		table = $('#hxs_table').DataTable(
+				{
+					ajax : {
+						method : "GET",
+						url : "/REST/HXs",
+						dataSrc :function ( data ) {
+							var array_data = [];
+							$.each(data, function(id, hxs) {
+								hxs.file_name = id;
+								array_data.push(hxs);
+							});
+							return array_data;
+						} 						
+					},
+					columns : [
+							{
+								data : 'name'
+							},
+							{
+								data : null,
+								render : function(data, type, row) {
+									return '<a class="ui-icon ui-icon-trash" href="#" data-name="'
+											+ row.name + '">' + row.name
+											+ '</a>';
+								}
+							}, 
+					],
+				});
+		
+		table.on('draw.dt', function(e, settings, json, xhr) {			
+			$(".ui-icon-trash").on("click", function() {
+				var hxs_name = $(this).data("name");
+				
+				var confirm_action = confirm("Are you sure you want to delete " + hxs_name + " ?");
+		        if (confirm_action) {
+		        	$.ajax({
+						url : "/REST/HXs/" + hxs_name,
+						type : "DELETE",
+						success: function(data) {
+							get_rema_info();	// To reload the HXs selector
+							table.ajax.reload();
+						},
+						error: function(xhr, status, error) {
+							alert("Error");
+							console.log("Error", status, error);
+						}						
+		        	});
+		        }
+			});
+
+		})
+	}
+
+	$(function() {
+		load_hxs();
+		$("#new_hxs_btn").click(function() {
+			$("#new_hxs_div").dialog("open");
+		});
+	});
+
+	function create_dialog() {
+		var dialog = $("#new_hxs_div").dialog({
+			autoOpen : false,
+			title : "New HXs",
+			//modal : true,
+			buttons : [ {
+				text : "Create",
+				//icon: "ui-icon-heart",
+				click : function(event) {
+		        	$.ajax({
+						url : "/REST/HXs",
+						type : "POST",
+						data: JSON.stringify(Object.fromEntries(new FormData(document.getElementById("hxs_create")))),
+						success: function(data) {
+							$("#new_hxs_logs").val(data);
+							get_rema_info();	// To reload the HXss selector
+							table.ajax.reload();
+							$(event.target).hide(); // Hides the "Create" button
+						},
+						error: function(xhr, status, error) {							
+							console.log("Error", status, error);
+							$("#new_hxs_logs").val(xhr.responseText);
+
+						}						
+		        	});
+				
+				}
+			}, {
+				text : "Close",
+				//icon: "ui-icon-heart",
+				click : function(event) {
+					dialog.find("form")[0].reset();
+					dialog.dialog("close");
+					dialog.dialog("destroy");
+					$("#new_hxs_logs").val("");
+					create_dialog();
+					table.ajax.reload();
+				}
+			} ]
+		});
+	}
+
+	$(function() {
+		create_dialog();
+	});
+</script>

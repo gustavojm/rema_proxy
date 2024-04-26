@@ -1,0 +1,55 @@
+<link rel="stylesheet" type="text/css" href="css/datatables.min.css" />
+
+<script type="text/javascript" src="js/datatables.min.js"></script>
+
+<div id="tubesheet_tab"
+	style="overflow: scroll; width: 100%; height:90%; position: relative;">
+	<table id="tubesheet_table" class="datatables display my-table"
+		style="width: 100%">
+		<thead>
+			<tr>
+				<th>ID</th>
+				<th>Col</th>
+				<th>Row</th>
+				<th>X</th>
+				<th>Y</th>
+			</tr>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
+</div>
+
+<script type="text/javascript">
+	$(function() {
+
+		$('#tubesheet_table').DataTable({
+			pageLength: 25,
+			ajax : {
+				method : "GET",
+				url : "/REST/HXs/tubesheet/load",
+				dataSrc :function ( data ) {
+					var array_data = [];
+					$.each(data, function(id, tube) {
+						tube.tube_id = id;
+						array_data.push(tube);
+					});
+					return array_data;
+				} 						
+			},
+			columns : [ {
+					data : 'tube_id'				
+				}, {
+					data : 'x_label'
+				}, {
+					data : 'y_label'
+				},{
+					data : 'coords.x'
+				}, {
+					data : 'coords.y'
+				},  
+			]
+
+		});
+	});
+</script>

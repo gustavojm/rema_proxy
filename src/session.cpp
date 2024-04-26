@@ -92,8 +92,8 @@ bool Session::load(std::string session_name) {
     nlohmann::json json;
     i_file_stream >> json;
     *this = json;
-    this->loaded = true;
-    this->name = session_name;
+    loaded = true;
+    name = session_name;
 
     return true;
 }
@@ -143,6 +143,15 @@ std::map<std::string, PlanEntry> Session::plan_get(const std::string &plan) {
         return it->second;
     } else  {
         return {};
+    }
+}
+
+void Session::plan_remove(const std::string &plan) {
+    last_selected_plan = "";
+
+    auto it = plans.find(plan);
+    if (it != plans.end()) {
+        plans.erase(it);
     }
 }
 

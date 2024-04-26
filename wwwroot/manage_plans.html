@@ -1,0 +1,100 @@
+<div id="manage_plans">
+  <div class="row">
+    <div class="column" style="width:100%"> 
+      <span>
+        <select id="loaded_plans"></select>
+        <button id="remove_plan_btn">Remove Plan</button>
+      </span>
+    </div>
+  </div>
+  <div><hr></div>
+  <form id="manage_plans_form" class="row" enctype="multipart/form-data">
+    <div class="column" style="width:60%">
+      <div class="row" style="position: relative; width:100%; justify-content: space-between;">
+        <input type="file" name="file1">
+      </div>
+      <div class="row" style="position: relative; width:100%; justify-content: space-between;">
+        <input type="file" name="file2">
+      </div>
+      <div class="row" style="position: relative; width:100%; justify-content: space-between;">
+        <input type="file" name="file3">
+      </div>
+      <div class="row" style="position: relative; width:100%; justify-content: space-between;">
+        <input type="file" name="file4">
+      </div>
+    </div>
+    <div class="column">
+      <button type="submit">Upload</button>
+    </div>
+  </form>
+</div>
+
+<script>
+
+  $(function () {
+    $("#manage_plans_div").on("dialogopen", function (event, ui) {
+      var loaded_plans_dropdown = $('#loaded_plans');
+      loaded_plans_dropdown.empty();
+      loaded_plans_dropdown
+        .append('<option value="">Choose a Plan</option>');
+      loaded_plans_dropdown.prop('selectedIndex', 0);
+      
+      get_session_info()
+        .done(
+          function (data) {
+
+            // Populate dropdown with list of Plans 		
+            $.each(
+              data.plans,
+              function (key, entry) {
+                loaded_plans_dropdown
+                  .append($(
+                    '<option></option>')
+                    .attr(
+                      'value',
+                      key)
+                    .text(
+                      key)
+                  );
+              });
+          });
+    });
+
+    $("#remove_plan_btn").click(function () {
+      var plan_name = $("#loaded_plans").val();		
+      var confirm_action = confirm("Are you sure you want to remove " + plan_name + " from this session?");
+      if (confirm_action) {
+        $.ajax({
+          url : "/REST/plans/" + plan_name,
+          type : "DELETE",
+          success: function(data) {
+            window.location.reload();
+          },
+          error: function(xhr, status, error) {
+            alert("Error");
+            console.log("Error", status, error);
+          }						
+        });
+      }
+    });
+  });
+
+
+  $("#manage_plans_form").submit(function (e) {
+    $.ajax( {
+      url: '/REMA/upload/plans',
+      type: 'POST',
+      data: new FormData( this ),
+      processData: false,
+      contentType: false
+    })
+    .done(function(){
+      console.log("files uploaded");
+    })
+    .error(function(){
+      console.log("ERROR");
+    });
+    e.preventDefault();
+  });
+  
+</script>

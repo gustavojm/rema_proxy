@@ -65,6 +65,8 @@ public:
 
     std::map<std::string, struct PlanEntry> plan_get(const std::string &plan);
 
+    void plan_remove(const std::string &plan);
+
     void cal_points_add_update(const std::string &tube_id, const std::string &col, const std::string &row, Point3D &ideal_coords, Point3D &determined_coords);
 
     void cal_points_delete(const std::string &id);
