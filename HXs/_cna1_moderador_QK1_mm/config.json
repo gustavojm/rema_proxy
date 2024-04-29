@@ -1,12 +1,12 @@
 {
-    "leg" : "cold",
-    "tube_od" : 12.900000006,
-    "min_x" : -304.8,
-    "width" : 609.6,
-    "min_y" : -304.8,
-    "height" : 609.6,
-    "font_size" : "5.08",
-    "x_labels" : "-297.18 297.18",
-    "y_labels" : "-292.1 292.1",
-    "unit" : "mm"
+    "leg" : "cold",                 // "hot", "cold" or "both"
+    "tube_od" : 12.900000006,       // tube outside diameter
+    "min_x" : -304.8,               // minimum x coordinate of the viewport for the tubesheet
+    "width" : 609.6,                // width of the viewport for the tubesheet
+    "min_y" : -304.8,               // minimum y coordinate of the viewport for the tubesheet
+    "height" : 609.6,               // height of the viewport for the tubesheet
+    "font_size" : "5.08",           // font size for coordinates
+    "x_labels" : "-297.18 297.18",  // where to put coordinates on the horizontal axis, many can be used, separate them by space
+    "y_labels" : "-292.1 292.1",    // where to put coordinates on the vertical axis, many can be used, separate them by space
+    "unit" : "mm"                   // "mm" or "inch"
 }

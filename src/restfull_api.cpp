@@ -80,6 +80,19 @@ void HXs_list_(const std::shared_ptr<restbed::Session> &rest_session) {
     close_rest_session(rest_session, restbed::OK, nlohmann::json(HXs_list()));
 }
 
+void HXs_delete_(const std::shared_ptr<restbed::Session> &rest_session) {
+    const auto request = rest_session->get_request();
+    std::string HX_name = request->get_path_parameter("HX_name", "");
+
+    nlohmann::json res;
+    if (!HX_name.empty()) {
+         if (!HXs_delete(HX_name)) {
+            res["error"] = "Unable to delete Heat Exchanger";
+         }
+    }    
+    close_rest_session(rest_session, restbed::OK);
+}
+
 void HXs_tubesheet_load(const std::shared_ptr<restbed::Session> &rest_session) {
     close_rest_session(rest_session, restbed::OK,  nlohmann::json(current_session.tubes));
 }
@@ -197,8 +210,8 @@ void sessions_list(const std::shared_ptr<restbed::Session> &rest_session) {
             {"name", session.name},
             {"hx", session.hx },
             {"last_write_time", session.last_write_time},
-            {"total_tubes_in_plans", session.total_tubes_in_plans},
-            {"total_tubes_executed", session.total_tubes_executed}
+            {"total_tubes_in_plans", session.total_tubes_in_plans()},
+            {"total_tubes_executed", session.total_tubes_executed()}
         });
     }
     close_rest_session(rest_session, restbed::OK, res);
@@ -588,7 +601,8 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> &rest_session
         double tube_radius = current_session.tube_od / 2;
         Point3D ideal_center = current_session.get_tube_coordinates(tube_id, true);
 
-        if (auto distance = std::abs(rema_instance.telemetry.coords.distance_xy(ideal_center)); distance > tube_radius * probe_wiggle_factor ) {
+        if (auto distance = std::abs(rema_instance.telemetry.coords.distance_xy(current_session.from_ui_to_rema(ideal_center, &tool))); 
+                                        distance > tube_radius * probe_wiggle_factor ) {
             res["error"] = "Please have the touch probe inserted into the tube to be detected";
             close_rest_session(rest_session, restbed::CONFLICT, res);
             return;
@@ -657,7 +671,8 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> &rest_session
             } else if (set_home) {
                 auto step = goto_center_seq.begin();
                 if (step->executed && step->execution_results.stopped_on_condition) {
-                    rema_instance.set_home_xy(ideal_center.x - tool.offset.x, ideal_center.y - tool.offset.y);
+                    rema_instance.set_home_xy(current_session.from_ui_to_rema(ideal_center.x) + tool.offset.x, 
+                                              current_session.from_ui_to_rema(ideal_center.y) + tool.offset.y);
                 }
             }            
         }
@@ -735,7 +750,8 @@ void restfull_api_create_endpoints(restbed::Service &service) {
     std::map<std::string, std::vector<ResourceEntry>> rest_resources = {
         {"REMA/connect", {{"POST", &REMA_connect}}},
         {"REMA/info", {{"GET", &REMA_info}}},
-        {"HXs", {{"GET", &HXs_list_}}},
+        {"HXs", {{"GET", &HXs_list_}}}, 
+        {"HXs/{HX_name: .*}", {{"DELETE", &HXs_delete_}}},
         {"HXs/tubesheet/load", {{"GET", &HXs_tubesheet_load}}},
         {"plans", {{"GET", &plans}}},
         {"plans/{plan: .*}", {{"GET", &plans},

@@ -143,6 +143,10 @@ public:
     void set_tube_executed(std::string &plan,
             std::string &tube_id, bool state);
 
+    int total_tubes_in_plans();
+
+    int total_tubes_executed();
+
     static void delete_session(std::string session_name) {
         std::filesystem::remove(sessions_dir / (session_name + std::string(".json")));
     }
@@ -159,7 +163,7 @@ public:
     std::filesystem::path hx_directory;
     std::filesystem::path hx;
     std::filesystem::path tubesheet_csv;
-    std::filesystem::path tubesheet_svg;
+    std::string tubesheet_svg ;
     std::string last_selected_plan;
     std::string last_write_time;
     float tube_od;
@@ -177,12 +181,10 @@ public:
         std::set<std::pair<std::string, float>> y_labels;
     } svg;
     std::map<std::string, CalPointEntry> cal_points;
-    int total_tubes_in_plans = 0;
-    int total_tubes_executed = 0;
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Session, name,
-        last_write_time, hx_directory, hx, tubesheet_csv, tubesheet_svg,
-        last_selected_plan, plans, leg, tube_od, unit, scale, cal_points, total_tubes_in_plans, total_tubes_executed)
+        last_write_time, hx_directory, hx, tubesheet_csv, 
+        last_selected_plan, plans, leg, tube_od, unit, scale, cal_points)
 
 #endif 		// SESSION_HPP

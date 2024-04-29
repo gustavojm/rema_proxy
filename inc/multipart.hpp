@@ -1,5 +1,5 @@
-#ifndef MULTIMAP_HPP
-#define MULTIMAP_HPP
+#ifndef MULTIPART_HPP
+#define MULTIPART_HPP
 
 #include <sstream>
 #include <string>
@@ -176,4 +176,4 @@ namespace multipart {
     };
 } // namespace multipart
 
-#endif      // MULTIMAP_HPP
+#endif      // MULTIPART_HPP

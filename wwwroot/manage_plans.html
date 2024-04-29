@@ -78,11 +78,10 @@
       }
     });
   });
-
-
+ 
   $("#manage_plans_form").submit(function (e) {
     $.ajax( {
-      url: '/REMA/upload/plans',
+      url: '/upload/plans',
       type: 'POST',
       data: new FormData( this ),
       processData: false,

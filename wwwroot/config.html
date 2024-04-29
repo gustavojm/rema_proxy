@@ -22,9 +22,7 @@
 <script type="text/javascript">
 	function save(btn) {
 
-		console.log(btn.parent());
 		div = btn.closest(".axes-div");
-		console.log(div);
 		axes = $(div).data("axes");
 		kp = parseInt($(div).find('[name="kp"]').val()) || 100;
 		update_time = parseInt($(div).find('[name="update_time"]').val()) || 100;

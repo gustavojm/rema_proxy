@@ -1,8 +1,54 @@
-#include "multipart.h"
+#include "multipart.hpp"
 #include "upload.hpp"
 #include "session.hpp"
+#include "HXs.hpp"
 
 extern Session current_session;
+
+void extract_plans_from_multipart_header(multipart::message &multipart_msg) {
+    for (auto part : multipart_msg.parts) {
+        for (auto header : part.headers) {
+            for (auto param : header.params) {
+                if (param.first == "filename") {
+                    std::filesystem::path filename(param.second);
+                    std::istringstream istream(part.body); // this is an input stream
+                    if (current_session.is_loaded()) {
+                        current_session.load_plan(filename.replace_extension(), istream);
+                        std::cout << "created: " << filename.replace_extension() << "\n";
+                        current_session.save_to_disk();
+                    }
+                }
+            }
+        }
+    }
+}
+
+void extract_HX_from_multipart_form_data(multipart::message &multipart_msg) {
+    std::string HXname;
+    std::string csv_content;
+    std::string config_content;
+    for (auto part : multipart_msg.parts) {
+        for (auto header : part.headers) {
+            for (auto [key, value] : header.params) {
+                if (key == "name" && value == "tubesheet") {
+                    if (auto it = header.params.find("filename"); it != header.params.end()) {
+                        HXname = std::filesystem::path(it->second).replace_extension();
+                        csv_content = part.body;
+                    }
+                }
+                if (key == "name" && value == "config") {
+                    if (auto it = header.params.find("filename"); it != header.params.end()) {
+                        config_content = part.body;
+                    }
+                }
+            }
+        }
+    }
+
+    if (!HXname.empty() and !csv_content.empty() and !config_content.empty()) {
+        HXs_create(HXname, csv_content, config_content);
+    }
+}
 
 void file_upload_handler(const std::shared_ptr<restbed::Session> &session) {
     const auto request = session->get_request();
@@ -16,28 +62,14 @@ void file_upload_handler(const std::shared_ptr<restbed::Session> &session) {
 
                 std::string buffer(body.begin(), body.end());
                 multipart::message multipart_msg(request->get_headers(), buffer);
-                std::cout << multipart_msg.dump();
+                // std::cout << multipart_msg.dump();
 
-                for (auto part : multipart_msg.parts) {
-                    for (auto header : part.headers) {
-                        for (auto param : header.params) {
-                            if (param.first == "filename") {
-                                if (asset == "plans") {
-                                    std::filesystem::path filename(param.second);
-                                    std::istringstream istream(part.body); // this is an input stream
-                                    if (current_session.is_loaded()) {
-                                        current_session.load_plan(filename.replace_extension(), istream);
-                                        std::cout << "created: " << filename.replace_extension() << "\n";
-                                        current_session.save_to_disk();                                        
-                                    }
-                                } 
-
-                                if (asset == "HXs") {
-                                }
-                            }
-                        }
-                    }
+                if (asset == "plans") {
+                    extract_plans_from_multipart_header(multipart_msg);
                 }
+                if (asset == "HXs") {
+                    extract_HX_from_multipart_form_data(multipart_msg);
+                }                                
 
                 std::string stream = "File uploaded correctly";
                 rest_session_ptr->close(restbed::OK, stream, { { "Content-Length",
@@ -48,12 +80,11 @@ void file_upload_handler(const std::shared_ptr<restbed::Session> &session) {
             });
 }
 
-
 // @formatter:off
 void upload_create_endpoints(restbed::Service &service) {
 
     auto resource_upload = std::make_shared<restbed::Resource>();
-    resource_upload->set_path("/REMA/upload/{asset: .*}");
+    resource_upload->set_path("/upload/{asset: .*}");
     // resource_upload->set_failed_filter_validation_handler(
     //         failed_filter_validation_handler);
     resource_upload->set_method_handler("POST", file_upload_handler);

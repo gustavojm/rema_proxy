@@ -17,4 +17,4 @@
 
 void upload_create_endpoints(restbed::Service &service);
 
-#endif      // UPLOAD_HPP
+#endif // UPLOAD_HPP

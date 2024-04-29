@@ -413,7 +413,7 @@
 							aligned_tubes = data.aligned_tubes;
 						}
 						svg_load("../"
-								+ (data.tubesheet_svg || "/static/no_session_loaded.svg"), tube_od, scale);
+								+ ("HXs_svg" || "/static/no_session_loaded.svg"), tube_od, scale);
 
 						var plans_dropdown = $('#plans');
 						var table = $('#plan_table').DataTable();
@@ -503,16 +503,14 @@
 					buttons : [{
 						text : "File Formats",
 						icon: "ui-icon-help",
+            click : function(event) {
+						  window. open ("/static/plans_fileformats.html", "_blank");
+					  }
 					},
 					{
 						text : "Close",
 						//icon: "ui-icon-heart",
 						click : function(event) {
-							dialog.find("form")[0].reset();
-							dialog.dialog("close");
-							dialog.dialog("destroy");
-							$("#new_tool_logs").val("");
-							create_dialog();
 							table.ajax.reload();
 						}
 					}],
@@ -527,7 +525,7 @@
 			});
 
 		}
-	
+
 	$(function() {
 
 		var leg_switch = $('#leg_switch').rcSwitcher({

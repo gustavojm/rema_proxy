@@ -62,8 +62,7 @@ Session::Session(const std::string &session_name,
     hx_directory = std::filesystem::path("HXs");
 
     tubesheet_csv = hx_directory / hx / "tubesheet.csv";
-    tubesheet_svg = hx_directory / hx / "tubesheet.svg";
-
+    
     try {
         std::filesystem::path config_file_path = hx_directory / hx / "config.json";
         std::ifstream config_file(config_file_path);
@@ -92,7 +91,7 @@ bool Session::load(std::string session_name) {
     nlohmann::json json;
     i_file_stream >> json;
     *this = json;
-    loaded = true;
+    loaded = true;    
     name = session_name;
 
     return true;
@@ -110,7 +109,6 @@ void Session::load_plan(std::string plan_name, std::istream &stream) {
         std::string tube_num_stripped = tube_num.substr(5);
         plans[plan_name][tube_num_stripped] = PlanEntry {
                 seq, row, col, false };
-        total_tubes_in_plans++;
     }
 }
 
@@ -123,13 +121,15 @@ void Session::load_plan_from_disk(std::filesystem::path plan_file) {
 std::string Session::load_plans() {
     std::stringstream out;
     std::filesystem::path plans_path = hx_directory / hx / "plans";
-    for (const auto &entry : std::filesystem::directory_iterator(
-            plans_path)) {
-        if (!(entry.path().filename().extension() == ".csv")) {
-            continue;
+    if (std::filesystem::is_directory(plans_path)) {
+        for (const auto &entry : std::filesystem::directory_iterator(
+                plans_path)) {
+            if (!(entry.path().filename().extension() == ".csv")) {
+                continue;
+            }
+            out << "Procesando plan: " << entry.path().filename() << "\n";
+            load_plan_from_disk(entry);
         }
-        out << "Procesando plan: " << entry.path().filename() << "\n";
-        load_plan_from_disk(entry);
     }
     loaded = true;
     return out.str();
@@ -160,7 +160,7 @@ void Session::save_to_disk() const {
     std::ofstream file(session_file);
     nlohmann::json json(*this);
     json.erase("name");
-    json.erase("last_write_time");
+    json.erase("last_write_time");    
     file << json;
 }
 
@@ -176,8 +176,25 @@ std::string Session::get_selected_plan() const {
 void Session::set_tube_executed(std::string &plan,
         std::string &tube_id, bool state) {
     plans[plan][tube_id].executed = state;
-    state ? total_tubes_executed++ : total_tubes_executed--;
     changed = true;
+}
+
+int Session::total_tubes_in_plans() {
+    int total = 0;
+    for (auto plan: plans) {
+        total += plan.second.size();
+    }
+    return total;
+}
+
+int Session::total_tubes_executed() {
+    int total = 0;
+    for (auto &[key, value]: plans) {
+        total += std::count_if(value.begin(), value.end(), [](auto &entry) {
+            return entry.second.executed;
+        });
+    }
+    return total;
 }
 
 void Session::cal_points_add_update(const std::string &tube_id, const std::string &col, const std::string &row, Point3D &ideal_coords, Point3D &determined_coords)  {
@@ -227,7 +244,7 @@ void Session::generate_svg() {
 
         if (config_file.is_open()) {
             nlohmann::json config;
-            config_file >> config;
+            config = nlohmann::json::parse(config_file, nullptr, true, true);
 
             min_x = config.value("min_x", 0.0F);        
             min_y = config.value("min_y", 0.0F);
@@ -319,11 +336,14 @@ void Session::generate_svg() {
         cartesian_g_node->append_node(tube_node);
     }
 
-    // Write the SVG document to a file
-    std::filesystem::path svg_path = hx_directory / hx / "tubesheet.svg";
-    std::ofstream file(svg_path);
-    file << document;
-    file.close();
+    // // Write the SVG document to a file
+    // std::filesystem::path svg_path = hx_directory / hx / "tubesheet.svg";
+    // std::ofstream file(svg_path);
+    // file << document;
+    // file.close();
+    std::ostringstream stream;
+    stream << document;
+    tubesheet_svg = stream.str();
 }
 
 

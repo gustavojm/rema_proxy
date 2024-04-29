@@ -1,0 +1,36 @@
+<h3>Tubesheet File Format</h3>
+<h4>The name of the file should be the name of the HX to be added to the program</h4>
+<h5>Example:</h5>
+<hr>
+<pre>
+    <code>
+        x_label;y_label;cl_x;cl_y;hl_x;hl_y;tube_id
+        2;1;71,938;0,704;0,812;0,704;TUBE.1
+        4;1;71,125;0,704;1,625;0,704;TUBE.2
+        6;1;70,312;0,704;2,438;0,704;TUBE.3
+        8;1;69,5;0,704;3,25;0,704;TUBE.4
+    </code>
+</pre>
+<hr>
+
+<h3>HX config file:</h3>
+<h4>The name of the file should be: config.json</h4>
+<h5>Example:</h5>
+<hr>
+<pre>
+    <code>
+    {
+        "leg" : "cold",                 // "hot", "cold" or "both"
+        "tube_od" : 12.900000006,       // tube outside diameter
+        "min_x" : -304.8,               // minimum x coordinate of the viewport for the tubesheet
+        "width" : 609.6,                // width of the viewport for the tubesheet
+        "min_y" : -304.8,               // minimum y coordinate of the viewport for the tubesheet
+        "height" : 609.6,               // height of the viewport for the tubesheet
+        "font_size" : "5.08",           // font size for coordinates
+        "x_labels" : "-297.18 297.18",  // where to put coordinates on the horizontal axis, many can be used, separate them by space
+        "y_labels" : "-292.1 292.1",    // where to put coordinates on the vertical axis, many can be used, separate them by space
+        "unit" : "mm"                   // "mm" or "inch"
+    }
+    </code>
+</pre>
+<hr>

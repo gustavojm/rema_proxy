@@ -103,29 +103,9 @@ void event_stream_handler() {
 }
 
 void get_HXs_method_handler(const std::shared_ptr<restbed::Session> &session) {
-    const auto request = session->get_request();
-
-    const std::string filename = request->get_path_parameter("filename");
-
-    std::string path = request->get_path();
-    if (path.front() == '/') {
-        path.erase(path.begin());
-    }
-
-    std::filesystem::path file_path { path };
-    std::ifstream stream(file_path, std::ifstream::in);
-
-    if (stream.is_open()) {
-        const std::string body = std::string(std::istreambuf_iterator<char>(stream),
-                std::istreambuf_iterator<char>());
-
-        std::string content_type;
-        std::string ext = file_path.filename().extension();
-        if (auto elem = mime_types.find(ext); elem != mime_types.end()) {
-            content_type = (*elem).second;
-        } else {
-            content_type = "text/html";
-        }
+    if (current_session.is_loaded()) {
+        const std::string body = current_session.tubesheet_svg;
+        std::string content_type = "image/svg+xml"; 
 
         const std::multimap<std::string, std::string> headers {
                 { "Content-Type", content_type }, { "Content-Length",
@@ -252,7 +232,7 @@ int main(const int, const char**) {
     resource_html_file->set_method_handler("GET", get_method_handler);
 
     auto resource_HXs = std::make_shared<restbed::Resource>();
-    resource_HXs->set_path("/HXs/{folder: .*}/{file: .*}");
+    resource_HXs->set_path("/HXs_svg");
     resource_HXs->set_failed_filter_validation_handler(
             failed_filter_validation_handler);
     resource_HXs->set_method_handler("GET", get_HXs_method_handler);
