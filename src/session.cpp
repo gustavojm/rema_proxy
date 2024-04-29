@@ -23,11 +23,18 @@ void Session::copy_tubes_to_aligned_tubes() {
     }
 }
 
-void Session::process_csv() {
+void Session::process_HXs_csv_from_disk() {
     std::filesystem::path csv_file = hx_directory / hx / "tubesheet.csv";
     SPDLOG_INFO("Reading {}", csv_file.string());
 
-    io::CSVReader<7, io::trim_chars<' ', '\t'>, io::no_quote_escape<';'>> in(csv_file);
+    std::ifstream filestream(csv_file);
+    std::istream &inputstream = filestream;
+    process_HXs_csv(csv_file.replace_extension(), inputstream);
+}
+
+
+void Session::process_HXs_csv(std::string hx_name, std::istream &stream) {
+    io::CSVReader<7, io::trim_chars<' ', '\t'>, io::no_quote_escape<';'>> in(hx_name, stream);
     in.read_header(io::ignore_extra_column, "x_label", "y_label", "cl_x",
             "cl_y", "hl_x", "hl_y", "tube_id");
     std::string x_label, y_label;
@@ -48,11 +55,6 @@ void Session::process_csv() {
             svg.y_labels.insert(std::make_pair(y_label, hl_y));
         }
     }
-    generate_svg();
-
-    copy_tubes_to_aligned_tubes();
-
-    calculate_aligned_tubes();
 }
 
 Session::Session(const std::string &session_name,
@@ -81,7 +83,10 @@ Session::Session(const std::string &session_name,
         SPDLOG_WARN(e.what());
     }
 
-    process_csv();
+    process_HXs_csv_from_disk();
+    generate_svg();
+    copy_tubes_to_aligned_tubes();
+    calculate_aligned_tubes();
 }
 
 bool Session::load(std::string session_name) {

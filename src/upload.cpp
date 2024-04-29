@@ -33,12 +33,15 @@ void extract_HX_from_multipart_form_data(multipart::message &multipart_msg) {
                 if (key == "name" && value == "tubesheet") {
                     if (auto it = header.params.find("filename"); it != header.params.end()) {
                         HXname = std::filesystem::path(it->second).replace_extension();
+                        Session temp;
+                        std::istringstream istream(part.body); // this is an input stream
+                        temp.process_HXs_csv(it->second, istream);
                         csv_content = part.body;
                     }
                 }
                 if (key == "name" && value == "config") {
-                    if (auto it = header.params.find("filename"); it != header.params.end()) {
-                        config_content = part.body;
+                    if (auto it = header.params.find("filename"); it != header.params.end()) {                        
+                        config_content = nlohmann::json::parse(part.body, nullptr, true, true);
                     }
                 }
             }
@@ -59,21 +62,27 @@ void file_upload_handler(const std::shared_ptr<restbed::Session> &session) {
     session->fetch(content_length,   
             [&, asset](const std::shared_ptr<restbed::Session> &rest_session_ptr,
                     const restbed::Bytes &body) {
-
+                nlohmann::json res;
+                int status = restbed::OK;
                 std::string buffer(body.begin(), body.end());
                 multipart::message multipart_msg(request->get_headers(), buffer);
                 // std::cout << multipart_msg.dump();
 
-                if (asset == "plans") {
-                    extract_plans_from_multipart_header(multipart_msg);
+                try {
+                    if (asset == "plans") {
+                        extract_plans_from_multipart_header(multipart_msg);
+                    }
+                    if (asset == "HXs") {
+                        extract_HX_from_multipart_form_data(multipart_msg);
+                    }
+                    res["success"] = "File uploaded correctly";
+                } catch (std::exception &e) {
+                    res["error"] = e.what();
+                    status = restbed::BAD_REQUEST;
                 }
-                if (asset == "HXs") {
-                    extract_HX_from_multipart_form_data(multipart_msg);
-                }                                
 
-                std::string stream = "File uploaded correctly";
-                rest_session_ptr->close(restbed::OK, stream, { { "Content-Length",
-                                std::to_string(stream.length()) }, {
+                rest_session_ptr->close(status, res.dump(), { { "Content-Length",
+                                std::to_string(res.dump().length()) }, {
                                 "Content-Type",
                                 "application/json; charset=utf-8" } });
 

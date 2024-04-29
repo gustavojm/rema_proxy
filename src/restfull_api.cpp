@@ -263,7 +263,11 @@ void sessions_load(const std::shared_ptr<restbed::Session> &rest_session) {
     if (!session_name.empty()) {
         try {
             current_session.load(session_name);
-            current_session.process_csv();
+            current_session.process_HXs_csv_from_disk();
+            current_session.generate_svg();
+            current_session.copy_tubes_to_aligned_tubes();
+            current_session.calculate_aligned_tubes();
+
             status = restbed::OK;
         } catch (std::exception &e) {
             res = e.what();

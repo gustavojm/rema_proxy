@@ -27,6 +27,9 @@
       <button type="submit">Upload</button>
     </div>
   </form>
+	<div style="padding-bottom: 10px; padding-top: 10px;">
+		<textarea id="upload_plans_logs" style="width: 100%" readonly="readonly"></textarea>
+	</div>
 </div>
 
 <script>
@@ -85,14 +88,16 @@
       type: 'POST',
       data: new FormData( this ),
       processData: false,
-      contentType: false
+      contentType: false,
+      dataType : "json",
     })
     .done(function(){
       console.log("files uploaded");
     })
-    .error(function(){
-      console.log("ERROR");
-    });
+    .fail(function(xhr, status, error) {							
+      console.log(xhr, status, error);
+			$("#upload_plans_logs").val(xhr.responseJSON["error"]);
+		});
     e.preventDefault();
   });
   

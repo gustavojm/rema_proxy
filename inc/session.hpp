@@ -55,7 +55,9 @@ public:
 
     explicit Session(const std::filesystem::path &session_file);
 
-    void process_csv();
+    void process_HXs_csv_from_disk();
+
+    void process_HXs_csv(std::string hx_name, std::istream &stream);
 
     void load_plan_from_disk(std::filesystem::path plan_file);
 
