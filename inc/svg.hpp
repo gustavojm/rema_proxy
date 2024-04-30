@@ -14,6 +14,7 @@
 #include "rapidxml-1.13/rapidxml_print.hpp"
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string.hpp>
+#include "tube_entry.hpp"
 
 static inline void append_attributes(rapidxml::xml_document<char> *doc,
         rapidxml::xml_node<char> *node,
@@ -57,7 +58,7 @@ static inline rapidxml::xml_node<char>* add_label(rapidxml::xml_document<char> *
     return label_node;
 }
 
-rapidxml::xml_node<char>* add_tube(rapidxml::xml_document<char> *doc,
+static inline rapidxml::xml_node<char>* add_tube(rapidxml::xml_document<char> *doc,
         TubeEntry tube, std::string id, float radius) {
     auto tube_group_node = doc->allocate_node(rapidxml::node_element, "g");
     append_attributes(doc, tube_group_node,

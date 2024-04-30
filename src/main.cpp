@@ -104,7 +104,7 @@ void event_stream_handler() {
 
 void get_HXs_method_handler(const std::shared_ptr<restbed::Session> &session) {
     if (current_session.is_loaded()) {
-        const std::string body = current_session.tubesheet_svg;
+        const std::string body = current_session.hx.tubesheet_svg;
         std::string content_type = "image/svg+xml"; 
 
         const std::multimap<std::string, std::string> headers {

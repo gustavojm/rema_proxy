@@ -14,7 +14,7 @@
 #include "session.hpp"
 #include "tool.hpp"
 #include "rema.hpp"
-#include "HXs.hpp"
+#include "HX.hpp"
 #include "points.hpp"
 #include "circle_fns.hpp"
 #include "misc_fns.hpp"
@@ -63,7 +63,7 @@ void REMA_info(const std::shared_ptr<restbed::Session> &rest_session) {
 
     std::map<std::string, Tool> tools_to_ui;
     for (auto [id, tool] : REMA::tools) {
-        tools_to_ui[id] = Tool(id , (tool.offset * current_session.scale));
+        tools_to_ui[id] = Tool(id , (tool.offset * current_session.hx.scale));
     }
 
     res["tools"] = tools_to_ui;
@@ -76,17 +76,17 @@ void REMA_info(const std::shared_ptr<restbed::Session> &rest_session) {
 /**
  * HX related functions
  **/
-void HXs_list_(const std::shared_ptr<restbed::Session> &rest_session) {
-    close_rest_session(rest_session, restbed::OK, nlohmann::json(HXs_list()));
+void HXs_list(const std::shared_ptr<restbed::Session> &rest_session) {
+    close_rest_session(rest_session, restbed::OK, nlohmann::json(HX::list()));
 }
 
-void HXs_delete_(const std::shared_ptr<restbed::Session> &rest_session) {
+void HXs_delete(const std::shared_ptr<restbed::Session> &rest_session) {
     const auto request = rest_session->get_request();
     std::string HX_name = request->get_path_parameter("HX_name", "");
 
     nlohmann::json res;
     if (!HX_name.empty()) {
-         if (!HXs_delete(HX_name)) {
+         if (!HX::erase(HX_name)) {
             res["error"] = "Unable to delete Heat Exchanger";
          }
     }    
@@ -94,7 +94,7 @@ void HXs_delete_(const std::shared_ptr<restbed::Session> &rest_session) {
 }
 
 void HXs_tubesheet_load(const std::shared_ptr<restbed::Session> &rest_session) {
-    close_rest_session(rest_session, restbed::OK,  nlohmann::json(current_session.tubes));
+    close_rest_session(rest_session, restbed::OK,  nlohmann::json(current_session.hx.tubes));
 }
 
 /**
@@ -209,6 +209,7 @@ void sessions_list(const std::shared_ptr<restbed::Session> &rest_session) {
         res.push_back({
             {"name", session.name},
             {"hx", session.hx },
+            {"hx_dir", session.hx_dir},
             {"last_write_time", session.last_write_time},
             {"total_tubes_in_plans", session.total_tubes_in_plans()},
             {"total_tubes_executed", session.total_tubes_executed()}
@@ -263,8 +264,8 @@ void sessions_load(const std::shared_ptr<restbed::Session> &rest_session) {
     if (!session_name.empty()) {
         try {
             current_session.load(session_name);
-            current_session.process_HXs_csv_from_disk();
-            current_session.generate_svg();
+            current_session.hx.process_csv_from_disk(current_session.hx_dir);
+            current_session.hx.generate_svg(current_session.hx_dir);
             current_session.copy_tubes_to_aligned_tubes();
             current_session.calculate_aligned_tubes();
 
@@ -284,7 +285,7 @@ void sessions_info(const std::shared_ptr<restbed::Session> &rest_session) {
     nlohmann::json res = nlohmann::json::object();
     if (current_session.is_loaded()) {
         res = current_session;
-        res["tubes"] = current_session.tubes;
+        res["tubes"] = current_session.hx.tubes;
         res["aligned_tubes"] = current_session.aligned_tubes;
         res["is_loaded"] = true;
     } else {
@@ -602,7 +603,7 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> &rest_session
     nlohmann::json res;
 
     if (!tube_id.empty()) {
-        double tube_radius = current_session.tube_od / 2;
+        double tube_radius = current_session.hx.tube_od / 2;
         Point3D ideal_center = current_session.get_tube_coordinates(tube_id, true);
 
         if (auto distance = std::abs(rema_instance.telemetry.coords.distance_xy(current_session.from_ui_to_rema(ideal_center, &tool))); 
@@ -754,8 +755,8 @@ void restfull_api_create_endpoints(restbed::Service &service) {
     std::map<std::string, std::vector<ResourceEntry>> rest_resources = {
         {"REMA/connect", {{"POST", &REMA_connect}}},
         {"REMA/info", {{"GET", &REMA_info}}},
-        {"HXs", {{"GET", &HXs_list_}}}, 
-        {"HXs/{HX_name: .*}", {{"DELETE", &HXs_delete_}}},
+        {"HXs", {{"GET", &HXs_list}}}, 
+        {"HXs/{HX_name: .*}", {{"DELETE", &HXs_delete}}},
         {"HXs/tubesheet/load", {{"GET", &HXs_tubesheet_load}}},
         {"plans", {{"GET", &plans}}},
         {"plans/{plan: .*}", {{"GET", &plans},

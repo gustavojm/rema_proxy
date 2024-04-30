@@ -1,7 +1,7 @@
 #include "multipart.hpp"
 #include "upload.hpp"
 #include "session.hpp"
-#include "HXs.hpp"
+#include "HX.hpp"
 
 extern Session current_session;
 
@@ -33,9 +33,9 @@ void extract_HX_from_multipart_form_data(multipart::message &multipart_msg) {
                 if (key == "name" && value == "tubesheet") {
                     if (auto it = header.params.find("filename"); it != header.params.end()) {
                         HXname = std::filesystem::path(it->second).replace_extension();
-                        Session temp;
+                        HX temp;
                         std::istringstream istream(part.body); // this is an input stream
-                        temp.process_HXs_csv(it->second, istream);
+                        temp.process_csv(it->second, istream);
                         csv_content = part.body;
                     }
                 }
@@ -49,7 +49,7 @@ void extract_HX_from_multipart_form_data(multipart::message &multipart_msg) {
     }
 
     if (!HXname.empty() and !csv_content.empty() and !config_content.empty()) {
-        HXs_create(HXname, csv_content, config_content);
+        HX::create(HXname, csv_content, config_content);
     }
 }
 

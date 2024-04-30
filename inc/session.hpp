@@ -8,6 +8,8 @@
 
 #include "points.hpp"
 #include "tool.hpp"
+#include "tube_entry.hpp"
+#include "HX.hpp"
 
 template<typename TP>
 std::time_t to_time_t(TP tp) {
@@ -39,25 +41,13 @@ public:
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(CalPointEntry, col, row, ideal_coords, determined_coords, determined)
 
-class TubeEntry {
-public:
-    std::string x_label;
-    std::string y_label;
-    Point3D coords;
-};
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(TubeEntry, x_label, y_label, coords)
-
 class Session {
 public:
     Session() noexcept;
 
-    explicit Session(const std::string &session_name, const std::filesystem::path &hx);
+    explicit Session(const std::string &session_name, const std::filesystem::path &hx_dir_);
 
     explicit Session(const std::filesystem::path &session_file);
-
-    void process_HXs_csv_from_disk();
-
-    void process_HXs_csv(std::string hx_name, std::istream &stream);
 
     void load_plan_from_disk(std::filesystem::path plan_file);
 
@@ -75,32 +65,30 @@ public:
 
     Point3D get_tube_coordinates(const std::string &tube_id, bool ideal);
 
-    void generate_svg();
-
     bool load(std::string session_name);
 
     Point3D from_rema_to_ui(Point3D coords, Tool* tool = nullptr) {
         if (tool) {
-            return ((coords - tool->offset) * scale);
+            return ((coords - tool->offset) * hx.scale);
         } else {
-            return (coords * scale);
+            return (coords * hx.scale);
         }
     }
 
     double from_rema_to_ui(double meassure) {
-        return (meassure * scale);
+        return (meassure * hx.scale);
     }
 
     Point3D from_ui_to_rema(Point3D coords, Tool* tool = nullptr) {
         if (tool) {
-            return ((coords / scale) + tool->offset);
+            return ((coords / hx.scale) + tool->offset);
         } else {
-            return (coords / scale);
+            return (coords / hx.scale);
         }
     }
 
     double from_ui_to_rema(double meassure) {
-        return (meassure / scale);
+        return (meassure / hx.scale);
     }
 
     static std::vector<Session> sessions_list() {
@@ -162,31 +150,18 @@ public:
                     struct PlanEntry>> plans;
 
     std::string name;
-    std::filesystem::path hx_directory;
-    std::filesystem::path hx;
-    std::filesystem::path tubesheet_csv;
-    std::string tubesheet_svg ;
+    std::filesystem::path hx_dir;
+    HX hx;
     std::string last_selected_plan;
     std::string last_write_time;
-    float tube_od;
-    std::string leg = "both";
     bool loaded = false;
     bool changed = false;
-    std::string unit = "inch";
-    double scale = 1;
-    std::map<std::string, TubeEntry> tubes;
     std::map<std::string, Point3D> aligned_tubes;
-    struct {
-        std::vector<std::string> config_x_labels_coords;
-        std::vector<std::string> config_y_labels_coords;
-        std::set<std::pair<std::string, float>> x_labels;
-        std::set<std::pair<std::string, float>> y_labels;
-    } svg;
     std::map<std::string, CalPointEntry> cal_points;
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Session, name,
-        last_write_time, hx_directory, hx, tubesheet_csv, 
-        last_selected_plan, plans, leg, tube_od, unit, scale, cal_points)
+        last_write_time, hx_dir, hx, 
+        last_selected_plan, plans, cal_points)
 
 #endif 		// SESSION_HPP

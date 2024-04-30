@@ -2,6 +2,7 @@
 #define POINTS_HPP
 
 #include <spdlog/spdlog.h>
+#include "json.hpp"
 
 class Point3D {
 public:

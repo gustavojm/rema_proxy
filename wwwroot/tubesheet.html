@@ -405,11 +405,11 @@
 					function(data) {
 						tube_od = 1;
 						if (data.is_loaded) {
-							$(".units").text(data.unit);
+							$(".units").text(data.hx.unit);
 							$("#session_name").text("Session: " + data.name);
-							scale = data.scale;
-							tube_od = data.tube_od;
-							tubes = data.tubes;
+							scale = data.hx.scale;
+							tube_od = data.hx.tube_od;
+							tubes = data.hx.tubes;
 							aligned_tubes = data.aligned_tubes;
 						}
 						svg_load("../"
@@ -457,8 +457,8 @@
 						});
 						
 						var leg_switch = $('#leg_switch');
-						leg_switch.prop('checked', data.leg == "cold" ? false : true);
-						if (data.leg != "both") {
+						leg_switch.prop('checked', data.hx.leg == "cold" ? false : true);
+						if (data.hx.leg != "both") {
 							leg_switch.prop('disabled', true);	
 						}						
 						leg_switch.change();
@@ -511,7 +511,7 @@
 						text : "Close",
 						//icon: "ui-icon-heart",
 						click : function(event) {
-							table.ajax.reload();
+							manage_plans.dialog("close");
 						}
 					}],
 					close: function () {
