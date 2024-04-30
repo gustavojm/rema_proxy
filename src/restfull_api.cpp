@@ -265,7 +265,7 @@ void sessions_load(const std::shared_ptr<restbed::Session> &rest_session) {
         try {
             current_session.load(session_name);
             current_session.hx.process_csv_from_disk(current_session.hx_dir);
-            current_session.hx.generate_svg(current_session.hx_dir);
+            current_session.hx.generate_svg();
             current_session.copy_tubes_to_aligned_tubes();
             current_session.calculate_aligned_tubes();
 

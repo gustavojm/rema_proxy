@@ -7,6 +7,7 @@
 const std::filesystem::path HX::hxs_path = "./HXs";
 
 void HX::process_csv_from_disk(std::string hx) {
+    load_config_from_disk(hx);
     std::filesystem::path csv_file = hxs_path / hx / "tubesheet.csv";
     SPDLOG_INFO("Reading {}", csv_file.string());
 
@@ -40,40 +41,8 @@ void HX::process_csv(std::string hx_name, std::istream &stream) {
     }
 }
 
-void HX::generate_svg(std::string hx) {
+void HX::generate_svg() {
     SPDLOG_INFO("Generating SVG...");
-
-    float min_x, width;
-    float min_y, height;
-    std::string font_size;
-    std::string x_labels_param;
-    std::string y_labels_param;
-    std::vector<std::string> config_x_labels_coords;
-    std::vector<std::string> config_y_labels_coords;
-
-    try {
-        std::filesystem::path config_file_path = hxs_path / hx / "config.json";
-        std::ifstream config_file(config_file_path);
-
-        if (config_file.is_open()) {
-            nlohmann::json config;
-            config = nlohmann::json::parse(config_file, nullptr, true, true);
-
-            min_x = config.value("min_x", 0.0F);        
-            min_y = config.value("min_y", 0.0F);
-            width = config.value("width", 0.0F);
-            height = config.value("height", 0.0F);
-            font_size = config.value("font_size", "0.25");   // Number font size in px  
-            x_labels_param = config.value("x_labels", "0");  // Where to locate x axis labels, can use several coords separated by space
-            y_labels_param = config.value("y_labels", "0");  // Where to locate y axis labels, can use several coords separated by space
-            boost::split(config_x_labels_coords, x_labels_param, boost::is_any_of(" "));
-            boost::split(config_y_labels_coords, y_labels_param, boost::is_any_of(" "));
-        } else {
-            SPDLOG_WARN("{} not found", config_file_path.string());
-        }
-    } catch (std::exception &e) {
-        SPDLOG_WARN(e.what());
-    }
 
     float tube_r = tube_od / 2;
 
@@ -85,21 +54,21 @@ void HX::generate_svg(std::string hx) {
     append_attributes(doc, svg_node,
             { { "xmlns", "http://www.w3.org/2000/svg" }, { "version", "1.1" },
                     { "id", "tubesheet_svg" },
-                    { "viewBox", std::to_string(min_x)
-                    + " " + std::to_string(min_y) + " " + std::to_string(width)
-                    + " " + std::to_string(height) }, });
+                    { "viewBox", std::to_string(svg.min_x)
+                    + " " + std::to_string(svg.min_y) + " " + std::to_string(svg.width)
+                    + " " + std::to_string(svg.height) }, });
 
     auto *style_node = doc->allocate_node(rapidxml::node_element, "style");
     append_attributes(doc, style_node, { { "type", "text/css" } });
 
-    float stroke_width = stof(font_size) / 10;
+    float stroke_width = stof(svg.font_size) / 10;
 
     std::string style =
                     ".tube {stroke: black; stroke-width: "+ std::to_string(stroke_width) + " ; fill: white;} "
                     + ".tube_num { text-anchor: middle; alignment-baseline: middle; font-family: sans-serif; font-size: "
-                    + font_size
+                    + svg.font_size
                     + "px; fill: black;}"
-                    ".label { text-anchor: middle; alignment-baseline: middle; font-family: sans-serif; font-size: " + font_size + "; fill: red;}";
+                    ".label { text-anchor: middle; alignment-baseline: middle; font-family: sans-serif; font-size: " + svg.font_size + "; fill: red;}";
 
     style_node->value(style.c_str());
 
@@ -112,12 +81,12 @@ void HX::generate_svg(std::string hx) {
     );
     svg_node->append_node(cartesian_g_node);
 
-    auto *x_axis = add_dashed_line(doc, 0, min_y, 0, min_y + height, stof(font_size));
-    auto *y_axis = add_dashed_line(doc, min_x, 0, min_x + width, 0, stof(font_size));
+    auto *x_axis = add_dashed_line(doc, 0, svg.min_y, 0, svg.min_y + svg.height, stof(svg.font_size));
+    auto *y_axis = add_dashed_line(doc, svg.min_x, 0, svg.min_x + svg.width, 0, stof(svg.font_size));
     cartesian_g_node->append_node(x_axis);
     cartesian_g_node->append_node(y_axis);
 
-    for (const auto &config_coord : config_x_labels_coords) {
+    for (const auto &config_coord : svg.config_x_labels_coords) {
         for (auto [label, coord] : svg.x_labels) {
             auto *label_x = add_label(doc, coord,
                     std::stof(config_coord), label.c_str());
@@ -129,7 +98,7 @@ void HX::generate_svg(std::string hx) {
         }
     }
 
-    for (const auto &config_coord : config_y_labels_coords) {
+    for (const auto &config_coord : svg.config_y_labels_coords) {
         for (auto [label, coord] : svg.y_labels) {
             auto *label_y = add_label(doc, std::stof(config_coord),
                     coord, label.c_str());
@@ -159,26 +128,39 @@ void HX::generate_svg(std::string hx) {
     tubesheet_svg = stream.str();
 }
 
-void HX::load_config(std::string hx) {
+void HX::load_config_from_disk(std::string hx) {
     std::filesystem::path tubesheet_csv = hxs_path / hx / "tubesheet.csv";
     
     try {
         std::filesystem::path config_file_path = hxs_path / hx / "config.json";
         std::ifstream config_file(config_file_path);
         if (config_file.is_open()){
-            nlohmann::json config;
-            config_file >> config;
-
-            leg = config.value("leg", "both");
-            tube_od = config.value("tube_od", 1.F);
-            unit = config.value("unit", "inch");
-            scale = (unit == "inch" ? 1 : 25.4);
+            nlohmann::json config = nlohmann::json::parse(config_file, nullptr, true, true);
+            load_config(config);
         } else {
             SPDLOG_WARN("{} not found", config_file_path.string());
         }
     } catch (std::exception &e) {
         SPDLOG_WARN(e.what());
     }
+}
+
+void HX::load_config(nlohmann::json config) {
+    leg = config.value("leg", "both");
+    tube_od = config.value("tube_od", 1.F);
+    unit = config.value("unit", "inch");
+    scale = (unit == "inch" ? 1 : 25.4);
+
+    svg.min_x = config.value("min_x", 0.0F);        
+    svg.min_y = config.value("min_y", 0.0F);
+    svg.width = config.value("width", 0.0F);
+    svg.height = config.value("height", 0.0F);
+    svg.font_size = config.value("font_size", "0.25");   // Number font size in px  
+    svg.x_labels_param = config.value("x_labels", "0");  // Where to locate x axis labels, can use several coords separated by space
+    svg.y_labels_param = config.value("y_labels", "0");  // Where to locate y axis labels, can use several coords separated by space
+    boost::split(svg.config_x_labels_coords, svg.x_labels_param, boost::is_any_of(" "));
+    boost::split(svg.config_y_labels_coords, svg.y_labels_param, boost::is_any_of(" "));
+
 }
 
 bool HX::create(std::string hx_name, std::string tubesheet_csv, std::string config_json) {

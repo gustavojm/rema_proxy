@@ -26,9 +26,8 @@ Session::Session(const std::string &session_name,
         const std::filesystem::path &hx_dir_) : name(session_name),
         hx_dir(hx_dir_) {
 
-    hx.load_config(hx_dir);
     hx.process_csv_from_disk(hx_dir);
-    hx.generate_svg(hx_dir);
+    hx.generate_svg();
     copy_tubes_to_aligned_tubes();
     calculate_aligned_tubes();
 }

@@ -155,7 +155,7 @@ get_session_info_index()
 				function(data) {					
 					active_tab = 0;
 					if (data.is_loaded) {
-						$(".units").text(data.unit);
+						$(".units").text(data.hx.unit);
 						active_tab = 2
 					}
 					

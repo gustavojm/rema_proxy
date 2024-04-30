@@ -20,9 +20,11 @@ public:
 
     void process_csv(std::string hx_name, std::istream &stream);
 
-    void generate_svg(std::string hx);
+    void generate_svg();
 
-    void load_config(std::string hx);
+    void load_config_from_disk(std::string hx);
+    
+    void load_config(nlohmann::json config);
 
     static std::vector<std::string> list();
 
@@ -37,6 +39,11 @@ public:
     double scale = 1;
     std::map<std::string, TubeEntry> tubes;
     struct {
+        float min_x, width;
+        float min_y, height;
+        std::string font_size;
+        std::string x_labels_param;
+        std::string y_labels_param;
         std::vector<std::string> config_x_labels_coords;
         std::vector<std::string> config_y_labels_coords;
         std::set<std::pair<std::string, float>> x_labels;

@@ -94,8 +94,12 @@
 						<input type="checkbox" name="power_switch" id="power_switch">
 					</div>
 				</div>
-			</div>
+			</div>			
 		</div>
+		<div class="joystick-container" style="float: left;">
+			<div class="row">
+				<p style="margin: 5px;">Brakes:<div id="brakes_mode_switch" style="width: 50px; margin: 10px;"></div><div style="margin: 5px;" id="brakes_text_div"></div></p>			
+		</div>	
 	</div>
 
 </body>
@@ -154,6 +158,8 @@
 					command : "CONTROL_ENABLE",
 				}, {
 					command : "STALL_CONTROL",
+				}, {
+					command : "BRAKES_MODE",
 				} ]
 			}),
 			dataType : "json",
@@ -163,6 +169,23 @@
 
 				var stall_switch = $('#stall_switch');
 				stall_switch.prop('checked', data["STALL_CONTROL"].STATUS).change();
+
+				var brakes_mode_switch = $('#brakes_mode_switch');
+				var value
+				switch (data["BRAKES_MODE"].STATUS) {
+					case "OFF":
+						value = 0;
+						break;
+
+					case "AUTO":
+						value = 1;
+						break;
+
+					case "ON":
+						value = 2;
+						break;
+				}	
+				brakes_mode_switch.slider("option", "value", value);
 			}
 		});
 	}
@@ -278,7 +301,7 @@
 			});
 		});
 
-		update_switches(false); // brings current status from REMA
+		update_switches(); // brings current status from REMA
 
 		
 		$("#home_xy").click(function(e, orig_event) {
@@ -346,8 +369,54 @@
 				}				
 			}			
 		});		
-		
-		
+	
+		var brakes_mode = [];
+		brakes_mode[0] = "OFF";
+		brakes_mode[1] = "AUTO";
+		brakes_mode[2] = "ON";
+
+		$("#brakes_mode_switch").slider({
+			min: 0,
+			max: 2,
+			step: 1,
+			change: function( event, ui ) {
+				if (event.originalEvent) {
+					$.ajax({
+						url : "/REMA/",
+						method : "POST",
+						contentType : "application/json",
+						data : JSON.stringify({
+							commands : [ {
+								command : "BRAKES_MODE",
+								pars : {brakes_mode :brakes_mode[ui.value]},
+							}]
+						}),
+						dataType : "json",
+						success : function(data) {
+							var value;
+							switch (data.BRAKES_MODE.STATUS) {
+								case "OFF":
+									value = 0;
+									break;
+
+								case "AUTO":
+									value = 1;
+									break;
+
+								case "ON":
+									value = 2;
+									break;
+							}
+
+							$("#brakes_mode_switch").slider("option", "value", value);
+							return false;
+						}
+					});
+				} 
+			
+			$("#brakes_text_div").html(brakes_mode[ui.value]);
+			}
+		});
 	});
 
 	keysPressed = {};

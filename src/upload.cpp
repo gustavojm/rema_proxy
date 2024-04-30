@@ -34,17 +34,13 @@ void extract_HX_from_multipart_form_data(multipart::message &multipart_msg) {
                 if (key == "name" && value == "tubesheet") {
                     if (auto it = header.params.find("filename"); it != header.params.end()) {
                         HXname = std::filesystem::path(it->second).replace_extension().string().substr(0, 25);
-                        HX temp;
-                        std::istringstream istream(part.body); // this is an input stream
-                        temp.process_csv(HXname, istream);
                         csv_content = part.body;
                     }
                 }
                 if (key == "name" && value == "config") {
                     if (auto it = header.params.find("filename"); it != header.params.end()) {
                         if (it->second == "config.json"){
-                            std::cout << part.body << "\n";
-                            nlohmann::json config = nlohmann::json::parse(part.body, nullptr, true, true);
+                            std::cout << part.body << "\n";                            
                             config_content = part.body;
                         }
                     }
@@ -54,6 +50,11 @@ void extract_HX_from_multipart_form_data(multipart::message &multipart_msg) {
     }
 
     if (!HXname.empty() and !csv_content.empty() and !config_content.empty()) {
+        HX temp;
+        nlohmann::json config = nlohmann::json::parse(config_content, nullptr, true, true);
+        temp.load_config(config);
+        std::istringstream istream(csv_content); // this is an input stream
+        temp.process_csv(HXname, istream);
         HX::create(HXname, csv_content, config_content);
     }
 }
