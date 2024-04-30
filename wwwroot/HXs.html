@@ -126,6 +126,7 @@
 						contentType: false
 						})
 						.done(function(){						
+							$("#new_HXs_logs").val("HX created");
 						})
 						.fail(function(xhr, status, error) {							
 							$("#new_HXs_logs").val(xhr.responseJSON["error"]);
@@ -135,14 +136,15 @@
 				text : "Close",
 				//icon: "ui-icon-heart",
 				click : function(event) {
-					dialog.find("form")[0].reset();
 					dialog.dialog("close");
-					dialog.dialog("destroy");
-					$("#new_HXs_logs").val("");
-					create_dialog();
-					table.ajax.reload();
+				}				
 				}
-			} ]
+			],
+			close: function () {
+				$("#new_HXs_logs").val("");
+				$("#HX_create_form")[0].reset();
+				table.ajax.reload();
+			}
 		});
 	}
 

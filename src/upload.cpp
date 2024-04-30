@@ -5,16 +5,17 @@
 
 extern Session current_session;
 
-void extract_plans_from_multipart_header(multipart::message &multipart_msg) {
+void extract_plans_from_multipart_form_data(multipart::message &multipart_msg) {
     for (auto part : multipart_msg.parts) {
         for (auto header : part.headers) {
-            for (auto param : header.params) {
-                if (param.first == "filename") {
-                    std::filesystem::path filename(param.second);
+            for (auto [key, value] : header.params) {
+                if (key == "filename" && !value.empty()) {
+                    std::filesystem::path filename(value);
                     std::istringstream istream(part.body); // this is an input stream
                     if (current_session.is_loaded()) {
-                        current_session.load_plan(filename.replace_extension(), istream);
-                        std::cout << "created: " << filename.replace_extension() << "\n";
+                        std::string plan_name = filename.replace_extension().string().substr(0, 25);
+                        current_session.load_plan(plan_name, istream);
+                        std::cout << "Added: " << plan_name << "\n";
                         current_session.save_to_disk();
                     }
                 }
@@ -32,16 +33,20 @@ void extract_HX_from_multipart_form_data(multipart::message &multipart_msg) {
             for (auto [key, value] : header.params) {
                 if (key == "name" && value == "tubesheet") {
                     if (auto it = header.params.find("filename"); it != header.params.end()) {
-                        HXname = std::filesystem::path(it->second).replace_extension();
+                        HXname = std::filesystem::path(it->second).replace_extension().string().substr(0, 25);
                         HX temp;
                         std::istringstream istream(part.body); // this is an input stream
-                        temp.process_csv(it->second, istream);
+                        temp.process_csv(HXname, istream);
                         csv_content = part.body;
                     }
                 }
                 if (key == "name" && value == "config") {
-                    if (auto it = header.params.find("filename"); it != header.params.end()) {                        
-                        config_content = nlohmann::json::parse(part.body, nullptr, true, true);
+                    if (auto it = header.params.find("filename"); it != header.params.end()) {
+                        if (it->second == "config.json"){
+                            std::cout << part.body << "\n";
+                            nlohmann::json config = nlohmann::json::parse(part.body, nullptr, true, true);
+                            config_content = part.body;
+                        }
                     }
                 }
             }
@@ -56,7 +61,6 @@ void extract_HX_from_multipart_form_data(multipart::message &multipart_msg) {
 void file_upload_handler(const std::shared_ptr<restbed::Session> &session) {
     const auto request = session->get_request();
     std::string asset = request->get_path_parameter("asset", "");
-
     size_t content_length = request->get_header("Content-Length", 0);
 
     session->fetch(content_length,   
@@ -66,16 +70,16 @@ void file_upload_handler(const std::shared_ptr<restbed::Session> &session) {
                 int status = restbed::OK;
                 std::string buffer(body.begin(), body.end());
                 multipart::message multipart_msg(request->get_headers(), buffer);
-                // std::cout << multipart_msg.dump();
+                //std::cout << multipart_msg.dump();
 
                 try {
                     if (asset == "plans") {
-                        extract_plans_from_multipart_header(multipart_msg);
+                        extract_plans_from_multipart_form_data(multipart_msg);
                     }
                     if (asset == "HXs") {
                         extract_HX_from_multipart_form_data(multipart_msg);
                     }
-                    res["success"] = "File uploaded correctly";
+                    res["success"] = "Uploaded correctly";
                 } catch (std::exception &e) {
                     res["error"] = e.what();
                     status = restbed::BAD_REQUEST;

@@ -160,7 +160,7 @@ void HX::generate_svg(std::string hx) {
 }
 
 void HX::load_config(std::string hx) {
-    tubesheet_csv = hxs_path / hx / "tubesheet.csv";
+    std::filesystem::path tubesheet_csv = hxs_path / hx / "tubesheet.csv";
     
     try {
         std::filesystem::path config_file_path = hxs_path / hx / "config.json";
@@ -179,4 +179,45 @@ void HX::load_config(std::string hx) {
     } catch (std::exception &e) {
         SPDLOG_WARN(e.what());
     }
+}
+
+bool HX::create(std::string hx_name, std::string tubesheet_csv, std::string config_json) {
+    try {
+        std::filesystem::create_directory(hxs_path / hx_name);
+
+        std::filesystem::path tubesheet_csv_path(hxs_path / hx_name / "tubesheet.csv");
+        // Open a file for writing
+        std::ofstream tubesheet_csv_file(tubesheet_csv_path);
+        tubesheet_csv_file << tubesheet_csv;
+
+        std::filesystem::path config_json_path(hxs_path / hx_name / "config.json");
+        // Open a file for writing
+        std::ofstream config_json_file(config_json_path);
+        config_json_file << config_json;
+        return true;
+    } catch (const std::filesystem::filesystem_error &e) {
+        std::cerr << "Error creating HX: " << e.what() << std::endl;
+        return false;
+    }
+}
+
+bool HX::erase(std::string hx_name) {
+    try {
+        std::filesystem::path normalized_path = std::filesystem::canonical(hxs_path / hx_name);
+        std::filesystem::remove_all(normalized_path);
+        return true;
+    } catch (const std::filesystem::filesystem_error &e) {
+        std::cerr << "Error deleting directory: " << e.what() << std::endl;
+        return false;
+    }
+}
+
+std::vector<std::string> HX::list() {
+    std::vector<std::string> res;
+    for (const auto &entry : std::filesystem::directory_iterator(hxs_path)) {
+        if (entry.is_directory()) {
+            res.push_back(entry.path().filename());
+        }
+    }
+    return res;
 }

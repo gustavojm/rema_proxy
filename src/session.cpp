@@ -69,8 +69,8 @@ void Session::load_plan_from_disk(std::filesystem::path plan_file) {
 
 std::string Session::load_plans() {
     std::stringstream out;
-    std::filesystem::path hxs_path = "./HXs";
-    std::filesystem::path plans_path = hxs_path / hx_dir / "plans";
+    
+    std::filesystem::path plans_path = HX::hxs_path / hx_dir / "plans";
     if (std::filesystem::is_directory(plans_path)) {
         for (const auto &entry : std::filesystem::directory_iterator(
                 plans_path)) {

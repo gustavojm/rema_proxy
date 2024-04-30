@@ -28,7 +28,7 @@
     </div>
   </form>
 	<div style="padding-bottom: 10px; padding-top: 10px;">
-		<textarea id="upload_plans_logs" style="width: 100%" readonly="readonly"></textarea>
+		<textarea id="manage_plans_logs" style="width: 100%" readonly="readonly"></textarea>
 	</div>
 </div>
 
@@ -74,8 +74,7 @@
             window.location.reload();
           },
           error: function(xhr, status, error) {
-            alert("Error");
-            console.log("Error", status, error);
+            $("#manage_plans_logs").val(error);
           }						
         });
       }
@@ -89,14 +88,12 @@
       data: new FormData( this ),
       processData: false,
       contentType: false,
-      dataType : "json",
     })
     .done(function(){
-      console.log("files uploaded");
+      $("#manage_plans_logs").val("Plan Added");
     })
-    .fail(function(xhr, status, error) {							
-      console.log(xhr, status, error);
-			$("#upload_plans_logs").val(xhr.responseJSON["error"]);
+    .fail(function(xhr, status, error) {
+			$("#manage_plans_logs").val(xhr.responseJSON["error"]);
 		});
     e.preventDefault();
   });
