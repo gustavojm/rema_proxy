@@ -63,7 +63,7 @@ void REMA_info(const std::shared_ptr<restbed::Session> &rest_session) {
     REMA &rema_instance = REMA::get_instance();
 
     std::map<std::string, Tool> tools_to_ui;
-    for (auto [id, tool] : REMA::tools) {
+    for (auto &[id, tool] : REMA::tools) {
         tools_to_ui[id] = Tool(id , (tool.offset * current_session.hx.scale));
     }
 
