@@ -165,8 +165,10 @@ void HX::load_config(nlohmann::json config) {
 
 bool HX::create(std::string hx_name, std::string tubesheet_csv, std::string config_json) {
     try {
+        if (std::filesystem::is_directory(hxs_path / hx_name)) {
+            throw std::invalid_argument("HX with the same name already exists");
+        }
         std::filesystem::create_directory(hxs_path / hx_name);
-
         std::filesystem::path tubesheet_csv_path(hxs_path / hx_name / "tubesheet.csv");
         // Open a file for writing
         std::ofstream tubesheet_csv_file(tubesheet_csv_path);

@@ -1,3 +1,5 @@
+#include <stdexcept>
+
 #include "multipart.hpp"
 #include "upload.hpp"
 #include "session.hpp"
@@ -56,6 +58,8 @@ void extract_HX_from_multipart_form_data(multipart::message &multipart_msg) {
         std::istringstream istream(csv_content); // this is an input stream
         temp.process_csv(HXname, istream);
         HX::create(HXname, csv_content, config_content);
+    } else {
+        throw std::invalid_argument("Both files should be provided");
     }
 }
 
