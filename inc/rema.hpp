@@ -69,6 +69,12 @@ struct movement_cmd {
 
 class REMA {
 public:
+    enum class touch_probe_modes_t {
+        OFF,
+        AUTO,
+        ON
+    };
+
     static REMA& get_instance() {
         static REMA instance;     // Guaranteed to be destroyed. Instantiated on first use.
         return instance;
@@ -88,7 +94,13 @@ public:
     void update_telemetry(std::string &stream);
 
     void set_last_selected_tool(std::string tool) {
+        if (get_selected_tool().is_touch_probe && touch_probe_mode == touch_probe_modes_t::AUTO) {
+            lift_touch_probe();
+        }
         last_selected_tool = tool;
+        if (get_selected_tool().is_touch_probe && touch_probe_mode == touch_probe_modes_t::AUTO) {
+            lower_touch_probe();
+        }
         save_config();
     }
 
@@ -98,6 +110,38 @@ public:
         }
         return {};
     }
+
+    void lower_touch_probe() { 
+        execute_command({ { "command", "TOUCH_PROBE" },
+                            { "pars",
+                                    { { "position", "DOWN" },
+                                    }
+                            }});
+    };
+
+    void lift_touch_probe() { 
+        execute_command({ { "command", "TOUCH_PROBE" },
+                            { "pars",
+                                    { { "position", "UP" },
+                                    }
+                            }});
+    };
+
+    void set_touch_probe_mode(REMA::touch_probe_modes_t mode) {
+        touch_probe_mode = mode;
+        switch (touch_probe_mode) {
+            case (REMA::touch_probe_modes_t::ON):
+                lower_touch_probe();
+                break;
+
+            case (REMA::touch_probe_modes_t::OFF):
+                lift_touch_probe();
+                break;
+
+            default:
+                break;
+        }
+    };
 
     void load_config();
 
@@ -138,6 +182,7 @@ public:
     std::mutex mtx;
     struct telemetry telemetry;
     struct temps temps;
+    static touch_probe_modes_t touch_probe_mode;
 
 private:
     REMA() {

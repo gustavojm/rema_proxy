@@ -133,12 +133,14 @@ function get_rema_info() {
 											entry.name));
 				});
 	
-				tools_dropdown.change(function() {
-					$("#offset_x").val($("option:selected", this).data("offset_x"));
-					$("#offset_y").val($("option:selected", this).data("offset_y"));
-					$("#offset_z").val($("option:selected", this).data("offset_z"));
-					var tool_name = $("option:selected", this).val();
-					$.post('/REST/tools/' + tool_name + '/select');								
+				tools_dropdown.change(function(e) {
+					if (e.originalEvent) {
+						$("#offset_x").val($("option:selected", this).data("offset_x"));
+						$("#offset_y").val($("option:selected", this).data("offset_y"));
+						$("#offset_z").val($("option:selected", this).data("offset_z"));
+						var tool_name = $("option:selected", this).val();
+						$.post('/REST/tools/' + tool_name + '/select');
+					}
 				});
 		
 				tools_dropdown.val(data.last_selected_tool).change();	

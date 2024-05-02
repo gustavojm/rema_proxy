@@ -18,6 +18,7 @@
 #include "points.hpp"
 #include "circle_fns.hpp"
 #include "misc_fns.hpp"
+#include "magic_enum.hpp"
 
 extern Session current_session;
 
@@ -154,7 +155,8 @@ void tools_create(const std::shared_ptr<restbed::Session> rest_session) {
                     double offset_x = to_double(form_data.value("offset_x", "0"));
                     double offset_y = to_double(form_data.value("offset_y", "0"));
                     double offset_z = to_double(form_data.value("offset_z", "0"));
-                    Tool new_tool(tool_name, {offset_x, offset_y, offset_z});
+                    bool is_touch_probe = form_data.value("is_touch_probe", "off") == "on";
+                    Tool new_tool(tool_name, {offset_x, offset_y, offset_z}, is_touch_probe);
                     new_tool.save_to_disk();
                     REMA::add_tool(new_tool);
                     res = "Tool created Successfully";
@@ -197,6 +199,26 @@ void tools_select(const std::shared_ptr<restbed::Session> &rest_session) {
     rema_instance.set_last_selected_tool(tool_name);
     close_rest_session(rest_session, restbed::OK);
 }
+
+void touch_probe_mode(const std::shared_ptr<restbed::Session> &rest_session) {
+    nlohmann::json res;
+    auto request = rest_session->get_request();
+    std::string mode_str = request->get_path_parameter("mode", "");
+
+    if (!mode_str.empty()) {
+        REMA::touch_probe_modes_t mode;
+        auto opt_mode = magic_enum::enum_cast<REMA::touch_probe_modes_t>(mode_str);
+        if (opt_mode.has_value()) {
+            mode = opt_mode.value();
+        }
+
+        REMA &rema_instance = REMA::get_instance();
+        rema_instance.set_touch_probe_mode(mode);
+    }
+    res["STATUS"] = magic_enum::enum_name(REMA::touch_probe_mode);
+    close_rest_session(rest_session, restbed::OK, res);
+}
+
 
 /**
  * Sessions related functions
@@ -755,7 +777,9 @@ void restfull_api_create_endpoints(restbed::Service &service) {
     std::map<std::string, std::vector<ResourceEntry>> rest_resources = {
         {"REMA/connect", {{"POST", &REMA_connect}}},
         {"REMA/info", {{"GET", &REMA_info}}},
-        {"HXs", {{"GET", &HXs_list}}}, 
+        {"REMA/touch-probe-mode", {{"GET", &touch_probe_mode}}},
+        {"REMA/touch-probe-mode/{mode: .*}", {{"GET", &touch_probe_mode}}},
+        {"HXs", {{"GET", &HXs_list}}},
         {"HXs/{HX_name: .*}", {{"DELETE", &HXs_delete}}},
         {"HXs/tubesheet/load", {{"GET", &HXs_tubesheet_load}}},
         {"plans", {{"GET", &plans}}},

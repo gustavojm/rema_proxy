@@ -404,6 +404,7 @@
 			.done(
 					function(data) {
 						tube_od = 1;
+						var svg_url = "/static/no_session_loaded.svg";
 						if (data.is_loaded) {
 							$(".units").text(data.hx.unit);
 							$("#session_name").text("Session: " + data.name);
@@ -411,9 +412,16 @@
 							tube_od = data.hx.tube_od;
 							tubes = data.hx.tubes;
 							aligned_tubes = data.aligned_tubes;
+							var leg_switch = $('#leg_switch');
+							leg_switch.prop('checked', data.hx.leg == "cold" ? false : true);
+							if (data.hx.leg != "both") {
+								leg_switch.prop('disabled', true);	
+							}						
+							leg_switch.change();
+
+							svg_url = "../HXs_svg";
 						}
-						svg_load("../"
-								+ ("HXs_svg" || "/static/no_session_loaded.svg"), tube_od, scale);
+						svg_load(svg_url, tube_od, scale);
 
 						var plans_dropdown = $('#plans');
 						var table = $('#plan_table').DataTable();
@@ -456,13 +464,6 @@
 							table.ajax.reload();
 						});
 						
-						var leg_switch = $('#leg_switch');
-						leg_switch.prop('checked', data.hx.leg == "cold" ? false : true);
-						if (data.hx.leg != "both") {
-							leg_switch.prop('disabled', true);	
-						}						
-						leg_switch.change();
-
 					});
 
 		
@@ -697,11 +698,13 @@
 				$(this).text("Plan");
 				$("#leg_switch_span").hide();
 				$("#plans").hide();
+				$("#manage_plans_btn").hide();
 				$("#calibration_points_span").show();
 			} else {
 				$(this).text("Calibration");
 				$("#leg_switch_span").show();
 				$("#plans").show();
+				$("#manage_plans_btn").show();
 				$("#calibration_points_span").hide();
 			}
 		});

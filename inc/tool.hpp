@@ -12,7 +12,17 @@ public:
     }
 
     Tool(std::string tool_name, Point3D offset_) :
-            name(tool_name), offset(offset_) {        
+            name(tool_name), offset(offset_) {
+    }
+
+    Tool(std::string tool_name, Point3D offset_, bool is_touch_probe_) :
+            name(tool_name), is_touch_probe(is_touch_probe_) {
+            
+            if (is_touch_probe) {
+                offset = {};
+            } else {
+                offset = offset_;
+            }
     }
 
     Tool(const std::filesystem::path &tool_file);
@@ -21,7 +31,8 @@ public:
 
     std::string name;
     Point3D offset;
+    bool is_touch_probe = false;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Tool, name, offset)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Tool, name, offset, is_touch_probe)
 
 #endif 		// TOOL_HPP

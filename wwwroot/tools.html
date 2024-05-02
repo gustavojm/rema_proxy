@@ -7,7 +7,7 @@
 	<form id="tool_create">
 		<div>
 			<div style="padding-bottom: 10px;">
-				<label>Tool Name: <input type="text" name="tool_name" /></label>
+				<label>Tool Name: <input type="text" name="tool_name" /></label><input type="checkbox" name="is_touch_probe"> Is touch Probe
 			</div>
 			<div style="padding-bottom: 10px;">
 				<label>Offset X: <input type="text" name="offset_x" size="4" maxlength="6" data-inputmask-alias="decimal" data-inputmask-digits="3"/>inch</label>
@@ -123,6 +123,18 @@
 		$("#new_tool_btn").click(function() {
 			$("#new_tool_div").dialog("open");
 		});
+
+		$("input[name='is_touch_probe']").change(function () {
+			is_touch_probe = $(this).prop("checked")
+			if (is_touch_probe) {
+				$("input[name='offset_x']").val(0);
+				$("input[name='offset_y']").val(0);
+				$("input[name='offset_z']").val(0);
+			}
+			$("input[name='offset_x']").prop("readonly", is_touch_probe);
+			$("input[name='offset_y']").prop("readonly", is_touch_probe);
+			$("input[name='offset_z']").prop("readonly", is_touch_probe);
+		});
 	});
 
 	function create_dialog() {
@@ -130,6 +142,7 @@
 			autoOpen : false,
 			title : "New Tool",
 			//modal : true,
+			width: "400px",
 			buttons : [ {
 				text : "Create",
 				//icon: "ui-icon-heart",
@@ -168,6 +181,7 @@
 	}
 
 	$(function() {
+		$(":input").inputmask();
 		create_dialog();
 	});
 </script>

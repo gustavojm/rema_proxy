@@ -232,3 +232,43 @@ svg .tube:hover {
 	width: 60px;
 	height: 60px;
 }
+
+/* OFF AUTO ON <input type="range"> styling	*/
+.slider {
+	margin: auto;
+	cursor: grab;
+	appearance: none;
+	-webkit-appearance: none;
+	width: 90px;
+	height: 24px;
+	background: #b2b2b2;
+	outline: none;
+	opacity: 0.7;
+	-webkit-transition: .2s;
+	transition: opacity .2s;
+	border-radius: 3px;  
+  }
+  
+  .slider:hover {
+	opacity: 1;
+  }
+  
+  .slider::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	appearance: none;
+	width: 24px;
+	height: 24px;
+	background: #f1f1f1;
+	cursor: pointer;
+	border: 1px solid #e6e5e5;
+	border-radius: 3px;
+  }
+  
+  .slider::-moz-range-thumb {
+	width: 24px;
+	height: 24px;
+	background: #f1f1f1;
+	border: 1px solid #e6e5e5;
+	cursor: pointer;
+  }
+  

@@ -118,11 +118,11 @@ void HX::generate_svg() {
         cartesian_g_node->append_node(tube_node);
     }
 
-    // // Write the SVG document to a file
-    // std::filesystem::path svg_path = hx_directory / hx / "tubesheet.svg";
+    // Write the SVG document to a file
+    // std::filesystem::path svg_path = hxs_path / hx / "tubesheet.svg";
     // std::ofstream file(svg_path);
     // file << document;
-    // file.close();
+    
     std::ostringstream stream;
     stream << document;
     tubesheet_svg = stream.str();
