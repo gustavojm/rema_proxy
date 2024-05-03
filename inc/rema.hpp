@@ -89,11 +89,11 @@ public:
 
     void set_last_selected_tool(std::string tool) {
         if (get_selected_tool().is_touch_probe) {
-            lift_touch_probe();
+            retract_touch_probe();
         }
         last_selected_tool = tool;
         if (get_selected_tool().is_touch_probe) {
-            lower_touch_probe();
+            extend_touch_probe();
         }
         save_config();
     }
@@ -105,18 +105,18 @@ public:
         return {};
     }
 
-    void lower_touch_probe() { 
+    void extend_touch_probe() { 
         execute_command({ { "command", "TOUCH_PROBE" },
                             { "pars",
-                                    { { "position", "DOWN" },
+                                    { { "position", "IN" },
                                     }
                             }});
     };
 
-    void lift_touch_probe() { 
+    void retract_touch_probe() { 
         execute_command({ { "command", "TOUCH_PROBE" },
                             { "pars",
-                                    { { "position", "UP" },
+                                    { { "position", "OUT" },
                                     }
                             }});
     };

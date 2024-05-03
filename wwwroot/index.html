@@ -382,8 +382,10 @@ get_session_info_index()
 		$("#reconnect_rema").on("click", function(){
 			$.ajax({
 				method : "POST",
-				dataType : 'json',
 				url : "/REST/REMA/connect",
+				success: function () {
+					window.location.reload();					
+				}
 			});			
 		});
 		
