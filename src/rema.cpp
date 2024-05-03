@@ -16,7 +16,6 @@
 const std::filesystem::path config_file_path = "config.json";
 const std::filesystem::path rema_dir = std::filesystem::path("rema");
 const std::filesystem::path tools_dir = rema_dir / "tools";
-REMA::touch_probe_modes_t REMA::touch_probe_mode = REMA::touch_probe_modes_t::AUTO;
 
 std::map<std::string, Tool> REMA::tools;
 

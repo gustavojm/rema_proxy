@@ -136,13 +136,32 @@ function get_rema_info() {
 											entry.name));
 				});
 	
-				tools_dropdown.change(function(e) {
+				var previous_tool;
+				tools_dropdown.focus(function () {
+        			previous_tool = $("option:selected", this);
+    			}).change(function(e) {
 					if (e.originalEvent) {
 						$("#offset_x").val($("option:selected", this).data("offset_x"));
 						$("#offset_y").val($("option:selected", this).data("offset_y"));
-						$("#offset_z").val($("option:selected", this).data("offset_z"));
+						$("#offset_z").val($("option:selected", this).data("offset_z"));					
 						var tool_name = $("option:selected", this).val();
+						previous_tool_is_touch_probe = previous_tool.data("is_touch_probe");
+						current_tool_is_touch_probe = $("option:selected", this).data("is_touch_probe");
+						if (previous_tool_is_touch_probe != current_tool_is_touch_probe) {
+							console.log(previous_tool_is_touch_probe, current_tool_is_touch_probe);
+							if (current_tool_is_touch_probe) {
+								if (confirm("This will extend the touch probe")) {									
+									$.post('/REST/tools/' + tool_name + '/select');
+									$("#brakes_mode_switch").val(0).trigger("input");		// OFF									
+								} else {
+									$(this).val(previous_tool.val());									
+								}
+							} else {
+								$("#brakes_mode_switch").val(1).trigger("input");		// AUTO
+							}
+						}						
 						$.post('/REST/tools/' + tool_name + '/select');
+						previous_tool = $("option:selected", this);
 					}
 				});
 		

@@ -112,12 +112,20 @@ h1 {
 				display: flex;	flex-direction: column;">
 				<div>					
 				</div>
+				<datalist id="steplist">
+					<option>0</option>
+					<option>1</option>
+					<option>2</option>
+				</datalist>
 				<div class="options">
-					<h1>Stall</h1>
-					<div style="margin-bottom: 5px;">
-						<input type="checkbox" name="stall_switch" id="stall_switch">
+					<h1>Brakes</h1>
+					<input class="slider" type="range" min="0" max="2" step="1" list="steplist" id="brakes_mode_switch" />
+					<div class="ticks">
+						<span class="o_txt">OFF</span>
+						<span class="o_txt o_on">AUTO</span>
+						<span class="o_txt">ON</span>
 					</div>
-				</div>
+				</div>	
 			</div>
 			<div style="float: left; width: 50%;">
 				<div style="text-align: center;">
@@ -130,20 +138,12 @@ h1 {
 		<div class="row" style="float: left; width: 100%;">
 			<div style="width: 50%; text-align: center;	align-items: center;
 				display: flex;	flex-direction: column;">
-			<datalist id="steplist">
-				<option>0</option>
-				<option>1</option>
-				<option>2</option>
-			</datalist>
-			<div class="options">
-				<h1>Brakes</h1>
-				<input class="slider" type="range" min="0" max="2" step="1" list="steplist" id="brakes_mode_switch" />
-				<div class="ticks">
-					<span class="o_txt">OFF</span>
-					<span class="o_txt o_on">AUTO</span>
-					<span class="o_txt">ON</span>
+				<div class="options">
+					<h1>Stall</h1>
+					<div style="margin-bottom: 5px;">
+						<input type="checkbox" name="stall_switch" id="stall_switch">
+					</div>
 				</div>
-			</div>
 			</div>
 			<div style="width: 50%; text-align: center;	align-items: center;
 				display: flex;	flex-direction: column;">
@@ -234,15 +234,6 @@ h1 {
 				$("#brakes_mode_switch").val(ON_AUTO_OFF.revGet(data["BRAKES_MODE"].STATUS));
 			}
 		});
-
-		$.ajax({
-			url : "/REST/REMA/touch-probe-mode",
-			method : "GET",
-			success : function(data) {				
-				$("#touch_probe_mode_switch").val(ON_AUTO_OFF.revGet(data["STATUS"]));				
-			}
-		});
-
 	}
 	
 	function update_limits(limits) {
@@ -443,19 +434,6 @@ h1 {
 					}
 				});
 		});
-
-		$("#touch_probe_mode_switch").on("input", function(e) {
-				$.ajax({
-					url : "/REST/REMA/touch-probe-mode/" + ON_AUTO_OFF.get(this.value),
-					method : "GET",
-					dataType : "json",
-					success : function(data) {
-						$(this).value = ON_AUTO_OFF.revGet(data.STATUS);
-						return false;
-					}
-				});
-		});
-
 	});
 
 	keysPressed = {};
