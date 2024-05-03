@@ -64,7 +64,7 @@ void REMA_info(const std::shared_ptr<restbed::Session> &rest_session) {
 
     std::map<std::string, Tool> tools_to_ui;
     for (auto [id, tool] : REMA::tools) {
-        tools_to_ui[id] = Tool(id , (tool.offset * current_session.hx.scale));
+        tools_to_ui[id] = Tool(id , (tool.offset * current_session.hx.scale), tool.is_touch_probe);
     }
 
     res["tools"] = tools_to_ui;

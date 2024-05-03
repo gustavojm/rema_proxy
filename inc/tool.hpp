@@ -10,11 +10,7 @@ class Tool {
 public:
     Tool() {
     }
-
-    Tool(std::string tool_name, Point3D offset_) :
-            name(tool_name), offset(offset_) {
-    }
-
+    
     Tool(std::string tool_name, Point3D offset_, bool is_touch_probe_) :
             name(tool_name), is_touch_probe(is_touch_probe_) {
             

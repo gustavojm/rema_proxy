@@ -128,7 +128,10 @@ function get_rema_info() {
 											entry.offset.y)														
 									.attr(
 											'data-offset_z',
-											entry.offset.z)														
+											entry.offset.z)
+									.attr(
+											'data-is_touch_probe',
+											entry.is_touch_probe)														
 									.text(
 											entry.name));
 				});
