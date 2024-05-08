@@ -318,9 +318,13 @@
 			var box = tubesheet_svg.viewBox.baseVal;
 	
 			aspectRatio = box.width / box.height;
-			
-			$('#hx_svg').css("width", 100 * zoom + "%");
-			$('#hx_svg').css("height", 100 * zoom * aspectRatio + "%");
+			if (aspectRatio > 1) {
+				$('#hx_svg').css("width", 100 * zoom * aspectRatio + "%");
+				$('#hx_svg').css("height", 100 * zoom + "%");
+			} else {
+				$('#hx_svg').css("width", 100 * zoom + "%");
+				$('#hx_svg').css("height", 100 * zoom * aspectRatio + "%");
+			}
 	
 			var objDiv = document.getElementById("left_side_resizable");
 					
@@ -339,7 +343,7 @@
 		
 			 			// percentage related to the real coordinates of the HX
 			 			percentage_x = (((1 / (box.width)) * (translateX - box.x)));
-		 			    percentage_y = (((1 / (box.height)) * (translateY - box.y)));
+		 			    percentage_y = (((1 / (box.height)) * (-translateY - box.y)));
 		 			    
 		 			    factor_x = objDiv.scrollWidth / box.width;
 		 			    factor_y = objDiv.scrollHeight / box.height;
@@ -350,7 +354,7 @@
 		 			   	padding_y = (objDiv.scrollHeight - (box.height * factor));
 
 			 		    objDiv.scrollLeft = ((objDiv.scrollWidth - padding_x - objDiv.clientWidth) * (percentage_x)) + (padding_x / 2);
-						objDiv.scrollTop = ((objDiv.scrollHeight - padding_y - objDiv.clientHeight) * (0.5 - percentage_y)) + (padding_y / 2);
+						objDiv.scrollTop = ((objDiv.scrollHeight - padding_y - objDiv.clientHeight) * (-0.5 + percentage_y)) + (padding_y / 2);
 			 		}
 				} else {
 					// allways goes to the middle of the SVG
