@@ -1,15 +1,15 @@
 #ifndef REMA_HPP
 #define REMA_HPP
 
-#include <string>
-#include <mutex>
 #include <filesystem>
 #include <json.hpp>
+#include <mutex>
 #include <net_client.hpp>
+#include <string>
 
-#include "tool.hpp"
 #include "points.hpp"
 #include "session.hpp"
+#include "tool.hpp"
 
 extern const std::filesystem::path config_file_path;
 extern const std::filesystem::path rema_dir;
@@ -34,10 +34,9 @@ struct limits {
     bool down;
     bool in;
     bool out;
-    bool probe;    
+    bool probe;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(limits, left, right, up, down, in, out,
-        probe)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(limits, left, right, up, down, in, out, probe)
 
 struct compound_axes {
     bool x_y = false;
@@ -52,8 +51,7 @@ struct telemetry {
     struct individual_axes stalled;
     struct limits limits;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(telemetry, coords, on_condition, probe, stalled,
-        limits)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(telemetry, coords, on_condition, probe, stalled, limits)
 
 struct movement_cmd {
     std::string axes;
@@ -68,9 +66,9 @@ struct movement_cmd {
 };
 
 class REMA {
-public:
-    static REMA& get_instance() {
-        static REMA instance;     // Guaranteed to be destroyed. Instantiated on first use.
+  public:
+    static REMA &get_instance() {
+        static REMA instance; // Guaranteed to be destroyed. Instantiated on first use.
         return instance;
     }
 
@@ -105,20 +103,20 @@ public:
         return {};
     }
 
-    void extend_touch_probe() { 
+    void extend_touch_probe() {
         execute_command({ { "command", "TOUCH_PROBE" },
-                            { "pars",
-                                    { { "position", "IN" },
-                                    }
-                            }});
+                          { "pars",
+                            {
+                                { "position", "IN" },
+                            } } });
     };
 
-    void retract_touch_probe() { 
+    void retract_touch_probe() {
         execute_command({ { "command", "TOUCH_PROBE" },
-                            { "pars",
-                                    { { "position", "OUT" },
-                                    }
-                            }});
+                          { "pars",
+                            {
+                                { "position", "OUT" },
+                            } } });
     };
 
     void load_config();
@@ -137,7 +135,7 @@ public:
 
     void cancel_sequence_in_progress();
 
-    bool execute_sequence(std::vector<movement_cmd>& sequence);
+    bool execute_sequence(std::vector<movement_cmd> &sequence);
 
     void set_home_xy(double x, double y);
 
@@ -161,10 +159,10 @@ public:
     struct telemetry telemetry;
     struct temps temps;
 
-private:
+  private:
     REMA() {
         try {
-            load_config();         
+            load_config();
             for (const auto &entry : std::filesystem::directory_iterator(tools_dir)) {
                 Tool t(entry.path());
                 tools[entry.path().filename().replace_extension()] = t;
@@ -173,7 +171,6 @@ private:
         } catch (std::exception &e) {
             SPDLOG_WARN(e.what());
         }
-
     }
 
     // C++ 11
@@ -181,16 +178,15 @@ private:
     // We can use the better technique of deleting the methods
     // we don't want.
 
-public:
-    REMA(REMA const&) = delete;
-    REMA& operator=(REMA const&) = delete;
+  public:
+    REMA(REMA const &) = delete;
+    REMA &operator=(REMA const &) = delete;
 
     // Note: Scott Meyers mentions in his Effective Modern
     //       C++ book, that deleted functions should generally
     //       be public as it results in better error messages
     //       due to the compilers behavior to check accessibility
     //       before deleted status
-
 };
 
-#endif 		// REMA_HPP
+#endif // REMA_HPP

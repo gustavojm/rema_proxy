@@ -1,10 +1,10 @@
 #ifndef CIRCLE_FNS_HPP
 #define CIRCLE_FNS_HPP
 
+#include <algorithm>
+#include <cmath>
 #include <iostream>
 #include <vector>
-#include <cmath>
-#include <algorithm>
 
 #include "points.hpp"
 
@@ -16,12 +16,10 @@ struct Circle {
 };
 
 static inline double distance(const Point3D &p1, const Point3D &p2) {
-    return std::sqrt(
-            (p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y));
+    return std::sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y));
 }
 
-static inline double calculate_sigma(const std::vector<Point3D> &data,
-        const Circle &circle) {
+static inline double calculate_sigma(const std::vector<Point3D> &data, const Circle &circle) {
     double sum = 0.0f;
     double dx, dy;
 
@@ -34,20 +32,19 @@ static inline double calculate_sigma(const std::vector<Point3D> &data,
     return std::sqrt(sum / data.size());
 }
 
-static inline std::pair<double, double> calculate_means(
-        const std::vector<Point3D> &data) {
+static inline std::pair<double, double> calculate_means(const std::vector<Point3D> &data) {
 
-    double mean_x = std::accumulate(data.begin(), data.end(), 0.0,
-            [](double accumulator, const Point3D &point) {
-                return accumulator + point.x;
-            }) / data.size();
+    double mean_x =
+        std::accumulate(
+            data.begin(), data.end(), 0.0, [](double accumulator, const Point3D &point) { return accumulator + point.x; }) /
+        data.size();
 
-    double mean_y = std::accumulate(data.begin(), data.end(), 0.0,
-            [](double accumulator, const Point3D &point) {
-                return accumulator + point.y;
-            }) / data.size();
+    double mean_y =
+        std::accumulate(
+            data.begin(), data.end(), 0.0, [](double accumulator, const Point3D &point) { return accumulator + point.y; }) /
+        data.size();
 
-    return {mean_x, mean_y};
+    return { mean_x, mean_y };
 }
 
 /**
@@ -87,22 +84,22 @@ static inline Circle CircleFitByHyper(std::vector<Point3D> data) {
     Circle circle;
 
     // Compute x and y sample means
-    double mean_x = std::accumulate(data.begin(), data.end(), 0.0,
-            [](double accumulator, const Point3D &point) {
-                return accumulator + point.x;
-            }) / data.size();
+    double mean_x =
+        std::accumulate(
+            data.begin(), data.end(), 0.0, [](double accumulator, const Point3D &point) { return accumulator + point.x; }) /
+        data.size();
 
-    double mean_y = std::accumulate(data.begin(), data.end(), 0.0,
-            [](double accumulator, const Point3D &point) {
-                return accumulator + point.y;
-            }) / data.size();
+    double mean_y =
+        std::accumulate(
+            data.begin(), data.end(), 0.0, [](double accumulator, const Point3D &point) { return accumulator + point.y; }) /
+        data.size();
 
     // Computing moments
     Mxx = Myy = Mxy = Mxz = Myz = Mzz = 0.;
 
     for (size_t i = 0; i < data.size(); i++) {
-        Xi = data[i].x - mean_x;   //  centered x-coordinates
-        Yi = data[i].y - mean_y;   //  centered y-coordinates
+        Xi = data[i].x - mean_x; //  centered x-coordinates
+        Yi = data[i].y - mean_y; //  centered y-coordinates
         Zi = Xi * Xi + Yi * Yi;
 
         Mxy += Xi * Yi;
@@ -126,14 +123,13 @@ static inline Circle CircleFitByHyper(std::vector<Point3D> data) {
 
     A2 = 4.0 * Cov_xy - 3.0 * Mz * Mz - Mzz;
     A1 = Var_z * Mz + 4.0 * Cov_xy * Mz - Mxz * Mxz - Myz * Myz;
-    A0 = Mxz * (Mxz * Myy - Myz * Mxy) + Myz * (Myz * Mxx - Mxz * Mxy)
-            - Var_z * Cov_xy;
+    A0 = Mxz * (Mxz * Myy - Myz * Mxy) + Myz * (Myz * Mxx - Mxz * Mxy) - Var_z * Cov_xy;
     A22 = A2 + A2;
 
     // Finding the root of the characteristic polynomial using Newton's method starting at x=0
     // (it is guaranteed to converge to the right root)
     for (x = 0., y = A0, iter = 0; iter < IterMAX; iter++) // usually, 4-6 iterations are enough
-            {
+    {
         Dy = A1 + x * (A22 + 16. * x * x);
         xnew = x - y / Dy;
         if ((xnew == x) || (!std::isfinite(xnew)))
@@ -153,10 +149,9 @@ static inline Circle CircleFitByHyper(std::vector<Point3D> data) {
 
     circle.center.x = Xcenter + mean_x;
     circle.center.y = Ycenter + mean_y;
-    circle.radius = std::sqrt(
-            Xcenter * Xcenter + Ycenter * Ycenter + Mz - x - x);
+    circle.radius = std::sqrt(Xcenter * Xcenter + Ycenter * Ycenter + Mz - x - x);
     circle.sigma = calculate_sigma(data, circle);
-    circle.iter = iter;  //  return the number of iterations, too
+    circle.iter = iter; //  return the number of iterations, too
 
     return circle;
 }
@@ -203,8 +198,8 @@ static inline Circle CircleFitByKasa(std::vector<Point3D> &data) {
     Mxx = Myy = Mxy = Mxz = Myz = 0.;
 
     for (size_t i = 0; i < data.size(); i++) {
-        Xi = data[i].x - mean_x;   //  centered x-coordinates
-        Yi = data[i].y - mean_y;   //  centered y-coordinates
+        Xi = data[i].x - mean_x; //  centered x-coordinates
+        Yi = data[i].y - mean_y; //  centered y-coordinates
         Zi = Xi * Xi + Yi * Yi;
 
         Mxx += Xi * Xi;
@@ -281,8 +276,8 @@ static inline Circle CircleFitByPratt(const std::vector<Point3D> &data) {
     Mxx = Myy = Mxy = Mxz = Myz = Mzz = 0.;
 
     for (size_t i = 0; i < data.size(); i++) {
-        Xi = data[i].x - mean_x;   //  centered x-coordinates
-        Yi = data[i].y - mean_y;   //  centered y-coordinates
+        Xi = data[i].x - mean_x; //  centered x-coordinates
+        Yi = data[i].y - mean_y; //  centered y-coordinates
         Zi = Xi * Xi + Yi * Yi;
 
         Mxy += Xi * Yi;
@@ -306,14 +301,13 @@ static inline Circle CircleFitByPratt(const std::vector<Point3D> &data) {
 
     A2 = 4.0 * Cov_xy - 3.0 * Mz * Mz - Mzz;
     A1 = Var_z * Mz + 4.0 * Cov_xy * Mz - Mxz * Mxz - Myz * Myz;
-    A0 = Mxz * (Mxz * Myy - Myz * Mxy) + Myz * (Myz * Mxx - Mxz * Mxy)
-            - Var_z * Cov_xy;
+    A0 = Mxz * (Mxz * Myy - Myz * Mxy) + Myz * (Myz * Mxx - Mxz * Mxy) - Var_z * Cov_xy;
     A22 = A2 + A2;
 
     // Finding the root of the characteristic polynomial using Newton's method starting at x=0
     // (it is guaranteed to converge to the right root)
     for (x = 0., y = A0, iter = 0; iter < IterMAX; iter++) // usually, 4-6 iterations are enough
-            {
+    {
         Dy = A1 + x * (A22 + 16. * x * x);
         xnew = x - y / Dy;
         if ((xnew == x) || (!std::isfinite(xnew)))
@@ -332,10 +326,9 @@ static inline Circle CircleFitByPratt(const std::vector<Point3D> &data) {
 
     circle.center.x = Xcenter + mean_x;
     circle.center.y = Ycenter + mean_y;
-    circle.radius = std::sqrt(
-            Xcenter * Xcenter + Ycenter * Ycenter + Mz + x + x);
+    circle.radius = std::sqrt(Xcenter * Xcenter + Ycenter * Ycenter + Mz + x + x);
     circle.sigma = calculate_sigma(data, circle);
-    circle.iter = iter;  //  return the number of iterations, too
+    circle.iter = iter; //  return the number of iterations, too
 
     return circle;
 }
@@ -385,8 +378,8 @@ static inline Circle CircleFitByTaubin(std::vector<Point3D> data) {
     Mxx = Myy = Mxy = Mxz = Myz = Mzz = 0.;
 
     for (size_t i = 0; i < data.size(); i++) {
-        Xi = data[i].x - mean_x;   //  centered x-coordinates
-        Yi = data[i].y - mean_y;   //  centered y-coordinates
+        Xi = data[i].x - mean_x; //  centered x-coordinates
+        Yi = data[i].y - mean_y; //  centered y-coordinates
         Zi = Xi * Xi + Yi * Yi;
 
         Mxy += Xi * Yi;
@@ -410,15 +403,14 @@ static inline Circle CircleFitByTaubin(std::vector<Point3D> data) {
     A3 = 4.0 * Mz;
     A2 = -3.0 * Mz * Mz - Mzz;
     A1 = Var_z * Mz + 4.0 * Cov_xy * Mz - Mxz * Mxz - Myz * Myz;
-    A0 = Mxz * (Mxz * Myy - Myz * Mxy) + Myz * (Myz * Mxx - Mxz * Mxy)
-            - Var_z * Cov_xy;
+    A0 = Mxz * (Mxz * Myy - Myz * Mxy) + Myz * (Myz * Mxx - Mxz * Mxy) - Var_z * Cov_xy;
     A22 = A2 + A2;
     A33 = A3 + A3 + A3;
 
     // Finding the root of the characteristic polynomial using Newton's method starting at x=0
     // (it is guaranteed to converge to the right root)
     for (x = 0., y = A0, iter = 0; iter < IterMAX; iter++) // usually, 4-6 iterations are enough
-            {
+    {
         Dy = A1 + x * (A22 + A33 * x);
         xnew = x - y / Dy;
         if ((xnew == x) || (!std::isfinite(xnew)))
@@ -439,7 +431,7 @@ static inline Circle CircleFitByTaubin(std::vector<Point3D> data) {
     circle.center.y = Ycenter + mean_y;
     circle.radius = std::sqrt(Xcenter * Xcenter + Ycenter * Ycenter + Mz);
     circle.sigma = calculate_sigma(data, circle);
-    circle.iter = iter;  //  return the number of iterations, too
+    circle.iter = iter; //  return the number of iterations, too
 
     return circle;
 }
@@ -455,10 +447,9 @@ static inline Circle CircleFitByTaubin(std::vector<Point3D> data) {
  *            where "code" :
  *                        0: normal termination, the best fitting circle is successfully found
  *                        1: the number of outer iterations exceeds the limit (99)  (indicator of a possible divergence)
- *                        2: the number of inner iterations exceeds the limit (99) (another indicator of a possible divergence)
- *                        3: the coordinates of the center are too large (a strong indicator of divergence)
- *             circle : parameters of the fitting circle ("best fit")
- * Algorithm:  Levenberg-Marquardt running over the full parameter space (a,b,r)
+ *                        2: the number of inner iterations exceeds the limit (99) (another indicator of a possible
+ * divergence) 3: the coordinates of the center are too large (a strong indicator of divergence) circle : parameters of the
+ * fitting circle ("best fit") Algorithm:  Levenberg-Marquardt running over the full parameter space (a,b,r)
  *
  * See a detailed description in Section 4.5 of the book by Nikolai Chernov:
  * "Circular and linear regression: Fitting circles and lines by least squares"
@@ -467,8 +458,10 @@ static inline Circle CircleFitByTaubin(std::vector<Point3D> data) {
  * @author: Nikolai Chernov  (September 2012)
  */
 static inline std::pair<int, Circle> CircleFitByLevenbergMarquardtFull(
-        const std::vector<Point3D> &data, const Circle &circleIni,
-        double LambdaIni,[[maybe_unused]] Circle &circle) {
+    const std::vector<Point3D> &data,
+    const Circle &circleIni,
+    double LambdaIni,
+    [[maybe_unused]] Circle &circle) {
     int code, iter, inner, IterMAX = 99;
     double factorUp = 10., factorDown = 0.04, lambda, ParLimit = 1.e+6;
     double dx, dy, ri, u, v;
@@ -491,7 +484,7 @@ static inline std::pair<int, Circle> CircleFitByLevenbergMarquardtFull(
     lambda = LambdaIni;
     iter = inner = code = 0;
 
-    NextIteration:
+NextIteration:
 
     Old = New;
     if (++iter > IterMAX) {
@@ -529,7 +522,7 @@ static inline std::pair<int, Circle> CircleFitByLevenbergMarquardtFull(
 
     Old.gradient = New.gradient = std::sqrt(F1 * F1 + F2 * F2 + F3 * F3);
 
-    try_again:
+try_again:
 
     UUl = Muu + lambda;
     VVl = Mvv + lambda;
@@ -551,16 +544,14 @@ static inline std::pair<int, Circle> CircleFitByLevenbergMarquardtFull(
     dY = (D2 - G23 * dR) / G22;
     dX = (D1 - G12 * dY - G13 * dR) / G11;
 
-    if ((std::abs(dR) + std::abs(dX) + std::abs(dY)) / (1.0 + Old.radius)
-            < epsilon)
+    if ((std::abs(dR) + std::abs(dX) + std::abs(dY)) / (1.0 + Old.radius) < epsilon)
         goto enough;
 
     // Updating the parameters
     New.center.x = Old.center.x - dX;
     New.center.y = Old.center.y - dY;
 
-    if (std::abs(New.center.x) > ParLimit
-            || std::abs(New.center.y) > ParLimit) {
+    if (std::abs(New.center.x) > ParLimit || std::abs(New.center.y) > ParLimit) {
         code = 3;
         goto enough;
     }
@@ -580,11 +571,11 @@ static inline std::pair<int, Circle> CircleFitByLevenbergMarquardtFull(
     New.sigma = calculate_sigma(data, New);
 
     // Check if improvement is gained
-    if (New.sigma < Old.sigma)    //   yes, improvement
-            {
+    if (New.sigma < Old.sigma) //   yes, improvement
+    {
         lambda *= factorDown;
         goto NextIteration;
-    } else {                      //   no improvement
+    } else { //   no improvement
         if (++inner > IterMAX) {
             code = 2;
             goto enough;
@@ -593,12 +584,11 @@ static inline std::pair<int, Circle> CircleFitByLevenbergMarquardtFull(
         goto try_again;
     }
 
-    enough:
-    return {code, New};
+enough:
+    return { code, New };
 }
 
-static inline std::vector<Point3D> calculateCirclePoints(const Point3D &center,
-        double radius, int numPoints) {
+static inline std::vector<Point3D> calculateCirclePoints(const Point3D &center, double radius, int numPoints) {
     std::vector<Point3D> points;
 
     double angleIncrement = 360.0 / numPoints;
@@ -613,9 +603,9 @@ static inline std::vector<Point3D> calculateCirclePoints(const Point3D &center,
         point.z = 0;
 
         points.push_back(point);
-        //std::cout << "Point " << i + 1 << ": (" << point.x << ", " << point.y << ")\n";
+        // std::cout << "Point " << i + 1 << ": (" << point.x << ", " << point.y << ")\n";
     }
     return points;
 }
 
-#endif     // CIRCLE_FNS_HPP
+#endif // CIRCLE_FNS_HPP

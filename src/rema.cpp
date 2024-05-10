@@ -1,13 +1,13 @@
-#include <iostream>
-#include <vector>
 #include <algorithm>
 #include <csv.h>
+#include <iostream>
+#include <vector>
 
 #include <fstream>
-#include <string>
-#include <map>
 #include <json.hpp>
+#include <map>
 #include <spdlog/spdlog.h>
+#include <string>
 
 #include "rema.hpp"
 #include "session.hpp"
@@ -27,7 +27,7 @@ void REMA::cancel_sequence_in_progress() {
 }
 
 void REMA::load_config() {
-    try {                
+    try {
         std::ifstream config_file(config_file_path);
         if (config_file.is_open()) {
             config_file >> config;
@@ -80,23 +80,18 @@ void REMA::update_telemetry(std::string &stream) {
 }
 
 void REMA::set_home_xy(double x, double y) {
-    execute_command({ { "command", "SET_COORDS" },
-        { "pars",
-                { { "position_x", x },
-                  { "position_y", y }
-                }
-        }});
+    execute_command({ { "command", "SET_COORDS" }, { "pars", { { "position_x", x }, { "position_y", y } } } });
 }
 
 void REMA::set_home_z(double z) {
     execute_command({ { "command", "SET_COORDS" },
-        { "pars",
-                { { "position_z", z },
-                }
-        }});
+                      { "pars",
+                        {
+                            { "position_z", z },
+                        } } });
 }
 
-void REMA::execute_command(const nlohmann::json command) {      // do not change command to a reference
+void REMA::execute_command(const nlohmann::json command) { // do not change command to a reference
     nlohmann::json to_rema;
     to_rema["commands"].push_back(command);
     std::string tx_buffer = to_rema.dump();
@@ -106,7 +101,7 @@ void REMA::execute_command(const nlohmann::json command) {      // do not change
     command_client.receive_blocking();
 }
 
-void REMA::execute_command_no_wait(const nlohmann::json command) {      // do not change command to a reference
+void REMA::execute_command_no_wait(const nlohmann::json command) { // do not change command to a reference
     nlohmann::json to_rema;
     to_rema["commands"].push_back(command);
     std::string tx_buffer = to_rema.dump();
@@ -115,45 +110,43 @@ void REMA::execute_command_no_wait(const nlohmann::json command) {      // do no
     command_client.send_blocking(tx_buffer);
 }
 
-
 void REMA::move_closed_loop(movement_cmd cmd) {
     execute_command({ { "command", "MOVE_CLOSED_LOOP" },
-        { "pars",
-                { { "axes", cmd.axes },
-                  { "first_axis_setpoint", cmd.first_axis_setpoint },
-                  { "second_axis_setpoint", cmd.second_axis_setpoint } } }
-    });
+                      { "pars",
+                        { { "axes", cmd.axes },
+                          { "first_axis_setpoint", cmd.first_axis_setpoint },
+                          { "second_axis_setpoint", cmd.second_axis_setpoint } } } });
 }
 
 void REMA::axes_hard_stop_all() {
     cancel_sequence_in_progress();
-    execute_command({ { "command", "AXES_HARD_STOP_ALL" }});
+    execute_command({ { "command", "AXES_HARD_STOP_ALL" } });
 }
 
 void REMA::axes_soft_stop_all() {
     cancel_sequence_in_progress();
-    execute_command({ { "command", "AXES_SOFT_STOP_ALL" }});
+    execute_command({ { "command", "AXES_SOFT_STOP_ALL" } });
 }
 
-bool REMA::execute_sequence(std::vector<movement_cmd>& sequence) {
+bool REMA::execute_sequence(std::vector<movement_cmd> &sequence) {
     cancel_sequence_in_progress();
     is_sequence_in_progress = true;
     bool was_completed = true;
 
-    execute_command({ { "command", "AXES_SOFT_STOP_ALL" }});
+    execute_command({ { "command", "AXES_SOFT_STOP_ALL" } });
 
     // Create an individual command object and add it to the array
     for (auto &step : sequence) {
         move_closed_loop(step);
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));                     // Wait for telemetry update...
+        std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Wait for telemetry update...
 
         bool stopped_on_probe = false;
         bool stopped_on_condition = false;
         do {
             try {
-                telemetry_client.receive_async([this](std::string &rx_buffer) {this->update_telemetry(rx_buffer); });
-                std::this_thread::sleep_for(std::chrono::milliseconds(10));                     // Wait for telemetry update...
-            } catch (std::exception &e) {                // handle exception
+                telemetry_client.receive_async([this](std::string &rx_buffer) { this->update_telemetry(rx_buffer); });
+                std::this_thread::sleep_for(std::chrono::milliseconds(10)); // Wait for telemetry update...
+            } catch (std::exception &e) {                                   // handle exception
                 SPDLOG_ERROR(e.what());
             }
 
@@ -164,9 +157,9 @@ bool REMA::execute_sequence(std::vector<movement_cmd>& sequence) {
                 stopped_on_probe = telemetry.probe.z;
                 stopped_on_condition = telemetry.on_condition.z;
             }
-        } while (!(stopped_on_probe || stopped_on_condition || cancel_sequence ));
+        } while (!(stopped_on_probe || stopped_on_condition || cancel_sequence));
 
-        if (!cancel_sequence) {            
+        if (!cancel_sequence) {
             step.executed = true;
             step.execution_results.coords = telemetry.coords;
             step.execution_results.stopped_on_probe = stopped_on_probe;

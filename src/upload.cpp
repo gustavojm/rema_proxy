@@ -1,9 +1,9 @@
 #include <stdexcept>
 
-#include "multipart.hpp"
-#include "upload.hpp"
-#include "session.hpp"
 #include "HX.hpp"
+#include "multipart.hpp"
+#include "session.hpp"
+#include "upload.hpp"
 
 extern Session current_session;
 
@@ -41,8 +41,8 @@ void extract_HX_from_multipart_form_data(multipart::message &multipart_msg) {
                 }
                 if (key == "name" && value == "config") {
                     if (auto it = header.params.find("filename"); it != header.params.end()) {
-                        if (it->second == "config.json"){
-                            std::cout << part.body << "\n";                            
+                        if (it->second == "config.json") {
+                            std::cout << part.body << "\n";
                             config_content = part.body;
                         }
                     }
@@ -68,34 +68,33 @@ void file_upload_handler(const std::shared_ptr<restbed::Session> &session) {
     std::string asset = request->get_path_parameter("asset", "");
     size_t content_length = request->get_header("Content-Length", 0);
 
-    session->fetch(content_length,   
-            [&, asset](const std::shared_ptr<restbed::Session> &rest_session_ptr,
-                    const restbed::Bytes &body) {
-                nlohmann::json res;
-                int status = restbed::OK;
-                std::string buffer(body.begin(), body.end());
-                multipart::message multipart_msg(request->get_headers(), buffer);
-                //std::cout << multipart_msg.dump();
+    session->fetch(
+        content_length, [&, asset](const std::shared_ptr<restbed::Session> &rest_session_ptr, const restbed::Bytes &body) {
+            nlohmann::json res;
+            int status = restbed::OK;
+            std::string buffer(body.begin(), body.end());
+            multipart::message multipart_msg(request->get_headers(), buffer);
+            // std::cout << multipart_msg.dump();
 
-                try {
-                    if (asset == "plans") {
-                        extract_plans_from_multipart_form_data(multipart_msg);
-                    }
-                    if (asset == "HXs") {
-                        extract_HX_from_multipart_form_data(multipart_msg);
-                    }
-                    res["success"] = "Uploaded correctly";
-                } catch (std::exception &e) {
-                    res["error"] = e.what();
-                    status = restbed::BAD_REQUEST;
+            try {
+                if (asset == "plans") {
+                    extract_plans_from_multipart_form_data(multipart_msg);
                 }
+                if (asset == "HXs") {
+                    extract_HX_from_multipart_form_data(multipart_msg);
+                }
+                res["success"] = "Uploaded correctly";
+            } catch (std::exception &e) {
+                res["error"] = e.what();
+                status = restbed::BAD_REQUEST;
+            }
 
-                rest_session_ptr->close(status, res.dump(), { { "Content-Length",
-                                std::to_string(res.dump().length()) }, {
-                                "Content-Type",
-                                "application/json; charset=utf-8" } });
-
-            });
+            rest_session_ptr->close(
+                status,
+                res.dump(),
+                { { "Content-Length", std::to_string(res.dump().length()) },
+                  { "Content-Type", "application/json; charset=utf-8" } });
+        });
 }
 
 // @formatter:off
@@ -109,4 +108,3 @@ void upload_create_endpoints(restbed::Service &service) {
 
     service.publish(resource_upload);
 }
-

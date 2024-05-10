@@ -3,11 +3,11 @@
 
 #include <string>
 
-#include "points.hpp"
 #include "json.hpp"
+#include "points.hpp"
 
 class TubeEntry {
-public:
+  public:
     std::string x_label;
     std::string y_label;
     Point3D coords;

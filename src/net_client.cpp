@@ -1,17 +1,17 @@
 #include <iostream>
-#include <string>
 #include <restbed>
+#include <string>
 
-#include <cstdlib>
-#include <cstring>
-#include <thread>
-#include <chrono>
 #include <boost/asio.hpp>
 #include <boost/asio/high_resolution_timer.hpp>
 #include <boost/asio/io_context.hpp>
+#include <chrono>
+#include <cstdlib>
+#include <cstring>
 #include <json.hpp>
 #include <net_client.hpp>
 #include <spdlog/spdlog.h>
+#include <thread>
 
 using boost::asio::ip::tcp;
 
@@ -28,11 +28,10 @@ void netClient::connect() {
     // The blocking_udp_client.cpp example shows how you can use std::bind
     // rather than a lambda.
     boost::system::error_code error;
-    boost::asio::async_connect(socket_, endpoints,
-            [&](const boost::system::error_code &result_error,
-                    const tcp::endpoint& /*result_endpoint*/) {
-                error = result_error;
-            });
+    boost::asio::async_connect(
+        socket_, endpoints, [&](const boost::system::error_code &result_error, const tcp::endpoint & /*result_endpoint*/) {
+            error = result_error;
+        });
 
     // Run the operation until it completes, or until the timeout.
     run();
@@ -50,23 +49,23 @@ void netClient::receive_async(std::function<void(std::string &rx_buffer)> callba
     // than a lambda.
     std::lock_guard<std::mutex> lock(mtx);
     boost::system::error_code error;
-    boost::asio::async_read_until(socket_,
-            boost::asio::dynamic_buffer(input_buffer_), '\0',
-            [&](const boost::system::error_code &result_error,
-                    std::size_t result_n) {
-                error = result_error;
+    boost::asio::async_read_until(
+        socket_,
+        boost::asio::dynamic_buffer(input_buffer_),
+        '\0',
+        [&](const boost::system::error_code &result_error, std::size_t result_n) {
+            error = result_error;
 
-                if (error) {
-                    isConnected = false;
-                    throw std::runtime_error(
-                            "Error receiving message: " + error.message());
-                }
+            if (error) {
+                isConnected = false;
+                throw std::runtime_error("Error receiving message: " + error.message());
+            }
 
-                //SPDLOG_INFO("Received message is: {}", input_buffer_);
-                std::string line(input_buffer_.substr(0, result_n - 1));
-                callback(line);
-                input_buffer_.erase(0, result_n);
-            });
+            // SPDLOG_INFO("Received message is: {}", input_buffer_);
+            std::string line(input_buffer_.substr(0, result_n - 1));
+            callback(line);
+            input_buffer_.erase(0, result_n);
+        });
 
     // Run the operation until it completes, or until the timeout.
     run();
@@ -84,13 +83,14 @@ std::string netClient::receive_blocking() {
     std::lock_guard<std::mutex> lock(mtx);
     boost::system::error_code error;
     std::size_t bytes_transferred = 0;
-    boost::asio::async_read_until(socket_,
-            boost::asio::dynamic_buffer(input_buffer_), '\0',
-            [&](const boost::system::error_code &result_error,
-                    std::size_t result_n) {
-                error = result_error;
-                bytes_transferred = result_n;
-            });
+    boost::asio::async_read_until(
+        socket_,
+        boost::asio::dynamic_buffer(input_buffer_),
+        '\0',
+        [&](const boost::system::error_code &result_error, std::size_t result_n) {
+            error = result_error;
+            bytes_transferred = result_n;
+        });
 
     // Run the operation until it completes, or until the timeout.
     run();
@@ -115,11 +115,10 @@ void netClient::send_blocking(const std::string &line) {
     // The blocking_udp_client.cpp example shows how you can use std::bind
     // rather than a lambda.
     boost::system::error_code error;
-    boost::asio::async_write(socket_, boost::asio::buffer(data),
-            [&](const boost::system::error_code &result_error,
-                    std::size_t /*result_n*/) {
-                error = result_error;
-            });
+    boost::asio::async_write(
+        socket_, boost::asio::buffer(data), [&](const boost::system::error_code &result_error, std::size_t /*result_n*/) {
+            error = result_error;
+        });
 
     // Run the operation until it completes, or until the timeout.
     run();

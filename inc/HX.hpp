@@ -2,18 +2,18 @@
 #define HX_HPP
 
 #include <filesystem>
-#include <vector>
-#include <set>
 #include <iostream>
+#include <set>
+#include <vector>
 
 #include "csv.h"
-#include "svg.hpp"
-#include "points.hpp"
 #include "json.hpp"
+#include "points.hpp"
+#include "svg.hpp"
 #include "tube_entry.hpp"
 
 class HX {
-public:
+  public:
     static const std::filesystem::path hxs_path;
 
     void process_csv_from_disk(std::string hx_name);
@@ -23,7 +23,7 @@ public:
     void generate_svg();
 
     void load_config_from_disk(std::string hx);
-    
+
     void load_config(nlohmann::json config);
 
     static std::vector<std::string> list();
@@ -32,7 +32,7 @@ public:
 
     static bool erase(std::string hx_name);
 
-    std::string tubesheet_svg ;
+    std::string tubesheet_svg;
     float tube_od;
     std::string leg = "both";
     std::string unit = "inch";
@@ -49,10 +49,8 @@ public:
         std::set<std::pair<std::string, float>> x_labels;
         std::set<std::pair<std::string, float>> y_labels;
     } svg;
-
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(HX, tubesheet_svg, tube_od,
-        leg, unit, scale, tubes)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(HX, tubesheet_svg, tube_od, leg, unit, scale, tubes)
 
 #endif // HX_HPP

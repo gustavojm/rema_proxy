@@ -1,23 +1,23 @@
 #ifndef TOOL_HPP
 #define TOOL_HPP
 
-#include <string>
 #include <json.hpp>
+#include <string>
 
 #include "points.hpp"
 
 class Tool {
-public:
-    Tool() {}
+  public:
+    Tool() {
+    }
 
-    Tool(std::string tool_name, Point3D offset_, bool is_touch_probe_) :
-            name(tool_name), is_touch_probe(is_touch_probe_) {
-            
-            if (is_touch_probe) {
-                offset = {};
-            } else {
-                offset = offset_;
-            }
+    Tool(std::string tool_name, Point3D offset_, bool is_touch_probe_) : name(tool_name), is_touch_probe(is_touch_probe_) {
+
+        if (is_touch_probe) {
+            offset = {};
+        } else {
+            offset = offset_;
+        }
     }
 
     Tool(const std::filesystem::path &tool_file);
@@ -30,4 +30,4 @@ public:
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Tool, name, offset, is_touch_probe)
 
-#endif 		// TOOL_HPP
+#endif // TOOL_HPP

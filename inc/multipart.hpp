@@ -1,12 +1,12 @@
 #ifndef MULTIPART_HPP
 #define MULTIPART_HPP
 
+#include <filesystem>
+#include <map>
 #include <sstream>
 #include <string>
-#include <vector>
-#include <map>
 #include <unordered_map>
-#include <filesystem>
+#include <vector>
 
 /// Encapsulates anything related to processing and organizing `multipart/xyz` messages
 namespace multipart {
@@ -36,8 +36,8 @@ namespace multipart {
         std::string boundary;    ///< The text boundary that separates different `parts`
         std::vector<part> parts; ///< The individual parts of the message
 
-        const std::string& get_header_value(const std::string& key) const {
-            if (headers_.count(key)){
+        const std::string &get_header_value(const std::string &key) const {
+            if (headers_.count(key)) {
                 return headers_.find(key)->second;
             }
             static std::string empty;
@@ -73,14 +73,11 @@ namespace multipart {
             return str.str();
         }
 
-        ///Create a multipart message from a request data
+        /// Create a multipart message from a request data
         template<typename T>
         message(const T &headers, std::string body)
-            : headers_(headers),
-            boundary(get_boundary(get_header_value("Content-Type"))),
-            parts(parse_body(body))
-        {}
-
+            : headers_(headers), boundary(get_boundary(get_header_value("Content-Type"))), parts(parse_body(body)) {
+        }
 
       private:
         std::string get_boundary(const std::string &header) {
@@ -176,4 +173,4 @@ namespace multipart {
     };
 } // namespace multipart
 
-#endif      // MULTIPART_HPP
+#endif // MULTIPART_HPP

@@ -1,21 +1,21 @@
 #ifndef WEBSOCKET_SERVER_HPP
 #define WEBSOCKET_SERVER_HPP
 
-#include <boost/beast/core.hpp>
-#include <boost/beast/websocket.hpp>
+#include <algorithm>
 #include <boost/asio/dispatch.hpp>
 #include <boost/asio/strand.hpp>
-#include <algorithm>
+#include <boost/beast/core.hpp>
+#include <boost/beast/websocket.hpp>
+#include <chrono>
 #include <cstdlib>
 #include <functional>
 #include <iostream>
 #include <memory>
+#include <spdlog/spdlog.h>
 #include <string>
 #include <thread>
 #include <vector>
-#include <chrono>
 #include <websocket-server.hpp>
-#include <spdlog/spdlog.h>
 
 namespace beast = boost::beast;
 // from <boost/beast.hpp>
@@ -32,18 +32,17 @@ using tcp = boost::asio::ip::tcp;
 
 // Report a failure
 inline void fail(beast::error_code ec, char const *what) {
-    SPDLOG_ERROR( "{}: {}", what, ec.message());
+    SPDLOG_ERROR("{}: {}", what, ec.message());
 }
 
 // Echoes back all received WebSocket messages
-class session: public std::enable_shared_from_this<session> {
+class session : public std::enable_shared_from_this<session> {
     websocket::stream<beast::tcp_stream> ws_;
     beast::flat_buffer buffer_;
 
-public:
+  public:
     // Take ownership of the socket
-    explicit session(tcp::socket &&socket) :
-            ws_(std::move(socket)) {
+    explicit session(tcp::socket &&socket) : ws_(std::move(socket)) {
     }
 
     // Get on the correct executor
@@ -52,46 +51,35 @@ public:
         // on the I/O objects in this session. Although not strictly necessary
         // for single-threaded contexts, this example code is written to be
         // thread-safe by default.
-        net::dispatch(ws_.get_executor(),
-                beast::bind_front_handler(&session::on_run,
-                        shared_from_this()));
+        net::dispatch(ws_.get_executor(), beast::bind_front_handler(&session::on_run, shared_from_this()));
     }
 
     // Start the asynchronous operation
     void on_run() {
         // Set suggested timeout settings for the websocket
-        ws_.set_option(
-                websocket::stream_base::timeout::suggested(
-                        beast::role_type::server));
+        ws_.set_option(websocket::stream_base::timeout::suggested(beast::role_type::server));
 
         // Set a decorator to change the Server of the handshake
-        ws_.set_option(
-                websocket::stream_base::decorator(
-                        [](websocket::response_type &res) {
-                            res.set(http::field::server,
-                                    std::string(BOOST_BEAST_VERSION_STRING)
-                                            + " websocket-server-async");
-                        }));
+        ws_.set_option(websocket::stream_base::decorator([](websocket::response_type &res) {
+            res.set(http::field::server, std::string(BOOST_BEAST_VERSION_STRING) + " websocket-server-async");
+        }));
         // Accept the websocket handshake
-        ws_.async_accept(
-                beast::bind_front_handler(&session::on_accept,
-                        shared_from_this()));
+        ws_.async_accept(beast::bind_front_handler(&session::on_accept, shared_from_this()));
     }
 
-    void do_send_hello([[maybe_unused]] beast::error_code ec, [[maybe_unused]] std::size_t bytes_transferred)  {
+    void do_send_hello([[maybe_unused]] beast::error_code ec, [[maybe_unused]] std::size_t bytes_transferred) {
         beast::flat_buffer buffer;
         auto mutable_buffer = buffer.prepare(1000);
 
         std::string str = "Hello, World!";
-        std::copy(str.begin(), str.end(), boost::asio::buffer_cast<char*>(mutable_buffer));
+        std::copy(str.begin(), str.end(), boost::asio::buffer_cast<char *>(mutable_buffer));
 
         buffer.commit(str.size());
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
         ws_.text(true);
-        ws_.async_write(buffer.data(),
-                beast::bind_front_handler(&session::do_send_hello, shared_from_this()));
+        ws_.async_write(buffer.data(), beast::bind_front_handler(&session::do_send_hello, shared_from_this()));
     }
 
     void on_accept(beast::error_code ec) {
@@ -104,14 +92,11 @@ public:
 
     void do_read() {
         // Read a message into our buffer
-        ws_.async_read(buffer_,
-                beast::bind_front_handler(&session::on_read,
-                        shared_from_this()));
+        ws_.async_read(buffer_, beast::bind_front_handler(&session::on_read, shared_from_this()));
     }
 
     void on_read(beast::error_code ec, std::size_t bytes_transferred) {
         boost::ignore_unused(bytes_transferred);
-
 
         // This indicates that the session was closed
         if (ec == websocket::error::closed)
@@ -122,9 +107,7 @@ public:
 
         // Echo the message
         ws_.text(ws_.got_text());
-        ws_.async_write(buffer_.data(),
-                beast::bind_front_handler(&session::on_write,
-                        shared_from_this()));
+        ws_.async_write(buffer_.data(), beast::bind_front_handler(&session::on_write, shared_from_this()));
     }
 
     void on_write(beast::error_code ec, std::size_t bytes_transferred) {
@@ -144,13 +127,12 @@ public:
 //------------------------------------------------------------------------------
 
 // Accepts incoming connections and launches the sessions
-class listener: public std::enable_shared_from_this<listener> {
+class listener : public std::enable_shared_from_this<listener> {
     net::io_context &ioc_;
     tcp::acceptor acceptor_;
 
-public:
-    listener(net::io_context &ioc, tcp::endpoint endpoint) :
-            ioc_(ioc), acceptor_(ioc) {
+  public:
+    listener(net::io_context &ioc, tcp::endpoint endpoint) : ioc_(ioc), acceptor_(ioc) {
         beast::error_code ec;
 
         // Open the acceptor
@@ -187,12 +169,10 @@ public:
         do_accept();
     }
 
-private:
+  private:
     void do_accept() {
         // The new connection gets its own strand
-        acceptor_.async_accept(net::make_strand(ioc_),
-                beast::bind_front_handler(&listener::on_accept,
-                        shared_from_this()));
+        acceptor_.async_accept(net::make_strand(ioc_), beast::bind_front_handler(&listener::on_accept, shared_from_this()));
     }
 
     void on_accept(beast::error_code ec, tcp::socket socket) {
@@ -208,7 +188,6 @@ private:
     }
 };
 
-
 void websocket_init();
 
-#endif 		// WEBSOCKET_SERVER_HPP
+#endif // WEBSOCKET_SERVER_HPP
