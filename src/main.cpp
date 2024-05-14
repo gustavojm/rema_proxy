@@ -259,7 +259,8 @@ int main(const int, const char **) {
 
     //    // Websocket
     //    std::thread websocket_thread(websocket_init);
-
+    std::string proxy_url = fmt::format("http://127.0.0.1:{0}/static/index.html", rema_proxy_port);
+    SPDLOG_INFO("Open a browser to: \033]8;;{0}\033\\{0}\033]8;;\033\\", proxy_url);
     service.start(settings);
 
     //    websocket_thread.join();
