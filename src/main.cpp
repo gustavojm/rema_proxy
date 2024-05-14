@@ -48,7 +48,9 @@ void register_event_source_handler(const std::shared_ptr<restbed::Session> &sess
 }
 
 void event_stream_handler() {
-    static auto prev = std::chrono::high_resolution_clock::from_time_t(0);
+    if (sse_sessions.empty()) {
+        return;
+    }
 
     REMA &rema_instance = REMA::get_instance();
     static bool hide_sent = false;
@@ -62,6 +64,7 @@ void event_stream_handler() {
         ui_telemetry.coords = current_session.from_rema_to_ui(rema_instance.telemetry.coords, &tool);
         res["TELEMETRY"] = ui_telemetry;
 
+        static auto prev = std::chrono::high_resolution_clock::from_time_t(0);
         auto now = std::chrono::high_resolution_clock::now();
         auto elapsed_time = now - prev;
         if (elapsed_time > std::chrono::milliseconds(500)) {
