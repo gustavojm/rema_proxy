@@ -43,9 +43,9 @@ h1 {
 <script type="text/javascript" src="js/misc.js"></script>
 </head>
 <body>
-	<div id="outer" tabindex="0" style="outline: none">		<!--tabindex="0" outline: none to make the div selectable and receive keydown-->
+	<div id="outer">		<!--tabindex="0" outline: none to make the div selectable and receive keydown-->
 		<div id="up"
-			style="display: flex; justify-content: center; align-items: center;">
+			style="display: flex; justify-content: center; align-items: center; outline: none" tabindex="0">
 			<div id="left"
 				style="display: flex; background-color: #F3F3F3; margin: 2px; padding: 3px;">
 				<div class="joystick-container" style="float: left;">
@@ -56,23 +56,23 @@ h1 {
 					</div>
 					<div class="row">
 						<div class="joystick-limit-vertical" data-limit="none"></div>
-						<img alt="" src="images/up_left.png" class="joystick-arrow up left" data-dir="up_left" title="KeyPad 7"> 
-						<img alt="" src="images/up.png" class="joystick-arrow up" data-dir="up" title="KeyPad 8"> 
-						<img alt="" src="images/up_right.png" class="joystick-arrow up right" data-dir="up_right" title="KeyPad 9">
+						<img alt="" src="images/up_left.png" class="joystick-arrow" data-dir="up_left" title="KeyPad 7"> 
+						<img alt="" src="images/up.png" class="joystick-arrow" data-dir="up" title="KeyPad 8"> 
+						<img alt="" src="images/up_right.png" class="joystick-arrow" data-dir="up_right" title="KeyPad 9">
 						<div class="joystick-limit-vertical" data-limit="none"></div>
 					</div>
 					<div class="row">
 						<div class="joystick-limit-vertical off" data-limit="left"></div>
-						<img alt="" src="images/left.png" class="joystick-arrow left" data-dir="left" title="KeyPad 4"> 
+						<img alt="" src="images/left.png" class="joystick-arrow" data-dir="left" title="KeyPad 4"> 
 						<img alt="" src="images/h.png" class="joystick-arrow-home" data-dir="none" id="home_xy" title="KeyPad 5"> 
-						<img alt="" src="images/right.png" class="joystick-arrow rigth" data-dir="right" title="KeyPad 6">
+						<img alt="" src="images/right.png" class="joystick-arrow" data-dir="right" title="KeyPad 6">
 						<div class="joystick-limit-vertical off" data-limit="right"></div>
 					</div>
 					<div class="row">
 						<div class="joystick-limit-vertical" data-limit="none"></div>
-						<img alt="" src="images/down_left.png" class="joystick-arrow down left" data-dir="down_left" title="KeyPad 1"> 
-						<img alt="" src="images/down.png" class="joystick-arrow down" data-dir="down" title="KeyPad 2"> 
-						<img alt="" src="images/down_right.png" class="joystick-arrow down right" data-dir="down_right" title="KeyPad 3">
+						<img alt="" src="images/down_left.png" class="joystick-arrow" data-dir="down_left" title="KeyPad 1"> 
+						<img alt="" src="images/down.png" class="joystick-arrow" data-dir="down" title="KeyPad 2"> 
+						<img alt="" src="images/down_right.png" class="joystick-arrow" data-dir="down_right" title="KeyPad 3">
 						<div class="joystick-limit-vertical" data-limit="none"></div>
 					</div>
 					<div class="row">
@@ -188,6 +188,7 @@ h1 {
 
 	function mousedown_fn(btn) {
 		var dir = $(btn).data("dir");
+		$(btn).addClass('activated');
 		
 		if (dir == "none") {
 			stop(forced = true);
@@ -201,7 +202,7 @@ h1 {
 			dataType : "json",
 			success : function(data) {
 			}
-		});
+		});		
 		moving = true;
 	}
 
@@ -272,8 +273,10 @@ h1 {
 	
 	$(function() {
 		$(".joystick-arrow").mouseup(function() {
+			$(".joystick-arrow").removeClass('activated');
 			stop();
 		}).mouseout(function() {
+			$(".joystick-arrow").removeClass('activated');
 			stop();
 		});
 
@@ -351,69 +354,79 @@ h1 {
 
 		
 		$("#home_xy").click(function(e, orig_event) {
-			if (orig_event) {
-				e = orig_event;
-			}		
-			tube_id = $("#tube_info_id").val() || "";
-			var x = 0, y = 0;
-			if (tube_id !== "") {						
-				x = tubes[tube_id].coords.x;
-				y = tubes[tube_id].coords.y;
-			}
-			if (e.shiftKey) {
-				if (tube_id == "") {
-					alert("Please, select a tube");
+			$(this).addClass("activated");
+				setTimeout(() => {  
+
+				if (orig_event) {
+					e = orig_event;
+				}		
+				tube_id = $("#tube_info_id").val() || "";
+				var x = 0, y = 0;
+				if (tube_id !== "") {						
+					x = tubes[tube_id].coords.x;
+					y = tubes[tube_id].coords.y;
+				}
+				if (e.shiftKey) {
+					if (tube_id == "") {
+						alert("Please, select a tube");
+					} else {
+						if (confirm("Are you sure you want to determine current tube center and make it position X:" + toFixedIfNecessary(x, decimals) + ", Y:" + toFixedIfNecessary(y, decimals) + " ?")) {
+							$.ajaxQueue({
+								method : "GET",
+								url : "/REST/determine-tube-center/" + tube_id + "/true",
+								data : JSON.stringify(),
+								timeout: 25000,
+							})
+							.catch(function(e) {
+								if(e.statusText == 'timeout') {     
+									// TODO Send a cancel command? 
+									alert('Timeout');
+								} else {
+									alert("Error: " + e.responseJSON.error);
+								}
+							});			
+						}
+					}
 				} else {
-					if (confirm("Are you sure you want to determine current tube center and make it position X:" + toFixedIfNecessary(x, decimals) + ", Y:" + toFixedIfNecessary(y, decimals) + " ?")) {
+					if (confirm("Are you sure you want to make current position X:" + toFixedIfNecessary(x, decimals) + ", Y:" + toFixedIfNecessary(y, decimals) + " ?")) {
+						set_home_xy(tube_id);
+					}				
+				}
+				$(this).removeClass("activated");
+			}, 10);				
+		});
+		
+		$("#home_z").click(function(e, orig_event) {
+			$(this).addClass("activated");
+				setTimeout(() => {  
+
+				if (orig_event) {
+					e = orig_event;
+				}		
+				if (e.shiftKey) {
+					if (confirm("Are you sure you want to determine the position of the tubesheet and make it position Z:0 ?")) {
 						$.ajaxQueue({
 							method : "GET",
-							url : "/REST/determine-tube-center/" + tube_id + "/true",
+							url : "/REST/determine-tubesheet-z",
 							data : JSON.stringify(),
 							timeout: 25000,
 						})
 						.catch(function(e) {
 							if(e.statusText == 'timeout') {     
-				    			// TODO Send a cancel command? 
+								// TODO Send a cancel command? 
 								alert('Timeout');
 							} else {
 								alert("Error: " + e.responseJSON.error);
 							}
 						});			
 					}
+				} else {
+					if (confirm("Are you sure you want to make current position Z:0 ?")) {
+						set_home_z(0)
+					}				
 				}
-			} else {
-				if (confirm("Are you sure you want to make current position X:" + toFixedIfNecessary(x, decimals) + ", Y:" + toFixedIfNecessary(y, decimals) + " ?")) {
-					set_home_xy(tube_id);
-				}				
-			}			
-		});
-		
-		$("#home_z").click(function(e, orig_event) {
-			if (orig_event) {
-				e = orig_event;
-			}		
-			if (e.shiftKey) {
-				if (confirm("Are you sure you want to determine the position of the tubesheet and make it position Z:0 ?")) {
-					$.ajaxQueue({
-						method : "GET",
-						url : "/REST/determine-tubesheet-z",
-						data : JSON.stringify(),
-						timeout: 25000,
-					})
-					.catch(function(e) {
-						if(e.statusText == 'timeout') {     
-							// TODO Send a cancel command? 
-							alert('Timeout');
-						} else {
-							alert("Error: " + e.responseJSON.error);
-						}
-					});			
-				}
-			} else {
-				if (confirm("Are you sure you want to make current position Z:0 ?")) {
-					set_home_z(0)
-				}				
-			}			
+				$(this).removeClass("activated");
+			}, 10);
 		});		
 
 		$("#brakes_mode_switch").on("input", function(e) {
@@ -442,7 +455,7 @@ h1 {
 	    return keysPressed[keyCode] === true;
 	}
 
-    $("#outer").keydown(function(e){
+    $("#up").keydown(function(e) {			// for this to work the <div> element should have tabstop="0" 
 
 		if (isKeyDown(e.keyCode)) {			// Repeated event?
 			return;
@@ -485,12 +498,13 @@ h1 {
 									
 			default:					
 				return true;
-		}			
+		}
+		e.preventDefault();
 	});
 
-	$("#outer").keyup(function(e){
+	$("#up").keyup(function(e) {
 		delete keysPressed[e.keyCode];
-		stop();
+		$(".joystick-arrow").trigger("mouseup");
 	});
 
 </script>
