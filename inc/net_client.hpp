@@ -38,7 +38,7 @@ class netClient {
     void send_blocking(const std::string &line);
 
   private:
-    std::chrono::steady_clock::duration timeout = std::chrono::milliseconds(500);
+    std::chrono::steady_clock::duration timeout = std::chrono::milliseconds(1000);
     std::string host;
     std::string service;
     boost::asio::io_context io_context_;
