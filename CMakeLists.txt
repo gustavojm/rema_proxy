@@ -58,12 +58,6 @@ if(PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
   message(FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there.\n")
 endif()
 
-#
-# Enable package managers
-#
-
-include(cmake/Conan.cmake)
-include(cmake/Vcpkg.cmake)
 
 #
 # Create library, setup header and source files

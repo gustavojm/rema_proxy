@@ -64,21 +64,15 @@ endif()
 #  PRIVATE myproject::myproject_options
 #          myproject::myproject_warnings)
 
-# Find Open3D
-find_package(Open3D REQUIRED)
+# Dependencies resolved by vcpkg. See vcpkg.json
 find_package(Eigen3 REQUIRED)
-#find_package(Restbed REQUIRED)
+find_package(unofficial-restbed CONFIG REQUIRED)
 find_package(Boost REQUIRED COMPONENTS program_options)
 find_package(OpenSSL REQUIRED)
-
-# Find spdlog package
 find_package(spdlog REQUIRED)
 
-# Add restbed library path (change this path to where your library is located)
-set(RESTBED_DIR "/usr/local")
-
-# Find restbed library
-find_library(RESTBED_LIB librestbed.a PATHS ${RESTBED_DIR}/lib)
+# Find Open3D (not found in vcpkg repo)
+find_package(Open3D REQUIRED)
 
 # Include restbed headers
 include_directories(${RESTBED_DIR}/include)
@@ -91,12 +85,11 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 
 target_link_libraries(${PROJECT_NAME} PRIVATE 
                           Open3D::Open3D
-                          Eigen3::Eigen        
+                          Eigen3::Eigen
                           Boost::program_options
                           spdlog::spdlog
-                          ssl          
-                          ${RESTBED_LIB}
-                          ${OPENSSL_CRYPTO_LIBRARY} 
-                          ${OPENSSL_SSL_LIBRARY}
+                          unofficial::restbed::restbed
+                          OpenSSL::SSL
+                          OpenSSL::Crypto
                      )
 

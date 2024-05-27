@@ -1,0 +1,9 @@
+{
+  "dependencies": [
+    "restbed",
+    "openssl",
+    "boost-program-options",
+    "eigen3",
+    "spdlog"
+  ]
+}
