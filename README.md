@@ -63,8 +63,14 @@ Change project settings, specify CMAKE_INSTALL_PREFIX
 ccmake ./build
 ```
 
+Generate a distributable .deb package
 ```bash
-cmake --build ./build/ --target install
+create_deb_pkg.sh
+```
+
+Install the generated deb package
+```bash
+apt install ./rema-proxy.deb
 ```
 
 Run the installed project  
