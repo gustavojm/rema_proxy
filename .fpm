@@ -3,8 +3,6 @@
 --license agpl3
 --version 1.0
 --architecture all
---depends libspdlog-dev
---depends libssl-dev
 --depends libopen3d-dev
 --description "REMA Web Interface Proxy Server"
 --url "https://github.com/gustavojm/rema_proxy"

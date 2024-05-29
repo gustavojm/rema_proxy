@@ -16,9 +16,27 @@ Change initial connection settings by modifying config.json if required
 ## For Developers
 
 ## Requirements 
+Dependencies resolved by vcpkg
 
-Restbed library should be located in `/usr/local/include/` all the headers from `restbed/distribution/include`
-                                     `/usr/local/lib/` the shared library from `restbed/distribution/librestbed.a`
+Install vcpkg:
+```bash
+git clone https://github.com/microsoft/vcpkg
+```
+Add VCPKG_ROOT variable to ~/.bashrc
+```bash
+echo "export VCPKG_ROOT=/path_to_vcpkg" >> ~/.bashrc
+```
+
+
+```bash
+cd vcpkg
+./vcpkg integrate install
+```
+
+Open3D cannot be installed by vcpkg
+```bash
+apt install libopen3d-dev
+```
 
 ### Installing
 
