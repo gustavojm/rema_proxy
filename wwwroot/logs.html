@@ -9,9 +9,9 @@
 			<div style="width: 50%; margin-left: auto; margin-right: 0;">
 				<div style="display: flex; float: right; width: 40%;">
 					<div id="free_mem" class="progress-bar">
-						<div class="progress-text"></div>
 						<div class="progress"></div>
 						<div class="progress-min-mark"></div>
+						<div class="progress-text"></div>
 					</div>
 				</div>				  				
 				<div style="display: flex; float: right; margin-right: 5px; height: 20px; align-items: center; position: relative;">Free Heap Memory: </div>
@@ -56,9 +56,9 @@
 
 				mem_min_free = (data.MEM_INFO.MEM_MIN_FREE / data.MEM_INFO.MEM_TOTAL * 100).toFixed(1);
 
-				$("#free_mem .progress").css("width", mem_free);
+				$("#free_mem .progress").css("width", mem_free+"%");
 				$("#free_mem .progress-text").text(mem_free_text);
-				$("#free_mem .progress-min-mark").css("left", mem_min_free);				
+				$("#free_mem .progress-min-mark").css("left", mem_min_free+"%");				
 			}
 		})
 	}

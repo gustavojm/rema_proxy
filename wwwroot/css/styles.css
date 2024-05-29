@@ -181,7 +181,6 @@ svg .tube.highlight_cal_tube  {
 	position: absolute;
 	top: 50%;
 	transform: translateY(-50%);
-	left: 100%; /* Adjust as needed */
 	background-color: red;
 	height: 100%;
 	width: 0.1%;
