@@ -3,6 +3,9 @@
     "restbed",
     "openssl",
     "boost-program-options",
+    "boost-algorithm",
+    "boost-asio",
+    "boost-beast",   
     "eigen3",
     "spdlog"
   ]
