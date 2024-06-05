@@ -109,12 +109,9 @@
 		var textarea = document.getElementById(("logViewer"));
 
 		var textToSave = ""
-		console.log($("#logViewer").children());
 		$.each($("#logViewer").children(), function(key, entry) {
 			textToSave += $(entry).text() + "\n";
 		});
-		
-		console.log(textToSave);
 		
 		var blob = new Blob([textToSave], { type: 'text/plain' });
 		var link = document.createElement('a');
