@@ -12,10 +12,24 @@
 
 <link rel="stylesheet" href="css/jquery-ui.css">
 <script src="js/jquery-ui.min.js"></script>
+
+<style>
+	#notifications { 
+		width: 330px;
+		height: 25px;
+		z-index: 10; 
+		position: absolute;
+		font-size: small;
+  		text-align: center; 
+  		background-color: rgb(222, 221, 218); 
+  		align-content: center;		
+  		
+  }
+</style>
 </head>
 
 <body>
-
+	<div id="notifications" class="ui-widget-content"></div>
 	<div id="tabs" style="height: 94.5%">
 		<ul>
 			<li><a href="sessions.html">Sessions</a></li>
@@ -81,7 +95,7 @@
 	<div id="incremental_div" style="overflow: hidden;"></div>
 	<div id="reconnect_div" style="overflow: hidden;"></div>
 	<div id="network_settings_div" style="overflow: hidden;"></div>
-	<div id="manage_plans_div" style="overflow: hidden;"></div>
+	<div id="manage_plans_div" style="overflow: hidden;"></div>	
 </body>
 
 <script type="text/javascript">
@@ -217,7 +231,7 @@ get_session_info_index()
 			message = "ON CONDITION XY";
 		}
 
-		$("#messages").html(message);
+		$("#notifications").html('<p>' + message + '</p>');
 
 		if (typeof update_limits === "function") {
 			update_limits(telemetry.limits);
@@ -378,7 +392,13 @@ get_session_info_index()
 	}
 	
 	$(function() {
-	
+		notifications_left = $("#tabs").width() - $("#notifications").width() - 20;
+		notifications_top = $("#tabs").height() - $("#notifications").height() + 5;
+			
+		$("#notifications").css("left", notifications_left + 'px');
+		$("#notifications").css("top", notifications_top + 'px');
+		$("#notifications").draggable({containment: "#tabs"});
+
 		$("#reconnect_rema").on("click", function(){
 			$.ajax({
 				method : "POST",
