@@ -278,4 +278,21 @@ svg .tube:hover {
 	border: 1px solid #e6e5e5;
 	cursor: pointer;
   }
+
   
+/* Log Levels */
+.Debug {
+	color: black;
+}
+
+.Info {
+	color: green;
+}
+
+.Warning {
+	color: orange;
+}
+
+.Error {
+	color: red;
+}

@@ -8,29 +8,13 @@
 		height: 80%;
 		overflow-y: scroll;
 	}
-
-	.Debug {
-		color: black;
-	}
-
-	.Info {
-		color: green;
-	}
-
-	.Warning {
-		color: orange;
-	}
-
-	.Error {
-		color: red;
-	}
 </style>
 
 <div id="logs_tab" style="overflow: hidden; width: 100%;" class="tabs-div">
 	<div style="margin-bottom: 10px;">
-	Change Log Level: 
-		<select id="log_level">
-			<option>Choose a Level</option>
+	Change Network Log Level: 
+		<select id="net_log_level">
+			<option value="">Choose a Level</option>
 			<option class="Debug" value="Debug">Debug</option>
 			<option class="Info" value="Info">Info</option>
 			<option class="Warning" value="Warning">Warning</option>
@@ -138,27 +122,29 @@
 		    timer_logs = null;		
 		});
 
-		$("#log_level").change(function(e) {
+		$("#net_log_level").change(function(e) {
 			var level = $("option:selected", this).val();
-			var level_class = $("option:selected", this).attr("class");
-			$.ajax({
-				url : "/REMA/",
-				method : "POST",
-				contentType : "application/json",
-				data : JSON.stringify({
-					commands : [ {
-						command : "SET_LOG_LEVEL",
-						pars : {
-							net_level : level
-						}
-					},
-					]
-				}),
-				dataType : "json",
-				success : function(data) {				
-					$("#log_level").removeClass().addClass(level_class);
-				}
-			});
+			if (level!="") {
+				var level_class = $("option:selected", this).attr("class");
+				$.ajax({
+					url : "/REMA/",
+					method : "POST",
+					contentType : "application/json",
+					data : JSON.stringify({
+						commands : [ {
+							command : "SET_LOG_LEVEL",
+							pars : {
+								net_level : level
+							}
+						},
+						]
+					}),
+					dataType : "json",
+					success : function(data) {				
+						$("#net_log_level").removeClass().addClass(level_class);
+					}
+				});
+			}
 		});
 	});
 	

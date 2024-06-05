@@ -35,8 +35,7 @@
 			<li><a href="sessions.html">Sessions</a></li>
 			<li><a href="tubes.html">Tubes</a></li>
 			<li><a href="tubesheet.html">Tubesheet View</a></li>
-			<li><a href="HXs.html">Heat Exchangers</a></li>
-			<li><a href="config.html">Config</a></li>
+			<li><a href="HXs.html">Heat Exchangers</a></li>			
 			<li><a href="logs.html">Logs</a></li>
 			<li><a href="tools.html">Tools</a></li>
 			<li><a href="about.html">About</a></li>
@@ -94,7 +93,7 @@
 	<div id="joystick_div" style="overflow: hidden;"></div>
 	<div id="incremental_div" style="overflow: hidden;"></div>
 	<div id="reconnect_div" style="overflow: hidden;"></div>
-	<div id="network_settings_div" style="overflow: hidden;"></div>
+	<div id="settings_div" style="overflow: hidden;"></div>
 	<div id="manage_plans_div" style="overflow: hidden;"></div>	
 </body>
 
@@ -120,7 +119,7 @@ function get_rema_info() {
 							 '</div>';							 
 		$("#reconnect_div").html(reconnect_div_html);
 		$("#disconnected_img").click(function() {
-			$("#network_settings_div").dialog("open");
+			$("#settings_div").dialog("open");
 		});
 		
 		$("#rema_ip_address").val(data.host);
@@ -321,19 +320,19 @@ get_session_info_index()
 		});	
 	}
 
-	function create_network_settings_dialog() {
+	function create_settings_dialog() {
 		$.when(
-			$.get('network_settings.html', function(data) {
-				$('#network_settings_div').html(data);
+			$.get('settings.html', function(data) {
+				$('#settings_div').html(data);
 			}),
 		).done(function() {
-			network_settings = $("#network_settings_div").dialog({
+			settings = $("#settings_div").dialog({
 				autoOpen : false,
 				modal: true,
-				width: 350,
-				title : "Network Settings",
+				width: 500,
+				title : "Settings",
 				buttons: {
-					"Cancel": function () {
+					"Close": function () {
 						$(this).dialog("close");
 					}
 				},
@@ -344,7 +343,7 @@ get_session_info_index()
 			});
 
 			$("#logo_nasa").click(function() {
-				network_settings.dialog("open");
+				settings.dialog("open");
 			}) 
 		});
 	}
@@ -464,7 +463,7 @@ get_session_info_index()
 	    create_joystick();
 	    create_incremental_dialog();
 		create_reconnect_dialog();
-		create_network_settings_dialog();		
+		create_settings_dialog();		
 
 	});
 		
