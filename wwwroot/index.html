@@ -215,6 +215,7 @@ get_session_info_index()
 				
 	var prev_pos_x = 0;
 	var prev_pos_y = 0;
+	var control_disabled_by_stall = false;
 
 	function update_ui(telemetry) {		
 		var pos_x = telemetry.coords.x;
@@ -223,11 +224,20 @@ get_session_info_index()
 		$("#position_x").val(toFixedIfNecessary(pos_x, decimals));
 		$("#position_y").val(toFixedIfNecessary(pos_y, decimals));
 		$("#position_z").val(toFixedIfNecessary(pos_z, decimals));	
-
+		
 		message = "";
 		if (telemetry.stalled.x || telemetry.stalled.y || telemetry.stalled.z) {
 			message = "STALLED " + (telemetry.stalled.x ? "X" : "") + (telemetry.stalled.y ? "Y" : "") + (telemetry.stalled.z ? "Z" : "");
-		} else if (telemetry.on_condition.x_y) {
+			var power_switch = $('#power_switch');
+			if (power_switch.prop('checked') && !control_disabled_by_stall) {
+				power_switch.prop('checked', false).change();
+				control_disabled_by_stall = true;
+			}
+		} else {
+			control_disabled_by_stall = false;
+		}
+		
+		if (telemetry.on_condition.x_y) {
 			message = "ON CONDITION XY";
 		}
 
