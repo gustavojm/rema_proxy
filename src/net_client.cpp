@@ -31,15 +31,14 @@ void netClient::connect() {
     boost::asio::async_connect(
         socket_, endpoints, [&](const boost::system::error_code &result_error, const tcp::endpoint & /*result_endpoint*/) {
             error = result_error;
+            // Determine whether a connection was successfully established.
+            if (!error) {
+                isConnected = true;
+            }
         });
 
     // Run the operation until it completes, or until the timeout.
     run();
-
-    // Determine whether a connection was successfully established.
-    if (!error) {
-        isConnected = true;
-    }
 }
 
 void netClient::receive_async(std::function<void(std::string &rx_buffer)> callback) {
