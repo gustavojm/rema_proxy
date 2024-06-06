@@ -55,8 +55,9 @@ void REMA::connect(const std::string &rtu_host, const std::string &rtu_service) 
     telemetry_client.set_host(rtu_host);
     telemetry_client.set_service(std::to_string(std::stoi(rtu_service) + 1));
 
-    command_client.connect();
-    telemetry_client.connect();
+    command_client.start();
+    telemetry_client.lambda = [this](std::string line){update_telemetry(line);};
+    telemetry_client.start();
 }
 
 void REMA::update_telemetry(std::string &stream) {
@@ -97,8 +98,8 @@ void REMA::execute_command(const nlohmann::json command) { // do not change comm
     std::string tx_buffer = to_rema.dump();
 
     SPDLOG_INFO("Sending to REMA: {}", tx_buffer);
-    command_client.send_blocking(tx_buffer);
-    command_client.receive_blocking();
+    command_client.write_line(tx_buffer);
+    command_client.read_line();
 }
 
 void REMA::execute_command_no_wait(const nlohmann::json command) { // do not change command to a reference
@@ -107,7 +108,7 @@ void REMA::execute_command_no_wait(const nlohmann::json command) { // do not cha
     std::string tx_buffer = to_rema.dump();
 
     SPDLOG_INFO("Enviando a REMA: {}", tx_buffer);
-    command_client.send_blocking(tx_buffer);
+    command_client.write_line(tx_buffer);
 }
 
 void REMA::move_closed_loop(movement_cmd cmd) {
@@ -143,12 +144,12 @@ bool REMA::execute_sequence(std::vector<movement_cmd> &sequence) {
         bool stopped_on_probe = false;
         bool stopped_on_condition = false;
         do {
-            try {
-                telemetry_client.receive_async([this](std::string &rx_buffer) { this->update_telemetry(rx_buffer); });
-                std::this_thread::sleep_for(std::chrono::milliseconds(10)); // Wait for telemetry update...
-            } catch (std::exception &e) {                                   // handle exception
-                SPDLOG_ERROR(e.what());
-            }
+            // try {
+            //     telemetry_client.receive_async([this](std::string &rx_buffer) { this->update_telemetry(rx_buffer); });
+            //     std::this_thread::sleep_for(std::chrono::milliseconds(10)); // Wait for telemetry update...
+            // } catch (std::exception &e) {                                   // handle exception
+            //     SPDLOG_ERROR(e.what());
+            // }
 
             if (step.axes == "XY") {
                 stopped_on_probe = telemetry.probe.x_y;

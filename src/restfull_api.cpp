@@ -54,8 +54,11 @@ void REMA_connect(const std::shared_ptr<restbed::Session> &rest_session) {
     int status = restbed::OK;
     try {
         REMA &rema_instance = REMA::get_instance();
-        rema_instance.command_client.connect();
-        rema_instance.telemetry_client.connect();
+        rema_instance.command_client.disconnect();
+        rema_instance.command_client.start();
+        
+        rema_instance.command_client.disconnect();
+        rema_instance.telemetry_client.start();
         status = restbed::OK;
     } catch (std::exception &e) {
         res = e.what();

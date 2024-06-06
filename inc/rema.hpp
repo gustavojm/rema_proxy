@@ -4,7 +4,8 @@
 #include <filesystem>
 #include <json.hpp>
 #include <mutex>
-#include <net_client.hpp>
+#include <telemetry_net_client.hpp>
+#include <command_net_client.hpp>
 #include <string>
 
 #include "points.hpp"
@@ -118,6 +119,10 @@ class REMA {
                                 { "position", "OUT" },
                             } } });
     };
+        
+    void set_sse_stream_handler(std::function<void(std::string)> lambda) {
+        telemetry_client.lambda = lambda;
+    };
 
     void load_config();
 
@@ -147,8 +152,8 @@ class REMA {
 
     std::string last_selected_tool;
 
-    netClient command_client;
-    netClient telemetry_client;
+    CommandNetClient command_client;
+    TelemetryNetClient telemetry_client;
 
     bool is_sequence_in_progress;
     bool cancel_sequence;
@@ -178,7 +183,7 @@ class REMA {
     // We can use the better technique of deleting the methods
     // we don't want.
 
-  public:
+  public:    
     REMA(REMA const &) = delete;
     REMA &operator=(REMA const &) = delete;
 

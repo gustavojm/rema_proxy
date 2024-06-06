@@ -47,18 +47,17 @@ void register_event_source_handler(const std::shared_ptr<restbed::Session> &sess
     });
 }
 
-void event_stream_handler() {
+void event_stream_handler(std::string telemetry) {
     if (sse_sessions.empty()) {
         return;
     }
 
     REMA &rema_instance = REMA::get_instance();
-    static bool hide_sent = false;
+    //static bool hide_sent = false;
     nlohmann::json res;
 
     try {
-        rema_instance.telemetry_client.receive_async(
-            [&rema_instance](auto &rx_buffer) { rema_instance.update_telemetry(rx_buffer); });
+        rema_instance.update_telemetry(telemetry);;
         struct telemetry ui_telemetry = rema_instance.telemetry;
         Tool tool = rema_instance.get_selected_tool();
         ui_telemetry.coords = current_session.from_rema_to_ui(rema_instance.telemetry.coords, &tool);
@@ -74,15 +73,15 @@ void event_stream_handler() {
         SPDLOG_ERROR("Telemetry connection lost... {}", e.what());
     }
 
-    if (!rema_instance.command_client.isConnected || !rema_instance.telemetry_client.isConnected) {
+    // if (!rema_instance.command_client.isConnected() || !rema_instance.telemetry_client.isConnected()) {
         res["SHOW_CONNECT"] = true;
-        hide_sent = false;
-    } else {
-        if (!hide_sent) {
-            res["HIDE_CONNECT"] = true;
-            hide_sent = true;
-        }
-    }
+        // hide_sent = false;
+    // } else {
+    //     if (!hide_sent) {
+    //         res["HIDE_CONNECT"] = true;
+    //         hide_sent = true;
+    //     }
+    // }
 
     if (current_session.is_loaded() && current_session.is_changed()) {
         current_session.save_to_disk();
@@ -159,9 +158,9 @@ void post_rtu_method_handler(const std::shared_ptr<restbed::Session> &session, R
 
             boost::asio::streambuf rx_buffer;
             try {
-                rema.command_client.send_blocking(tx_buffer);
+                rema.command_client.write_line(tx_buffer);
 
-                std::string stream = rema.command_client.receive_blocking();
+                std::string stream = rema.command_client.read_line();
                 if (!stream.empty()) {
                     // stream.pop_back(); // Erase null character at the end of stream response
 
@@ -256,7 +255,7 @@ int main(const int, const char **) {
     upload_create_endpoints(service);
     restfull_api_create_endpoints(service);
 
-    service.schedule(event_stream_handler, std::chrono::milliseconds(100));
+    //service.schedule(event_stream_handler, std::chrono::milliseconds(100));
 
     service.set_logger(std::make_shared<SyslogLogger>());
 
@@ -264,6 +263,7 @@ int main(const int, const char **) {
     //    std::thread websocket_thread(websocket_init);
     std::string proxy_url = fmt::format("http://127.0.0.1:{0}/static/index.html", rema_proxy_port);
     SPDLOG_INFO("Open a browser to: \033]8;;{0}\033\\{0}\033]8;;\033\\", proxy_url);
+    rema_instance.set_sse_stream_handler(&event_stream_handler);
     service.start(settings);
 
     //    websocket_thread.join();
