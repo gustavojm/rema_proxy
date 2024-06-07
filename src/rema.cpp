@@ -52,16 +52,6 @@ void REMA::save_config() {
 void REMA::connect(const std::string &rtu_host,int rtu_port) {
     command_client = std::make_shared<CommandNetClient>(rtu_host, rtu_port);
     telemetry_client = std::make_shared<TelemetryNetClient>(rtu_host, rtu_port + 1);
-
-    // command_client.set_host(rtu_host);
-    // command_client.set_service(rtu_port);
-
-    // telemetry_client.set_host(rtu_host);
-    // telemetry_client.set_service(rtu_port + 1));
-
-    // command_client.start();
-    // telemetry_client.lambda = [this](std::string line){update_telemetry(line);};
-    // telemetry_client.start();
 }
 
 void REMA::update_telemetry(std::string &stream) {
@@ -148,13 +138,6 @@ bool REMA::execute_sequence(std::vector<movement_cmd> &sequence) {
         bool stopped_on_probe = false;
         bool stopped_on_condition = false;
         do {
-            // try {
-            //     telemetry_client.receive_async([this](std::string &rx_buffer) { this->update_telemetry(rx_buffer); });
-            //     std::this_thread::sleep_for(std::chrono::milliseconds(10)); // Wait for telemetry update...
-            // } catch (std::exception &e) {                                   // handle exception
-            //     SPDLOG_ERROR(e.what());
-            // }
-
             if (step.axes == "XY") {
                 stopped_on_probe = telemetry.probe.x_y;
                 stopped_on_condition = telemetry.on_condition.x_y;

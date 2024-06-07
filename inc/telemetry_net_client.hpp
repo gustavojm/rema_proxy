@@ -1,7 +1,7 @@
 #ifndef TELEMETRY_NET_CLIENT_HPP
 #define TELEMETRY_NET_CLIENT_HPP
 
-#include "client.hpp"
+#include "net_client.hpp"
 #include <chrono>
 #include <iostream>
 #include <memory>
@@ -10,24 +10,22 @@
 #include <string>
 #include <thread>
 
-class TelemetryNetClient : public Client {
+class TelemetryNetClient : public NetClient {
   public:
-    TelemetryNetClient(std::string host, int port) : 
-    Client(host, port), 
-    done(false) {
+    TelemetryNetClient(std::string host, int port) : NetClient(host, port), done(false) {
         thd = std::unique_ptr<std::thread>(new std::thread([=] { this->loop(); }));
     }
 
     ~TelemetryNetClient() {
-      done = true;
-      thd->join();
+        done = true;
+        thd->join();
     }
 
     void loop() {
         while (!done) {
             std::string line = get_response();
             if (!line.empty()) {
-                std::cout << "t" << std::flush;
+                // std::cout << "t" << std::flush;
                 lambda(line);
             }
         }
