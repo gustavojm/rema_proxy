@@ -8,6 +8,7 @@
 #include <map>
 #include <spdlog/spdlog.h>
 #include <string>
+#include <memory>
 
 #include "rema.hpp"
 #include "session.hpp"
@@ -48,16 +49,19 @@ void REMA::save_config() {
     file << config;
 }
 
-void REMA::connect(const std::string &rtu_host, const std::string &rtu_service) {
-    command_client.set_host(rtu_host);
-    command_client.set_service(rtu_service);
+void REMA::connect(const std::string &rtu_host,int rtu_port) {
+    command_client = std::make_shared<CommandNetClient>(rtu_host, rtu_port);
+    telemetry_client = std::make_shared<TelemetryNetClient>(rtu_host, rtu_port + 1);
 
-    telemetry_client.set_host(rtu_host);
-    telemetry_client.set_service(std::to_string(std::stoi(rtu_service) + 1));
+    // command_client.set_host(rtu_host);
+    // command_client.set_service(rtu_port);
 
-    command_client.start();
-    telemetry_client.lambda = [this](std::string line){update_telemetry(line);};
-    telemetry_client.start();
+    // telemetry_client.set_host(rtu_host);
+    // telemetry_client.set_service(rtu_port + 1));
+
+    // command_client.start();
+    // telemetry_client.lambda = [this](std::string line){update_telemetry(line);};
+    // telemetry_client.start();
 }
 
 void REMA::update_telemetry(std::string &stream) {
@@ -98,8 +102,8 @@ void REMA::execute_command(const nlohmann::json command) { // do not change comm
     std::string tx_buffer = to_rema.dump();
 
     SPDLOG_INFO("Sending to REMA: {}", tx_buffer);
-    command_client.write_line(tx_buffer);
-    command_client.read_line();
+    command_client->send_request(tx_buffer);
+    SPDLOG_INFO("Receiving from REMA: {}", command_client->get_response());
 }
 
 void REMA::execute_command_no_wait(const nlohmann::json command) { // do not change command to a reference
@@ -108,7 +112,7 @@ void REMA::execute_command_no_wait(const nlohmann::json command) { // do not cha
     std::string tx_buffer = to_rema.dump();
 
     SPDLOG_INFO("Enviando a REMA: {}", tx_buffer);
-    command_client.write_line(tx_buffer);
+    command_client->send_request(tx_buffer);
 }
 
 void REMA::move_closed_loop(movement_cmd cmd) {

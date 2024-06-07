@@ -1,4 +1,3 @@
-#include <boost/asio.hpp>
 #include <chrono>
 #include <cstdlib>
 #include <exception>
@@ -47,17 +46,16 @@ void register_event_source_handler(const std::shared_ptr<restbed::Session> &sess
     });
 }
 
-void event_stream_handler(std::string telemetry) {
+void event_stream_handler() {
     if (sse_sessions.empty()) {
         return;
     }
 
     REMA &rema_instance = REMA::get_instance();
-    //static bool hide_sent = false;
+    static bool hide_sent = false;
     nlohmann::json res;
 
     try {
-        rema_instance.update_telemetry(telemetry);;
         struct telemetry ui_telemetry = rema_instance.telemetry;
         Tool tool = rema_instance.get_selected_tool();
         ui_telemetry.coords = current_session.from_rema_to_ui(rema_instance.telemetry.coords, &tool);
@@ -73,15 +71,15 @@ void event_stream_handler(std::string telemetry) {
         SPDLOG_ERROR("Telemetry connection lost... {}", e.what());
     }
 
-    // if (!rema_instance.command_client.isConnected() || !rema_instance.telemetry_client.isConnected()) {
+    if (!rema_instance.command_client->is_connected || !rema_instance.telemetry_client->is_connected) {
         res["SHOW_CONNECT"] = true;
-        // hide_sent = false;
-    // } else {
-    //     if (!hide_sent) {
-    //         res["HIDE_CONNECT"] = true;
-    //         hide_sent = true;
-    //     }
-    // }
+        hide_sent = false;
+    } else {
+        if (!hide_sent) {
+            res["HIDE_CONNECT"] = true;
+            hide_sent = true;
+        }
+    }
 
     if (current_session.is_loaded() && current_session.is_changed()) {
         current_session.save_to_disk();
@@ -156,11 +154,10 @@ void post_rtu_method_handler(const std::shared_ptr<restbed::Session> &session, R
         content_length, [&](const std::shared_ptr<restbed::Session> &rest_session_ptr, const restbed::Bytes &body) {
             std::string tx_buffer(body.begin(), body.end());
 
-            boost::asio::streambuf rx_buffer;
             try {
-                rema.command_client.write_line(tx_buffer);
+                rema.command_client->send_request(tx_buffer);
 
-                std::string stream = rema.command_client.read_line();
+                std::string stream = rema.command_client->get_response();
                 if (!stream.empty()) {
                     // stream.pop_back(); // Erase null character at the end of stream response
 
@@ -202,10 +199,10 @@ int main(const int, const char **) {
     REMA &rema_instance = REMA::get_instance();
     rema_proxy_port = static_cast<uint16_t>(rema_instance.config["REMA_PROXY"].value("port", 4321));
     std::string rtu_host = rema_instance.config["REMA"]["network"].value("ip", "192.168.2.20");
-    std::string rtu_service = std::to_string(rema_instance.config["REMA"]["network"].value("port", 5020));
+    int rtu_port = rema_instance.config["REMA"]["network"].value("port", 5020);
     SPDLOG_INFO("REMA Proxy Server running on {}", rema_proxy_port);
 
-    rema_instance.connect(rtu_host, rtu_service);
+    rema_instance.connect(rtu_host, rtu_port);
 
     auto resource_rtu = std::make_shared<restbed::Resource>();
     resource_rtu->set_path("/REMA");
@@ -255,7 +252,7 @@ int main(const int, const char **) {
     upload_create_endpoints(service);
     restfull_api_create_endpoints(service);
 
-    //service.schedule(event_stream_handler, std::chrono::milliseconds(100));
+    service.schedule(event_stream_handler, std::chrono::milliseconds(100));
 
     service.set_logger(std::make_shared<SyslogLogger>());
 
@@ -263,7 +260,7 @@ int main(const int, const char **) {
     //    std::thread websocket_thread(websocket_init);
     std::string proxy_url = fmt::format("http://127.0.0.1:{0}/static/index.html", rema_proxy_port);
     SPDLOG_INFO("Open a browser to: \033]8;;{0}\033\\{0}\033]8;;\033\\", proxy_url);
-    rema_instance.set_sse_stream_handler(&event_stream_handler);
+    rema_instance.set_sse_stream_handler([&rema_instance](std::string telemetry) {rema_instance.update_telemetry(telemetry);});
     service.start(settings);
 
     //    websocket_thread.join();

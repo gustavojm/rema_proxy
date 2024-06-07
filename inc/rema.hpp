@@ -82,7 +82,7 @@ class REMA {
         tools.erase(tool);
     }
 
-    void connect(const std::string &rtu_host, const std::string &rtu_service);
+    void connect(const std::string &rtu_host, int rtu_port);
 
     void update_telemetry(std::string &stream);
 
@@ -121,7 +121,7 @@ class REMA {
     };
         
     void set_sse_stream_handler(std::function<void(std::string)> lambda) {
-        telemetry_client.lambda = lambda;
+        telemetry_client->lambda = lambda;
     };
 
     void load_config();
@@ -152,8 +152,8 @@ class REMA {
 
     std::string last_selected_tool;
 
-    CommandNetClient command_client;
-    TelemetryNetClient telemetry_client;
+    std::shared_ptr<CommandNetClient> command_client;
+    std::shared_ptr<TelemetryNetClient> telemetry_client;
 
     bool is_sequence_in_progress;
     bool cancel_sequence;

@@ -54,11 +54,11 @@ void REMA_connect(const std::shared_ptr<restbed::Session> &rest_session) {
     int status = restbed::OK;
     try {
         REMA &rema_instance = REMA::get_instance();
-        rema_instance.command_client.disconnect();
-        rema_instance.command_client.start();
+        rema_instance.command_client->close_socket();
+        rema_instance.command_client->create();
         
-        rema_instance.command_client.disconnect();
-        rema_instance.telemetry_client.start();
+        rema_instance.telemetry_client->close_socket();
+        rema_instance.telemetry_client->create();
         status = restbed::OK;
     } catch (std::exception &e) {
         res = e.what();
@@ -78,8 +78,8 @@ void REMA_info(const std::shared_ptr<restbed::Session> &rest_session) {
 
     res["tools"] = tools_to_ui;
     res["last_selected_tool"] = rema_instance.last_selected_tool;
-    res["host"] = rema_instance.command_client.get_host();
-    res["service"] = rema_instance.command_client.get_service();
+    res["host"] = rema_instance.command_client->get_host();
+    res["service"] = rema_instance.command_client->get_port();
     close_rest_session(rest_session, restbed::OK, res);
 }
 
@@ -493,15 +493,15 @@ void change_network_settings(const std::shared_ptr<restbed::Session> &rest_sessi
 
             if (isValidIPv4(form_data["ipaddr"])) {
                 std::string rtu_host = form_data["ipaddr"];
-                std::string rtu_port = form_data["port"];
+                int rtu_port = form_data["port"];
 
                 rema_instance.config["REMA"]["network"]["ip"] = rtu_host;
-                rema_instance.config["REMA"]["network"]["port"] = std::stoi(rtu_port);
+                rema_instance.config["REMA"]["network"]["port"] = rtu_port;
                 rema_instance.save_config();
 
                 if (form_data.contains("change_remote_network_settings")) {
                     pars_obj["ipaddr"] = rtu_host;
-                    pars_obj["port"] = std::stoi(rtu_port);
+                    pars_obj["port"] = rtu_port;
                     pars_obj["gw"] = form_data["ipaddr"];
                     pars_obj["netmask"] = "255.255.255.0";
                     rema_instance.execute_command_no_wait({ { "command", "NETWORK_SETTINGS" }, { "pars", pars_obj } });
@@ -761,6 +761,7 @@ void aligned_tubesheet_get(const std::shared_ptr<restbed::Session> &rest_session
 void restfull_api_create_endpoints(restbed::Service &service) {
     std::map<std::string, std::vector<ResourceEntry>> rest_resources = {
         { "REMA/connect", { { "POST", &REMA_connect } } },
+        { "REMA/connect_get", { { "GET", &REMA_connect } } },
         { "REMA/info", { { "GET", &REMA_info } } },
         { "HXs", { { "GET", &HXs_list } } },
         { "HXs/{HX_name: .*}", { { "DELETE", &HXs_delete } } },
