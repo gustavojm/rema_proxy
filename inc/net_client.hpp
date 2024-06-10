@@ -36,12 +36,12 @@ class NetClient {
         return host_;
     }
 
-    bool is_connected = false;
+    volatile bool is_connected = false;
 
   private:
     std::string host_;
     int port_;
-    int socket_;
+    volatile int socket_;
     int buflen_ = 1024;
     char *buf_ = new char[buflen_ + 1];
 };
