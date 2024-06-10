@@ -54,11 +54,8 @@ void REMA_connect(const std::shared_ptr<restbed::Session> &rest_session) {
     int status = restbed::OK;
     try {
         REMA &rema_instance = REMA::get_instance();
-        rema_instance.command_client->close_socket();
-        rema_instance.command_client->create();
-        
-        rema_instance.telemetry_client->close_socket();
-        rema_instance.telemetry_client->create();
+        rema_instance.command_client.reconnect();       
+        rema_instance.telemetry_client.reconnect();
         status = restbed::OK;
     } catch (std::exception &e) {
         res = e.what();
@@ -78,8 +75,8 @@ void REMA_info(const std::shared_ptr<restbed::Session> &rest_session) {
 
     res["tools"] = tools_to_ui;
     res["last_selected_tool"] = rema_instance.last_selected_tool;
-    res["host"] = rema_instance.command_client->get_host();
-    res["service"] = rema_instance.command_client->get_port();
+    res["host"] = rema_instance.command_client.get_host();
+    res["service"] = rema_instance.command_client.get_port();
     close_rest_session(rest_session, restbed::OK, res);
 }
 

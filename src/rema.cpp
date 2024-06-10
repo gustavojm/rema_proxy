@@ -50,8 +50,9 @@ void REMA::save_config() {
 }
 
 void REMA::connect(const std::string &rtu_host,int rtu_port) {
-    command_client = std::make_shared<CommandNetClient>(rtu_host, rtu_port);
-    telemetry_client = std::make_shared<TelemetryNetClient>(rtu_host, rtu_port + 1);
+    command_client.connect(rtu_host, rtu_port);
+    telemetry_client.connect(rtu_host, rtu_port + 1);
+
 }
 
 void REMA::update_telemetry(std::string &stream) {
@@ -92,8 +93,8 @@ void REMA::execute_command(const nlohmann::json command) { // do not change comm
     std::string tx_buffer = to_rema.dump();
 
     SPDLOG_INFO("Sending to REMA: {}", tx_buffer);
-    command_client->send_request(tx_buffer);
-    SPDLOG_INFO("Receiving from REMA: {}", command_client->get_response());
+    command_client.send_request(tx_buffer);
+    SPDLOG_INFO("Receiving from REMA: {}", command_client.get_response());
 }
 
 void REMA::execute_command_no_wait(const nlohmann::json command) { // do not change command to a reference
@@ -102,7 +103,7 @@ void REMA::execute_command_no_wait(const nlohmann::json command) { // do not cha
     std::string tx_buffer = to_rema.dump();
 
     SPDLOG_INFO("Enviando a REMA: {}", tx_buffer);
-    command_client->send_request(tx_buffer);
+    command_client.send_request(tx_buffer);
 }
 
 void REMA::move_closed_loop(movement_cmd cmd) {

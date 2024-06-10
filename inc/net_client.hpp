@@ -15,13 +15,18 @@
 
 class NetClient {
   public:
-    NetClient(std::string host, int port);
+    NetClient();
     virtual ~NetClient() = default;
 
-    virtual void create();
-    virtual void close_socket();
+    virtual void connect(std::string host, int port);
+    virtual void close();
+
+    virtual void reconnect();
+    
     bool send_request(std::string);
+    
     std::string get_response();
+    
     int get_port() {
         return port_;
     }
@@ -36,6 +41,6 @@ class NetClient {
     std::string host_;
     int port_;
     int socket_;
-    int buflen_;
-    char *buf_;
+    int buflen_ = 1024;
+    char *buf_ = new char[buflen_ + 1];
 };

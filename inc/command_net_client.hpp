@@ -11,7 +11,7 @@
 
 class CommandNetClient : public NetClient {
   public:
-    CommandNetClient(std::string host, int port) : NetClient(host, port) {
+    CommandNetClient() {
     }
 
     ~CommandNetClient() {

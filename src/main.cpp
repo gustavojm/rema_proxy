@@ -71,7 +71,7 @@ void event_stream_handler() {
         SPDLOG_ERROR("Telemetry connection lost... {}", e.what());
     }
 
-    if (!rema_instance.command_client->is_connected || !rema_instance.telemetry_client->is_connected) {
+    if (!rema_instance.command_client.is_connected || !rema_instance.telemetry_client.is_connected) {
         res["SHOW_CONNECT"] = true;
         hide_sent = false;
     } else {
@@ -155,9 +155,9 @@ void post_rtu_method_handler(const std::shared_ptr<restbed::Session> &session, R
             std::string tx_buffer(body.begin(), body.end());
 
             try {
-                rema.command_client->send_request(tx_buffer);
+                rema.command_client.send_request(tx_buffer);
 
-                std::string stream = rema.command_client->get_response();
+                std::string stream = rema.command_client.get_response();
                 if (!stream.empty()) {
                     // stream.pop_back(); // Erase null character at the end of stream response
 
@@ -259,8 +259,7 @@ int main(const int, const char **) {
     //    // Websocket
     //    std::thread websocket_thread(websocket_init);
     std::string proxy_url = fmt::format("http://127.0.0.1:{0}/static/index.html", rema_proxy_port);
-    SPDLOG_INFO("Open a browser to: \033]8;;{0}\033\\{0}\033]8;;\033\\", proxy_url);
-    rema_instance.set_sse_stream_handler([&rema_instance](std::string telemetry) {rema_instance.update_telemetry(telemetry);});
+    SPDLOG_INFO("Open a browser to: \033]8;;{0}\033\\{0}\033]8;;\033\\", proxy_url);    
     service.start(settings);
 
     //    websocket_thread.join();

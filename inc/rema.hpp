@@ -120,10 +120,6 @@ class REMA {
                             } } });
     };
         
-    void set_sse_stream_handler(std::function<void(std::string)> lambda) {
-        telemetry_client->lambda = lambda;
-    };
-
     void load_config();
 
     void save_config();
@@ -152,8 +148,8 @@ class REMA {
 
     std::string last_selected_tool;
 
-    std::shared_ptr<CommandNetClient> command_client;
-    std::shared_ptr<TelemetryNetClient> telemetry_client;
+    CommandNetClient command_client;
+    TelemetryNetClient telemetry_client;
 
     bool is_sequence_in_progress;
     bool cancel_sequence;
@@ -165,7 +161,9 @@ class REMA {
     struct temps temps;
 
   private:
-    REMA() {
+    REMA() :
+        telemetry_client([&](std::string line){update_telemetry(line);})
+     {
         try {
             load_config();
             for (const auto &entry : std::filesystem::directory_iterator(tools_dir)) {

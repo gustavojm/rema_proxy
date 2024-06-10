@@ -2,17 +2,13 @@
 
 #include "net_client.hpp"
 
-NetClient::NetClient(std::string host, int port) {
+NetClient::NetClient() {}
+
+void NetClient::connect(std::string host, int port) {
     // setup variables
     host_ = host;
     port_ = port;
-    buflen_ = 1024;
-    buf_ = new char[buflen_ + 1];
 
-    create();
-}
-
-void NetClient::create() {
     struct sockaddr_in server_addr;
 
     // use DNS to get IP address
@@ -55,7 +51,7 @@ void NetClient::create() {
     // }
 
     // connect to server
-    if (connect(socket_, reinterpret_cast<const struct sockaddr *>(&server_addr), sizeof(server_addr)) < 0) {
+    if (::connect(socket_, reinterpret_cast<const struct sockaddr *>(&server_addr), sizeof(server_addr)) < 0) {
         SPDLOG_ERROR("Connect");
         return;
     } else {
@@ -64,8 +60,14 @@ void NetClient::create() {
     }
 }
 
-void NetClient::close_socket() {
-    close(socket_);
+void NetClient::reconnect() {
+    close();
+    connect(host_, port_);
+}
+
+void NetClient::close() {
+    ::shutdown(socket_, SHUT_RDWR);     // It will make a recv() call to finish waiting for data
+    ::close(socket_);
 }
 
 bool NetClient::send_request(std::string request) {
@@ -76,7 +78,7 @@ bool NetClient::send_request(std::string request) {
         int nwritten;
         // loop to be sure it is all sent
         while (nleft) {
-            if ((nwritten = send(socket_, ptr, nleft, MSG_NOSIGNAL)) < 0) {
+            if ((nwritten = ::send(socket_, ptr, nleft, MSG_NOSIGNAL)) < 0) {
                 if (errno == EINTR) {
                     // the socket call was interrupted -- try again
                     is_connected = false;
@@ -104,7 +106,7 @@ bool NetClient::send_request(std::string request) {
 }
 
 std::string NetClient::get_response() {
-    int nread = recv(socket_, buf_, buflen_, 0);
+    int nread = ::recv(socket_, buf_, buflen_, 0);
     if (nread < 0) {
         if (errno == EINTR) {
             // the socket call was interrupted -- try again

@@ -12,7 +12,7 @@
 
 class TelemetryNetClient : public NetClient {
   public:
-    TelemetryNetClient(std::string host, int port) : NetClient(host, port), done(false) {
+    TelemetryNetClient(std::function<void(std::string)> onReceiveCallback) : NetClient(), lambda(onReceiveCallback)  {
         thd = std::unique_ptr<std::thread>(new std::thread([=] { this->loop(); }));
     }
 
