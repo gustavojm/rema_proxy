@@ -153,19 +153,22 @@ bool NetClient::send_request(std::string request) {
 }
 
 std::string NetClient::get_response() {
-    int nread = ::recv(socket_, buf_, buflen_, 0);
-    if (nread < 0) {
-        if (errno == EINTR) {
-            // the socket call was interrupted -- try again
-            return "";
-        } else {
-            // an error occurred, so break out
-            return "";
+    if (is_connected) {
+        int nread = ::recv(socket_, buf_, buflen_, 0);
+        if (nread < 0) {
+            if (errno == EINTR) {
+                // the socket call was interrupted -- try again
+                return {};
+            } else {
+                // an error occurred, so break out
+                return {};
+            }
+        } else if (nread == 0) {
+            // the socket is closed
+            return {};
         }
-    } else if (nread == 0) {
-        // the socket is closed
-        return "";
+        // be sure to use append in case we have binary data
+        return std::string(buf_);
     }
-    // be sure to use append in case we have binary data
-    return std::string(buf_);
+    return {};
 }
