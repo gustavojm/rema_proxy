@@ -64,7 +64,7 @@ int NetClient::connect(std::string host, int port, int nsec) {
 	error = 0;
 	if ((n = ::connect(socket_, reinterpret_cast<const struct sockaddr *>(&server_addr), sizeof(server_addr))) < 0)
 		if (errno != EINPROGRESS)
-			return(-1);
+			return(-errno);
 
 	/* Do whatever we want while the connect is taking place. */
     SPDLOG_INFO("Conecting to {}:{}", host, port);
@@ -82,7 +82,7 @@ int NetClient::connect(std::string host, int port, int nsec) {
 					 nsec ? &tval : NULL)) == 0) {
 		::close(socket_);		/* timeout */
 		errno = ETIMEDOUT;
-		return(-1);
+		return(-errno);
 	}
 
 	if (FD_ISSET(socket_, &rset) || FD_ISSET(socket_, &wset)) {
@@ -98,7 +98,7 @@ done:
 	if (error) {
 		::close(socket_);		/* just in case */
 		errno = error;
-		return(-1);
+		return(-errno);
 	}
     SPDLOG_INFO("Connected to PORT: {}", port_);
     is_connected = true;
@@ -113,43 +113,46 @@ void NetClient::reconnect() {
 }
 
 void NetClient::close() {
+    is_connected = false;
     ::shutdown(socket_, SHUT_RDWR);     // It will make a recv() call to finish waiting for data
     ::close(socket_);
 }
 
 bool NetClient::send_request(std::string request) {
-    try {
-        // prepare to send request
-        const char *ptr = request.c_str();
-        int nleft = request.length();
-        int nwritten;
-        // loop to be sure it is all sent
-        while (nleft) {
-            if ((nwritten = ::send(socket_, ptr, nleft, MSG_NOSIGNAL)) < 0) {
-                if (errno == EINTR) {
-                    // the socket call was interrupted -- try again
-                    is_connected = false;
-                    continue;
-                } else {
-                    // an error occurred, so break out
-                    SPDLOG_ERROR("Error writing to socket");
+    if (is_connected) {
+        try {
+            // prepare to send request
+            const char *ptr = request.c_str();
+            int nleft = request.length();
+            int nwritten;
+            // loop to be sure it is all sent
+            while (nleft) {
+                if ((nwritten = ::send(socket_, ptr, nleft, MSG_NOSIGNAL)) < 0) {
+                    if (errno == EINTR) {
+                        // the socket call was interrupted -- try again
+                        continue;
+                    } else {
+                        // an error occurred, so break out
+                        SPDLOG_ERROR("Error writing to socket");
+                        is_connected = false;
+                        return false;
+                    }
+                } else if (nwritten == 0) {
+                    // the socket is closed
                     is_connected = false;
                     return false;
                 }
-            } else if (nwritten == 0) {
-                // the socket is closed
-                is_connected = false;
-                return false;
+                nleft -= nwritten;
+                ptr += nwritten;
             }
-            nleft -= nwritten;
-            ptr += nwritten;
+            return true;
+        } catch (std::exception &e) {
+            is_connected = false;
+            SPDLOG_ERROR("Error sending {}", e.what());
+            return false;
         }
-        return true;
-    } catch (std::exception &e) {
-        is_connected = false;
-        SPDLOG_ERROR("Error sending {}", e.what());
-        return false;
     }
+    return false;
 }
 
 std::string NetClient::get_response() {

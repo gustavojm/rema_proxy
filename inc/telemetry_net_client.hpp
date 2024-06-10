@@ -10,12 +10,14 @@
 #include <string>
 #include <thread>
 #include <condition_variable>
+#include <watchdog_timer.hpp>
 
 class TelemetryNetClient : public NetClient {
   public:
     TelemetryNetClient(std::function<void(std::string)> onReceiveCallback) : 
     NetClient(), 
-    onReceiveCb(onReceiveCallback)
+    onReceiveCb(onReceiveCallback),
+    wd(10, [&]{close();})
     {}
 
     ~TelemetryNetClient() {
@@ -31,19 +33,6 @@ class TelemetryNetClient : public NetClient {
         }
     }
 
-    void suspend() {
-        std::unique_lock<std::mutex> lock(mtx);
-        suspendFlag = true;
-    }
-
-    void resume() {
-        {
-            std::unique_lock<std::mutex> lock(mtx);
-            suspendFlag = false;
-        }
-        cv.notify_one();
-    }
-
     void stop() {
         {
             std::unique_lock<std::mutex> lock(mtx);
@@ -54,6 +43,13 @@ class TelemetryNetClient : public NetClient {
         thd.join();
     }
 
+    int connect(std::string host, int port, int nsec = 5) override {
+        if (int n; (n = NetClient::connect(host, port, nsec)) < 0) {
+            return n;
+        } 
+        wd.resume();
+        return 0;
+    }
 
     void loop() {
         while (true) {
@@ -66,10 +62,16 @@ class TelemetryNetClient : public NetClient {
                 }
             }
 
-            std::string line = get_response();
-            if (!line.empty()) {
-                //std::cout << "t" << std::flush;
-                onReceiveCb(line);
+            if (is_connected) {
+                std::string line = get_response();
+                if (!line.empty()) {
+                    std::cout << "t" << std::flush;
+                    onReceiveCb(line);
+                    wd.reset();
+                } else {
+                    std::cout << "empty TLMTRY \n";
+                    wd.reset();
+                }
             }
         }
     }
@@ -81,6 +83,7 @@ class TelemetryNetClient : public NetClient {
     bool suspendFlag = false;
     bool stopFlag = false;
     bool alreadyStarted = false;
+    WatchdogTimer wd;
 
 };
 

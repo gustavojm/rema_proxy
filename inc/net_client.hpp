@@ -36,7 +36,7 @@ class NetClient {
         return host_;
     }
 
-    bool is_connected = false;
+    volatile bool is_connected = false;
 
   private:
     std::string host_;
