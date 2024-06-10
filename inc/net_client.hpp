@@ -42,6 +42,6 @@ class NetClient {
     std::string host_;
     int port_;
     volatile int socket_;
-    int buflen_ = 1024;
+    int buflen_ = 10240;
     char *buf_ = new char[buflen_ + 1];
 };
