@@ -50,9 +50,23 @@ void REMA::save_config() {
 }
 
 void REMA::connect(const std::string &rtu_host,int rtu_port) {
-    command_client.connect(rtu_host, rtu_port);
-    telemetry_client.connect(rtu_host, rtu_port + 1);
+    rtu_host_ = rtu_host;
+    rtu_port_ = rtu_port;
+    if (command_client.connect(rtu_host, rtu_port) < 0) {
+        SPDLOG_WARN("Unable to connect to Command endpoint");
+    };
+    
+    if (telemetry_client.connect(rtu_host, rtu_port + 1) < 0) {
+        SPDLOG_WARN("Unable to connect to Telemetry endpoint");
+    } else {
+        telemetry_client.start();
+    }    
+}
 
+void REMA::reconnect() {
+    command_client.close();
+    telemetry_client.close();
+    connect(rtu_host_, rtu_port_);
 }
 
 void REMA::update_telemetry(std::string &stream) {

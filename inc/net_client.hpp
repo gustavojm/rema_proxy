@@ -18,7 +18,8 @@ class NetClient {
     NetClient();
     virtual ~NetClient() = default;
 
-    virtual void connect(std::string host, int port);
+    virtual int connect(std::string host, int port, int nsec = 5);
+
     virtual void close();
 
     virtual void reconnect();

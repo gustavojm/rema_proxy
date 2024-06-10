@@ -1,10 +1,11 @@
 #include <spdlog/spdlog.h>
 
 #include "net_client.hpp"
+#include <fcntl.h>
 
 NetClient::NetClient() {}
 
-void NetClient::connect(std::string host, int port) {
+int NetClient::connect(std::string host, int port, int nsec) {
     // setup variables
     host_ = host;
     port_ = port;
@@ -16,7 +17,7 @@ void NetClient::connect(std::string host, int port) {
     hostEntry = gethostbyname(host_.c_str());
     if (!hostEntry) {
         SPDLOG_ERROR("No such host name: {}", host_);
-        return;
+        return -1;
     }
 
     // setup socket address structure
@@ -29,7 +30,7 @@ void NetClient::connect(std::string host, int port) {
     socket_ = socket(PF_INET, SOCK_STREAM, 0);
     if (!socket_) {
         SPDLOG_ERROR("Socket creation");
-        return;
+        return -1;
     }
 
     // Set the receive timeout  DOES NOT WORK
@@ -51,14 +52,60 @@ void NetClient::connect(std::string host, int port) {
     // }
 
     // connect to server
-    if (::connect(socket_, reinterpret_cast<const struct sockaddr *>(&server_addr), sizeof(server_addr)) < 0) {
-        SPDLOG_ERROR("Connect");
-        return;
-    } else {
-        SPDLOG_INFO("Connected to PORT: {}", port_);
-        is_connected = true;
-    }
+
+	int				flags, n, error;
+	socklen_t		len;
+	fd_set			rset, wset;
+	struct timeval	tval;
+
+	flags = ::fcntl(socket_, F_GETFL, 0);
+	::fcntl(socket_, F_SETFL, flags | O_NONBLOCK);
+
+	error = 0;
+	if ((n = ::connect(socket_, reinterpret_cast<const struct sockaddr *>(&server_addr), sizeof(server_addr))) < 0)
+		if (errno != EINPROGRESS)
+			return(-1);
+
+	/* Do whatever we want while the connect is taking place. */
+    SPDLOG_INFO("Conecting to {}:{}", host, port);
+
+	if (n == 0)
+		goto done;	/* connect completed immediately */
+
+	FD_ZERO(&rset);
+	FD_SET(socket_, &rset);
+	wset = rset;
+	tval.tv_sec = nsec;
+	tval.tv_usec = 0;
+
+	if ( (n = ::select(socket_+1, &rset, &wset, NULL,
+					 nsec ? &tval : NULL)) == 0) {
+		::close(socket_);		/* timeout */
+		errno = ETIMEDOUT;
+		return(-1);
+	}
+
+	if (FD_ISSET(socket_, &rset) || FD_ISSET(socket_, &wset)) {
+		len = sizeof(error);
+		if (::getsockopt(socket_, SOL_SOCKET, SO_ERROR, &error, &len) < 0)
+			return(-1);			/* Solaris pending error */
+	} else
+        SPDLOG_ERROR("Select error: sockfd not set");
+
+done:
+	::fcntl(socket_, F_SETFL, flags);	/* restore file status flags */
+
+	if (error) {
+		::close(socket_);		/* just in case */
+		errno = error;
+		return(-1);
+	}
+    SPDLOG_INFO("Connected to PORT: {}", port_);
+    is_connected = true;
+	return(0);
 }
+
+
 
 void NetClient::reconnect() {
     close();
@@ -85,7 +132,7 @@ bool NetClient::send_request(std::string request) {
                     continue;
                 } else {
                     // an error occurred, so break out
-                    SPDLOG_ERROR("Write");
+                    SPDLOG_ERROR("Error writing to socket");
                     is_connected = false;
                     return false;
                 }

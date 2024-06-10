@@ -84,6 +84,8 @@ class REMA {
 
     void connect(const std::string &rtu_host, int rtu_port);
 
+    void reconnect();
+
     void update_telemetry(std::string &stream);
 
     void set_last_selected_tool(std::string tool) {
@@ -159,6 +161,9 @@ class REMA {
     std::mutex mtx;
     struct telemetry telemetry;
     struct temps temps;
+
+    std::string rtu_host_;
+    int rtu_port_;
 
   private:
     REMA() :
