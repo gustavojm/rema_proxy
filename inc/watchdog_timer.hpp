@@ -25,7 +25,6 @@ public:
     void reset() {        
         std::unique_lock<std::mutex> lock(mtx);
         resetFlag = true;
-        std::cout << "RESET WD\n";
         cv.notify_one();
     }
 
@@ -38,8 +37,7 @@ public:
     void resume() {
         std::unique_lock<std::mutex> lock(mtx);
         resetFlag = true;
-        pauseFlag = false;
-        std::cout << "RESUMED WD\n";
+        pauseFlag = false;        
         cv.notify_one();
     }
 
@@ -63,15 +61,13 @@ private:
                 if (stopFlag) {
                     break;
                 }
-                resetFlag = false;
-                std::cout << "*";
+                resetFlag = false;                
             } else {
                 if (pauseFlag) {
                     continue;
                 }
                 // Timeout expired without reset
-                pauseFlag = true; // Once it expired stay paused, until resumed
-                std::cout << "WATCHDOG BIT MEEE \n";
+                pauseFlag = true; // Once it expired stay paused, until resumed                
                 onTimeoutCallback();
             }
         }

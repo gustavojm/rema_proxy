@@ -17,7 +17,7 @@ class TelemetryNetClient : public NetClient {
     TelemetryNetClient(std::function<void(std::string)> onReceiveCallback) : 
     NetClient(), 
     onReceiveCb(onReceiveCallback),
-    wd(10, [&]{close();})
+    wd(2, [&]{close();})
     {}
 
     ~TelemetryNetClient() {
@@ -65,11 +65,8 @@ class TelemetryNetClient : public NetClient {
             if (is_connected) {
                 std::string line = get_response();
                 if (!line.empty()) {
-                    std::cout << "t" << std::flush;
+                    //std::cout << "t" << std::flush;
                     onReceiveCb(line);
-                    wd.reset();
-                } else {
-                    std::cout << "empty TLMTRY \n";
                     wd.reset();
                 }
             }
