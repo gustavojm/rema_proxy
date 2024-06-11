@@ -177,8 +177,8 @@ std::string NetClient::get_response() {
 
             // Check if the buffer contains a null character
             if (response.find('\0') != std::string::npos) {
-                response.pop_back();
-                return response;                
+                response.pop_back();        // Remove null character
+                return response;
             }
         }
     }

@@ -17,7 +17,7 @@ class TelemetryNetClient : public NetClient {
     TelemetryNetClient(std::function<void(std::string)> onReceiveCallback) : 
     NetClient(), 
     onReceiveCb(onReceiveCallback),
-    wd(2, [&]{close();})
+    wd(LostConnectionTimeout, [&]{close();})
     {}
 
     ~TelemetryNetClient() {
@@ -43,7 +43,8 @@ class TelemetryNetClient : public NetClient {
         thd.join();
     }
 
-    int connect(std::string host, int port, int nsec = 5) override {
+    int connect(std::string host, int port, int nsec = 0) override {
+        nsec = (nsec == 0 ? ConnectionTimeout : nsec);
         if (int n; (n = NetClient::connect(host, port, nsec)) < 0) {
             return n;
         } 
@@ -80,6 +81,8 @@ class TelemetryNetClient : public NetClient {
     bool suspendFlag = false;
     bool stopFlag = false;
     bool alreadyStarted = false;
+    int LostConnectionTimeout = 2;
+    int ConnectionTimeout = 5;
     WatchdogTimer wd;
 
 };
