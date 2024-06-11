@@ -155,21 +155,33 @@ bool NetClient::send_request(std::string request) {
 
 std::string NetClient::get_response() {
     if (is_connected) {
-        int nread = ::recv(socket_, buf_, buflen_, 0);
-        if (nread < 0) {
-            if (errno == EINTR) {
-                // the socket call was interrupted -- try again
-                return {};
-            } else {
-                // an error occurred, so break out
+        std::string response = "";
+
+        // Read until we get a null character
+        while (true) {
+            int nread = recv(socket_, buf_, buflen_, 0);
+            if (nread < 0) {
+                if (errno == EINTR)
+                    // The socket call was interrupted -- try again
+                    continue;
+                else {
+                    // An error occurred, so return false
+                    return {};
+                }
+            } else if (nread == 0) {
+                // The socket is closed
                 return {};
             }
-        } else if (nread == 0) {
-            // the socket is closed
-            return {};
+            // Append data to the response
+            response.append(buf_, nread);
+
+            // Check if the buffer contains a null character
+            if (response.find('\0') != std::string::npos) {
+                response.pop_back();
+                return response;                
+            }
         }
-        // be sure to use append in case we have binary data
-        return std::string(buf_);
     }
     return {};
 }
+
