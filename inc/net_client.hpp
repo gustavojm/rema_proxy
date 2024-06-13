@@ -43,5 +43,5 @@ class NetClient {
     int port_;
     volatile int socket_;
     int buflen_ = 1024;
-    char *buf_ = new char[buflen_ + 1];
+    char *buf_ = new char[buflen_];
 };
