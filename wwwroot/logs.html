@@ -45,9 +45,24 @@
 
 	var timer_logs
 
-	function addLogEntry(message, severity) {
-        var logEntry = $('<div>').addClass(severity).text(message);
-        $('#logViewer').append(logEntry);
+	function addLogEntry(entry) {
+		severity = entry[0];
+		ticks = entry[1];
+		file = entry[2];
+		line = entry[3];		
+		func = entry[4];
+		message = entry[5];
+		var github_link = $('<a>',{
+			text: file + "[" +line + "]",
+			title: 'GitHub',
+			href: "https://github.com/gustavojm/rema_plusplus/blob/main/"+ file + "#L" + line,
+			class: severity
+		});
+
+		var line = $("<div>").html("["+ severity +"] " + ticks + " " + github_link.prop('outerHTML') + " " + func + "() " + message + "</div>");
+        $(line).addClass(severity);
+		console.log($(line));
+        $('#logViewer').append(line);
     }
 	
 	function get_logs() {
@@ -71,7 +86,7 @@
 			success : function(data) {
 				$.each(data.LOGS.DEBUG_MSGS, function(key, entry) {
 					entry_arr = entry.split("|");
-					addLogEntry("[" + entry_arr[0] + "] " + entry_arr[1], entry_arr[0]);
+					addLogEntry(entry_arr);
 				});
 				
 				mem_free = (data.MEM_INFO.MEM_FREE / data.MEM_INFO.MEM_TOTAL * 100).toFixed(1);

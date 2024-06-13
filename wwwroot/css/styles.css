@@ -282,17 +282,17 @@ svg .tube:hover {
   
 /* Log Levels */
 .Debug {
-	color: black;
+	color: black !important;
 }
 
 .Info {
-	color: green;
+	color: green !important;
 }
 
 .Warning {
-	color: orange;
+	color: orange !important;
 }
 
 .Error {
-	color: red;
+	color: red !important;
 }
