@@ -37,6 +37,7 @@ if (UNIX)
     add_compile_options("$<$<CONFIG:DEBUG>:-D_DEBUG>")    #this will allow to use same _DEBUG macro available in both Linux as well as Windows - MSCV environment. Easy to put Debug specific code.
 endif (UNIX)
 
+add_compile_options("-ffile-prefix-map=${CMAKE_SOURCE_DIR}/=")
 
 #
 # Setup alternative names
