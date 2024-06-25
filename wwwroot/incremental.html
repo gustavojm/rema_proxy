@@ -55,10 +55,15 @@
 			$.ajax({
 				method : "POST",
 				url : "/REST/move-incremental",
+				contentType : "application/json",
+				dataType : "json",
 				data : JSON.stringify(Object.fromEntries(new FormData(
 						document.getElementById("incremental_form_xy")))),
 				success : function(data) {
-				}
+					if ("ERROR" in data.MOVE_INCREMENTAL) {
+						add_notification(data.MOVE_INCREMENTAL.ERROR, "Warning");
+					}
+				}				
 			});
 		}
 	);

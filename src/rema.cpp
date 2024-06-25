@@ -101,14 +101,14 @@ void REMA::set_home_z(double z) {
                         } } });
 }
 
-void REMA::execute_command(const nlohmann::json command) { // do not change command to a reference
+nlohmann::json REMA::execute_command(const nlohmann::json command) { // do not change command to a reference
     nlohmann::json to_rema;
     to_rema["commands"].push_back(command);
     std::string tx_buffer = to_rema.dump();
 
     SPDLOG_INFO("Sending to REMA: {}", tx_buffer);
     command_client.send_request(tx_buffer);
-    SPDLOG_INFO("Receiving from REMA: {}", command_client.get_response());
+    return nlohmann::json::parse(command_client.get_response());
 }
 
 void REMA::execute_command_no_wait(const nlohmann::json command) { // do not change command to a reference
@@ -120,12 +120,12 @@ void REMA::execute_command_no_wait(const nlohmann::json command) { // do not cha
     command_client.send_request(tx_buffer);
 }
 
-void REMA::move_closed_loop(movement_cmd cmd) {
-    execute_command({ { "command", "MOVE_CLOSED_LOOP" },
-                      { "pars",
-                        { { "axes", cmd.axes },
-                          { "first_axis_setpoint", cmd.first_axis_setpoint },
-                          { "second_axis_setpoint", cmd.second_axis_setpoint } } } });
+nlohmann::json REMA::move_closed_loop(movement_cmd cmd) {
+    return execute_command({ { "command", "MOVE_CLOSED_LOOP" },
+                            { "pars",
+                                { { "axes", cmd.axes },
+                                { "first_axis_setpoint", cmd.first_axis_setpoint },
+                                { "second_axis_setpoint", cmd.second_axis_setpoint } } } });
 }
 
 void REMA::axes_hard_stop_all() {

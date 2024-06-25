@@ -411,7 +411,7 @@ void go_to_tube(const std::shared_ptr<restbed::Session> &rest_session) {
     const auto request = rest_session->get_request();
     std::string tube_id = request->get_path_parameter("tube_id", "");
 
-    nlohmann::json res;
+    
 
     if (!tube_id.empty()) {
         Tool tool = rema_instance.get_selected_tool();
@@ -421,8 +421,7 @@ void go_to_tube(const std::shared_ptr<restbed::Session> &rest_session) {
         goto_tube.axes = "XY";
         goto_tube.first_axis_setpoint = rema_coords.x;
         goto_tube.second_axis_setpoint = rema_coords.y;
-        rema_instance.move_closed_loop(goto_tube);
-
+        nlohmann::json res = rema_instance.move_closed_loop(goto_tube);
         close_rest_session(rest_session, restbed::OK, res);
     }
 }
@@ -469,8 +468,8 @@ void move_free_run(const std::shared_ptr<restbed::Session> &rest_session) {
     }
 
     rema_instance.axes_soft_stop_all();
-    rema_instance.execute_command({ { "command", "MOVE_FREE_RUN" }, { "pars", pars_obj } });
-    close_rest_session(rest_session, restbed::OK);
+    nlohmann::json res = rema_instance.execute_command({ { "command", "MOVE_FREE_RUN" }, { "pars", pars_obj } });
+    close_rest_session(rest_session, restbed::OK, res);
 }
 
 bool equals(double f1, double f2) {
@@ -551,8 +550,8 @@ void move_incremental(const std::shared_ptr<restbed::Session> &rest_session) {
                 }
             }
             rema_instance.axes_soft_stop_all();
-            rema_instance.execute_command({ { "command", "MOVE_INCREMENTAL" }, { "pars", pars_obj } });
-            close_rest_session(rest_session_ptr, restbed::OK);
+            nlohmann::json res = rema_instance.execute_command({ { "command", "MOVE_INCREMENTAL" }, { "pars", pars_obj } });
+            close_rest_session(rest_session_ptr, restbed::OK, res);
         });
 }
 

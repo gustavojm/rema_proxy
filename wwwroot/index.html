@@ -14,22 +14,54 @@
 <script src="js/jquery-ui.min.js"></script>
 
 <style>
-	#notifications { 
-		width: 330px;
-		height: 25px;
+	#notifications_outer { 
+		width: 500px;
+		height: 60px;
 		z-index: 10; 
 		position: absolute;
 		font-size: small;
   		text-align: center; 
   		background-color: rgb(222, 221, 218); 
   		align-content: center;		
-  		
-  }
+	}
+
+	#notifications { 
+		position: relative;
+		height: 40px;
+		overflow:auto;
+	}
+
+	.icon {
+		height: 24px;		
+		width: 24px;
+		padding: 2px;
+	}
+
+	.disabled {
+		opacity: 25%;
+	}
+
+	.enabled {
+		opacity: 100%;
+	}
+
+
 </style>
 </head>
 
 <body>
-	<div id="notifications" class="ui-widget-content"></div>
+	<div id="notifications_outer" class="ui-widget-content row">
+		<div class="column" style="align-items: flex-start; width: 20%;">
+			<div class="row disabled" id="on_condition_notification">
+				<img src="images/on_condition.png" class="icon"><div style="color: green;"> ON CONDITION</div>
+			</div>
+			<div class="row disabled" id="stalled_notification">
+				<img src="images/stalled.png" class="icon"><div id="stalled_notification_text" style="color: red;"> STALLED</div>
+			</div>
+		</div>
+		<div class="column" id="notifications" style="width: 55%;"></div>
+		<div class="column" style="width: 25px;"><button id="notifications_clear_btn">Clear</button></div>
+	</div>
 	<div id="tabs" style="height: 94.5%">
 		<ul>
 			<li><a href="sessions.html">Sessions</a></li>
@@ -211,12 +243,55 @@ get_session_info_index()
 				}
 		);
 				
-				
+	function add_notification(text, level = '') {
+		msg_line = $("<div>").html(text).addClass("msg").addClass(level);
+		$('#notifications').append(msg_line);
+		$('#notifications').scrollTop($('#notifications')[0].scrollHeight);
+	}
+		
 	var prev_pos_x = 0;
-	var prev_pos_y = 0;
+	var prev_pos_y = 0;	
 	var control_disabled_by_stall = false;
-
+	var old_telemetry = {};
+	//old_telemetry = {"brakes_mode":0,"control_enabled":false,"coords":{"x":-5e-05,"y":-5e-05,"z":5e-05},"limits":{"down":false,"in":true,"left":true,"out":false,"probe":false,"right":true,"up":true},"on_condition":{"x_y":false,"z":false},"probe":{"x_y":false,"z":false},"stall_control":true,"stalled":{"x":false,"y":true,"z":false}};
+	
 	function update_ui(telemetry) {		
+		//telemetry = {"brakes_mode":0,"control_enabled":false,"coords":{"x":-25,"y":-5e-05,"z":5},"limits":{"down":true,"in":true,"left":true,"out":true,"probe":true,"right":true,"up":true},"on_condition":{"x_y":true,"z":false},"probe":{"x_y":true,"z":false},"stall_control":true,"stalled":{"x":false,"y":true,"z":false}};
+		var difs = findDifferencesShallow(old_telemetry, telemetry);
+		$.each(difs, function (id, value) {
+			var msg_line;
+			var value_text;
+			key = Object.keys(value)[0];
+			if (key == "control_enabled") {
+				add_notification("CONTROL " + ((value[key] == true) ? "ENABLED" : "DISABLED"), "Info");
+			}
+
+			if (key == "stall_control") {
+				add_notification("STALL CONTROL " + ((value[key] == true) ? "ENABLED" : "DISABLED"), "Info");
+			}
+
+			if (key == "brakes_mode") {
+				var brakes_mode_text = ["OFF", "AUTO", "ON"];
+				add_notification("BRAKES MODE " + brakes_mode_text[value[key]], "Info");
+			}
+		});
+
+		var difs = findDifferencesShallow(old_telemetry.limits, telemetry.limits);
+		$.each(difs, function (id, value) {
+			key = Object.keys(value)[0];
+			if (value[key] == true) {
+			 	add_notification("LIMIT " + key.replace('.', ' ').toUpperCase() + " " + value[key].toString().toUpperCase(), "Error");
+			}				
+		});
+
+		var difs = findDifferencesShallow(old_telemetry.probe, telemetry.probe);
+		$.each(difs, function (id, value) {
+			key = Object.keys(value)[0];
+		 	add_notification("PROBE " + key.toUpperCase() + ((value[key] == true) ? " TOUCH" : " RELEASE"), "Info");
+		});		
+
+		old_telemetry = telemetry;
+
 		var pos_x = telemetry.coords.x;
 		var pos_y = telemetry.coords.y;
 		var pos_z = telemetry.coords.z;
@@ -224,23 +299,26 @@ get_session_info_index()
 		$("#position_y").val(toFixedIfNecessary(pos_y, decimals));
 		$("#position_z").val(toFixedIfNecessary(pos_z, decimals));	
 		
-		message = "";
 		if (telemetry.stalled.x || telemetry.stalled.y || telemetry.stalled.z) {
-			message = "STALLED " + (telemetry.stalled.x ? "X" : "") + (telemetry.stalled.y ? "Y" : "") + (telemetry.stalled.z ? "Z" : "");
+			stalled_message = "STALLED " + (telemetry.stalled.x ? "X" : "") + (telemetry.stalled.y ? "Y" : "") + (telemetry.stalled.z ? "Z" : "");
+			$("#stalled_notification").removeClass("disabled").addClass("enabled");
+			$("#stalled_notification_text").html(stalled_message);
 			var power_switch = $('#power_switch');
 			if (power_switch.prop('checked') && !control_disabled_by_stall) {
 				power_switch.prop('checked', false).change();
 				control_disabled_by_stall = true;
 			}
 		} else {
+			$("#stalled_notification").removeClass("enabled").addClass("disabled");
+			$("#stalled_notification_text").html("STALLED");
 			control_disabled_by_stall = false;
 		}
 		
 		if (telemetry.on_condition.x_y) {
-			message = "ON CONDITION XY";
+			$("#on_condition_notification").removeClass("disabled").addClass("enabled");
+		} else {
+			$("#on_condition_notification").removeClass("enabled").addClass("disabled");
 		}
-
-		$("#notifications").html('<p>' + message + '</p>');
 
 		if (typeof update_limits === "function") {
 			update_limits(telemetry.limits);
@@ -401,12 +479,12 @@ get_session_info_index()
 	}
 	
 	$(function() {
-		notifications_left = $("#tabs").width() - $("#notifications").width() - 20;
-		notifications_top = $("#tabs").height() - $("#notifications").height() + 5;
+		notifications_outer_left = $("#tabs").width() - $("#notifications_outer").width() - 20;
+		notifications_outer_top = $("#tabs").height() - $("#notifications_outer").height() + 5;
 			
-		$("#notifications").css("left", notifications_left + 'px');
-		$("#notifications").css("top", notifications_top + 'px');
-		$("#notifications").draggable({containment: "#tabs"});
+		$("#notifications_outer").css("left", notifications_outer_left + 'px');
+		$("#notifications_outer").css("top", notifications_outer_top + 'px');
+		$("#notifications_outer").draggable({containment: "#tabs"});
 
 		$("#reconnect_rema").on("click", function(){
 			$.ajax({
@@ -463,7 +541,11 @@ get_session_info_index()
 	    create_joystick();
 	    create_incremental_dialog();
 		create_reconnect_dialog();
-		create_settings_dialog();		
+		create_settings_dialog();
+		
+		$("#notifications_clear_btn").click(function() {
+			$("#notifications").empty();
+		});
 
 	});
 		

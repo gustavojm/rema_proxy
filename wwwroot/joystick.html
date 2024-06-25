@@ -201,6 +201,9 @@ h1 {
 			contentType : "application/json",
 			dataType : "json",
 			success : function(data) {
+				if ("ERROR" in data.MOVE_FREE_RUN) {
+						add_notification(data.MOVE_FREE_RUN.ERROR, "Warning");
+				}
 			}
 		});		
 		moving = true;

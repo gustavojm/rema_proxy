@@ -51,8 +51,11 @@ struct telemetry {
     struct compound_axes probe;
     struct individual_axes stalled;
     struct limits limits;
+    bool control_enabled;
+    bool stall_control;
+    int brakes_mode;    
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(telemetry, coords, on_condition, probe, stalled, limits)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(telemetry, coords, on_condition, probe, stalled, limits, control_enabled, stall_control, brakes_mode)
 
 struct movement_cmd {
     std::string axes;
@@ -126,11 +129,11 @@ class REMA {
 
     void save_config();
 
-    void execute_command(const nlohmann::json command);
+    nlohmann::json execute_command(const nlohmann::json command);
 
     void execute_command_no_wait(const nlohmann::json command);
 
-    void move_closed_loop(movement_cmd cmd);
+    nlohmann::json move_closed_loop(movement_cmd cmd);
 
     void axes_hard_stop_all();
 
