@@ -160,6 +160,7 @@ bool REMA::execute_sequence(std::vector<movement_cmd> &sequence) {
                 stopped_on_probe = telemetry.probe.z;
                 stopped_on_condition = telemetry.on_condition.z;
             }
+            std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Avoid hogging the processor
         } while (!(stopped_on_probe || stopped_on_condition || cancel_sequence));
 
         if (!cancel_sequence) {
