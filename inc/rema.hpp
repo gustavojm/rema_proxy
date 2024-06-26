@@ -156,8 +156,8 @@ class REMA {
     CommandNetClient command_client;
     TelemetryNetClient telemetry_client;
 
-    bool is_sequence_in_progress;
-    bool cancel_sequence;
+    volatile bool is_sequence_in_progress;
+    volatile bool cancel_sequence;
     nlohmann::json config;
 
     // Telemetry values

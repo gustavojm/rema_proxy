@@ -24,7 +24,6 @@ void REMA::cancel_sequence_in_progress() {
     while (is_sequence_in_progress) {
         cancel_sequence = true;
     }
-    cancel_sequence = false;
 }
 
 void REMA::load_config() {
@@ -140,6 +139,7 @@ void REMA::axes_soft_stop_all() {
 
 bool REMA::execute_sequence(std::vector<movement_cmd> &sequence) {
     cancel_sequence_in_progress();
+    cancel_sequence = false;
     is_sequence_in_progress = true;
     bool was_completed = true;
 

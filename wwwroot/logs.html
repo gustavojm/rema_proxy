@@ -61,8 +61,8 @@
 
 		var line = $("<div>").html("["+ severity +"] " + ticks + " " + github_link.prop('outerHTML') + " " + func + "() " + message + "</div>");
         $(line).addClass(severity);
-		console.log($(line));
         $('#logViewer').append(line);
+		$('#logViewer').scrollTop($('#logViewer')[0].scrollHeight);
     }
 	
 	function get_logs() {
