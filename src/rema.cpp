@@ -163,15 +163,16 @@ bool REMA::execute_sequence(std::vector<movement_cmd> &sequence) {
             std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Avoid hogging the processor
         } while (!(stopped_on_probe || stopped_on_condition || cancel_sequence));
 
-        if (!cancel_sequence) {
+        if (cancel_sequence) {
+            was_completed = false;
+            break;
+        } else {
             step.executed = true;
             step.execution_results.coords = telemetry.coords;
             step.execution_results.stopped_on_probe = stopped_on_probe;
             step.execution_results.stopped_on_condition = stopped_on_condition;
-        } else {
-            was_completed = false;
-            break;
         }
+        std::this_thread::sleep_for(std::chrono::milliseconds(250)); // Wait for vibrations to stop
     }
     is_sequence_in_progress = false;
     cancel_sequence = false;
