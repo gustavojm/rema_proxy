@@ -89,9 +89,9 @@
 			url : "/REMA/",
 			method : "POST",
 			contentType : "application/json",
-			data : JSON.stringify({
-				commands : [{
-					command : "KP_SET_TUNINGS",
+			data : JSON.stringify([
+                {
+					cmd : "KP_SET_TUNINGS",
 					pars : {
 						axes : axes,
 						kp : kp,
@@ -99,8 +99,8 @@
 						min : min_freq,
 						max : max_freq,
 					}
-				} ]
-			}),
+				}
+            ]),
 			dataType : "json",
 			success : function(data) {
 				//console.log(data);					
@@ -160,15 +160,14 @@
                     url : "/REMA/",
                     method : "POST",
                     contentType : "application/json",
-                    data : JSON.stringify({
-                        commands : [ {
-                            command : "SET_LOG_LEVEL",
+                    data : JSON.stringify([ 
+                        {
+                            cmd : "SET_LOG_LEVEL",
                             pars : {
                                 local_level : level
                             }
                         },
-                        ]
-                    }),
+                    ]),
                     dataType : "json",
                     success : function(data) {				
                         $("#uart_log_level").removeClass().addClass(level_class);

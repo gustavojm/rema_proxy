@@ -41,6 +41,24 @@ void REMA::load_config() {
     }
 }
 
+const std::filesystem::path rema_startup_cmds_file_path = "rema_startup.json";
+
+void REMA::send_startup_commands() {
+    try {
+        std::ifstream rema_startup_file(rema_startup_cmds_file_path);
+        if (rema_startup_file.is_open()) {
+            SPDLOG_INFO("REMA start up file found");
+            nlohmann::json rema_startup_cmds;
+            rema_startup_file >> rema_startup_cmds;
+            for (auto cmd : rema_startup_cmds) {
+                execute_command(cmd["cmd"], cmd["pars"]);
+            }
+        }
+    } catch (std::exception &e) {
+        SPDLOG_WARN(e.what());
+    }
+}
+
 void REMA::save_config() {
     std::ofstream file(config_file_path);
     // Default JSON deserialization not possible because REMA is not default constructible (to enforce singleton pattern)
@@ -53,6 +71,8 @@ void REMA::connect(const std::string &rtu_host,int rtu_port) {
     rtu_port_ = rtu_port;
     if (command_client.connect(rtu_host, rtu_port) < 0) {
         SPDLOG_WARN("Unable to connect to Command endpoint");
+    } else {
+        send_startup_commands();
     };
     
     if (telemetry_client.connect(rtu_host, rtu_port + 1) < 0) {
@@ -89,52 +109,47 @@ void REMA::update_telemetry(std::string &stream) {
 }
 
 void REMA::set_home_xy(double x, double y) {
-    execute_command({ { "command", "SET_COORDS" }, { "pars", { { "position_x", x }, { "position_y", y } } } });
+    execute_command("SET_COORDS", {{ "position_x", x }, { "position_y", y } });
 }
 
 void REMA::set_home_z(double z) {
-    execute_command({ { "command", "SET_COORDS" },
-                      { "pars",
-                        {
-                            { "position_z", z },
-                        } } });
+    execute_command("SET_COORDS", {{ "position_z", z }} );
 }
 
-nlohmann::json REMA::execute_command(const nlohmann::json command) { // do not change command to a reference
+void REMA::execute_command_no_wait(const std::string cmd_name, const nlohmann::json pars) { // do not change command to a reference
     nlohmann::json to_rema;
-    to_rema["commands"].push_back(command);
+
+    nlohmann::json command;
+    command["cmd"] = cmd_name;
+    command["pars"] = pars;
+    to_rema.push_back(command);
     std::string tx_buffer = to_rema.dump();
 
     SPDLOG_INFO("Sending to REMA: {}", tx_buffer);
     command_client.send_request(tx_buffer);
+}
+
+nlohmann::json REMA::execute_command(const std::string cmd_name, const nlohmann::json pars = {}) { // do not change command to a reference
+    execute_command_no_wait(cmd_name, pars);
     return nlohmann::json::parse(command_client.get_response());
 }
 
-void REMA::execute_command_no_wait(const nlohmann::json command) { // do not change command to a reference
-    nlohmann::json to_rema;
-    to_rema["commands"].push_back(command);
-    std::string tx_buffer = to_rema.dump();
-
-    SPDLOG_INFO("Enviando a REMA: {}", tx_buffer);
-    command_client.send_request(tx_buffer);
-}
-
 nlohmann::json REMA::move_closed_loop(movement_cmd cmd) {
-    return execute_command({ { "command", "MOVE_CLOSED_LOOP" },
-                            { "pars",
+    return execute_command("MOVE_CLOSED_LOOP",
                                 { { "axes", cmd.axes },
                                 { "first_axis_setpoint", cmd.first_axis_setpoint },
-                                { "second_axis_setpoint", cmd.second_axis_setpoint } } } });
+                                { "second_axis_setpoint", cmd.second_axis_setpoint }} 
+                          );
 }
 
 void REMA::axes_hard_stop_all() {
     cancel_sequence_in_progress();
-    execute_command({ { "command", "AXES_HARD_STOP_ALL" } });
+    execute_command("AXES_HARD_STOP_ALL");
 }
 
 void REMA::axes_soft_stop_all() {
     cancel_sequence_in_progress();
-    execute_command({ { "command", "AXES_SOFT_STOP_ALL" } });
+    execute_command("AXES_SOFT_STOP_ALL");
 }
 
 bool REMA::execute_sequence(std::vector<movement_cmd> &sequence) {
@@ -143,7 +158,7 @@ bool REMA::execute_sequence(std::vector<movement_cmd> &sequence) {
     is_sequence_in_progress = true;
     bool was_completed = true;
 
-    execute_command({ { "command", "AXES_SOFT_STOP_ALL" } });
+    execute_command("AXES_SOFT_STOP_ALL");
 
     // Create an individual command object and add it to the array
     for (auto &step : sequence) {

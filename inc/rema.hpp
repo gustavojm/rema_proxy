@@ -110,28 +110,28 @@ class REMA {
     }
 
     void extend_touch_probe() {
-        execute_command({ { "command", "TOUCH_PROBE" },
-                          { "pars",
+        execute_command("TOUCH_PROBE" ,
                             {
                                 { "position", "IN" },
-                            } } });
+                            });
     };
 
     void retract_touch_probe() {
-        execute_command({ { "command", "TOUCH_PROBE" },
-                          { "pars",
+        execute_command("TOUCH_PROBE",
                             {
                                 { "position", "OUT" },
-                            } } });
+                            });
     };
         
     void load_config();
 
     void save_config();
 
-    nlohmann::json execute_command(const nlohmann::json command);
+    void send_startup_commands();
 
-    void execute_command_no_wait(const nlohmann::json command);
+    void execute_command_no_wait(const std::string cmd_name, const nlohmann::json command);
+
+    nlohmann::json execute_command(const std::string cmd_name, const nlohmann::json pars);
 
     nlohmann::json move_closed_loop(movement_cmd cmd);
 

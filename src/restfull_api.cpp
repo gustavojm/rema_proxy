@@ -426,7 +426,7 @@ void go_to_tube(const std::shared_ptr<restbed::Session> &rest_session) {
     }
 }
 
-void move_free_run(const std::shared_ptr<restbed::Session> &rest_session) {
+void move_joystick(const std::shared_ptr<restbed::Session> &rest_session) {
     REMA &rema_instance = REMA::get_instance();
     const auto request = rest_session->get_request();
     std::string dir = request->get_path_parameter("dir", "");
@@ -468,7 +468,7 @@ void move_free_run(const std::shared_ptr<restbed::Session> &rest_session) {
     }
 
     rema_instance.axes_soft_stop_all();
-    nlohmann::json res = rema_instance.execute_command({ { "command", "MOVE_FREE_RUN" }, { "pars", pars_obj } });
+    nlohmann::json res = rema_instance.execute_command("MOVE_JOYSTICK", pars_obj);
     close_rest_session(rest_session, restbed::OK, res);
 }
 
@@ -499,7 +499,7 @@ void change_network_settings(const std::shared_ptr<restbed::Session> &rest_sessi
                     pars_obj["port"] = rtu_port;
                     pars_obj["gw"] = form_data["ipaddr"];
                     pars_obj["netmask"] = "255.255.255.0";
-                    rema_instance.execute_command_no_wait({ { "command", "NETWORK_SETTINGS" }, { "pars", pars_obj } });
+                    rema_instance.execute_command_no_wait("NETWORK_SETTINGS", pars_obj);
                 }
 
                 for (int retry = 0; retry < 3; ++retry) {
@@ -550,7 +550,7 @@ void move_incremental(const std::shared_ptr<restbed::Session> &rest_session) {
                 }
             }
             rema_instance.axes_soft_stop_all();
-            nlohmann::json res = rema_instance.execute_command({ { "command", "MOVE_INCREMENTAL" }, { "pars", pars_obj } });
+            nlohmann::json res = rema_instance.execute_command("MOVE_INCREMENTAL", pars_obj);
             close_rest_session(rest_session_ptr, restbed::OK, res);
         });
 }
@@ -783,7 +783,7 @@ void restfull_api_create_endpoints(restbed::Service &service) {
         { "calibration-points/{tube_id: .*}", { { "PUT", &cal_points_add_update }, { "DELETE", &cal_points_delete } } },
         { "tubes/{tube_id: .*}", { { "PUT", &tubes_set_status } } },
         { "go-to-tube/{tube_id: .*}", { { "GET", &go_to_tube } } },
-        { "move-free-run/{dir: .*}", { { "GET", &move_free_run } } },
+        { "move-joystick/{dir: .*}", { { "GET", &move_joystick } } },
         { "move-incremental", { { "POST", &move_incremental } } },
         { "determine-tube-center/{tube_id: .*}/{set_home: .*}", { { "GET", &determine_tube_center } } },
         { "set-home-xy/", { { "GET", &set_home_xy } } },

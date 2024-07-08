@@ -70,18 +70,17 @@
 			url : "/REMA/",
 			method : "POST",
 			contentType : "application/json",
-			data : JSON.stringify({
-				commands : [ {
-					command : "LOGS",
+			data : JSON.stringify([ 
+				{
+					cmd : "LOGS",
 					pars : {
 						quantity : 10
 					}
 				},
 				{
-					command : "MEM_INFO"
+					cmd : "MEM_INFO"
 				} 
-			 ]
-			}),
+			]),
 			dataType : "json",
 			success : function(data) {
 				$.each(data.LOGS.DEBUG_MSGS, function(key, entry) {
@@ -145,15 +144,14 @@
 					url : "/REMA/",
 					method : "POST",
 					contentType : "application/json",
-					data : JSON.stringify({
-						commands : [ {
-							command : "SET_LOG_LEVEL",
+					data : JSON.stringify([ 
+						{
+							cmd : "SET_LOG_LEVEL",
 							pars : {
 								net_level : level
 							}
 						},
-						]
-					}),
+					]),
 					dataType : "json",
 					success : function(data) {				
 						$("#net_log_level").removeClass().addClass(level_class);
