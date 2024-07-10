@@ -507,9 +507,11 @@ get_session_info_index()
 	function touch_probe_protection_control(status) {
 		if (status === false) {
 			$('#touch_probe').addClass('crossed-out');
+			$('#touch_probe').prop("title", "Touch Probe protection is DISABLED")
 			add_notification("* DANGER * </br> TOUCH PROBE PROTECTION DISABLED", "Error");
 		} else {
 			$('#touch_probe').removeClass('crossed-out');
+			$('#touch_probe').prop("title", "Touch Probe protection is ENABLED")
 			add_notification("TOUCH PROBE PROTECTION ENABLED", "Info");
 		}
 	}					
