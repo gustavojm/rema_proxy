@@ -121,7 +121,10 @@ void REMA::execute_command_no_wait(const std::string cmd_name, const nlohmann::j
 
     nlohmann::json command;
     command["cmd"] = cmd_name;
-    command["pars"] = pars;
+    if (!pars.is_null()) {
+        command["pars"] = pars;
+    }
+    
     to_rema.push_back(command);
     std::string tx_buffer = to_rema.dump();
 
