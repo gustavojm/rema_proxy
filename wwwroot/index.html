@@ -45,6 +45,28 @@
 		opacity: 100%;
 	}
 
+	.crossed-out {
+	    position: relative;
+		border: 2px solid black;
+	}
+
+	.crossed-out::before, .crossed-out::after {		
+		content: ' ';
+		position: absolute;
+		top: calc(50% - 1px);
+		left: 0;
+		right: 0;
+		height: 2px;
+		background-color: black;		
+	}
+
+	.crossed-out::before {		
+		transform: rotate(45deg);
+	}
+
+	.crossed-out::after {		
+		transform: rotate(-45deg);
+	}
 
 </style>
 </head>
@@ -481,8 +503,39 @@ get_session_info_index()
 				}) 
 			});
 	}
-	
+
+	function touch_probe_protection_control(status) {
+		if (status === false) {
+			$('#touch_probe').addClass('crossed-out');
+			add_notification("* DANGER * </br> TOUCH PROBE PROTECTION DISABLED", "Error");
+		} else {
+			$('#touch_probe').removeClass('crossed-out');
+			add_notification("TOUCH PROBE PROTECTION ENABLED", "Info");
+		}
+	}					
+
+
 	$(function() {
+
+		var touch_probe_div = $('#touch_probe');
+		touch_probe_div.on('dblclick', function() {
+			$.ajax({
+				url : "/REMA/",
+				method : "POST",
+				contentType : "application/json",
+				dataType : "json",
+				data : JSON.stringify([
+					{
+						cmd : "TOUCH_PROBE_PROTECTION_CONTROL",
+						pars : {enabled: touch_probe_div.hasClass('crossed-out')}
+					}, 
+				]),
+				success : function(data) {
+					touch_probe_protection_control(data["TOUCH_PROBE_PROTECTION_CONTROL"].STATUS);
+				}
+			});    	    
+	    });	
+
 		notifications_outer_left = $("#tabs").width() - $("#notifications_outer").width() - 20;
 		notifications_outer_top = $("#tabs").height() - $("#notifications_outer").height() + 5;
 			

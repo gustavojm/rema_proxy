@@ -7,6 +7,37 @@
 		"min": 5000,
 		"max": 125000
 	 }
+    },
+	{"cmd": "TOUCH_PROBE_PROTECTION_CONTROL",
+	 "pars": {
+		"enabled": true,
+        "axes": "XY",
+		"counts": 3
+	 }
+    },
+	{"cmd": "TOUCH_PROBE_PROTECTION_CONTROL",
+	 "pars": {
+        "axes": "Z",
+		"counts": 3
+	 }
+    },
+	{"cmd": "STALL_CONTROL",
+	 "pars": {
+        "axis": "X",
+		"counts": 5
+	 }
+    },
+	{"cmd": "STALL_CONTROL",
+	 "pars": {
+        "axis": "Y",
+		"counts": 5
+	 }
+    },
+	{"cmd": "STALL_CONTROL",
+	 "pars": {
+        "axis": "Z",
+		"counts": 5
+	 }
     }
 ]
 

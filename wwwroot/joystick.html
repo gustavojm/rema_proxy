@@ -227,7 +227,11 @@ h1 {
 				}, 
 				{
 					cmd : "BRAKES_MODE",
+				},
+				{
+					cmd : "TOUCH_PROBE_PROTECTION_CONTROL",
 				} 
+
 			]),
 			dataType : "json",
 			success : function(data) {
@@ -236,8 +240,10 @@ h1 {
 
 				var stall_switch = $('#stall_switch');
 				stall_switch.prop('checked', data["STALL_CONTROL"].STATUS).change();
+				
 				$("#brakes_mode_switch").value = ON_AUTO_OFF.revGet(data["BRAKES_MODE"].STATUS);
-			}
+
+				touch_probe_protection_control(data["TOUCH_PROBE_PROTECTION_CONTROL"].STATUS);			}
 		});
 	}
 	
