@@ -164,6 +164,11 @@ function areFloatsEqual(a, b, epsilon = 0.0001) {
 	  return Math.abs(a - b) < epsilon;
 }
 
+function show_tool_offsets(selected_tool) {
+	$("#offset_x").val(selected_tool.data("offset_x"));
+	$("#offset_y").val(selected_tool.data("offset_y"));
+	$("#offset_z").val(selected_tool.data("offset_z"));
+}
 
 function get_rema_info() {
 	$.get('/REST/REMA/info', function(data) {
@@ -208,14 +213,11 @@ function get_rema_info() {
         			previous_tool = $("option:selected", this);
     			}).change(function(e) {
 					if (e.originalEvent) {
-						$("#offset_x").val($("option:selected", this).data("offset_x"));
-						$("#offset_y").val($("option:selected", this).data("offset_y"));
-						$("#offset_z").val($("option:selected", this).data("offset_z"));					
+						show_tool_offsets($("option:selected", this))
 						var tool_name = $("option:selected", this).val();
 						previous_tool_is_touch_probe = previous_tool.data("is_touch_probe");
 						current_tool_is_touch_probe = $("option:selected", this).data("is_touch_probe");
 						if (previous_tool_is_touch_probe != current_tool_is_touch_probe) {
-							console.log(previous_tool_is_touch_probe, current_tool_is_touch_probe);
 							if (current_tool_is_touch_probe) {
 								if (confirm("This will extend the touch probe")) {									
 									$.post('/REST/tools/' + tool_name + '/select');
@@ -233,6 +235,8 @@ function get_rema_info() {
 				});
 		
 				tools_dropdown.val(data.last_selected_tool).change();
+				show_tool_offsets($("option:selected", tools_dropdown));
+
 				tool_is_touch_probe = $("option:selected", tools_dropdown).data("is_touch_probe");
 				if (tool_is_touch_probe) {
 					$("#brakes_mode_switch").val(0).trigger("input");		// OFF
@@ -241,33 +245,6 @@ function get_rema_info() {
 	);			
 }
 
-function get_session_info_index() {
-	return $.get('/REST/current-session/info');
-}
-
-get_session_info_index()
-		.done(
-				function(data) {					
-					active_tab = 0;
-					if (data.is_loaded) {
-						$(".units").text(data.hx.unit);
-						active_tab = 2
-					}
-					
-					$("#tabs").tabs({
-						active : active_tab,
-						//heightStyle : "fill"			
-						beforeActivate : function(event, ui) {
-							$(ui.oldTab).trigger("unload_tab");
-						},
-						create: function (event, ui) {
-							tabs_initialized = true;
-						}
-					});
-					
-					get_rema_info();
-				}
-		);
 				
 	function add_notification(text, level = '') {
 		msg_line = $("<div>").html(text).addClass("msg").addClass(level);
@@ -452,8 +429,7 @@ get_session_info_index()
 		});
 	}
 
-	function create_incremental_dialog() {
-		
+	function create_incremental_dialog() {		
 		$.when(
 			$.get('incremental.html', function(data) {
 				$('#incremental_div').html(data);
@@ -478,8 +454,7 @@ get_session_info_index()
 		});
 	}
 
-	function create_joystick() {
-		
+	function create_joystick() {		
 		$.when(
 			    $.get('joystick.html', function(data) {
 			        $('#joystick_div').html(data);
@@ -518,6 +493,38 @@ get_session_info_index()
 
 
 	$(function() {
+	    create_joystick();
+	    create_incremental_dialog();
+		create_reconnect_dialog();
+		create_settings_dialog();
+
+		function get_session_info_index() {
+			return $.get('/REST/current-session/info');
+		}
+
+		get_session_info_index()
+			.done(
+					function(data) {
+						active_tab = 0;
+						if (data.is_loaded) {
+							$(".units").text(data.hx.unit);
+							active_tab = 2
+						}
+						
+						$("#tabs").tabs({
+							active : active_tab,
+							//heightStyle : "fill"			
+							beforeActivate : function(event, ui) {
+								$(ui.oldTab).trigger("unload_tab");
+							},
+							create: function (event, ui) {
+								tabs_initialized = true;
+							}
+						});
+						
+						get_rema_info();
+					}
+			);
 
 		var touch_probe_div = $('#touch_probe');
 		touch_probe_div.on('dblclick', function() {
@@ -596,12 +603,7 @@ get_session_info_index()
 			},
 		});
 		sse.start();
-
-	    create_joystick();
-	    create_incremental_dialog();
-		create_reconnect_dialog();
-		create_settings_dialog();
-		
+	
 		$("#notifications_clear_btn").click(function() {
 			$("#notifications").empty();
 		});
