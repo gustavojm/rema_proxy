@@ -22,18 +22,18 @@
 
 extern Session current_session;
 
-void close_rest_session(const std::shared_ptr<restbed::Session> &rest_session, int status) {
+void close_rest_session(const std::shared_ptr<restbed::Session>& rest_session, int status) {
     rest_session->close(status, "", { { "Content-Type", "text/html ; charset=utf-8" }, { "Content-Length", "0" } });
 }
 
-void close_rest_session(const std::shared_ptr<restbed::Session> &rest_session, int status, const std::string &res) {
+void close_rest_session(const std::shared_ptr<restbed::Session>& rest_session, int status, const std::string& res) {
     rest_session->close(
         status,
         res,
         { { "Content-Type", "text/html ; charset=utf-8" }, { "Content-Length", std::to_string(res.length()) } });
 }
 
-void close_rest_session(const std::shared_ptr<restbed::Session> &rest_session, int status, const nlohmann::json &json_res) {
+void close_rest_session(const std::shared_ptr<restbed::Session>& rest_session, int status, const nlohmann::json& json_res) {
     std::string res = json_res.dump();
     rest_session->close(
         status,
@@ -49,23 +49,23 @@ struct ResourceEntry {
 /**
  * REMA related functions
  **/
-void REMA_connect(const std::shared_ptr<restbed::Session> &rest_session) {
+void REMA_connect(const std::shared_ptr<restbed::Session>& rest_session) {
     std::string res;
     int status = restbed::OK;
     try {
-        REMA &rema_instance = REMA::get_instance();
+        REMA& rema_instance = REMA::get_instance();
         rema_instance.reconnect();
         status = restbed::OK;
-    } catch (std::exception &e) {
+    } catch (std::exception& e) {
         res = e.what();
         status = restbed::INTERNAL_SERVER_ERROR;
     }
     close_rest_session(rest_session, status, res);
 }
 
-void REMA_info(const std::shared_ptr<restbed::Session> &rest_session) {
+void REMA_info(const std::shared_ptr<restbed::Session>& rest_session) {
     nlohmann::json res = nlohmann::json(nlohmann::json::value_t::object);
-    REMA &rema_instance = REMA::get_instance();
+    REMA& rema_instance = REMA::get_instance();
 
     std::map<std::string, Tool> tools_to_ui;
     for (auto [id, tool] : REMA::tools) {
@@ -82,11 +82,11 @@ void REMA_info(const std::shared_ptr<restbed::Session> &rest_session) {
 /**
  * HX related functions
  **/
-void HXs_list(const std::shared_ptr<restbed::Session> &rest_session) {
+void HXs_list(const std::shared_ptr<restbed::Session>& rest_session) {
     close_rest_session(rest_session, restbed::OK, nlohmann::json(HX::list()));
 }
 
-void HXs_delete(const std::shared_ptr<restbed::Session> &rest_session) {
+void HXs_delete(const std::shared_ptr<restbed::Session>& rest_session) {
     const auto request = rest_session->get_request();
     std::string HX_name = request->get_path_parameter("HX_name", "");
 
@@ -99,7 +99,7 @@ void HXs_delete(const std::shared_ptr<restbed::Session> &rest_session) {
     close_rest_session(rest_session, restbed::OK);
 }
 
-void HXs_tubesheet_load(const std::shared_ptr<restbed::Session> &rest_session) {
+void HXs_tubesheet_load(const std::shared_ptr<restbed::Session>& rest_session) {
     close_rest_session(rest_session, restbed::OK, nlohmann::json(current_session.hx.tubes));
 }
 
@@ -107,7 +107,7 @@ void HXs_tubesheet_load(const std::shared_ptr<restbed::Session> &rest_session) {
  * Plans related functions
  **/
 
-void plans(const std::shared_ptr<restbed::Session> &rest_session) {
+void plans(const std::shared_ptr<restbed::Session>& rest_session) {
     const auto request = rest_session->get_request();
     std::string plan = request->get_path_parameter("plan", "");
 
@@ -118,7 +118,7 @@ void plans(const std::shared_ptr<restbed::Session> &rest_session) {
     close_rest_session(rest_session, restbed::OK, res);
 }
 
-void plans_delete(const std::shared_ptr<restbed::Session> &rest_session) {
+void plans_delete(const std::shared_ptr<restbed::Session>& rest_session) {
     const auto request = rest_session->get_request();
     std::string plan = request->get_path_parameter("plan", "");
 
@@ -133,7 +133,7 @@ void plans_delete(const std::shared_ptr<restbed::Session> &rest_session) {
  * Tools related functions
  **/
 
-void tools_list(const std::shared_ptr<restbed::Session> &rest_session) {
+void tools_list(const std::shared_ptr<restbed::Session>& rest_session) {
     close_rest_session(rest_session, restbed::OK, REMA::tools);
 }
 
@@ -142,7 +142,7 @@ void tools_create(const std::shared_ptr<restbed::Session> rest_session) {
     size_t content_length = request->get_header("Content-Length", 0);
     rest_session->fetch(
         content_length,
-        [&]([[maybe_unused]] const std::shared_ptr<restbed::Session> &rest_session_ptr, const restbed::Bytes &body) {
+        [&]([[maybe_unused]] const std::shared_ptr<restbed::Session>& rest_session_ptr, const restbed::Bytes& body) {
             nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
             std::string res;
             int status = restbed::OK;
@@ -166,10 +166,10 @@ void tools_create(const std::shared_ptr<restbed::Session> rest_session) {
                     res = "Tool created Successfully";
                     status = restbed::CREATED;
                 }
-            } catch (const std::invalid_argument &e) {
+            } catch (const std::invalid_argument& e) {
                 res += "Offsets wrong";
                 status = restbed::BAD_REQUEST;
-            } catch (const std::exception &e) {
+            } catch (const std::exception& e) {
                 res = e.what();
                 status = restbed::INTERNAL_SERVER_ERROR;
             }
@@ -177,7 +177,7 @@ void tools_create(const std::shared_ptr<restbed::Session> rest_session) {
         });
 }
 
-void tools_delete(const std::shared_ptr<restbed::Session> &rest_session) {
+void tools_delete(const std::shared_ptr<restbed::Session>& rest_session) {
     const auto request = rest_session->get_request();
     std::string tool_name = request->get_path_parameter("tool_name", "");
 
@@ -186,17 +186,17 @@ void tools_delete(const std::shared_ptr<restbed::Session> &rest_session) {
     try {
         REMA::delete_tool(tool_name);
         status = restbed::NO_CONTENT;
-    } catch (const std::filesystem::filesystem_error &e) {
+    } catch (const std::filesystem::filesystem_error& e) {
         res = "Failed to delete the tool";
         status = restbed::INTERNAL_SERVER_ERROR;
     }
     close_rest_session(rest_session, status, res);
 }
 
-void tools_select(const std::shared_ptr<restbed::Session> &rest_session) {
+void tools_select(const std::shared_ptr<restbed::Session>& rest_session) {
     auto request = rest_session->get_request();
     std::string tool_name = request->get_path_parameter("tool_name", "");
-    REMA &rema_instance = REMA::get_instance();
+    REMA& rema_instance = REMA::get_instance();
     rema_instance.set_last_selected_tool(tool_name);
     close_rest_session(rest_session, restbed::OK);
 }
@@ -205,10 +205,10 @@ void tools_select(const std::shared_ptr<restbed::Session> &rest_session) {
  * Sessions related functions
  **/
 
-void sessions_list(const std::shared_ptr<restbed::Session> &rest_session) {
+void sessions_list(const std::shared_ptr<restbed::Session>& rest_session) {
     nlohmann::json res;
 
-    for (auto &session : Session::sessions_list()) {
+    for (auto& session : Session::sessions_list()) {
         res.push_back({ { "name", session.name },
                         { "hx", session.hx },
                         { "hx_dir", session.hx_dir },
@@ -219,12 +219,12 @@ void sessions_list(const std::shared_ptr<restbed::Session> &rest_session) {
     close_rest_session(rest_session, restbed::OK, res);
 }
 
-void sessions_create(const std::shared_ptr<restbed::Session> &rest_session) {
+void sessions_create(const std::shared_ptr<restbed::Session>& rest_session) {
     const auto request = rest_session->get_request();
     size_t content_length = request->get_header("Content-Length", 0);
     rest_session->fetch(
         content_length,
-        [&]([[maybe_unused]] const std::shared_ptr<restbed::Session> &rest_session_ptr, const restbed::Bytes &body) {
+        [&]([[maybe_unused]] const std::shared_ptr<restbed::Session>& rest_session_ptr, const restbed::Bytes& body) {
             nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
             std::string res;
             int status = restbed::OK;
@@ -247,7 +247,7 @@ void sessions_create(const std::shared_ptr<restbed::Session> &rest_session) {
                     current_session = new_session;
                     status = restbed::CREATED;
                 }
-            } catch (const std::exception &e) {
+            } catch (const std::exception& e) {
                 res += "Error creating Session \n";
                 status = restbed::INTERNAL_SERVER_ERROR;
             }
@@ -255,7 +255,7 @@ void sessions_create(const std::shared_ptr<restbed::Session> &rest_session) {
         });
 }
 
-void sessions_load(const std::shared_ptr<restbed::Session> &rest_session) {
+void sessions_load(const std::shared_ptr<restbed::Session>& rest_session) {
     auto request = rest_session->get_request();
     std::string session_name = request->get_path_parameter("session_name", "");
     int status = restbed::OK;
@@ -269,7 +269,7 @@ void sessions_load(const std::shared_ptr<restbed::Session> &rest_session) {
             current_session.calculate_aligned_tubes();
 
             status = restbed::OK;
-        } catch (std::exception &e) {
+        } catch (std::exception& e) {
             res = e.what();
             status = restbed::INTERNAL_SERVER_ERROR;
         }
@@ -280,7 +280,7 @@ void sessions_load(const std::shared_ptr<restbed::Session> &rest_session) {
     close_rest_session(rest_session, status, res);
 }
 
-void sessions_info(const std::shared_ptr<restbed::Session> &rest_session) {
+void sessions_info(const std::shared_ptr<restbed::Session>& rest_session) {
     nlohmann::json res = nlohmann::json::object();
     if (current_session.is_loaded()) {
         res = current_session;
@@ -293,14 +293,14 @@ void sessions_info(const std::shared_ptr<restbed::Session> &rest_session) {
     close_rest_session(rest_session, restbed::OK, res);
 }
 
-void sessions_delete(const std::shared_ptr<restbed::Session> &rest_session) {
+void sessions_delete(const std::shared_ptr<restbed::Session>& rest_session) {
     auto request = rest_session->get_request();
     std::string session_name = request->get_path_parameter("session_name", "");
     try {
         Session::delete_session(session_name);
         close_rest_session(rest_session, restbed::OK, nlohmann::json(current_session));
         return;
-    } catch (const std::filesystem::filesystem_error &e) {
+    } catch (const std::filesystem::filesystem_error& e) {
         std::string res = std::string("filesystem error: ") + e.what();
         close_rest_session(rest_session, restbed::INTERNAL_SERVER_ERROR, res);
     }
@@ -310,7 +310,7 @@ void sessions_delete(const std::shared_ptr<restbed::Session> &rest_session) {
  * Calibration Points related functions
  **/
 
-void cal_points_list(const std::shared_ptr<restbed::Session> &rest_session) {
+void cal_points_list(const std::shared_ptr<restbed::Session>& rest_session) {
     close_rest_session(rest_session, restbed::OK, nlohmann::json(current_session.cal_points));
 }
 
@@ -321,7 +321,7 @@ void cal_points_add_update(const std::shared_ptr<restbed::Session> rest_session)
     size_t content_length = request->get_header("Content-Length", 0);
     rest_session->fetch(
         content_length,
-        [&]([[maybe_unused]] const std::shared_ptr<restbed::Session> &rest_session_ptr, const restbed::Bytes &body) {
+        [&]([[maybe_unused]] const std::shared_ptr<restbed::Session>& rest_session_ptr, const restbed::Bytes& body) {
             nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
             std::string res;
             int status = restbed::OK;
@@ -346,7 +346,7 @@ void cal_points_add_update(const std::shared_ptr<restbed::Session> rest_session)
                     res += "No tube specified";
                     status = restbed::BAD_REQUEST;
                 }
-            } catch (std::exception &e) {
+            } catch (std::exception& e) {
                 res += e.what();
                 status = restbed::INTERNAL_SERVER_ERROR;
             }
@@ -354,7 +354,7 @@ void cal_points_add_update(const std::shared_ptr<restbed::Session> rest_session)
         });
 };
 
-void cal_points_delete(const std::shared_ptr<restbed::Session> &rest_session) {
+void cal_points_delete(const std::shared_ptr<restbed::Session>& rest_session) {
     const auto request = rest_session->get_request();
     std::string tube_id = request->get_path_parameter("tube_id", "");
 
@@ -380,7 +380,7 @@ void tubes_set_status(const std::shared_ptr<restbed::Session> rest_session) {
 
     rest_session->fetch(
         content_length,
-        [&]([[maybe_unused]] const std::shared_ptr<restbed::Session> &rest_session_ptr, const restbed::Bytes &body) {
+        [&]([[maybe_unused]] const std::shared_ptr<restbed::Session>& rest_session_ptr, const restbed::Bytes& body) {
             nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
             std::string res_string;
 
@@ -393,21 +393,21 @@ void tubes_set_status(const std::shared_ptr<restbed::Session> rest_session) {
         });
 }
 
-void axes_hard_stop_all(const std::shared_ptr<restbed::Session> &rest_session) {
-    REMA &rema_instance = REMA::get_instance();
+void axes_hard_stop_all(const std::shared_ptr<restbed::Session>& rest_session) {
+    REMA& rema_instance = REMA::get_instance();
     rema_instance.axes_hard_stop_all();
     close_rest_session(rest_session, restbed::OK);
 }
 
-void axes_soft_stop_all(const std::shared_ptr<restbed::Session> &rest_session) {
+void axes_soft_stop_all(const std::shared_ptr<restbed::Session>& rest_session) {
     SPDLOG_INFO("Received soft stop");
-    REMA &rema_instance = REMA::get_instance();
+    REMA& rema_instance = REMA::get_instance();
     rema_instance.axes_soft_stop_all();
     close_rest_session(rest_session, restbed::OK);
 }
 
-void go_to_tube(const std::shared_ptr<restbed::Session> &rest_session) {
-    REMA &rema_instance = REMA::get_instance();
+void go_to_tube(const std::shared_ptr<restbed::Session>& rest_session) {
+    REMA& rema_instance = REMA::get_instance();
     const auto request = rest_session->get_request();
     std::string tube_id = request->get_path_parameter("tube_id", "");
 
@@ -415,7 +415,7 @@ void go_to_tube(const std::shared_ptr<restbed::Session> &rest_session) {
 
     if (!tube_id.empty()) {
         Tool tool = rema_instance.get_selected_tool();
-        Point3D rema_coords = current_session.from_ui_to_rema(current_session.get_tube_coordinates(tube_id, false), &tool);
+        Point3D rema_coords = current_session.from_ui_to_rema(current_session.get_tube_coordinates(tube_id, false),& tool);
 
         movement_cmd goto_tube;
         goto_tube.axes = "XY";
@@ -426,8 +426,8 @@ void go_to_tube(const std::shared_ptr<restbed::Session> &rest_session) {
     }
 }
 
-void move_joystick(const std::shared_ptr<restbed::Session> &rest_session) {
-    REMA &rema_instance = REMA::get_instance();
+void move_joystick(const std::shared_ptr<restbed::Session>& rest_session) {
+    REMA& rema_instance = REMA::get_instance();
     const auto request = rest_session->get_request();
     std::string dir = request->get_path_parameter("dir", "");
 
@@ -476,14 +476,14 @@ bool equals(double f1, double f2) {
     return (fabs(f1 - f2) < 0.000001); /* EPSILON */
 }
 
-void change_network_settings(const std::shared_ptr<restbed::Session> &rest_session) {
-    REMA &rema_instance = REMA::get_instance();
+void change_network_settings(const std::shared_ptr<restbed::Session>& rest_session) {
+    REMA& rema_instance = REMA::get_instance();
     nlohmann::json pars_obj;
     const auto request = rest_session->get_request();
     size_t content_length = request->get_header("Content-Length", 0);
     rest_session->fetch(
         content_length,
-        [&]([[maybe_unused]] const std::shared_ptr<restbed::Session> &rest_session_ptr, const restbed::Bytes &body) {
+        [&]([[maybe_unused]] const std::shared_ptr<restbed::Session>& rest_session_ptr, const restbed::Bytes& body) {
             nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
 
             if (isValidIPv4(form_data["ipaddr"])) {
@@ -505,7 +505,7 @@ void change_network_settings(const std::shared_ptr<restbed::Session> &rest_sessi
                 for (int retry = 0; retry < 3; ++retry) {
                     try {
                         rema_instance.connect(rtu_host, rtu_port);
-                    } catch (const std::exception &e) {
+                    } catch (const std::exception& e) {
                         std::this_thread::sleep_for(std::chrono::milliseconds(500));
                         SPDLOG_INFO("Retrying...");
                     }
@@ -515,14 +515,13 @@ void change_network_settings(const std::shared_ptr<restbed::Session> &rest_sessi
         });
 }
 
-void move_incremental(const std::shared_ptr<restbed::Session> &rest_session) {
-    REMA &rema_instance = REMA::get_instance();
+void move_incremental(const std::shared_ptr<restbed::Session>& rest_session) {
+    REMA& rema_instance = REMA::get_instance();
     const auto request = rest_session->get_request();
     size_t content_length = request->get_header("Content-Length", 0);
     rest_session->fetch(
         content_length,
-        [&]([[maybe_unused]] const std::shared_ptr<restbed::Session> &rest_session_ptr, const restbed::Bytes &body) {
-            std::string s(body.begin(), body.end());
+        [&]([[maybe_unused]] const std::shared_ptr<restbed::Session>& rest_session_ptr, const restbed::Bytes& body) {
             nlohmann::json pars_obj;
             nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
             double incremental_x = 0.0;
@@ -555,24 +554,24 @@ void move_incremental(const std::shared_ptr<restbed::Session> &rest_session) {
         });
 }
 
-void set_home_xy(const std::shared_ptr<restbed::Session> &rest_session) {
-    REMA &rema_instance = REMA::get_instance();
+void set_home_xy(const std::shared_ptr<restbed::Session>& rest_session) {
+    REMA& rema_instance = REMA::get_instance();
     Tool tool = rema_instance.get_selected_tool();
 
     const auto request = rest_session->get_request();
     std::string tube_id = request->get_path_parameter("tube_id", "");
     if (!tube_id.empty()) {
-        Point3D tube_coords = current_session.from_ui_to_rema(current_session.get_tube_coordinates(tube_id, true), &tool);
+        Point3D tube_coords = current_session.from_ui_to_rema(current_session.get_tube_coordinates(tube_id, true),& tool);
         rema_instance.set_home_xy(tube_coords.x, tube_coords.y);
     } else {
-        Point3D zero_coords = current_session.from_ui_to_rema(Point3D(), &tool);
+        Point3D zero_coords = current_session.from_ui_to_rema(Point3D(),& tool);
         rema_instance.set_home_xy(zero_coords.x, zero_coords.y);
     }
     close_rest_session(rest_session, restbed::OK);
 }
 
-void set_home_z(const std::shared_ptr<restbed::Session> &rest_session) {
-    REMA &rema_instance = REMA::get_instance();
+void set_home_z(const std::shared_ptr<restbed::Session>& rest_session) {
+    REMA& rema_instance = REMA::get_instance();
     Tool tool = rema_instance.get_selected_tool();
 
     const auto request = rest_session->get_request();
@@ -585,8 +584,8 @@ void set_home_z(const std::shared_ptr<restbed::Session> &rest_session) {
     close_rest_session(rest_session, restbed::OK, res);
 }
 
-void determine_tube_center(const std::shared_ptr<restbed::Session> &rest_session) {
-    REMA &rema_instance = REMA::get_instance();
+void determine_tube_center(const std::shared_ptr<restbed::Session>& rest_session) {
+    REMA& rema_instance = REMA::get_instance();
     Tool tool = rema_instance.get_selected_tool();
     double probe_wiggle_factor = 1.2;
     double half_probe_wiggle_factor = 1 + ((probe_wiggle_factor - 1) / 2);
@@ -601,7 +600,7 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> &rest_session
         Point3D ideal_center = current_session.get_tube_coordinates(tube_id, true);
 
         if (auto distance =
-                std::abs(rema_instance.telemetry.coords.distance_xy(current_session.from_ui_to_rema(ideal_center, &tool)));
+                std::abs(rema_instance.telemetry.coords.distance_xy(current_session.from_ui_to_rema(ideal_center,& tool)));
             distance > tube_radius * probe_wiggle_factor) {
             res["error"] = "Please have the touch probe inserted into the tube to be detected";
             close_rest_session(rest_session, restbed::CONFLICT, res);
@@ -612,7 +611,7 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> &rest_session
         static_assert(points_number % 2 != 0, "Number of points must be odd");
         std::vector<Point3D> reordered_points;
         std::vector<Point3D> points = calculateCirclePoints(
-            current_session.from_ui_to_rema(ideal_center, &tool),
+            current_session.from_ui_to_rema(ideal_center,& tool),
             current_session.from_ui_to_rema(tube_radius) * half_probe_wiggle_factor,
             points_number);
 
@@ -624,7 +623,7 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> &rest_session
         }
 
         std::vector<movement_cmd> seq;
-        for (auto &point : reordered_points) {
+        for (auto& point : reordered_points) {
             movement_cmd step;
             step.axes = "XY";
             step.first_axis_setpoint = point.x;
@@ -640,7 +639,7 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> &rest_session
 
         std::vector<Point3D> tube_boundary_points;
 
-        for (const auto &step : seq) {
+        for (const auto& step : seq) {
             if (step.executed && (step.execution_results.stopped_on_probe || step.execution_results.stopped_on_condition)) {
                 tube_boundary_points.push_back(step.execution_results.coords);
             }
@@ -669,7 +668,6 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> &rest_session
 
             if (!rema_instance.execute_sequence(goto_center_seq)) {
                 res["error"] = "Executing sequence";
-                status = restbed::CONFLICT;
                 return;
             } else if (set_home) {
                 auto step = goto_center_seq.begin();
@@ -685,9 +683,9 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> &rest_session
     }
 }
 
-void determine_tubesheet_z(const std::shared_ptr<restbed::Session> &rest_session) {
+void determine_tubesheet_z(const std::shared_ptr<restbed::Session>& rest_session) {
     const auto request = rest_session->get_request();
-    REMA &rema_instance = REMA::get_instance();
+    REMA& rema_instance = REMA::get_instance();
 
     nlohmann::json res;
     std::vector<movement_cmd> seq;
@@ -708,7 +706,7 @@ void determine_tubesheet_z(const std::shared_ptr<restbed::Session> &rest_session
 
     double sum_z = 0;
     int count = 0;
-    for (const auto &step : seq) {
+    for (const auto& step : seq) {
         if (step.executed && step.execution_results.stopped_on_probe) {
             sum_z += step.execution_results.coords.z;
             count++;
@@ -748,12 +746,12 @@ void determine_tubesheet_z(const std::shared_ptr<restbed::Session> &rest_session
     close_rest_session(rest_session, status, res);
 }
 
-void aligned_tubesheet_get(const std::shared_ptr<restbed::Session> &rest_session) {
+void aligned_tubesheet_get(const std::shared_ptr<restbed::Session>& rest_session) {
     close_rest_session(rest_session, restbed::OK, nlohmann::json(current_session.calculate_aligned_tubes()));
 }
 
 // @formatter:off
-void restfull_api_create_endpoints(restbed::Service &service) {
+void restfull_api_create_endpoints(restbed::Service& service) {
     std::map<std::string, std::vector<ResourceEntry>> rest_resources = {
         { "REMA/connect", { { "POST", &REMA_connect } } },
         { "REMA/connect_get", { { "GET", &REMA_connect } } },
@@ -805,7 +803,7 @@ void restfull_api_create_endpoints(restbed::Service &service) {
         // resource_rest->set_failed_filter_validation_handler(
         //         failed_filter_validation_handler);
 
-        for (ResourceEntry &res : resources) {
+        for (ResourceEntry& res : resources) {
             resource_rest->set_method_handler(res.method, res.callback);
         }
         service.publish(resource_rest);

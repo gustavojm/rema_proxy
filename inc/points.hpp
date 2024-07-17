@@ -25,17 +25,17 @@ class Point3D {
     }
 
     // Overloaded addition operator for Point3D + Point3D
-    Point3D operator+(const Point3D &other) const {
+    Point3D operator+(const Point3D& other) const {
         return Point3D(x + other.x, y + other.y, z + other.z);
     }
 
     // Overloaded subtraction operator for Point3D - Point3D
-    Point3D operator-(const Point3D &other) const {
+    Point3D operator-(const Point3D& other) const {
         return Point3D(x - other.x, y - other.y, z - other.z);
     }
 
     // Overloaded += operator for Point3D += Point3D
-    Point3D &operator+=(const Point3D &other) {
+    Point3D& operator+=(const Point3D& other) {
         x += other.x;
         y += other.y;
         z += other.z;
@@ -43,7 +43,7 @@ class Point3D {
     }
 
     // Overloaded -= operator for Point3D -= Point3D
-    Point3D &operator-=(const Point3D &other) {
+    Point3D& operator-=(const Point3D& other) {
         x -= other.x;
         y -= other.y;
         z -= other.z;
@@ -51,7 +51,7 @@ class Point3D {
     }
 
     // Overloaded *= operator for Point3D *= scalar
-    Point3D &operator*=(double scalar) {
+    Point3D& operator*=(double scalar) {
         x *= scalar;
         y *= scalar;
         z *= scalar;
@@ -59,7 +59,7 @@ class Point3D {
     }
 
     // Overloaded /= operator for Point3D /= scalar
-    Point3D &operator/=(double scalar) {
+    Point3D& operator/=(double scalar) {
         if (scalar != 0) {
             x /= scalar;
             y /= scalar;
@@ -71,18 +71,18 @@ class Point3D {
     }
 
     // Overloaded output operator for easy printing
-    friend std::ostream &operator<<(std::ostream &os, const Point3D &point) {
+    friend std::ostream& operator<<(std::ostream& os, const Point3D& point) {
         os << "(" << point.x << ", " << point.y << ", " << point.z << ")";
         return os;
     }
 
     // Distance of two 3D points
-    double distance(const Point3D &other) const {
+    double distance(const Point3D& other) const {
         return sqrt(std::pow((x - other.x), 2) + std::pow((y - other.y), 2) + std::pow((z - other.z), 2));
     }
 
     // Distance of two 3D points only in XY
-    double distance_xy(const Point3D &other) const {
+    double distance_xy(const Point3D& other) const {
         return sqrt(std::pow((x - other.x), 2) + std::pow((y - other.y), 2));
     }
 

@@ -42,32 +42,32 @@ class Session {
   public:
     Session() noexcept;
 
-    explicit Session(const std::string &session_name, const std::filesystem::path &hx_dir_);
+    explicit Session(const std::string& session_name, const std::filesystem::path& hx_dir_);
 
-    explicit Session(const std::filesystem::path &session_file);
+    explicit Session(const std::filesystem::path& session_file);
 
-    void load_plan_from_disk(std::filesystem::path plan_file);
+    void load_plan_from_disk(const std::filesystem::path& plan_file);
 
-    void load_plan(std::string plan_name, std::istream &stream);
+    void load_plan(const std::string& plan_name, std::istream& stream);
 
     std::string load_plans();
 
-    std::map<std::string, struct PlanEntry> plan_get(const std::string &plan);
+    std::map<std::string, struct PlanEntry> plan_get(const std::string& plan);
 
-    void plan_remove(const std::string &plan);
+    void plan_remove(const std::string& plan);
 
     void cal_points_add_update(
-        const std::string &tube_id,
-        const std::string &col,
-        const std::string &row,
-        Point3D &ideal_coords,
-        Point3D &determined_coords);
+        const std::string& tube_id,
+        const std::string& col,
+        const std::string& row,
+        Point3D& ideal_coords,
+        Point3D& determined_coords);
 
-    void cal_points_delete(const std::string &id);
+    void cal_points_delete(const std::string& id);
 
-    Point3D get_tube_coordinates(const std::string &tube_id, bool ideal);
+    Point3D get_tube_coordinates(const std::string& tube_id, bool ideal);
 
-    bool load(std::string session_name);
+    bool load(const std::string& session_name);
 
     Point3D from_rema_to_ui(Point3D coords, Tool *tool = nullptr) {
         if (tool) {
@@ -96,7 +96,7 @@ class Session {
     static std::vector<Session> sessions_list() {
         std::vector<Session> res;
 
-        for (const auto &entry : std::filesystem::directory_iterator(sessions_dir)) {
+        for (const auto& entry : std::filesystem::directory_iterator(sessions_dir)) {
             if (entry.is_regular_file()) {
                 std::time_t tt = to_time_t(entry.last_write_time());
                 std::tm *gmt = std::gmtime(&tt);
@@ -127,11 +127,11 @@ class Session {
         changed = status;
     }
 
-    void set_selected_plan(std::string &plan);
+    void set_selected_plan(std::string& plan);
 
     std::string get_selected_plan() const;
 
-    void set_tube_executed(std::string &plan, std::string &tube_id, bool state);
+    void set_tube_executed(std::string& plan, std::string& tube_id, bool state);
 
     int total_tubes_in_plans();
 
@@ -143,7 +143,7 @@ class Session {
 
     void copy_tubes_to_aligned_tubes();
 
-    std::map<std::string, Point3D> &calculate_aligned_tubes();
+    std::map<std::string, Point3D>& calculate_aligned_tubes();
 
     std::map<std::string, std::map<std::string, struct PlanEntry>> plans;
 

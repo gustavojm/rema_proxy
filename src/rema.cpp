@@ -36,7 +36,7 @@ void REMA::load_config() {
             SPDLOG_WARN("{} not found", config_file_path.string());
             std::exit(1);
         }
-    } catch (std::exception &e) {
+    } catch (std::exception& e) {
         SPDLOG_WARN(e.what());
     }
 }
@@ -54,7 +54,7 @@ void REMA::send_startup_commands() {
                 execute_command(cmd["cmd"], cmd["pars"]);
             }
         }
-    } catch (std::exception &e) {
+    } catch (std::exception& e) {
         SPDLOG_WARN(e.what());
     }
 }
@@ -66,7 +66,7 @@ void REMA::save_config() {
     file << config;
 }
 
-void REMA::connect(const std::string &rtu_host,int rtu_port) {
+void REMA::connect(const std::string& rtu_host,int rtu_port) {
     rtu_host_ = rtu_host;
     rtu_port_ = rtu_port;
     if (command_client.connect(rtu_host, rtu_port) < 0) {
@@ -88,7 +88,7 @@ void REMA::reconnect() {
     connect(rtu_host_, rtu_port_);
 }
 
-void REMA::update_telemetry(std::string &stream) {
+void REMA::update_telemetry(std::string& stream) {
     nlohmann::json json;
     try {
         std::lock_guard<std::mutex> lock(mtx);
@@ -103,7 +103,7 @@ void REMA::update_telemetry(std::string &stream) {
                 temps = json["temps"];
             }
         }
-    } catch (std::exception &e) {
+    } catch (std::exception& e) {
         SPDLOG_ERROR("TELEMETRY COMMUNICATIONS ERROR {}", e.what());
     }
 }
@@ -155,7 +155,7 @@ void REMA::axes_soft_stop_all() {
     execute_command("AXES_SOFT_STOP_ALL");
 }
 
-bool REMA::execute_sequence(std::vector<movement_cmd> &sequence) {
+bool REMA::execute_sequence(std::vector<movement_cmd>& sequence) {
     cancel_sequence_in_progress();
     cancel_sequence = false;
     is_sequence_in_progress = true;
@@ -164,7 +164,7 @@ bool REMA::execute_sequence(std::vector<movement_cmd> &sequence) {
     execute_command("AXES_SOFT_STOP_ALL");
 
     // Create an individual command object and add it to the array
-    for (auto &step : sequence) {
+    for (auto& step : sequence) {
         move_closed_loop(step);
         std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Wait for telemetry update...
 

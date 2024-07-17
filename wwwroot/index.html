@@ -277,6 +277,10 @@ function get_rema_info() {
 				var brakes_mode_text = ["OFF", "AUTO", "ON"];
 				add_notification("BRAKES MODE " + brakes_mode_text[value[key]], "Info");
 			}
+
+			if (key == "probe_protected" && (value[key] == true)) {
+				add_notification("TOUCH PROBE PROTECTED", "Warning");
+			}
 		});
 
 		var difs = findDifferencesShallow(old_telemetry.limits, telemetry.limits);

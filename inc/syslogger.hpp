@@ -15,7 +15,7 @@ class SyslogLogger : public restbed::Logger {
         return;
     }
 
-    void start(const std::shared_ptr<const restbed::Settings> &) {
+    void start(const std::shared_ptr<const restbed::Settings>& ) {
         return;
     }
 

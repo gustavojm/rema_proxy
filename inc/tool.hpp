@@ -20,7 +20,7 @@ class Tool {
         }
     }
 
-    Tool(const std::filesystem::path &tool_file);
+    Tool(const std::filesystem::path& tool_file);
 
     void save_to_disk() const;
 

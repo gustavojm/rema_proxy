@@ -12,11 +12,11 @@ void HX::process_csv_from_disk(std::string hx) {
     SPDLOG_INFO("Reading {}", csv_file.string());
 
     std::ifstream filestream(csv_file);
-    std::istream &inputstream = filestream;
+    std::istream& inputstream = filestream;
     process_csv(csv_file.replace_extension(), inputstream);
 }
 
-void HX::process_csv(std::string hx_name, std::istream &stream) {
+void HX::process_csv(std::string hx_name, std::istream& stream) {
     io::CSVReader<7, io::trim_chars<' ', '\t'>, io::no_quote_escape<';'>> in(hx_name, stream);
     in.read_header(io::ignore_extra_column, "x_label", "y_label", "cl_x", "cl_y", "hl_x", "hl_y", "tube_id");
     std::string x_label, y_label;
@@ -85,7 +85,7 @@ void HX::generate_svg() {
     cartesian_g_node->append_node(x_axis);
     cartesian_g_node->append_node(y_axis);
 
-    for (const auto &config_coord : svg.config_x_labels_coords) {
+    for (const auto& config_coord : svg.config_x_labels_coords) {
         for (auto [label, coord] : svg.x_labels) {
             auto *label_x = add_label(doc, coord, std::stof(config_coord), label.c_str());
             append_attributes(
@@ -99,7 +99,7 @@ void HX::generate_svg() {
         }
     }
 
-    for (const auto &config_coord : svg.config_y_labels_coords) {
+    for (const auto& config_coord : svg.config_y_labels_coords) {
         for (auto [label, coord] : svg.y_labels) {
             auto *label_y = add_label(doc, std::stof(config_coord), coord, label.c_str());
             append_attributes(
@@ -114,7 +114,7 @@ void HX::generate_svg() {
     }
 
     // Create an SVG circle element for each tube in the CSV data
-    for (const auto &tube_pair : tubes) {
+    for (const auto& tube_pair : tubes) {
         auto tube = tube_pair.second;
 
         auto *tube_node = add_tube(doc, tube, tube_pair.first, tube_r);
@@ -143,7 +143,7 @@ void HX::load_config_from_disk(std::string hx) {
         } else {
             SPDLOG_WARN("{} not found", config_file_path.string());
         }
-    } catch (std::exception &e) {
+    } catch (std::exception& e) {
         SPDLOG_WARN(e.what());
     }
 }
@@ -183,7 +183,7 @@ bool HX::create(std::string hx_name, std::string tubesheet_csv, std::string conf
         std::ofstream config_json_file(config_json_path);
         config_json_file << config_json;
         return true;
-    } catch (const std::filesystem::filesystem_error &e) {
+    } catch (const std::filesystem::filesystem_error& e) {
         std::cerr << "Error creating HX: " << e.what() << std::endl;
         return false;
     }
@@ -194,7 +194,7 @@ bool HX::erase(std::string hx_name) {
         std::filesystem::path normalized_path = std::filesystem::canonical(hxs_path / hx_name);
         std::filesystem::remove_all(normalized_path);
         return true;
-    } catch (const std::filesystem::filesystem_error &e) {
+    } catch (const std::filesystem::filesystem_error& e) {
         std::cerr << "Error deleting directory: " << e.what() << std::endl;
         return false;
     }
@@ -202,7 +202,7 @@ bool HX::erase(std::string hx_name) {
 
 std::vector<std::string> HX::list() {
     std::vector<std::string> res;
-    for (const auto &entry : std::filesystem::directory_iterator(hxs_path)) {
+    for (const auto& entry : std::filesystem::directory_iterator(hxs_path)) {
         if (entry.is_directory()) {
             res.push_back(entry.path().filename());
         }

@@ -43,15 +43,18 @@ int NetClient::connect(std::string host, int port, int nsec) {
 	::fcntl(socket_, F_SETFL, flags | O_NONBLOCK);
 
 	error = 0;
-	if ((n = ::connect(socket_, reinterpret_cast<const struct sockaddr *>(&server_addr), sizeof(server_addr))) < 0)
-		if (errno != EINPROGRESS)
+	if ((n = ::connect(socket_, reinterpret_cast<const struct sockaddr *>(&server_addr), sizeof(server_addr))) < 0) {
+		if (errno != EINPROGRESS) {
 			return(-errno);
+        }
+    }
 
 	/* Do whatever we want while the connect is taking place. */
     SPDLOG_INFO("Conecting to {}:{}", host, port);
 
-	if (n == 0)
+	if (n == 0) {
 		goto done;	/* connect completed immediately */
+    }
 
 	FD_ZERO(&rset);
 	FD_SET(socket_, &rset);
@@ -59,8 +62,8 @@ int NetClient::connect(std::string host, int port, int nsec) {
 	tval.tv_sec = nsec;
 	tval.tv_usec = 0;
 
-	if ( (n = ::select(socket_+1, &rset, &wset, NULL,
-					 nsec ? &tval : NULL)) == 0) {
+	if ( (::select(socket_+1, &rset, &wset, nullptr,
+					 nsec ? &tval : nullptr)) == 0) {
 		::close(socket_);		/* timeout */
 		errno = ETIMEDOUT;
 		return(-errno);
@@ -68,10 +71,12 @@ int NetClient::connect(std::string host, int port, int nsec) {
 
 	if (FD_ISSET(socket_, &rset) || FD_ISSET(socket_, &wset)) {
 		len = sizeof(error);
-		if (::getsockopt(socket_, SOL_SOCKET, SO_ERROR, &error, &len) < 0)
+		if (::getsockopt(socket_, SOL_SOCKET, SO_ERROR, &error, &len) < 0) {
 			return(-error);			/* Solaris pending error */
-	} else
+        }
+	} else {
         SPDLOG_ERROR("Select error: sockfd not set");
+    }
 
 done:
 	::fcntl(socket_, F_SETFL, flags);	/* restore file status flags */
@@ -96,17 +101,20 @@ int getSO_ERROR(int fd) {
    socklen_t len = sizeof err;
    if (-1 == getsockopt(fd, SOL_SOCKET, SO_ERROR, reinterpret_cast<char *>(&err), &len))
       SPDLOG_ERROR("getSO_ERROR");
-   if (err)
+   if (err) {
       errno = err;              // set errno to the socket SO_ERROR
+   }
    return err;
 };
 
 void shutdownSocket(int fd) { 
    if (fd >= 0) {
       getSO_ERROR(fd);                   // first clear any errors, which can cause close to fail
-      if (::shutdown(fd, SHUT_RDWR) < 0) // secondly, terminate the 'reliable' delivery
-         if (errno != ENOTCONN && errno != EINVAL) // SGI causes EINVAL
+      if (::shutdown(fd, SHUT_RDWR) < 0) { // secondly, terminate the 'reliable' delivery
+         if (errno != ENOTCONN && errno != EINVAL) { // SGI causes EINVAL
             SPDLOG_ERROR("shutdown");
+         }
+      }
    }
 };
 
@@ -121,11 +129,11 @@ bool NetClient::send_request(std::string request) {
         try {
             // prepare to send request
             const char *ptr = request.c_str();
-            int nleft = request.length();
-            int nwritten;
+            size_t nleft = request.length();
+            ssize_t nwritten = 0;
             // loop to be sure it is all sent
             while (nleft) {
-                if ((nwritten = ::send(socket_, ptr, nleft, MSG_NOSIGNAL)) < 0) {
+                if (nwritten = ::send(socket_, ptr, nleft, MSG_NOSIGNAL); nwritten < 0) {
                     if (errno == EINTR) {
                         // the socket call was interrupted -- try again
                         continue;
@@ -144,7 +152,7 @@ bool NetClient::send_request(std::string request) {
                 ptr += nwritten;
             }
             return true;
-        } catch (std::exception &e) {
+        } catch (std::exception& e) {
             is_connected = false;
             SPDLOG_ERROR("Error sending {}", e.what());
             return false;
@@ -155,16 +163,16 @@ bool NetClient::send_request(std::string request) {
 
 std::string NetClient::get_response() {
     if (is_connected) {
-        std::string response = "";
+        std::string response;
 
         // Read until we get a null character
         while (true) {
-            int nread = recv(socket_, buf_, buflen_, 0);
+            ssize_t nread = recv(socket_, buf_, buflen_, 0);
             if (nread < 0) {
-                if (errno == EINTR)
+                if (errno == EINTR) {
                     // The socket call was interrupted -- try again
                     continue;
-                else {
+                } else {
                     // An error occurred, so return false
                     return {};
                 }

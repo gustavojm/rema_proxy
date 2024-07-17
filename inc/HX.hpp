@@ -18,7 +18,7 @@ class HX {
 
     void process_csv_from_disk(std::string hx_name);
 
-    void process_csv(std::string hx_name, std::istream &stream);
+    void process_csv(std::string hx_name, std::istream& stream);
 
     void generate_svg();
 

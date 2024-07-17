@@ -9,7 +9,7 @@
 
 extern const std::filesystem::path tools_dir;
 
-Tool::Tool(const std::filesystem::path &tool_file) {
+Tool::Tool(const std::filesystem::path& tool_file) {
     std::ifstream i_file_stream(tool_file);
 
     nlohmann::json json;

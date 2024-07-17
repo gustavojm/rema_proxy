@@ -4,6 +4,6 @@
 #include <restbed>
 #include <vector>
 
-void restfull_api_create_endpoints(restbed::Service &service);
+void restfull_api_create_endpoints(restbed::Service& service);
 
 #endif // RESTFULL_API_HPP

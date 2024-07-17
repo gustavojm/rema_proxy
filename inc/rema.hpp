@@ -53,9 +53,10 @@ struct telemetry {
     struct limits limits;
     bool control_enabled;
     bool stall_control;
-    int brakes_mode;    
+    int brakes_mode;
+    bool probe_protected;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(telemetry, coords, on_condition, probe, stalled, limits, control_enabled, stall_control, brakes_mode)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(telemetry, coords, on_condition, probe, stalled, limits, control_enabled, stall_control, brakes_mode, probe_protected)
 
 struct movement_cmd {
     std::string axes;
@@ -71,25 +72,25 @@ struct movement_cmd {
 
 class REMA {
   public:
-    static REMA &get_instance() {
+    static REMA& get_instance() {
         static REMA instance; // Guaranteed to be destroyed. Instantiated on first use.
         return instance;
     }
 
-    static void add_tool(const Tool &tool) {
+    static void add_tool(const Tool& tool) {
         tools[tool.name] = tool;
     }
 
-    static void delete_tool(const std::string &tool) {
+    static void delete_tool(const std::string& tool) {
         std::filesystem::remove(tools_dir / (tool + std::string(".json")));
         tools.erase(tool);
     }
 
-    void connect(const std::string &rtu_host, int rtu_port);
+    void connect(const std::string& rtu_host, int rtu_port);
 
     void reconnect();
 
-    void update_telemetry(std::string &stream);
+    void update_telemetry(std::string& stream);
 
     void set_last_selected_tool(std::string tool) {
         if (get_selected_tool().is_touch_probe) {
@@ -141,7 +142,7 @@ class REMA {
 
     void cancel_sequence_in_progress();
 
-    bool execute_sequence(std::vector<movement_cmd> &sequence);
+    bool execute_sequence(std::vector<movement_cmd>& sequence);
 
     void set_home_xy(double x, double y);
 
@@ -174,12 +175,12 @@ class REMA {
      {
         try {
             load_config();
-            for (const auto &entry : std::filesystem::directory_iterator(tools_dir)) {
+            for (const auto& entry : std::filesystem::directory_iterator(tools_dir)) {
                 Tool t(entry.path());
                 tools[entry.path().filename().replace_extension()] = t;
             }
             this->loaded = true;
-        } catch (std::exception &e) {
+        } catch (std::exception& e) {
             SPDLOG_WARN(e.what());
         }
     }
