@@ -47,6 +47,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(compound_axes, x_y, z)
 
 struct telemetry {
     struct Point3D coords;
+    struct Point3D targets;
     struct compound_axes on_condition;
     struct compound_axes probe;
     struct individual_axes stalled;
@@ -56,7 +57,7 @@ struct telemetry {
     int brakes_mode;
     bool probe_protected;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(telemetry, coords, on_condition, probe, stalled, limits, control_enabled, stall_control, brakes_mode, probe_protected)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(telemetry, coords, targets, on_condition, probe, stalled, limits, control_enabled, stall_control, brakes_mode, probe_protected)
 
 struct movement_cmd {
     std::string axes;

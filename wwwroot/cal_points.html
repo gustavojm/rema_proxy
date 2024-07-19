@@ -292,7 +292,7 @@ $(function() {
 				url : "/REST/determine-tube-center/" + cal_point_id + "/false",
 				data : JSON.stringify(),
 				dataType : "json",
-				timeout: 25000,
+				timeout: 50000,
 			}))
 			.then(function(data) {
 				var svg = $("#tubesheet_svg").svg("get");	

@@ -59,6 +59,7 @@ void event_stream_handler() {
         struct telemetry ui_telemetry = rema_instance.telemetry;
         Tool tool = rema_instance.get_selected_tool();
         ui_telemetry.coords = current_session.from_rema_to_ui(rema_instance.telemetry.coords, &tool);
+        ui_telemetry.targets = current_session.from_rema_to_ui(rema_instance.telemetry.targets, &tool);
         res["TELEMETRY"] = ui_telemetry;
 
         static auto prev = std::chrono::high_resolution_clock::from_time_t(0);

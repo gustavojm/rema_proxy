@@ -611,7 +611,7 @@ void determine_tube_center(const std::shared_ptr<restbed::Session>& rest_session
         static_assert(points_number % 2 != 0, "Number of points must be odd");
         std::vector<Point3D> reordered_points;
         std::vector<Point3D> points = calculateCirclePoints(
-            current_session.from_ui_to_rema(ideal_center,& tool),
+            current_session.from_ui_to_rema(ideal_center, &tool),
             current_session.from_ui_to_rema(tube_radius) * half_probe_wiggle_factor,
             points_number);
 
@@ -633,7 +633,7 @@ void determine_tube_center(const std::shared_ptr<restbed::Session>& rest_session
 
         if (!rema_instance.execute_sequence(seq)) {
             res["error"] = "Executing sequence";
-            close_rest_session(rest_session, restbed::RESET_CONTENT, res);
+            close_rest_session(rest_session, restbed::BAD_REQUEST, res);
             return;
         }
 
@@ -668,7 +668,6 @@ void determine_tube_center(const std::shared_ptr<restbed::Session>& rest_session
 
             if (!rema_instance.execute_sequence(goto_center_seq)) {
                 res["error"] = "Executing sequence";
-                return;
             } else if (set_home) {
                 auto step = goto_center_seq.begin();
                 if (step->executed && step->execution_results.stopped_on_condition) {

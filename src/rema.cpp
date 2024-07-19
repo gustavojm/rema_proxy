@@ -164,12 +164,13 @@ bool REMA::execute_sequence(std::vector<movement_cmd>& sequence) {
     execute_command("AXES_SOFT_STOP_ALL");
 
     // Create an individual command object and add it to the array
-    for (auto& step : sequence) {
+    for (int i=0; auto& step : sequence) {
         move_closed_loop(step);
-        std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Wait for telemetry update...
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000)); // Wait for telemetry update...
 
         bool stopped_on_probe = false;
         bool stopped_on_condition = false;
+        bool abort_from_rema = false;
         do {
             if (step.axes == "XY") {
                 stopped_on_probe = telemetry.probe.x_y;
@@ -178,10 +179,13 @@ bool REMA::execute_sequence(std::vector<movement_cmd>& sequence) {
                 stopped_on_probe = telemetry.probe.z;
                 stopped_on_condition = telemetry.on_condition.z;
             }
-            std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Avoid hogging the processor
-        } while (!(stopped_on_probe || stopped_on_condition || cancel_sequence));
 
-        if (cancel_sequence) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Avoid hogging the processor
+            abort_from_rema = !telemetry.control_enabled || telemetry.stalled.x || 
+                              telemetry.stalled.y || telemetry.stalled.z || telemetry.probe_protected;
+        } while (!(stopped_on_probe || stopped_on_condition || cancel_sequence || abort_from_rema));
+
+        if (cancel_sequence || abort_from_rema) {
             was_completed = false;
             break;
         } else {
@@ -191,6 +195,7 @@ bool REMA::execute_sequence(std::vector<movement_cmd>& sequence) {
             step.execution_results.stopped_on_condition = stopped_on_condition;
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(250)); // Wait for vibrations to stop
+        i++;
     }
     is_sequence_in_progress = false;
     cancel_sequence = false;

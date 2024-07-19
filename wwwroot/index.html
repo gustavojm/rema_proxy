@@ -287,7 +287,7 @@ function get_rema_info() {
 		$.each(difs, function (id, value) {
 			key = Object.keys(value)[0];
 			if (value[key] == true) {
-			 	add_notification("LIMIT " + key.replace('.', ' ').toUpperCase() + " " + value[key].toString().toUpperCase(), "Error");
+			 	add_notification("LIMIT " + key.replace('.', ' ').toUpperCase(), "Error");
 			}				
 		});
 
@@ -305,7 +305,10 @@ function get_rema_info() {
 		$("#position_x").val(toFixedIfNecessary(pos_x, decimals));
 		$("#position_y").val(toFixedIfNecessary(pos_y, decimals));
 		$("#position_z").val(toFixedIfNecessary(pos_z, decimals));	
-		
+
+		var target_x = telemetry.targets.x;
+		var target_y = telemetry.targets.y;
+				
 		if (telemetry.stalled.x || telemetry.stalled.y || telemetry.stalled.z) {
 			stalled_message = "STALLED " + (telemetry.stalled.x ? "X" : "") + (telemetry.stalled.y ? "Y" : "") + (telemetry.stalled.z ? "Z" : "");
 			$("#stalled_notification").removeClass("disabled").addClass("enabled");
@@ -341,6 +344,7 @@ function get_rema_info() {
 			var current_tab = $("#tabs").tabs('option', 'active');
 			if (current_tab == 2 && typeof(update_bullseye_position) === "function") {
 				update_bullseye_position(pos_x, pos_y);
+				update_destination_cross_position(target_x, target_y);
 				if ((!areFloatsEqual(pos_x, prev_pos_x) || !areFloatsEqual(pos_y, prev_pos_y))) { 
 					if ($("#zoom_follow").prop("checked")) {
 						zoom_value = 1;

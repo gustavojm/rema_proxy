@@ -385,7 +385,7 @@ h1 {
 								method : "GET",
 								url : "/REST/determine-tube-center/" + tube_id + "/true",
 								data : JSON.stringify(),
-								timeout: 25000,
+								timeout: 50000,
 							})
 							.catch(function(e) {
 								if(e.statusText == 'timeout') {     

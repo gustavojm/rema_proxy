@@ -135,7 +135,7 @@
 			strokeWidth : stroke
 		});
 		
-		line = 0.2 * scale;
+		line = 0.4488 * scale;
 		space = 0.1 * scale;
 
 		// Vertical dashed line (Y axis)
@@ -154,6 +154,29 @@
 			"stroke-dasharray" : line + " ," + space
 		});
 	}
+
+	function drawDestinationCross(svg, tube_od, scale) {		
+		stroke = 0.02 * scale;
+		
+		var g = svg.group({
+			stroke : 'yellow',
+			strokeWidth : stroke,
+			id : "destination_cross"			
+		});		
+
+		// Vertical line
+		x1 = -0.1 * scale;
+		x2 = 0.1 * scale;
+		y1 = y2 = 0;	
+		svg.line(g, x1, y1, x2, y2);
+
+		// Horizontal line
+		x1 = x2 = 0;
+		y1 = -0.1 * scale;
+		y2 = 0.1 * scale;
+		svg.line(g, x1, y1, x2, y2);
+	}
+
 	
 	function drawLocationPin(svg, tube_od, scale) {
 		var offset_up = -0.1 * scale;	// Not to cover the tube numbers
@@ -196,6 +219,13 @@
 		$("#bullseye").stop();			// Clear animation queue
 		$("#bullseye").animate({
 			svgTransform : 'scale(1 -1) translate(' + x + " " + y + ')'
+		}, 0);
+	}
+
+	function update_destination_cross_position(x, y) {
+		$("#destination_cross").stop();			// Clear animation queue
+		$("#destination_cross").animate({
+			svgTransform : 'scale(1 -1) translate(' + x + " " + y + ') rotate(-45)'
 		}, 0);
 	}
 
@@ -392,6 +422,7 @@
 							$("#tubesheet_svg").svg({
 								onLoad : function (svg) {
 									drawBullseye(svg, tube_od, scale);
+									drawDestinationCross(svg, tube_od, scale);
 									drawLocationPin(svg, tube_od, scale);
 									var objDiv = document.getElementById("left_side_resizable");									
 									objDiv.scrollTop = (objDiv.scrollHeight - objDiv.clientHeight) / 2;																

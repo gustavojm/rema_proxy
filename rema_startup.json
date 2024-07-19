@@ -4,21 +4,30 @@
         "axes": "XY",
 		"kp": 100,
 		"update": 100,
-		"min": 5000,
-		"max": 125000
+		"min": 2000,
+		"max": 5000
 	 }
     },
+	{"cmd": "KP_SET_TUNINGS",
+	 "pars": {
+        "axes": "Z",
+		"kp": 100,
+		"update": 100,
+		"min": 2000,
+		"max": 5000
+	 }
+    },	
 	{"cmd": "TOUCH_PROBE_PROTECTION_CONTROL",
 	 "pars": {
 		"enabled": true,
         "axes": "XY",
-		"counts": 3
+		"counts": 20
 	 }
     },
 	{"cmd": "TOUCH_PROBE_PROTECTION_CONTROL",
 	 "pars": {
         "axes": "Z",
-		"counts": 3
+		"counts": 20
 	 }
     },
 	{"cmd": "STALL_CONTROL",
