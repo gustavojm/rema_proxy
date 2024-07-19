@@ -381,7 +381,7 @@ h1 {
 						alert("Please, select a tube");
 					} else {
 						if (confirm("Are you sure you want to determine current tube center and make it position X:" + toFixedIfNecessary(x, decimals) + ", Y:" + toFixedIfNecessary(y, decimals) + " ?")) {
-							$.ajaxQueue({
+							$.ajax({
 								method : "GET",
 								url : "/REST/determine-tube-center/" + tube_id + "/true",
 								data : JSON.stringify(),

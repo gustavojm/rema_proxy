@@ -143,7 +143,7 @@ class REMA {
 
     void cancel_sequence_in_progress();
 
-    bool execute_sequence(std::vector<movement_cmd>& sequence);
+    nlohmann::json execute_sequence(std::vector<movement_cmd>& sequence);
 
     void set_home_xy(double x, double y);
 

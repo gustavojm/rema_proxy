@@ -631,9 +631,11 @@ void determine_tube_center(const std::shared_ptr<restbed::Session>& rest_session
             seq.push_back(step);
         }
 
-        if (!rema_instance.execute_sequence(seq)) {
-            res["error"] = "Executing sequence";
-            close_rest_session(rest_session, restbed::BAD_REQUEST, res);
+        nlohmann::json seq_execution_response = rema_instance.execute_sequence(seq);
+        if (!seq_execution_response["WAS_COMPLETED"]) {
+            res["error"] = seq_execution_response["ERROR"];
+            std::cout << nlohmann::to_string(res) << std::endl;
+            close_rest_session(rest_session, restbed::CONFLICT, res);
             return;
         }
 
@@ -666,8 +668,10 @@ void determine_tube_center(const std::shared_ptr<restbed::Session>& rest_session
                               { "z", circle.center.z } };
             res["radius"] = circle.radius;
 
-            if (!rema_instance.execute_sequence(goto_center_seq)) {
-                res["error"] = "Executing sequence";
+            seq_execution_response = rema_instance.execute_sequence(goto_center_seq);
+            if (!seq_execution_response["WAS_COMPLETED"]) {
+                res["error"] = seq_execution_response["ERROR"];
+                status = restbed::CONFLICT;
             } else if (set_home) {
                 auto step = goto_center_seq.begin();
                 if (step->executed && step->execution_results.stopped_on_condition) {
@@ -701,7 +705,12 @@ void determine_tubesheet_z(const std::shared_ptr<restbed::Session>& rest_session
     seq.push_back(forewards);
     seq.push_back(backwards);
 
-    rema_instance.execute_sequence(seq);
+    nlohmann::json seq_execution_response = rema_instance.execute_sequence(seq);
+    if (!seq_execution_response["WAS_COMPLETED"]) {
+        res["error"] = seq_execution_response["ERROR"];
+        close_rest_session(rest_session, restbed::RESET_CONTENT, res);
+    }
+
 
     double sum_z = 0;
     int count = 0;
@@ -731,8 +740,9 @@ void determine_tubesheet_z(const std::shared_ptr<restbed::Session>& rest_session
         goto_tubesheet.second_axis_setpoint = 0;
         goto_tubesheet_seq.push_back(goto_tubesheet);
 
-        if (!rema_instance.execute_sequence(goto_tubesheet_seq)) {
-            res["error"] = "Executing sequence";
+        seq_execution_response = rema_instance.execute_sequence(goto_tubesheet_seq);
+        if (!seq_execution_response["WAS_COMPLETED"]) {
+            res["error"] = seq_execution_response["ERROR"];
             status = restbed::RESET_CONTENT;
         } else {
             auto step = goto_tubesheet_seq.begin();

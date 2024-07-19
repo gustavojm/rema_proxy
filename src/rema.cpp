@@ -9,6 +9,7 @@
 #include <spdlog/spdlog.h>
 #include <string>
 #include <memory>
+#include <variant>
 
 #include "rema.hpp"
 #include "session.hpp"
@@ -155,7 +156,8 @@ void REMA::axes_soft_stop_all() {
     execute_command("AXES_SOFT_STOP_ALL");
 }
 
-bool REMA::execute_sequence(std::vector<movement_cmd>& sequence) {
+nlohmann::json REMA::execute_sequence(std::vector<movement_cmd>& sequence) {
+    nlohmann::json res;
     cancel_sequence_in_progress();
     cancel_sequence = false;
     is_sequence_in_progress = true;
@@ -165,7 +167,14 @@ bool REMA::execute_sequence(std::vector<movement_cmd>& sequence) {
 
     // Create an individual command object and add it to the array
     for (int i=0; auto& step : sequence) {
-        move_closed_loop(step);
+        nlohmann::json cmd_response = move_closed_loop(step);
+        if (cmd_response["MOVE_CLOSED_LOOP"].contains("ERROR")) {
+            res = cmd_response["MOVE_CLOSED_LOOP"];
+            res["WAS_COMPLETED"] = false;
+            is_sequence_in_progress = false;
+            return res;
+        }
+
         std::this_thread::sleep_for(std::chrono::milliseconds(1000)); // Wait for telemetry update...
 
         bool stopped_on_probe = false;
@@ -199,5 +208,6 @@ bool REMA::execute_sequence(std::vector<movement_cmd>& sequence) {
     }
     is_sequence_in_progress = false;
     cancel_sequence = false;
-    return was_completed;
+    res["WAS_COMPLETED"] = was_completed;
+    return res;
 }
