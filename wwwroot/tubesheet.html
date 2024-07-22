@@ -161,7 +161,7 @@
 		var g = svg.group({
 			stroke : 'yellow',
 			strokeWidth : stroke,
-			id : "destination_cross"			
+			id : "destination_cross"
 		});		
 
 		// Vertical line
@@ -431,9 +431,10 @@
 
 							$("#tubesheet_svg").svg({
 								onLoad : function (svg) {
+									// In the SVG 1.1 the rendering order is based on the document order:
 									drawBullseye(svg, tube_od, scale);
-									drawDestinationCross(svg, tube_od, scale);
 									drawLocationPin(svg, tube_od, scale);
+									drawDestinationCross(svg, tube_od, scale);
 									var objDiv = document.getElementById("left_side_resizable");									
 									objDiv.scrollTop = (objDiv.scrollHeight - objDiv.clientHeight) / 2;																
 								}

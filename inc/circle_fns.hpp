@@ -595,7 +595,7 @@ static inline std::vector<Point3D> calculateCirclePoints(const Point3D& center, 
 
     for (int i = 0; i < numPoints; ++i) {
         double angle = i * angleIncrement;
-        double radians = angle * (M_PI / 180.0); // Convert degrees to radians
+        double radians = angle * (M_PI / 180.0) + M_PI * 1.5; // Convert degrees to radians + 270º to start from above
 
         Point3D point;
         point.x = center.x + radius * cos(radians);
