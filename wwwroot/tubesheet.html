@@ -175,6 +175,7 @@
 		y1 = -0.1 * scale;
 		y2 = 0.1 * scale;
 		svg.line(g, x1, y1, x2, y2);
+		$(g).hide();
 	}
 
 	
@@ -227,6 +228,15 @@
 		$("#destination_cross").animate({
 			svgTransform : 'scale(1 -1) translate(' + x + " " + y + ') rotate(-45)'
 		}, 0);
+	}
+
+	function destination_cross_visible(status) {
+		$("#destination_cross").stop();			// Clear animation queue
+		if (status) {
+			$("#destination_cross").show();
+		} else {
+			$("#destination_cross").hide();
+		}	
 	}
 
 	function update_location_pin_position(x, y) {
@@ -586,7 +596,7 @@
 				dataType : "json",
 				success : function(data) {
 					if ("ERROR" in data.MOVE_CLOSED_LOOP) {
-						add_notification(data.MOVE_CLOSED_LOOP.ERROR, "Warning");
+						add_notification(data.MOVE_CLOSED_LOOP.ERROR.toUpperCase(), "Warning");
 					}
 				}
 			});						

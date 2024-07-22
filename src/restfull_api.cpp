@@ -633,7 +633,11 @@ void determine_tube_center(const std::shared_ptr<restbed::Session>& rest_session
 
         nlohmann::json seq_execution_response = rema_instance.execute_sequence(seq);
         if (!seq_execution_response["WAS_COMPLETED"]) {
-            res["error"] = seq_execution_response["ERROR"];
+            if (seq_execution_response.contains("ERROR")) {
+                res["error"] = seq_execution_response["ERROR"];
+            } else {
+                res["error"] = "Center determination failed";
+            }            
             std::cout << nlohmann::to_string(res) << std::endl;
             close_rest_session(rest_session, restbed::CONFLICT, res);
             return;
@@ -670,7 +674,11 @@ void determine_tube_center(const std::shared_ptr<restbed::Session>& rest_session
 
             seq_execution_response = rema_instance.execute_sequence(goto_center_seq);
             if (!seq_execution_response["WAS_COMPLETED"]) {
-                res["error"] = seq_execution_response["ERROR"];
+                if (seq_execution_response.contains("ERROR")) {
+                    res["error"] = seq_execution_response["ERROR"];
+                } else {
+                    res["error"] = "Center determination failed";
+                }            
                 status = restbed::CONFLICT;
             } else if (set_home) {
                 auto step = goto_center_seq.begin();
@@ -694,11 +702,11 @@ void determine_tubesheet_z(const std::shared_ptr<restbed::Session>& rest_session
     std::vector<movement_cmd> seq;
     movement_cmd forewards;
     forewards.axes = "Z";
-    forewards.first_axis_setpoint = 0.5;
+    forewards.first_axis_setpoint = 0.25;
     forewards.second_axis_setpoint = 0;
 
     movement_cmd backwards = forewards;
-    backwards.first_axis_setpoint = -0.5;
+    backwards.first_axis_setpoint = -0.25;
 
     seq.push_back(forewards);
     seq.push_back(backwards);
@@ -707,7 +715,11 @@ void determine_tubesheet_z(const std::shared_ptr<restbed::Session>& rest_session
 
     nlohmann::json seq_execution_response = rema_instance.execute_sequence(seq);
     if (!seq_execution_response["WAS_COMPLETED"]) {
-        res["error"] = seq_execution_response["ERROR"];
+        if (seq_execution_response.contains("ERROR")) {
+            res["error"] = seq_execution_response["ERROR"];
+        } else {
+            res["error"] = "Center determination failed";
+        }            
         close_rest_session(rest_session, restbed::RESET_CONTENT, res);
     }
 
@@ -742,7 +754,11 @@ void determine_tubesheet_z(const std::shared_ptr<restbed::Session>& rest_session
 
         seq_execution_response = rema_instance.execute_sequence(goto_tubesheet_seq);
         if (!seq_execution_response["WAS_COMPLETED"]) {
-            res["error"] = seq_execution_response["ERROR"];
+            if (seq_execution_response.contains("ERROR")) {
+                res["error"] = seq_execution_response["ERROR"];
+            } else {
+                res["error"] = "Center determination failed";
+            }            
             status = restbed::RESET_CONTENT;
         } else {
             auto step = goto_tubesheet_seq.begin();

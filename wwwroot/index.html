@@ -152,6 +152,7 @@
 </body>
 
 <script type="text/javascript">
+TUBESHEET_VIEW_TAB = 2
 decimals = 3
 tabs_initialized = false;
 reconnect_dialog_shown = false;
@@ -254,11 +255,16 @@ function get_rema_info() {
 		
 	var prev_pos_x = 0;
 	var prev_pos_y = 0;	
+	var target_x = 0; 
+	var target_y = 0;
 	var control_disabled_by_stall = false;
 	var old_telemetry = {};
 	//old_telemetry = {"brakes_mode":0,"control_enabled":false,"coords":{"x":-5e-05,"y":-5e-05,"z":5e-05},"limits":{"down":false,"in":true,"left":true,"out":false,"probe":false,"right":true,"up":true},"on_condition":{"x_y":false,"z":false},"probe":{"x_y":false,"z":false},"stall_control":true,"stalled":{"x":false,"y":true,"z":false}};
 	
 	function update_ui(telemetry) {		
+		if (tabs_initialized) {
+			var current_tab = $("#tabs").tabs('option', 'active');
+		}
 		//telemetry = {"brakes_mode":0,"control_enabled":false,"coords":{"x":-25,"y":-5e-05,"z":5},"limits":{"down":true,"in":true,"left":true,"out":true,"probe":true,"right":true,"up":true},"on_condition":{"x_y":true,"z":false},"probe":{"x_y":true,"z":false},"stall_control":true,"stalled":{"x":false,"y":true,"z":false}};
 		var difs = findDifferencesShallow(old_telemetry, telemetry);
 		$.each(difs, function (id, value) {
@@ -281,6 +287,10 @@ function get_rema_info() {
 			if (key == "probe_protected" && (value[key] == true)) {
 				add_notification("TOUCH PROBE PROTECTED", "Warning");
 			}
+					
+			if (key == "show_target" && current_tab == TUBESHEET_VIEW_TAB && typeof(destination_cross_visible) === "function") {
+				destination_cross_visible(value[key]);				
+			}
 		});
 
 		var difs = findDifferencesShallow(old_telemetry.limits, telemetry.limits);
@@ -295,7 +305,21 @@ function get_rema_info() {
 		$.each(difs, function (id, value) {
 			key = Object.keys(value)[0];
 		 	add_notification("PROBE " + key.toUpperCase() + ((value[key] == true) ? " TOUCH" : " RELEASE"), "Info");
-		});		
+		});
+
+		if (current_tab == TUBESHEET_VIEW_TAB && typeof(update_destination_cross_position) === "function") {
+			var difs = findDifferencesShallow(old_telemetry.targets, telemetry.targets);
+			$.each(difs, function (id, value) {
+				key = Object.keys(value)[0];
+				if (key == 'x') {
+					target_x = value[key];
+				}
+				if (key == 'y') {
+					target_y = value[key];
+				}			
+				update_destination_cross_position(target_x, target_y);
+			});
+		}
 
 		old_telemetry = telemetry;
 
@@ -305,10 +329,7 @@ function get_rema_info() {
 		$("#position_x").val(toFixedIfNecessary(pos_x, decimals));
 		$("#position_y").val(toFixedIfNecessary(pos_y, decimals));
 		$("#position_z").val(toFixedIfNecessary(pos_z, decimals));	
-
-		var target_x = telemetry.targets.x;
-		var target_y = telemetry.targets.y;
-				
+			
 		if (telemetry.stalled.x || telemetry.stalled.y || telemetry.stalled.z) {
 			stalled_message = "STALLED " + (telemetry.stalled.x ? "X" : "") + (telemetry.stalled.y ? "Y" : "") + (telemetry.stalled.z ? "Z" : "");
 			$("#stalled_notification").removeClass("disabled").addClass("enabled");
@@ -341,10 +362,8 @@ function get_rema_info() {
 		}			
 		
 		if (tabs_initialized) {
-			var current_tab = $("#tabs").tabs('option', 'active');
-			if (current_tab == 2 && typeof(update_bullseye_position) === "function") {
-				update_bullseye_position(pos_x, pos_y);
-				update_destination_cross_position(target_x, target_y);
+			if (current_tab == TUBESHEET_VIEW_TAB && typeof(update_bullseye_position) === "function") {
+				update_bullseye_position(pos_x, pos_y);				
 				if ((!areFloatsEqual(pos_x, prev_pos_x) || !areFloatsEqual(pos_y, prev_pos_y))) { 
 					if ($("#zoom_follow").prop("checked")) {
 						zoom_value = 1;

@@ -61,6 +61,7 @@ void event_stream_handler() {
         ui_telemetry.coords = current_session.from_rema_to_ui(rema_instance.telemetry.coords, &tool);
         ui_telemetry.targets = current_session.from_rema_to_ui(rema_instance.telemetry.targets, &tool);
         res["TELEMETRY"] = ui_telemetry;
+        res["TELEMETRY"]["show_target"] = rema_instance.is_sequence_in_progress;
 
         static auto prev = std::chrono::high_resolution_clock::from_time_t(0);
         auto now = std::chrono::high_resolution_clock::now();

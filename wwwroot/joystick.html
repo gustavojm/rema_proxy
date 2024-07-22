@@ -202,7 +202,7 @@ h1 {
 			dataType : "json",
 			success : function(data) {
 				if ("ERROR" in data.MOVE_JOYSTICK) {
-						add_notification(data.MOVE_JOYSTICK.ERROR, "Warning");
+						add_notification(data.MOVE_JOYSTICK.ERROR.toUpperCase(), "Warning");
 				}
 			}
 		});		
