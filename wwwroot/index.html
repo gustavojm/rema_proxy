@@ -313,15 +313,12 @@ function get_rema_info() {
 
 		if (current_tab == TUBESHEET_VIEW_TAB && typeof(update_destination_cross_position) === "function") {
 			var difs = findDifferencesShallow(old_telemetry.targets, telemetry.targets);
-			if (difs.length > 0) {
-				console.log(old_telemetry);
-				console.log(telemetry);
-			}
 			$.each(difs, function (id, value) {
-				if ("x" in value) {
+				key = Object.keys(value)[0];
+				if (key == "x") {
 					target_x = value.x;
 				}
-				if ("y" in value) {
+				if (key == "y") {
 					target_y = value.y;
 				}			
 			});

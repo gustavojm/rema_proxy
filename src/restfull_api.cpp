@@ -314,7 +314,7 @@ void cal_points_list(const std::shared_ptr<restbed::Session>& rest_session) {
     close_rest_session(rest_session, restbed::OK, nlohmann::json(current_session.cal_points));
 }
 
-void cal_points_add_update(const std::shared_ptr<restbed::Session> rest_session) {
+void cal_points_add_update(const std::shared_ptr<restbed::Session>& rest_session) {
     const auto request = rest_session->get_request();
     std::string tube_id = request->get_path_parameter("tube_id", "");
 
@@ -370,7 +370,7 @@ void cal_points_delete(const std::shared_ptr<restbed::Session>& rest_session) {
     close_rest_session(rest_session, status, res);
 }
 
-void tubes_set_status(const std::shared_ptr<restbed::Session> rest_session) {
+void tubes_set_status(const std::shared_ptr<restbed::Session>& rest_session) {
 
     const auto request = rest_session->get_request();
     std::string tube_id = request->get_path_parameter("tube_id", "");
@@ -631,13 +631,9 @@ void determine_tube_center(const std::shared_ptr<restbed::Session>& rest_session
             seq.push_back(step);
         }
 
-        nlohmann::json seq_execution_response = rema_instance.execute_sequence(seq);
-        if (!seq_execution_response["WAS_COMPLETED"]) {
-            if (seq_execution_response.contains("ERROR")) {
-                res["error"] = seq_execution_response["ERROR"];
-            } else {
-                res["error"] = "Center determination failed";
-            }            
+        auto seq_execution_response = rema_instance.execute_sequence(seq);
+        if (!seq_execution_response) {
+            res["error"] = seq_execution_response.error();
             std::cout << nlohmann::to_string(res) << std::endl;
             close_rest_session(rest_session, restbed::CONFLICT, res);
             return;
@@ -673,12 +669,10 @@ void determine_tube_center(const std::shared_ptr<restbed::Session>& rest_session
             res["radius"] = circle.radius;
 
             seq_execution_response = rema_instance.execute_sequence(goto_center_seq);
-            if (!seq_execution_response["WAS_COMPLETED"]) {
-                if (seq_execution_response.contains("ERROR")) {
-                    res["error"] = seq_execution_response["ERROR"];
-                } else {
-                    res["error"] = "Center determination failed";
-                }            
+            if (!seq_execution_response) {
+                res["error"] = seq_execution_response.error();
+                std::cout << nlohmann::to_string(res) << std::endl;
+                close_rest_session(rest_session, restbed::CONFLICT, res);
                 status = restbed::CONFLICT;
             } else if (set_home) {
                 auto step = goto_center_seq.begin();
@@ -696,6 +690,9 @@ void determine_tube_center(const std::shared_ptr<restbed::Session>& rest_session
 
 void determine_tubesheet_z(const std::shared_ptr<restbed::Session>& rest_session) {
     const auto request = rest_session->get_request();
+    std::string tube_id = request->get_path_parameter("tube_id", "");
+    bool set_home = request->get_path_parameter("set_home", "") == "true";
+
     REMA& rema_instance = REMA::get_instance();
 
     nlohmann::json res;
@@ -713,16 +710,12 @@ void determine_tubesheet_z(const std::shared_ptr<restbed::Session>& rest_session
     seq.push_back(forewards);
     seq.push_back(backwards);
 
-    nlohmann::json seq_execution_response = rema_instance.execute_sequence(seq);
-    if (!seq_execution_response["WAS_COMPLETED"]) {
-        if (seq_execution_response.contains("ERROR")) {
-            res["error"] = seq_execution_response["ERROR"];
-        } else {
-            res["error"] = "Center determination failed";
-        }            
-        close_rest_session(rest_session, restbed::RESET_CONTENT, res);
+    auto seq_execution_response = rema_instance.execute_sequence(seq);
+    if (!seq_execution_response) {
+        res["error"] = seq_execution_response.error();
+        std::cout << nlohmann::to_string(res) << std::endl;
+        close_rest_session(rest_session, restbed::CONFLICT, res);
     }
-
 
     double sum_z = 0;
     int count = 0;
@@ -753,17 +746,19 @@ void determine_tubesheet_z(const std::shared_ptr<restbed::Session>& rest_session
         goto_tubesheet_seq.push_back(goto_tubesheet);
 
         seq_execution_response = rema_instance.execute_sequence(goto_tubesheet_seq);
-        if (!seq_execution_response["WAS_COMPLETED"]) {
-            if (seq_execution_response.contains("ERROR")) {
-                res["error"] = seq_execution_response["ERROR"];
-            } else {
-                res["error"] = "Center determination failed";
-            }            
+        if (!seq_execution_response) {
+            res["error"] = seq_execution_response.error();
+            std::cout << nlohmann::to_string(res) << std::endl;
+            close_rest_session(rest_session, restbed::RESET_CONTENT, res);
             status = restbed::RESET_CONTENT;
         } else {
             auto step = goto_tubesheet_seq.begin();
             if (step->executed && step->execution_results.stopped_on_condition) {
-                rema_instance.set_home_z(0);
+                if (set_home) {
+                    rema_instance.set_home_z(0);
+                } else {
+                    res["z"] = z;
+                }
             }
         }
     }
@@ -811,7 +806,7 @@ void restfull_api_create_endpoints(restbed::Service& service) {
         { "determine-tube-center/{tube_id: .*}/{set_home: .*}", { { "GET", &determine_tube_center } } },
         { "set-home-xy/", { { "GET", &set_home_xy } } },
         { "set-home-xy/{tube_id: .*}", { { "GET", &set_home_xy } } },
-        { "determine-tubesheet-z", { { "GET", &determine_tubesheet_z } } },
+        { "determine-tubesheet-z/{set_home: .*}", { { "GET", &determine_tubesheet_z } } },
         { "set-home-z/{z: .*}", { { "GET", &set_home_z } } },
         { "aligned-tubesheet-get", { { "GET", &aligned_tubesheet_get } } },
         { "axes-hard-stop-all", { { "GET", &axes_hard_stop_all } } },

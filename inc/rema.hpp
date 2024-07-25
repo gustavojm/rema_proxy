@@ -11,6 +11,7 @@
 #include "points.hpp"
 #include "session.hpp"
 #include "tool.hpp"
+#include "expected.hpp"
 
 extern const std::filesystem::path config_file_path;
 extern const std::filesystem::path rema_dir;
@@ -143,7 +144,7 @@ class REMA {
 
     void cancel_sequence_in_progress();
 
-    nlohmann::json execute_sequence(std::vector<movement_cmd>& sequence);
+    tl::expected<void, std::string> execute_sequence(std::vector<movement_cmd>& sequence);
 
     void set_home_xy(double x, double y);
 

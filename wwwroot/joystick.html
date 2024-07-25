@@ -417,7 +417,7 @@ h1 {
 					if (confirm("Are you sure you want to determine the position of the tubesheet and make it position Z:0 ?")) {
 						$.ajaxQueue({
 							method : "GET",
-							url : "/REST/determine-tubesheet-z",
+							url : "/REST/determine-tubesheet-z/true",
 							data : JSON.stringify(),
 							timeout: 25000,
 						})

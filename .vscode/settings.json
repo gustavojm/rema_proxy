@@ -81,7 +81,8 @@
         "variant": "cpp",
         "semaphore": "cpp",
         "*.ipp": "cpp",
-        "rope": "cpp"
+        "rope": "cpp",
+        "charconv": "cpp"
     },
     "cmake.configureOnOpen": false
 }

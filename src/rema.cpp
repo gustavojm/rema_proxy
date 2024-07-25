@@ -14,6 +14,7 @@
 #include "rema.hpp"
 #include "session.hpp"
 #include "tool.hpp"
+#include "expected.hpp"
 
 const std::filesystem::path config_file_path = "config.json";
 const std::filesystem::path rema_dir = std::filesystem::path("rema");
@@ -156,23 +157,19 @@ void REMA::axes_soft_stop_all() {
     execute_command("AXES_SOFT_STOP_ALL");
 }
 
-nlohmann::json REMA::execute_sequence(std::vector<movement_cmd>& sequence) {
+tl::expected<void, std::string>REMA::execute_sequence(std::vector<movement_cmd>& sequence) {
     nlohmann::json res;
     cancel_sequence_in_progress();
     cancel_sequence = false;
     is_sequence_in_progress = true;
-    bool was_completed = true;
-
     execute_command("AXES_SOFT_STOP_ALL");
 
     // Create an individual command object and add it to the array
     for (int i=0; auto& step : sequence) {
         nlohmann::json cmd_response = move_closed_loop(step);
         if (cmd_response["MOVE_CLOSED_LOOP"].contains("ERROR")) {
-            res = cmd_response["MOVE_CLOSED_LOOP"];
-            res["WAS_COMPLETED"] = false;
             is_sequence_in_progress = false;
-            return res;
+            return tl::make_unexpected<std::string>(cmd_response["MOVE_CLOSED_LOOP"]["ERROR"]);
         }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1000)); // Wait for telemetry update...
@@ -195,7 +192,8 @@ nlohmann::json REMA::execute_sequence(std::vector<movement_cmd>& sequence) {
         } while (!(stopped_on_probe || stopped_on_condition || cancel_sequence || abort_from_rema));
 
         if (cancel_sequence || abort_from_rema) {
-            was_completed = false;
+            is_sequence_in_progress = false;
+            return tl::make_unexpected<std::string>("Sequence cancelled");
             break;
         } else {
             step.executed = true;
@@ -207,7 +205,6 @@ nlohmann::json REMA::execute_sequence(std::vector<movement_cmd>& sequence) {
         i++;
     }
     is_sequence_in_progress = false;
-    cancel_sequence = false;
-    res["WAS_COMPLETED"] = was_completed;
-    return res;
+    cancel_sequence = false;    
+    return {};
 }
