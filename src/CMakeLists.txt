@@ -70,6 +70,7 @@ find_package(unofficial-restbed CONFIG REQUIRED)
 find_package(Boost REQUIRED COMPONENTS program_options)
 find_package(OpenSSL REQUIRED)
 find_package(spdlog REQUIRED)
+find_package(protobuf CONFIG REQUIRED)
 
 # Find Open3D (not found in vcpkg repo)
 find_package(Open3D REQUIRED)
@@ -91,5 +92,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
                           unofficial::restbed::restbed
                           OpenSSL::SSL
                           OpenSSL::Crypto
+                          protobuf::libprotoc
+                          protobuf::libprotobuf
+                          protobuf::libprotobuf-lite
                      )
 

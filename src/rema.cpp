@@ -15,6 +15,7 @@
 #include "session.hpp"
 #include "tool.hpp"
 #include "expected.hpp"
+#include <telemetry.pb.h>
 
 const std::filesystem::path config_file_path = "config.json";
 const std::filesystem::path rema_dir = std::filesystem::path("rema");
@@ -91,19 +92,65 @@ void REMA::reconnect() {
 }
 
 void REMA::update_telemetry(std::string& stream) {
-    nlohmann::json json;
+//    nlohmann::json json;
     try {
         std::lock_guard<std::mutex> lock(mtx);
         if (!stream.empty()) {
-            json = nlohmann::json::parse(stream);
+            telemetry_proto::Telemetry telemetry_pb;
+            if (!telemetry_pb.ParseFromString(stream)) {
+                    std::cerr << "Failed to parse telemetry data." << std::endl;
+                    return;
+            } else {
+                telemetry.coords.x = telemetry_pb.coords().x();
+                telemetry.coords.y = telemetry_pb.coords().y();
+                telemetry.coords.z = telemetry_pb.coords().z();
 
-            if (json.contains("telemetry")) {
-                telemetry = json["telemetry"];
+                telemetry.targets.x = telemetry_pb.targets().x();
+                telemetry.targets.y = telemetry_pb.targets().y();
+                telemetry.targets.z = telemetry_pb.targets().z();
+
+                telemetry.control_enabled = telemetry_pb.control_enabled();
+                telemetry.stall_control = telemetry_pb.stall_control();
+                telemetry.brakes_mode = telemetry_pb.brakes_mode();
+                telemetry.probe_protected = telemetry_pb.probe_protected();
+
+                telemetry.probe.x_y = telemetry_pb.probe().x_y();
+                telemetry.probe.z = telemetry_pb.probe().z();
+
+                telemetry.stalled.x = telemetry_pb.stalled().x();
+                telemetry.stalled.y = telemetry_pb.stalled().y();
+                telemetry.stalled.z = telemetry_pb.stalled().z();
+
+                telemetry.on_condition.x_y = telemetry_pb.on_condition().x_y();
+                telemetry.on_condition.z = telemetry_pb.on_condition().z();
+
+                telemetry.probe.x_y = telemetry_pb.probe().x_y();
+                telemetry.probe.z = telemetry_pb.probe().z();
+
+                telemetry.probe_protected = telemetry_pb.probe_protected();
+               
+                temps.x = telemetry_pb.temps().x();
+                temps.y = telemetry_pb.temps().y();
+                temps.z = telemetry_pb.temps().z();
+
+                telemetry.limits.up = telemetry_pb.limits().up();
+                telemetry.limits.down = telemetry_pb.limits().down();
+                telemetry.limits.left = telemetry_pb.limits().left();
+                telemetry.limits.right = telemetry_pb.limits().right();
+                telemetry.limits.in = telemetry_pb.limits().in();
+                telemetry.limits.out = telemetry_pb.limits().out();
+                telemetry.limits.probe = telemetry_pb.limits().probe();
             }
 
-            if (json.contains("temps")) {
-                temps = json["temps"];
-            }
+            // json = nlohmann::json::parse(stream);
+
+            // if (json.contains("telemetry")) {
+            //     telemetry = json["telemetry"];
+            // }
+
+            // if (json.contains("temps")) {
+            //     temps = json["temps"];
+            // }
         }
     } catch (std::exception& e) {
         SPDLOG_ERROR("TELEMETRY COMMUNICATIONS ERROR {}", e.what());

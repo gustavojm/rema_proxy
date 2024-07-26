@@ -22,6 +22,7 @@
 #include "syslogger.hpp"
 #include "upload.hpp"
 #include "websocket-server.hpp"
+#include <telemetry.pb.h>
 
 Session current_session;
 
@@ -194,6 +195,8 @@ void failed_filter_validation_handler(const std::shared_ptr<restbed::Session>& s
 }
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
+    GOOGLE_PROTOBUF_VERIFY_VERSION;
+
     spdlog::set_pattern("[%H:%M:%S %z] [%^%L%$] [%g:%#] [thread %t] %v");
 
     uint16_t rema_proxy_port = 4321;

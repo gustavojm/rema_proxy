@@ -12,6 +12,7 @@
 #include "session.hpp"
 #include "tool.hpp"
 #include "expected.hpp"
+#include <telemetry.pb.h>
 
 extern const std::filesystem::path config_file_path;
 extern const std::filesystem::path rema_dir;
