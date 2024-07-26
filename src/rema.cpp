@@ -169,7 +169,7 @@ tl::expected<void, std::string>REMA::execute_sequence(std::vector<movement_cmd>&
         nlohmann::json cmd_response = move_closed_loop(step);
         if (cmd_response["MOVE_CLOSED_LOOP"].contains("ERROR")) {
             is_sequence_in_progress = false;
-            return tl::make_unexpected<std::string>(cmd_response["MOVE_CLOSED_LOOP"]["ERROR"]);
+            return tl::make_unexpected(cmd_response["MOVE_CLOSED_LOOP"]["ERROR"]);
         }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1000)); // Wait for telemetry update...
@@ -193,7 +193,7 @@ tl::expected<void, std::string>REMA::execute_sequence(std::vector<movement_cmd>&
 
         if (cancel_sequence || abort_from_rema) {
             is_sequence_in_progress = false;
-            return tl::make_unexpected<std::string>("Sequence cancelled");
+            return tl::make_unexpected("Sequence cancelled");
             break;
         } else {
             step.executed = true;
