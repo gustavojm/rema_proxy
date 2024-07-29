@@ -95,7 +95,7 @@ void REMA::update_telemetry(std::string& stream) {
     try {
         std::lock_guard<std::mutex> lock(mtx);
         if (!stream.empty()) {
-            json = nlohmann::json::parse(stream);
+            json = nlohmann::json::from_msgpack(stream);
 
             if (json.contains("telemetry")) {
                 telemetry = json["telemetry"];
