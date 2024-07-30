@@ -1,5 +1,4 @@
-#ifndef MISC_FNS_HPP
-#define MISC_FNS_HPP
+#pragma once
 
 #include <algorithm>
 #include <cmath>
@@ -45,4 +44,3 @@ bool isValidIPv4(const std::string &str) {
     return std::regex_match(str, ipv4Regex);
 }
 
-#endif // MISC_FNS_HPP

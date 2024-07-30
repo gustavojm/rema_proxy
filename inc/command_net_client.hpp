@@ -1,5 +1,4 @@
-#ifndef COMMAND_NET_CLIENT_HPP
-#define COMMAND_NET_CLIENT_HPP
+#pragma once
 
 #include "net_client.hpp"
 #include <chrono>
@@ -18,4 +17,3 @@ class CommandNetClient : public NetClient {
     }
 };
 
-#endif // COMMAND_NET_CLIENT_HPP

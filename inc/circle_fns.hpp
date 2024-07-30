@@ -1,5 +1,4 @@
-#ifndef CIRCLE_FNS_HPP
-#define CIRCLE_FNS_HPP
+#pragma once
 
 #include <algorithm>
 #include <cmath>
@@ -608,4 +607,3 @@ static inline std::vector<Point3D> calculateCirclePoints(const Point3D& center, 
     return points;
 }
 
-#endif // CIRCLE_FNS_HPP

@@ -1,5 +1,4 @@
-#ifndef TELEMETRY_NET_CLIENT_HPP
-#define TELEMETRY_NET_CLIENT_HPP
+#pragma once
 
 #include "net_client.hpp"
 #include <chrono>
@@ -87,4 +86,3 @@ class TelemetryNetClient : public NetClient {
 
 };
 
-#endif // TELEMETRY_NET_CLIENT_HPP

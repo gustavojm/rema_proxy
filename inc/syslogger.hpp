@@ -1,5 +1,4 @@
-#ifndef SYSLOGGER_HPP
-#define SYSLOGGER_HPP
+#pragma once
 
 #include <cstdarg>
 #include <cstdlib>
@@ -54,4 +53,3 @@ class SyslogLogger : public restbed::Logger {
     }
 };
 
-#endif // SYSLOGGER_HPP

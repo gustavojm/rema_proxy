@@ -1,5 +1,4 @@
-#ifndef REMA_HPP
-#define REMA_HPP
+#pragma once
 
 #include <filesystem>
 #include <json.hpp>
@@ -203,4 +202,3 @@ class REMA {
     //       before deleted status
 };
 
-#endif // REMA_HPP

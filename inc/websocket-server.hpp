@@ -1,5 +1,4 @@
-#ifndef WEBSOCKET_SERVER_HPP
-#define WEBSOCKET_SERVER_HPP
+#pragma once
 
 #include <algorithm>
 #include <boost/asio/dispatch.hpp>
@@ -190,4 +189,3 @@ class listener : public std::enable_shared_from_this<listener> {
 
 void websocket_init();
 
-#endif // WEBSOCKET_SERVER_HPP

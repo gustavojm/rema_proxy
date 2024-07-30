@@ -1,5 +1,4 @@
-#ifndef UPLOAD_HPP
-#define UPLOAD_HPP
+#pragma once
 
 #include <chrono>
 #include <cstdint>
@@ -16,4 +15,3 @@
 
 void upload_create_endpoints(restbed::Service& service);
 
-#endif // UPLOAD_HPP

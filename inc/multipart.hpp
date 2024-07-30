@@ -1,5 +1,4 @@
-#ifndef MULTIPART_HPP
-#define MULTIPART_HPP
+#pragma once
 
 #include <filesystem>
 #include <map>
@@ -173,4 +172,3 @@ namespace multipart {
     };
 } // namespace multipart
 
-#endif // MULTIPART_HPP

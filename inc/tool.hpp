@@ -1,5 +1,4 @@
-#ifndef TOOL_HPP
-#define TOOL_HPP
+#pragma once
 
 #include <json.hpp>
 #include <string>
@@ -30,4 +29,3 @@ class Tool {
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Tool, name, offset, is_touch_probe)
 
-#endif // TOOL_HPP

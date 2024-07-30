@@ -1,5 +1,4 @@
-#ifndef SESSION_HPP
-#define SESSION_HPP
+#pragma once
 
 #include <filesystem>
 #include <json.hpp>
@@ -168,4 +167,3 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(
     plans,
     cal_points)
 
-#endif // SESSION_HPP

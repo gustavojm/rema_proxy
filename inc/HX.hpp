@@ -1,5 +1,4 @@
-#ifndef HX_HPP
-#define HX_HPP
+#pragma once
 
 #include <filesystem>
 #include <iostream>
@@ -53,4 +52,3 @@ class HX {
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(HX, tubesheet_svg, tube_od, leg, unit, scale, tubes)
 
-#endif // HX_HPP

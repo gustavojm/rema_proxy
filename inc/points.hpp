@@ -1,5 +1,4 @@
-#ifndef POINTS_HPP
-#define POINTS_HPP
+#pragma once
 
 #include "json.hpp"
 #include <spdlog/spdlog.h>
@@ -92,4 +91,3 @@ class Point3D {
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Point3D, x, y, z)
 
-#endif // POINTS_HPP

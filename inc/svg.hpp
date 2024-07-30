@@ -1,5 +1,4 @@
-#ifndef SVG_HPP
-#define SVG_HPP
+#pragma once
 
 #include "csv.h"
 #include "rapidxml-1.13/rapidxml.hpp"
@@ -107,4 +106,3 @@ add_tube(rapidxml::xml_document<char> *doc, TubeEntry tube, std::string id, floa
     return tube_group_node;
 }
 
-#endif // SVG_HPP
