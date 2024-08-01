@@ -45,7 +45,7 @@ void HX::generate_svg() {
     // Create the SVG document
     rapidxml::xml_document<char> document;
     rapidxml::xml_document<char> *doc = &document;
-    auto *svg_node = doc->allocate_node(rapidxml::node_element, "svg");
+    auto *svg_node = doc->allocate_node(rapidxml::node_type::node_element, "svg");
 
     append_attributes(
         doc,
@@ -59,7 +59,7 @@ void HX::generate_svg() {
                   std::to_string(svg.height) },
         });
 
-    auto *style_node = doc->allocate_node(rapidxml::node_element, "style");
+    auto *style_node = doc->allocate_node(rapidxml::node_type::node_element, "style");
     append_attributes(doc, style_node, { { "type", "text/css" } });
 
     float stroke_width = stof(svg.font_size) / 10;
@@ -76,7 +76,7 @@ void HX::generate_svg() {
     svg_node->append_node(style_node);
     doc->append_node(svg_node);
 
-    auto *cartesian_g_node = doc->allocate_node(rapidxml::node_element, "g");
+    auto *cartesian_g_node = doc->allocate_node(rapidxml::node_type::node_element, "g");
     append_attributes(doc, cartesian_g_node, { { "id", "cartesian" }, { "transform", "scale(1,-1)" } });
     svg_node->append_node(cartesian_g_node);
 

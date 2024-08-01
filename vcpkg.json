@@ -9,6 +9,7 @@
     "eigen3",
     "spdlog",
     "tl-expected",
-    "nlohmann-json"        
+    "nlohmann-json",
+    "rapidxml"
   ]
 }

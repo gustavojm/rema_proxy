@@ -1,9 +1,7 @@
 #pragma once
 
 #include "csv.h"
-#include "rapidxml-1.13/rapidxml.hpp"
-#include "rapidxml-1.13/rapidxml_print.hpp"
-#include "rapidxml-1.13/rapidxml_utils.hpp"
+#include "rapidxml_ext.hpp"
 #include "tube_entry.hpp"
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
@@ -34,7 +32,7 @@ add_dashed_line(rapidxml::xml_document<char> *doc, float x1, float y1, float x2,
     float line = font_size / 2;
     float space = line / 2;
 
-    auto line_node = doc->allocate_node(rapidxml::node_element, "line");
+    auto line_node = doc->allocate_node(rapidxml::node_type::node_element, "line");
     append_attributes(
         doc,
         line_node,
@@ -52,7 +50,7 @@ add_dashed_line(rapidxml::xml_document<char> *doc, float x1, float y1, float x2,
 }
 
 static inline rapidxml::xml_node<char> *add_label(rapidxml::xml_document<char> *doc, float x, float y, const char *label) {
-    auto label_node = doc->allocate_node(rapidxml::node_element, "text", doc->allocate_string(label));
+    auto label_node = doc->allocate_node(rapidxml::node_type::node_element, "text", doc->allocate_string(label));
 
     append_attributes(
         doc,
@@ -68,13 +66,13 @@ static inline rapidxml::xml_node<char> *add_label(rapidxml::xml_document<char> *
 
 static inline rapidxml::xml_node<char> *
 add_tube(rapidxml::xml_document<char> *doc, TubeEntry tube, std::string id, float radius) {
-    auto tube_group_node = doc->allocate_node(rapidxml::node_element, "g");
+    auto tube_group_node = doc->allocate_node(rapidxml::node_type::node_element, "g");
     append_attributes(
         doc,
         tube_group_node,
         { { "id", doc->allocate_string(id.c_str()) }, { "data-col", tube.x_label }, { "data-row", tube.y_label } });
 
-    auto tube_node = doc->allocate_node(rapidxml::node_element, "circle");
+    auto tube_node = doc->allocate_node(rapidxml::node_type::node_element, "circle");
     append_attributes(
         doc,
         tube_node,
@@ -85,11 +83,11 @@ add_tube(rapidxml::xml_document<char> *doc, TubeEntry tube, std::string id, floa
             { "class", "tube" },
         });
 
-    auto tooltip_node = doc->allocate_node(rapidxml::node_element, "title");
+    auto tooltip_node = doc->allocate_node(rapidxml::node_type::node_element, "title");
     tooltip_node->value(doc->allocate_string((std::string("Col=") + tube.x_label + " Row=" + tube.y_label).c_str()));
     tube_group_node->append_node(tooltip_node);
     tube_group_node->append_node(tube_node);
-    auto number_node = doc->allocate_node(rapidxml::node_element, "text", doc->allocate_string(id.substr(3).c_str()));
+    auto number_node = doc->allocate_node(rapidxml::node_type::node_element, "text", doc->allocate_string(id.substr(3).c_str()));
     // number_node->value();
     append_attributes(
         doc,
