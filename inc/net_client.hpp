@@ -23,11 +23,11 @@ class NetClient {
     virtual void close();
 
     virtual void reconnect();
-    
+
     bool send_request(std::string);
-    
+
     std::string get_response();
-    
+
     int get_port() {
         return port_;
     }

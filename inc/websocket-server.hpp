@@ -188,4 +188,3 @@ class listener : public std::enable_shared_from_this<listener> {
 };
 
 void websocket_init();
-

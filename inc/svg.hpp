@@ -105,4 +105,3 @@ add_tube(rapidxml::xml_document<char> *doc, TubeEntry tube, std::string id, floa
     tube_group_node->append_node(number_node);
     return tube_group_node;
 }
-

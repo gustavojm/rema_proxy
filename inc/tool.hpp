@@ -19,7 +19,7 @@ class Tool {
         }
     }
 
-    Tool(const std::filesystem::path& tool_file);
+    Tool(const std::filesystem::path &tool_file);
 
     void save_to_disk() const;
 
@@ -28,4 +28,3 @@ class Tool {
     bool is_touch_probe = false;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Tool, name, offset, is_touch_probe)
-

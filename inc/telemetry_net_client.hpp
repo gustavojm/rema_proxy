@@ -2,22 +2,20 @@
 
 #include "net_client.hpp"
 #include <chrono>
+#include <condition_variable>
 #include <iostream>
 #include <memory>
 #include <restbed>
 #include <spdlog/spdlog.h>
 #include <string>
 #include <thread>
-#include <condition_variable>
 #include <watchdog_timer.hpp>
 
 class TelemetryNetClient : public NetClient {
   public:
-    TelemetryNetClient(std::function<void(std::string)> onReceiveCallback) : 
-    NetClient(), 
-    onReceiveCb(onReceiveCallback),
-    wd(LostConnectionTimeout, [&]{close();})
-    {}
+    TelemetryNetClient(std::function<void(std::string)> onReceiveCallback)
+        : NetClient(), onReceiveCb(onReceiveCallback), wd(LostConnectionTimeout, [&] { close(); }) {
+    }
 
     ~TelemetryNetClient() {
         if (thd.joinable()) {
@@ -46,7 +44,7 @@ class TelemetryNetClient : public NetClient {
         nsec = (nsec == 0 ? ConnectionTimeout : nsec);
         if (int n; (n = NetClient::connect(host, port, nsec)) < 0) {
             return n;
-        } 
+        }
         wd.resume();
         return 0;
     }
@@ -65,7 +63,7 @@ class TelemetryNetClient : public NetClient {
             if (is_connected) {
                 std::string line = get_response();
                 if (!line.empty()) {
-                    //std::cout << "t" << std::flush;
+                    // std::cout << "t" << std::flush;
                     onReceiveCb(line);
                     wd.reset();
                 }
@@ -83,6 +81,4 @@ class TelemetryNetClient : public NetClient {
     int LostConnectionTimeout = 2;
     int ConnectionTimeout = 5;
     WatchdogTimer wd;
-
 };
-

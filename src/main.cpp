@@ -28,10 +28,10 @@ std::vector<std::shared_ptr<restbed::Session>> sse_sessions;
 using namespace std::chrono_literals;
 
 const std::map<std::string, std::string> mime_types = { { ".jpg", "image/jpg" },      { ".png", "image/png" },
-                                                  { "svg", "image/svg+xml" },   { ".css", "text/css" },
-                                                  { ".js", "text/javascript" }, { ".ico", "image/x-icon" } };
+                                                        { "svg", "image/svg+xml" },   { ".css", "text/css" },
+                                                        { ".js", "text/javascript" }, { ".ico", "image/x-icon" } };
 
-void register_event_source_handler(const std::shared_ptr<restbed::Session>& session) {
+void register_event_source_handler(const std::shared_ptr<restbed::Session> &session) {
     const auto headers = std::multimap<std::string, std::string>{
         { "Connection", "keep-alive" },
         { "Cache-Control", "no-cache" },
@@ -39,7 +39,7 @@ void register_event_source_handler(const std::shared_ptr<restbed::Session>& sess
         { "Access-Control-Allow-Origin", "*" } // Only required for demo purposes.
     };
 
-    session->yield(restbed::OK, headers, [](const std::shared_ptr<restbed::Session>& rest_session_ptr) {
+    session->yield(restbed::OK, headers, [](const std::shared_ptr<restbed::Session> &rest_session_ptr) {
         sse_sessions.push_back(rest_session_ptr);
     });
 }
@@ -48,7 +48,7 @@ void event_stream_handler() {
     if (sse_sessions.empty()) {
         return;
     }
-    
+
     static bool hide_sent = false;
     nlohmann::json res;
 
@@ -66,7 +66,7 @@ void event_stream_handler() {
         if (elapsed_time > std::chrono::milliseconds(500)) {
             res["TEMP_INFO"] = rema.temps;
         }
-    } catch (std::exception& e) {
+    } catch (std::exception &e) {
         SPDLOG_ERROR("Telemetry connection lost... {}", e.what());
     }
 
@@ -91,17 +91,17 @@ void event_stream_handler() {
             std::remove_if(
                 sse_sessions.begin(),
                 sse_sessions.end(),
-                [](const std::shared_ptr<restbed::Session>& rest_session_ptr) { return rest_session_ptr->is_closed(); }),
+                [](const std::shared_ptr<restbed::Session> &rest_session_ptr) { return rest_session_ptr->is_closed(); }),
             sse_sessions.end());
 
         const auto message = "data: " + nlohmann::to_string(res) + "\n\n";
-        for (const auto& session : sse_sessions) {
+        for (const auto &session : sse_sessions) {
             session->yield(message);
         }
     }
 }
 
-void get_HXs_method_handler(const std::shared_ptr<restbed::Session>& session) {
+void get_HXs_method_handler(const std::shared_ptr<restbed::Session> &session) {
     if (current_session.is_loaded) {
         const std::string body = current_session.hx.tubesheet_svg;
         std::string content_type = "image/svg+xml";
@@ -115,7 +115,7 @@ void get_HXs_method_handler(const std::shared_ptr<restbed::Session>& session) {
     }
 }
 
-void get_method_handler(const std::shared_ptr<restbed::Session>& session) {
+void get_method_handler(const std::shared_ptr<restbed::Session> &session) {
     const auto request = session->get_request();
 
     const std::string filename = request->get_path_parameter("filename");
@@ -144,13 +144,13 @@ void get_method_handler(const std::shared_ptr<restbed::Session>& session) {
     }
 }
 
-void post_rtu_method_handler(const std::shared_ptr<restbed::Session>& session) {
+void post_rtu_method_handler(const std::shared_ptr<restbed::Session> &session) {
     const auto request = session->get_request();
 
     size_t content_length = request->get_header("Content-Length", 0);
 
     session->fetch(
-        content_length, [&](const std::shared_ptr<restbed::Session>& rest_session_ptr, const restbed::Bytes& body) {
+        content_length, [&](const std::shared_ptr<restbed::Session> &rest_session_ptr, const restbed::Bytes &body) {
             std::string tx_buffer(body.begin(), body.end());
 
             try {
@@ -166,7 +166,7 @@ void post_rtu_method_handler(const std::shared_ptr<restbed::Session>& session) {
                         { { "Content-Length", std::to_string(stream.length()) },
                           { "Content-Type", "application/json; charset=utf-8" } });
                 }
-            } catch (std::exception& e) {
+            } catch (std::exception &e) {
                 std::string message = e.what();
                 SPDLOG_ERROR("COMMUNICATIONS ERROR {}", e.what());
                 rest_session_ptr->close(
@@ -179,7 +179,7 @@ void post_rtu_method_handler(const std::shared_ptr<restbed::Session>& session) {
         });
 }
 
-void failed_filter_validation_handler(const std::shared_ptr<restbed::Session>& session) {
+void failed_filter_validation_handler(const std::shared_ptr<restbed::Session> &session) {
     const auto request = session->get_request();
     auto headers = request->get_headers();
     SPDLOG_WARN("Invalid: ");
@@ -190,11 +190,11 @@ void failed_filter_validation_handler(const std::shared_ptr<restbed::Session>& s
     session->close(400);
 }
 
-int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
+int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
     spdlog::set_pattern("[%H:%M:%S %z] [%^%L%$] [%g:%#] [thread %t] %v");
 
     uint16_t rema_proxy_port = 4321;
-    
+
     rema_proxy_port = static_cast<uint16_t>(rema.config["REMA_PROXY"].value("port", 4321));
     std::string rtu_host = rema.config["REMA"]["network"].value("ip", "192.168.2.20");
     int rtu_port = rema.config["REMA"]["network"].value("port", 5020);
@@ -205,9 +205,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     auto resource_rtu = std::make_shared<restbed::Resource>();
     resource_rtu->set_path("/REMA");
     resource_rtu->set_failed_filter_validation_handler(failed_filter_validation_handler);
-    resource_rtu->set_method_handler("POST", [](const std::shared_ptr<restbed::Session>& session) {
-        post_rtu_method_handler(session);
-    });
+    resource_rtu->set_method_handler(
+        "POST", [](const std::shared_ptr<restbed::Session> &session) { post_rtu_method_handler(session); });
 
     auto resource_html_file = std::make_shared<restbed::Resource>();
 
@@ -257,7 +256,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     //    // Websocket
     //    std::thread websocket_thread(websocket_init);
     std::string proxy_url = fmt::format("http://127.0.0.1:{0}/static/index.html", rema_proxy_port);
-    SPDLOG_INFO("Open a browser to: \033]8;;{0}\033\\{0}\033]8;;\033\\", proxy_url);    
+    SPDLOG_INFO("Open a browser to: \033]8;;{0}\033\\{0}\033]8;;\033\\", proxy_url);
     service.start(settings);
 
     //    websocket_thread.join();

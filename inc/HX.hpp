@@ -17,7 +17,7 @@ class HX {
 
     void process_csv_from_disk(std::string hx_name);
 
-    void process_csv(std::string hx_name, std::istream& stream);
+    void process_csv(std::string hx_name, std::istream &stream);
 
     void generate_svg();
 
@@ -51,4 +51,3 @@ class HX {
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(HX, tubesheet_svg, tube_od, leg, unit, scale, tubes)
-

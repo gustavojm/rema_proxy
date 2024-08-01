@@ -13,5 +13,4 @@
 #include <thread>
 #include <vector>
 
-void upload_create_endpoints(restbed::Service& service);
-
+void upload_create_endpoints(restbed::Service &service);

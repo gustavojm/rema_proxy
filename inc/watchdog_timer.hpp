@@ -1,19 +1,16 @@
 #pragma once
 
+#include <atomic>
+#include <chrono>
+#include <condition_variable>
+#include <functional>
 #include <iostream>
 #include <thread>
-#include <condition_variable>
-#include <chrono>
-#include <atomic>
-#include <functional>
-
 
 class WatchdogTimer {
-public:
-    WatchdogTimer(int seconds, std::function<void()> timeoutCallback): 
-        timeoutSeconds(seconds), 
-        onTimeoutCallback(timeoutCallback)
-         {
+  public:
+    WatchdogTimer(int seconds, std::function<void()> timeoutCallback)
+        : timeoutSeconds(seconds), onTimeoutCallback(timeoutCallback) {
         watchdogThread = std::thread(&WatchdogTimer::watchdogLoop, this);
     }
 
@@ -24,7 +21,7 @@ public:
         }
     }
 
-    void reset() {        
+    void reset() {
         std::unique_lock<std::mutex> lock(mtx);
         resetFlag = true;
         cv.notify_one();
@@ -39,7 +36,7 @@ public:
     void resume() {
         std::unique_lock<std::mutex> lock(mtx);
         resetFlag = true;
-        pauseFlag = false;        
+        pauseFlag = false;
         cv.notify_one();
     }
 
@@ -54,7 +51,7 @@ public:
         }
     }
 
-private:
+  private:
     void watchdogLoop() {
         std::unique_lock<std::mutex> lock(mtx);
         while (!stopFlag) {
@@ -63,13 +60,13 @@ private:
                 if (stopFlag) {
                     break;
                 }
-                resetFlag = false;                
+                resetFlag = false;
             } else {
                 if (pauseFlag) {
                     continue;
                 }
                 // Timeout expired without reset
-                pauseFlag = true; // Once it expired stay paused, until resumed                
+                pauseFlag = true; // Once it expired stay paused, until resumed
                 onTimeoutCallback();
             }
         }

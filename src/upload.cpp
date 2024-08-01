@@ -5,7 +5,7 @@
 #include "session.hpp"
 #include "upload.hpp"
 
-void extract_plans_from_multipart_form_data(multipart::message& multipart_msg) {
+void extract_plans_from_multipart_form_data(multipart::message &multipart_msg) {
     for (auto part : multipart_msg.parts) {
         for (auto header : part.headers) {
             for (auto [key, value] : header.params) {
@@ -24,7 +24,7 @@ void extract_plans_from_multipart_form_data(multipart::message& multipart_msg) {
     }
 }
 
-void extract_HX_from_multipart_form_data(multipart::message& multipart_msg) {
+void extract_HX_from_multipart_form_data(multipart::message &multipart_msg) {
     std::string HXname;
     std::string csv_content;
     std::string config_content;
@@ -61,13 +61,13 @@ void extract_HX_from_multipart_form_data(multipart::message& multipart_msg) {
     }
 }
 
-void file_upload_handler(const std::shared_ptr<restbed::Session>& session) {
+void file_upload_handler(const std::shared_ptr<restbed::Session> &session) {
     const auto request = session->get_request();
     std::string asset = request->get_path_parameter("asset", "");
     size_t content_length = request->get_header("Content-Length", 0);
 
     session->fetch(
-        content_length, [&, asset](const std::shared_ptr<restbed::Session>& rest_session_ptr, const restbed::Bytes& body) {
+        content_length, [&, asset](const std::shared_ptr<restbed::Session> &rest_session_ptr, const restbed::Bytes &body) {
             nlohmann::json res;
             int status = restbed::OK;
             std::string buffer(body.begin(), body.end());
@@ -82,7 +82,7 @@ void file_upload_handler(const std::shared_ptr<restbed::Session>& session) {
                     extract_HX_from_multipart_form_data(multipart_msg);
                 }
                 res["success"] = "Uploaded correctly";
-            } catch (std::exception& e) {
+            } catch (std::exception &e) {
                 res["error"] = e.what();
                 status = restbed::BAD_REQUEST;
             }
@@ -96,7 +96,7 @@ void file_upload_handler(const std::shared_ptr<restbed::Session>& session) {
 }
 
 // @formatter:off
-void upload_create_endpoints(restbed::Service& service) {
+void upload_create_endpoints(restbed::Service &service) {
 
     auto resource_upload = std::make_shared<restbed::Resource>();
     resource_upload->set_path("/upload/{asset: .*}");

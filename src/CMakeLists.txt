@@ -30,15 +30,6 @@ if(${PROJECT_NAME}_BUILD_EXECUTABLE)
       endforeach()
     endif()
   endif()
-elseif(${PROJECT_NAME}_BUILD_HEADERS_ONLY)
-  add_library(${PROJECT_NAME} INTERFACE)
-
-  if(${PROJECT_NAME}_VERBOSE_OUTPUT)
-    verbose_message("Found the following HEADERS:")
-    foreach(HEADER IN LIST HEADERS)
-      verbose_message("* ${HEADER}")
-    endforeach()
-  endif()
 else()
   add_library(
     ${PROJECT_NAME}

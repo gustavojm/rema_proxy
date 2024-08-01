@@ -16,4 +16,3 @@ class CommandNetClient : public NetClient {
     ~CommandNetClient() {
     }
 };
-

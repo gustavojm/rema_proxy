@@ -35,7 +35,7 @@ namespace multipart {
         std::string boundary;    ///< The text boundary that separates different `parts`
         std::vector<part> parts; ///< The individual parts of the message
 
-        const std::string& get_header_value(const std::string& key) const {
+        const std::string &get_header_value(const std::string &key) const {
             if (headers_.count(key)) {
                 return headers_.find(key)->second;
             }
@@ -62,7 +62,7 @@ namespace multipart {
             part item = parts[part_];
             for (header item_h : item.headers) {
                 str << item_h.value.first << ": " << item_h.value.second;
-                for (auto& it : item_h.params) {
+                for (auto &it : item_h.params) {
                     str << "; " << it.first << '=' << pad(it.second);
                 }
                 str << crlf;
@@ -74,12 +74,12 @@ namespace multipart {
 
         /// Create a multipart message from a request data
         template<typename T>
-        message(const T& headers, std::string body)
+        message(const T &headers, std::string body)
             : headers_(headers), boundary(get_boundary(get_header_value("Content-Type"))), parts(parse_body(body)) {
         }
 
       private:
-        std::string get_boundary(const std::string& header) {
+        std::string get_boundary(const std::string &header) {
             size_t found = header.find("boundary=");
             if (found)
                 return header.substr(found + 9);
@@ -107,7 +107,7 @@ namespace multipart {
             return sections;
         }
 
-        part parse_section(std::string& section) {
+        part parse_section(std::string &section) {
             struct part to_return;
 
             size_t found = section.find(crlf + crlf);
@@ -119,7 +119,7 @@ namespace multipart {
             return to_return;
         }
 
-        void parse_section_head(std::string& lines, part& part) {
+        void parse_section_head(std::string &lines, part &part) {
             while (!lines.empty()) {
                 header to_add;
 
@@ -160,15 +160,14 @@ namespace multipart {
             }
         }
 
-        inline std::string trim(std::string& string, const char& excess = '"') {
+        inline std::string trim(std::string &string, const char &excess = '"') {
             if (string.length() > 1 && string[0] == excess && string[string.length() - 1] == excess)
                 return string.substr(1, string.length() - 2);
             return string;
         }
 
-        inline std::string pad(std::string& string, const char& padding = '"') {
+        inline std::string pad(std::string &string, const char &padding = '"') {
             return (padding + string + padding);
         }
     };
 } // namespace multipart
-

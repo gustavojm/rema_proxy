@@ -1,16 +1,16 @@
 #pragma once
 
+#include <command_net_client.hpp>
 #include <filesystem>
 #include <json.hpp>
 #include <mutex>
-#include <telemetry_net_client.hpp>
-#include <command_net_client.hpp>
 #include <string>
+#include <telemetry_net_client.hpp>
 
+#include "expected.hpp"
 #include "points.hpp"
 #include "session.hpp"
 #include "tool.hpp"
-#include "expected.hpp"
 
 inline const std::filesystem::path config_file_path = "config.json";
 inline const std::filesystem::path rema_dir = std::filesystem::path("rema");
@@ -57,7 +57,18 @@ struct telemetry {
     int brakes_mode;
     bool probe_protected;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(telemetry, coords, targets, on_condition, probe, stalled, limits, control_enabled, stall_control, brakes_mode, probe_protected)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
+    telemetry,
+    coords,
+    targets,
+    on_condition,
+    probe,
+    stalled,
+    limits,
+    control_enabled,
+    stall_control,
+    brakes_mode,
+    probe_protected)
 
 struct movement_cmd {
     std::string axes;
@@ -73,20 +84,20 @@ struct movement_cmd {
 
 class REMA {
   public:
-    static void add_tool(const Tool& tool) {
+    static void add_tool(const Tool &tool) {
         tools[tool.name] = tool;
     }
 
-    static void delete_tool(const std::string& tool) {
+    static void delete_tool(const std::string &tool) {
         std::filesystem::remove(tools_dir / (tool + std::string(".json")));
         tools.erase(tool);
     }
 
-    void connect(const std::string& rtu_host, int rtu_port);
+    void connect(const std::string &rtu_host, int rtu_port);
 
     void reconnect();
 
-    void update_telemetry(std::string& stream);
+    void update_telemetry(std::string &stream);
 
     void set_last_selected_tool(std::string tool) {
         if (get_selected_tool().is_touch_probe) {
@@ -107,19 +118,21 @@ class REMA {
     }
 
     void extend_touch_probe() {
-        execute_command("TOUCH_PROBE" ,
-                            {
-                                { "position", "IN" },
-                            });
+        execute_command(
+            "TOUCH_PROBE",
+            {
+                { "position", "IN" },
+            });
     };
 
     void retract_touch_probe() {
-        execute_command("TOUCH_PROBE",
-                            {
-                                { "position", "OUT" },
-                            });
+        execute_command(
+            "TOUCH_PROBE",
+            {
+                { "position", "OUT" },
+            });
     };
-        
+
     void load_config();
 
     void save_config();
@@ -138,7 +151,7 @@ class REMA {
 
     void cancel_sequence_in_progress();
 
-    tl::expected<void, std::string> execute_sequence(std::vector<movement_cmd>& sequence);
+    tl::expected<void, std::string> execute_sequence(std::vector<movement_cmd> &sequence);
 
     void set_home_xy(double x, double y);
 
@@ -165,17 +178,15 @@ class REMA {
     std::string rtu_host_;
     int rtu_port_;
 
-    REMA() :
-        telemetry_client([&](std::string line){update_telemetry(line);})
-     {
+    REMA() : telemetry_client([&](std::string line) { update_telemetry(line); }) {
         try {
             load_config();
-            for (const auto& entry : std::filesystem::directory_iterator(tools_dir)) {
+            for (const auto &entry : std::filesystem::directory_iterator(tools_dir)) {
                 Tool t(entry.path());
                 tools[entry.path().filename().replace_extension()] = t;
             }
             this->loaded = true;
-        } catch (std::exception& e) {
+        } catch (std::exception &e) {
             SPDLOG_WARN(e.what());
         }
     }
@@ -185,7 +196,7 @@ class REMA {
     // We can use the better technique of deleting the methods
     // we don't want.
 
-  public:    
+  public:
     REMA(REMA const &) = delete;
     REMA &operator=(REMA const &) = delete;
 
@@ -198,4 +209,3 @@ class REMA {
 
 inline std::map<std::string, Tool> REMA::tools;
 inline REMA rema;
-

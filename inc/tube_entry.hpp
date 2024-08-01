@@ -12,4 +12,3 @@ class TubeEntry {
     Point3D coords;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(TubeEntry, x_label, y_label, coords)
-
