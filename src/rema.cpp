@@ -11,7 +11,6 @@
 #include <string>
 #include <variant>
 
-#include "expected.hpp"
 #include "rema.hpp"
 #include "session.hpp"
 #include "tool.hpp"

@@ -18,7 +18,12 @@ if(${PROJECT_NAME}_BUILD_EXECUTABLE)
     foreach(SOURCE IN LISTS SOURCES)
       verbose_message("* ${SOURCE}")
     endforeach()
-  endif()
+
+    verbose_message("Found the following HEADERS:")
+    foreach(HEADER IN LISTS HEADERS)
+      verbose_message("* ${HEADER}")
+    endforeach()
+endif()
 
   if(${PROJECT_NAME}_ENABLE_UNIT_TESTING)
     add_library(${PROJECT_NAME}_LIB ${HEADERS} ${SOURCES})
@@ -61,6 +66,7 @@ find_package(unofficial-restbed CONFIG REQUIRED)
 find_package(Boost REQUIRED COMPONENTS program_options)
 find_package(OpenSSL REQUIRED)
 find_package(spdlog REQUIRED)
+find_package(tl-expected CONFIG REQUIRED)
 
 # Find Open3D (not found in vcpkg repo)
 find_package(Open3D REQUIRED)
@@ -71,8 +77,8 @@ include_directories(${RESTBED_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE
                               ${Open3D_INCLUDE_DIRS}
                               ${Boost_INCLUDE_DIRS}
-                              ${HEADERS_DIR}
-                           )
+                              ${HEADERS_DIR}                              
+                          )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE 
                           Open3D::Open3D
@@ -82,5 +88,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
                           unofficial::restbed::restbed
                           OpenSSL::SSL
                           OpenSSL::Crypto
+                          tl::expected
                      )
 

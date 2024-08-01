@@ -5,9 +5,9 @@
 #include <json.hpp>
 #include <mutex>
 #include <string>
-#include <telemetry_net_client.hpp>
 
-#include "expected.hpp"
+#include "telemetry_net_client.hpp"
+#include "tl/expected.hpp"
 #include "points.hpp"
 #include "session.hpp"
 #include "tool.hpp"
