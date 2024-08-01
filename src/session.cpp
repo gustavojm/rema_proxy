@@ -2,7 +2,7 @@
 #include <open3d/Open3D.h>
 #include <spdlog/spdlog.h>
 
-#include <csv.h>
+#include <csv.hpp>
 #include <fstream>
 #include <iostream>
 #include <map>

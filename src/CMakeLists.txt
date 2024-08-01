@@ -75,7 +75,7 @@ find_package(Open3D REQUIRED)
 # Include restbed headers
 include_directories(${RESTBED_DIR}/include)
 
-find_path(RAPIDXML_INCLUDE_DIRS ")rapidxml/rapidxml.hpp")
+find_path(RAPIDXML_INCLUDE_DIRS "rapidxml/rapidxml.hpp")
 
 target_include_directories(${PROJECT_NAME} PRIVATE
                               ${Open3D_INCLUDE_DIRS}
