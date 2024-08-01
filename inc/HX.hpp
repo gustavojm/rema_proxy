@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "csv.h"
-#include "json.hpp"
+#include "nlohmann/json.hpp"
 #include "points.hpp"
 #include "svg.hpp"
 #include "tube_entry.hpp"

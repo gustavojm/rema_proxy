@@ -1,6 +1,6 @@
 #pragma once
 
-#include "json.hpp"
+#include "nlohmann/json.hpp"
 #include <spdlog/spdlog.h>
 
 class Point3D {

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <json.hpp>
 #include <string>
 
+#include "nlohmann/json.hpp"
 #include "points.hpp"
 
 class Tool {

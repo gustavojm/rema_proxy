@@ -4,13 +4,13 @@
 #include <vector>
 
 #include <fstream>
-#include <json.hpp>
 #include <map>
 #include <memory>
 #include <spdlog/spdlog.h>
 #include <string>
 #include <variant>
 
+#include "nlohmann/json.hpp"
 #include "rema.hpp"
 #include "session.hpp"
 #include "tool.hpp"

@@ -1,11 +1,11 @@
 #pragma once
 
-#include <command_net_client.hpp>
 #include <filesystem>
-#include <json.hpp>
 #include <mutex>
 #include <string>
 
+#include "command_net_client.hpp"
+#include "nlohmann/json.hpp"
 #include "telemetry_net_client.hpp"
 #include "tl/expected.hpp"
 #include "points.hpp"

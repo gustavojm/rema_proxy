@@ -1,10 +1,10 @@
 #pragma once
 
 #include <filesystem>
-#include <json.hpp>
 #include <set>
 #include <string>
 
+#include "nlohmann/json.hpp"
 #include "HX.hpp"
 #include "points.hpp"
 #include "tool.hpp"

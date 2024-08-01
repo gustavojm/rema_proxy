@@ -8,6 +8,7 @@
     "boost-beast",   
     "eigen3",
     "spdlog",
-    "tl-expected"    
+    "tl-expected",
+    "nlohmann-json"        
   ]
 }
