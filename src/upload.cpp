@@ -12,7 +12,7 @@ void extract_plans_from_multipart_form_data(multipart::message& multipart_msg) {
                 if (key == "filename" && !value.empty()) {
                     std::filesystem::path filename(value);
                     std::istringstream istream(part.body); // this is an input stream
-                    if (current_session.is_loaded()) {
+                    if (current_session.is_loaded) {
                         std::string plan_name = filename.replace_extension().string().substr(0, 25);
                         current_session.load_plan(plan_name, istream);
                         std::cout << "Added: " << plan_name << "\n";

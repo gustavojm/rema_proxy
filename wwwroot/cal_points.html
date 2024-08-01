@@ -163,13 +163,14 @@ function aligned_tubes_get() {
 		method : "GET",
 		url : "/REST/aligned-tubesheet-get",
 		success : function(data) {
-			aligned_tubes = data;
+			aligned_tubes = data.aligned_tubes;
 			var svg = $("#tubesheet_svg").svg("get");
 			$(".determined_tube").remove();
-			$.each(data, function(id, coords) {
+			$.each(aligned_tubes, function(id, coords) {
 				  //console.log(`${key}: ${value}`);				  
 				  drawAlignedCircle(svg, id, coords, 0.05, scale);
 			});
+			aligned_coords = data.is_aligned;
 		},
 		error: function(xhr, status, error) {
 			alert("Error");

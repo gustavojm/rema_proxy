@@ -35,10 +35,11 @@ bool Session::load(const std::string& session_name) {
     std::filesystem::path session_path = sessions_dir / (session_name + std::string(".json"));
     std::ifstream i_file_stream(session_path);
 
-    nlohmann::json json;
-    i_file_stream >> json;
-    *this = json;
-    loaded = true;
+    //nlohmann::json json;
+    //i_file_stream >> json;
+    from_json_from_disk(nlohmann::json::parse(i_file_stream));
+    
+    is_loaded = true;
     name = session_name;
 
     return true;
@@ -76,7 +77,7 @@ std::string Session::load_plans() {
             load_plan_from_disk(entry);
         }
     }
-    loaded = true;
+    is_loaded = true;
     return out.str();
 }
 
@@ -103,15 +104,13 @@ void Session::plan_remove(const std::string& plan) {
 void Session::save_to_disk() const {
     std::filesystem::path session_file = sessions_dir / (name + std::string(".json"));
     std::ofstream file(session_file);
-    nlohmann::json json(*this);
-    json.erase("name");
-    json.erase("last_write_time");
+    nlohmann::json json = to_json_to_disk();
     file << json;
 }
 
 void Session::set_selected_plan(std::string& plan) {
     last_selected_plan = plan;
-    changed = true;
+    is_changed = true;
 }
 
 std::string Session::get_selected_plan() const {
@@ -120,7 +119,7 @@ std::string Session::get_selected_plan() const {
 
 void Session::set_tube_executed(std::string& plan, std::string& tube_id, bool state) {
     plans[plan][tube_id].executed = state;
-    changed = true;
+    is_changed = true;
 }
 
 int Session::total_tubes_in_plans() {
@@ -149,12 +148,12 @@ void Session::cal_points_add_update(
         col, row, ideal_coords, determined_coords, true,
     };
     cal_points[tube_id] = cpe;
-    changed = true;
+    is_changed = true;
 }
 
 void Session::cal_points_delete(const std::string& tube_id) {
     cal_points.erase(tube_id);
-    changed = true;
+    is_changed = true;
 }
 
 Point3D Session::get_tube_coordinates(const std::string& tube_id, bool ideal = true) {
@@ -171,6 +170,7 @@ Point3D Session::get_tube_coordinates(const std::string& tube_id, bool ideal = t
 };
 
 std::map<std::string, Point3D>& Session::calculate_aligned_tubes() {
+    is_aligned = false;
     SPDLOG_INFO("Aligning Tubes...");
     // std::vector<Point3D> src_points = { { 1.625, 0.704, 0 },
     //         {16.656, 2.815, 0},
@@ -200,8 +200,8 @@ std::map<std::string, Point3D>& Session::calculate_aligned_tubes() {
         }
     }
 
-    if (used_points < 2) {
-        SPDLOG_ERROR("At least two alignment points are required");
+    if (used_points < 3) {
+        SPDLOG_ERROR("At least 3 alignment points are required");
         copy_tubes_to_aligned_tubes();
         return aligned_tubes;
     }
@@ -234,6 +234,6 @@ std::map<std::string, Point3D>& Session::calculate_aligned_tubes() {
 
         aligned_tubes[id] = { transformed_point.x(), transformed_point.y(), transformed_point.z() };
     }
-
+    is_aligned = true;
     return aligned_tubes;
 }

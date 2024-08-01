@@ -80,9 +80,9 @@ void event_stream_handler() {
         }
     }
 
-    if (current_session.is_loaded() && current_session.is_changed()) {
+    if (current_session.is_loaded && current_session.is_changed) {
         current_session.save_to_disk();
-        current_session.set_changed(false);
+        current_session.is_changed = false;
         res["SESSION_MSG"] = "Session Saved";
     }
 
@@ -102,7 +102,7 @@ void event_stream_handler() {
 }
 
 void get_HXs_method_handler(const std::shared_ptr<restbed::Session>& session) {
-    if (current_session.is_loaded()) {
+    if (current_session.is_loaded) {
         const std::string body = current_session.hx.tubesheet_svg;
         std::string content_type = "image/svg+xml";
 

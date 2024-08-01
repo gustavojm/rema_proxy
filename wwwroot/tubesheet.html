@@ -101,6 +101,7 @@
 <script type="text/javascript">
 	var scale = 1;
 	var currentRow = null;
+	var aligned_coords = false;
 
 	function displayCoordinates(event) {
 		var svg = document.getElementById("tubesheet_svg");
@@ -184,7 +185,6 @@
 		stroke = 0.02 * scale;
 		
 		var pin = svg.group({
-			stroke : 'red',
 			strokeWidth : stroke,
 			id : "location_pin",
 			transform : "rotate(45, 0, 0)"
@@ -197,21 +197,20 @@
 		
 		svg.rect(pin, x, y, width, height, {
 			fill : 'red',
-			stroke : 'red',
-			strokeWidth : stroke
+			strokeWidth : stroke,
+			class: 'color'
 		});
 
 		radius = width;
 		svg.circle(pin, x, y, radius, {
 			fill : 'red',
-			stroke : 'red',
-			strokeWidth : stroke
+			strokeWidth : stroke,
+			class: 'color'
 		});
 
 		internal_circle_radius = radius / 2 
 		svg.circle(pin, x, y, internal_circle_radius, {
 			fill : 'white',
-			stroke : 'red',
 			strokeWidth : stroke
 		});
 	}
@@ -243,6 +242,18 @@
 		$("#location_pin").animate({
 			svgTransform : 'scale(1 -1) translate(' + x + " " + y + ') rotate(225 0 0)'
 		}, 500);
+	}
+
+	function highligt_aligned_coords(aligned) {
+		if (aligned_coords) {
+			$("#tube_info_x, #tube_info_y").addClass("aligned-coords");
+			$("#tube_info_x, #tube_info_y").prop("title", "Aligned coords");
+			$("#location_pin").children(".color").addClass("aligned-coords");
+		} else {
+			$("#tube_info_x, #tube_info_y").removeClass("aligned-coords");
+			$("#tube_info_x, #tube_info_y").prop("title", "Ideal coords");
+			$("#location_pin").children().removeClass("aligned-coords");
+		}
 	}
 
 	//Shows information of the selected tube either on the datatables or the HX itself
@@ -298,6 +309,7 @@
 					.val(row);
 			$("#tube_info_x").val(toFixedIfNecessary(aligned_tubes[id].x, decimals));
 			$("#tube_info_y").val(toFixedIfNecessary(aligned_tubes[id].y, decimals));
+			highligt_aligned_coords(aligned_coords);
 			update_location_pin_position(
 					cx, cy);
 
@@ -457,6 +469,7 @@
 							scale = data.hx.scale;
 							tube_od = data.hx.tube_od;
 							tubes = data.hx.tubes;
+							aligned_coords = data.is_aligned;
 							aligned_tubes = data.aligned_tubes;
 							var leg_switch = $('#leg_switch');
 							leg_switch.prop('checked', data.hx.leg == "cold" ? false : true);
@@ -680,7 +693,7 @@
 				'click',
 				'tr',
 				function() {
-					if (currentRow !== null) {
+					if (currentRow instanceof jQuery) {
 						currentRow.removeClass('selected');
 					}
 					currentRow = $(this);					// Store the selected row on click					

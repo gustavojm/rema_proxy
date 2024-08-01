@@ -277,14 +277,8 @@ void sessions_load(const std::shared_ptr<restbed::Session>& rest_session) {
 
 void sessions_info(const std::shared_ptr<restbed::Session>& rest_session) {
     nlohmann::json res = nlohmann::json::object();
-    if (current_session.is_loaded()) {
-        res = current_session;
-        res["tubes"] = current_session.hx.tubes;
-        res["aligned_tubes"] = current_session.aligned_tubes;
-        res["is_loaded"] = true;
-    } else {
-        res["is_loaded"] = false;
-    }
+    res = current_session;
+    res["tubes"] = current_session.hx.tubes;                // This values have not been serialized to JSON because we 
     close_rest_session(rest_session, restbed::OK, res);
 }
 
@@ -751,7 +745,11 @@ void determine_tubesheet_z(const std::shared_ptr<restbed::Session>& rest_session
 }
 
 void aligned_tubesheet_get(const std::shared_ptr<restbed::Session>& rest_session) {
-    close_rest_session(rest_session, restbed::OK, nlohmann::json(current_session.calculate_aligned_tubes()));
+    nlohmann::json res;
+    res["aligned_tubes"] = current_session.calculate_aligned_tubes();
+    res["is_aligned"] = current_session.is_aligned;
+
+    close_rest_session(rest_session, restbed::OK, res);
 }
 
 // @formatter:off

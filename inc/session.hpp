@@ -114,18 +114,6 @@ class Session {
 
     void save_to_disk() const;
 
-    inline bool is_loaded() {
-        return loaded;
-    }
-
-    inline bool is_changed() const {
-        return changed;
-    }
-
-    inline void set_changed(bool status) {
-        changed = status;
-    }
-
     void set_selected_plan(std::string& plan);
 
     std::string get_selected_plan() const;
@@ -146,13 +134,33 @@ class Session {
 
     std::map<std::string, std::map<std::string, struct PlanEntry>> plans;
 
+    nlohmann::json to_json_to_disk() const {
+        nlohmann::json json;
+        json["hx_dir"] = hx_dir;
+        json["hx"] = hx;
+        json["last_selected_plan"] = last_selected_plan;
+        json["plans"] = plans;
+        json["cal_points"] = cal_points;
+        return json;
+    }
+
+    void from_json_from_disk(const nlohmann::json& json) {
+        const Session nlohmann_json_default_obj{};
+        hx_dir = json.value("hx_dir", nlohmann_json_default_obj.hx_dir);
+        hx = json.value("hx", nlohmann_json_default_obj.hx);
+        last_selected_plan = json.value("last_selected_plan", nlohmann_json_default_obj.last_selected_plan);
+        plans = json.value("plans", nlohmann_json_default_obj.plans);
+        cal_points = json.value("cal_points", nlohmann_json_default_obj.cal_points);
+    }
+
     std::string name;
     std::filesystem::path hx_dir;
     HX hx;
     std::string last_selected_plan;
     std::string last_write_time;
-    bool loaded = false;
-    bool changed = false;
+    bool is_loaded = false;
+    bool is_changed = false;
+    bool is_aligned = false;
     std::map<std::string, Point3D> aligned_tubes;
     std::map<std::string, CalPointEntry> cal_points;
 };
@@ -165,6 +173,11 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(
     hx,
     last_selected_plan,
     plans,
-    cal_points)
+    cal_points,
+    aligned_tubes,
+    is_aligned,
+    is_loaded
+)
+
 
 inline Session current_session;

@@ -240,6 +240,12 @@ svg .tube:hover {
 	height: 60px;
 }
 
+.aligned-coords {
+	color: blue;
+	stroke: blue;
+	fill:blue;	
+}
+
 /* OFF AUTO ON <input type="range"> styling	*/
 .slider {
 	margin: auto;
