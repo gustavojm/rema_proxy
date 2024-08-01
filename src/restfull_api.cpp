@@ -20,8 +20,6 @@
 #include "session.hpp"
 #include "tool.hpp"
 
-extern Session current_session;
-
 void close_rest_session(const std::shared_ptr<restbed::Session>& rest_session, int status) {
     rest_session->close(status, "", { { "Content-Type", "text/html ; charset=utf-8" }, { "Content-Length", "0" } });
 }
@@ -52,9 +50,8 @@ struct ResourceEntry {
 void REMA_connect(const std::shared_ptr<restbed::Session>& rest_session) {
     std::string res;
     int status = restbed::OK;
-    try {
-        REMA& rema_instance = REMA::get_instance();
-        rema_instance.reconnect();
+    try {        
+        rema.reconnect();
         status = restbed::OK;
     } catch (std::exception& e) {
         res = e.what();
@@ -64,8 +61,7 @@ void REMA_connect(const std::shared_ptr<restbed::Session>& rest_session) {
 }
 
 void REMA_info(const std::shared_ptr<restbed::Session>& rest_session) {
-    nlohmann::json res = nlohmann::json(nlohmann::json::value_t::object);
-    REMA& rema_instance = REMA::get_instance();
+    nlohmann::json res = nlohmann::json(nlohmann::json::value_t::object);    
 
     std::map<std::string, Tool> tools_to_ui;
     for (auto [id, tool] : REMA::tools) {
@@ -73,9 +69,9 @@ void REMA_info(const std::shared_ptr<restbed::Session>& rest_session) {
     }
 
     res["tools"] = tools_to_ui;
-    res["last_selected_tool"] = rema_instance.last_selected_tool;
-    res["host"] = rema_instance.command_client.get_host();
-    res["service"] = rema_instance.command_client.get_port();
+    res["last_selected_tool"] = rema.last_selected_tool;
+    res["host"] = rema.command_client.get_host();
+    res["service"] = rema.command_client.get_port();
     close_rest_session(rest_session, restbed::OK, res);
 }
 
@@ -195,9 +191,8 @@ void tools_delete(const std::shared_ptr<restbed::Session>& rest_session) {
 
 void tools_select(const std::shared_ptr<restbed::Session>& rest_session) {
     auto request = rest_session->get_request();
-    std::string tool_name = request->get_path_parameter("tool_name", "");
-    REMA& rema_instance = REMA::get_instance();
-    rema_instance.set_last_selected_tool(tool_name);
+    std::string tool_name = request->get_path_parameter("tool_name", "");    
+    rema.set_last_selected_tool(tool_name);
     close_rest_session(rest_session, restbed::OK);
 }
 
@@ -393,41 +388,37 @@ void tubes_set_status(const std::shared_ptr<restbed::Session>& rest_session) {
         });
 }
 
-void axes_hard_stop_all(const std::shared_ptr<restbed::Session>& rest_session) {
-    REMA& rema_instance = REMA::get_instance();
-    rema_instance.axes_hard_stop_all();
+void axes_hard_stop_all(const std::shared_ptr<restbed::Session>& rest_session) {    
+    rema.axes_hard_stop_all();
     close_rest_session(rest_session, restbed::OK);
 }
 
 void axes_soft_stop_all(const std::shared_ptr<restbed::Session>& rest_session) {
-    SPDLOG_INFO("Received soft stop");
-    REMA& rema_instance = REMA::get_instance();
-    rema_instance.axes_soft_stop_all();
+    SPDLOG_INFO("Received soft stop");    
+    rema.axes_soft_stop_all();
     close_rest_session(rest_session, restbed::OK);
 }
 
 void go_to_tube(const std::shared_ptr<restbed::Session>& rest_session) {
-    REMA& rema_instance = REMA::get_instance();
     const auto request = rest_session->get_request();
     std::string tube_id = request->get_path_parameter("tube_id", "");
 
     
 
     if (!tube_id.empty()) {
-        Tool tool = rema_instance.get_selected_tool();
+        Tool tool = rema.get_selected_tool();
         Point3D rema_coords = current_session.from_ui_to_rema(current_session.get_tube_coordinates(tube_id, false),& tool);
 
         movement_cmd goto_tube;
         goto_tube.axes = "XY";
         goto_tube.first_axis_setpoint = rema_coords.x;
         goto_tube.second_axis_setpoint = rema_coords.y;
-        nlohmann::json res = rema_instance.move_closed_loop(goto_tube);
+        nlohmann::json res = rema.move_closed_loop(goto_tube);
         close_rest_session(rest_session, restbed::OK, res);
     }
 }
 
-void move_joystick(const std::shared_ptr<restbed::Session>& rest_session) {
-    REMA& rema_instance = REMA::get_instance();
+void move_joystick(const std::shared_ptr<restbed::Session>& rest_session) {    
     const auto request = rest_session->get_request();
     std::string dir = request->get_path_parameter("dir", "");
 
@@ -467,8 +458,8 @@ void move_joystick(const std::shared_ptr<restbed::Session>& rest_session) {
         pars_obj["first_axis_setpoint"] = negative_big_number;
     }
 
-    rema_instance.axes_soft_stop_all();
-    nlohmann::json res = rema_instance.execute_command("MOVE_JOYSTICK", pars_obj);
+    rema.axes_soft_stop_all();
+    nlohmann::json res = rema.execute_command("MOVE_JOYSTICK", pars_obj);
     close_rest_session(rest_session, restbed::OK, res);
 }
 
@@ -477,7 +468,6 @@ bool equals(double f1, double f2) {
 }
 
 void change_network_settings(const std::shared_ptr<restbed::Session>& rest_session) {
-    REMA& rema_instance = REMA::get_instance();
     nlohmann::json pars_obj;
     const auto request = rest_session->get_request();
     size_t content_length = request->get_header("Content-Length", 0);
@@ -490,21 +480,21 @@ void change_network_settings(const std::shared_ptr<restbed::Session>& rest_sessi
                 std::string rtu_host = form_data["ipaddr"];
                 int rtu_port = form_data["port"];
 
-                rema_instance.config["REMA"]["network"]["ip"] = rtu_host;
-                rema_instance.config["REMA"]["network"]["port"] = rtu_port;
-                rema_instance.save_config();
+                rema.config["REMA"]["network"]["ip"] = rtu_host;
+                rema.config["REMA"]["network"]["port"] = rtu_port;
+                rema.save_config();
 
                 if (form_data.contains("change_remote_network_settings")) {
                     pars_obj["ipaddr"] = rtu_host;
                     pars_obj["port"] = rtu_port;
                     pars_obj["gw"] = form_data["ipaddr"];
                     pars_obj["netmask"] = "255.255.255.0";
-                    rema_instance.execute_command_no_wait("NETWORK_SETTINGS", pars_obj);
+                    rema.execute_command_no_wait("NETWORK_SETTINGS", pars_obj);
                 }
 
                 for (int retry = 0; retry < 3; ++retry) {
                     try {
-                        rema_instance.connect(rtu_host, rtu_port);
+                        rema.connect(rtu_host, rtu_port);
                     } catch (const std::exception& e) {
                         std::this_thread::sleep_for(std::chrono::milliseconds(500));
                         SPDLOG_INFO("Retrying...");
@@ -516,7 +506,6 @@ void change_network_settings(const std::shared_ptr<restbed::Session>& rest_sessi
 }
 
 void move_incremental(const std::shared_ptr<restbed::Session>& rest_session) {
-    REMA& rema_instance = REMA::get_instance();
     const auto request = rest_session->get_request();
     size_t content_length = request->get_header("Content-Length", 0);
     rest_session->fetch(
@@ -548,31 +537,29 @@ void move_incremental(const std::shared_ptr<restbed::Session>& rest_session) {
                     pars_obj["first_axis_delta"] = current_session.from_ui_to_rema(incremental_z);
                 }
             }
-            rema_instance.axes_soft_stop_all();
-            nlohmann::json res = rema_instance.execute_command("MOVE_INCREMENTAL", pars_obj);
+            rema.axes_soft_stop_all();
+            nlohmann::json res = rema.execute_command("MOVE_INCREMENTAL", pars_obj);
             close_rest_session(rest_session_ptr, restbed::OK, res);
         });
 }
 
 void set_home_xy(const std::shared_ptr<restbed::Session>& rest_session) {
-    REMA& rema_instance = REMA::get_instance();
-    Tool tool = rema_instance.get_selected_tool();
+    Tool tool = rema.get_selected_tool();
 
     const auto request = rest_session->get_request();
     std::string tube_id = request->get_path_parameter("tube_id", "");
     if (!tube_id.empty()) {
         Point3D tube_coords = current_session.from_ui_to_rema(current_session.get_tube_coordinates(tube_id, true),& tool);
-        rema_instance.set_home_xy(tube_coords.x, tube_coords.y);
+        rema.set_home_xy(tube_coords.x, tube_coords.y);
     } else {
         Point3D zero_coords = current_session.from_ui_to_rema(Point3D(),& tool);
-        rema_instance.set_home_xy(zero_coords.x, zero_coords.y);
+        rema.set_home_xy(zero_coords.x, zero_coords.y);
     }
     close_rest_session(rest_session, restbed::OK);
 }
 
 void set_home_z(const std::shared_ptr<restbed::Session>& rest_session) {
-    REMA& rema_instance = REMA::get_instance();
-    Tool tool = rema_instance.get_selected_tool();
+    Tool tool = rema.get_selected_tool();
 
     const auto request = rest_session->get_request();
     double z = request->get_path_parameter("z", 0.0);
@@ -580,13 +567,12 @@ void set_home_z(const std::shared_ptr<restbed::Session>& rest_session) {
     nlohmann::json res;
 
     double corrected_z = current_session.from_ui_to_rema(z) + tool.offset.z;
-    rema_instance.set_home_z(corrected_z);
+    rema.set_home_z(corrected_z);
     close_rest_session(rest_session, restbed::OK, res);
 }
 
 void determine_tube_center(const std::shared_ptr<restbed::Session>& rest_session) {
-    REMA& rema_instance = REMA::get_instance();
-    Tool tool = rema_instance.get_selected_tool();
+    Tool tool = rema.get_selected_tool();
     double probe_wiggle_factor = 1.2;
     double half_probe_wiggle_factor = 1 + ((probe_wiggle_factor - 1) / 2);
     const auto request = rest_session->get_request();
@@ -600,7 +586,7 @@ void determine_tube_center(const std::shared_ptr<restbed::Session>& rest_session
         Point3D ideal_center = current_session.get_tube_coordinates(tube_id, true);
 
         if (auto distance =
-                std::abs(rema_instance.telemetry.coords.distance_xy(current_session.from_ui_to_rema(ideal_center,& tool)));
+                std::abs(rema.telemetry.coords.distance_xy(current_session.from_ui_to_rema(ideal_center,& tool)));
             distance > tube_radius * probe_wiggle_factor) {
             res["error"] = "Please have the touch probe inserted into the tube to be detected";
             close_rest_session(rest_session, restbed::CONFLICT, res);
@@ -631,7 +617,7 @@ void determine_tube_center(const std::shared_ptr<restbed::Session>& rest_session
             seq.push_back(step);
         }
 
-        auto seq_execution_response = rema_instance.execute_sequence(seq);
+        auto seq_execution_response = rema.execute_sequence(seq);
         if (!seq_execution_response) {
             res["error"] = seq_execution_response.error();
             std::cout << nlohmann::to_string(res) << std::endl;
@@ -650,7 +636,7 @@ void determine_tube_center(const std::shared_ptr<restbed::Session>& rest_session
         int status = restbed::OK;
         Circle circle = CircleFitByHyper(tube_boundary_points);
 
-        if (auto distance = std::abs(rema_instance.telemetry.coords.distance_xy(circle.center));
+        if (auto distance = std::abs(rema.telemetry.coords.distance_xy(circle.center));
             distance > tube_radius * probe_wiggle_factor) {
             res["error"] = fmt::format(
                 "Point determined too far away, would break probe x: {}, y: {}", circle.center.x, circle.center.y);
@@ -668,7 +654,7 @@ void determine_tube_center(const std::shared_ptr<restbed::Session>& rest_session
                               { "z", circle.center.z } };
             res["radius"] = circle.radius;
 
-            seq_execution_response = rema_instance.execute_sequence(goto_center_seq);
+            seq_execution_response = rema.execute_sequence(goto_center_seq);
             if (!seq_execution_response) {
                 res["error"] = seq_execution_response.error();
                 std::cout << nlohmann::to_string(res) << std::endl;
@@ -677,7 +663,7 @@ void determine_tube_center(const std::shared_ptr<restbed::Session>& rest_session
             } else if (set_home) {
                 auto step = goto_center_seq.begin();
                 if (step->executed && step->execution_results.stopped_on_condition) {
-                    rema_instance.set_home_xy(
+                    rema.set_home_xy(
                         current_session.from_ui_to_rema(ideal_center.x) + tool.offset.x,
                         current_session.from_ui_to_rema(ideal_center.y) + tool.offset.y);
                 }
@@ -692,8 +678,6 @@ void determine_tubesheet_z(const std::shared_ptr<restbed::Session>& rest_session
     const auto request = rest_session->get_request();
     std::string tube_id = request->get_path_parameter("tube_id", "");
     bool set_home = request->get_path_parameter("set_home", "") == "true";
-
-    REMA& rema_instance = REMA::get_instance();
 
     nlohmann::json res;
     std::vector<movement_cmd> seq;
@@ -710,7 +694,7 @@ void determine_tubesheet_z(const std::shared_ptr<restbed::Session>& rest_session
     seq.push_back(forewards);
     seq.push_back(backwards);
 
-    auto seq_execution_response = rema_instance.execute_sequence(seq);
+    auto seq_execution_response = rema.execute_sequence(seq);
     if (!seq_execution_response) {
         res["error"] = seq_execution_response.error();
         std::cout << nlohmann::to_string(res) << std::endl;
@@ -745,7 +729,7 @@ void determine_tubesheet_z(const std::shared_ptr<restbed::Session>& rest_session
         goto_tubesheet.second_axis_setpoint = 0;
         goto_tubesheet_seq.push_back(goto_tubesheet);
 
-        seq_execution_response = rema_instance.execute_sequence(goto_tubesheet_seq);
+        seq_execution_response = rema.execute_sequence(goto_tubesheet_seq);
         if (!seq_execution_response) {
             res["error"] = seq_execution_response.error();
             std::cout << nlohmann::to_string(res) << std::endl;
@@ -755,7 +739,7 @@ void determine_tubesheet_z(const std::shared_ptr<restbed::Session>& rest_session
             auto step = goto_tubesheet_seq.begin();
             if (step->executed && step->execution_results.stopped_on_condition) {
                 if (set_home) {
-                    rema_instance.set_home_z(0);
+                    rema.set_home_z(0);
                 } else {
                     res["z"] = z;
                 }

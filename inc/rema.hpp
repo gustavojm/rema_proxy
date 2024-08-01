@@ -12,9 +12,9 @@
 #include "tool.hpp"
 #include "expected.hpp"
 
-extern const std::filesystem::path config_file_path;
-extern const std::filesystem::path rema_dir;
-extern const std::filesystem::path tools_dir;
+inline const std::filesystem::path config_file_path = "config.json";
+inline const std::filesystem::path rema_dir = std::filesystem::path("rema");
+inline const std::filesystem::path tools_dir = rema_dir / "tools";
 
 struct temps {
     double x, y, z;
@@ -73,11 +73,6 @@ struct movement_cmd {
 
 class REMA {
   public:
-    static REMA& get_instance() {
-        static REMA instance; // Guaranteed to be destroyed. Instantiated on first use.
-        return instance;
-    }
-
     static void add_tool(const Tool& tool) {
         tools[tool.name] = tool;
     }
@@ -170,7 +165,6 @@ class REMA {
     std::string rtu_host_;
     int rtu_port_;
 
-  private:
     REMA() :
         telemetry_client([&](std::string line){update_telemetry(line);})
      {
@@ -201,4 +195,7 @@ class REMA {
     //       due to the compilers behavior to check accessibility
     //       before deleted status
 };
+
+inline std::map<std::string, Tool> REMA::tools;
+inline REMA rema;
 

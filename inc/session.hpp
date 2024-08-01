@@ -16,7 +16,7 @@ template<typename TP> std::time_t to_time_t(TP tp) {
     return std::chrono::system_clock::to_time_t(sctp);
 }
 
-static inline std::filesystem::path sessions_dir = std::filesystem::path("sessions");
+inline std::filesystem::path sessions_dir = std::filesystem::path("sessions");
 
 class PlanEntry {
   public:
@@ -167,3 +167,4 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(
     plans,
     cal_points)
 
+inline Session current_session;

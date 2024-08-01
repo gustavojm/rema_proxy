@@ -23,8 +23,6 @@
 #include "upload.hpp"
 #include "websocket-server.hpp"
 
-Session current_session;
-
 std::vector<std::shared_ptr<restbed::Session>> sse_sessions;
 
 using namespace std::chrono_literals;
@@ -50,30 +48,29 @@ void event_stream_handler() {
     if (sse_sessions.empty()) {
         return;
     }
-
-    REMA& rema_instance = REMA::get_instance();
+    
     static bool hide_sent = false;
     nlohmann::json res;
 
     try {
-        struct telemetry ui_telemetry = rema_instance.telemetry;
-        Tool tool = rema_instance.get_selected_tool();
-        ui_telemetry.coords = current_session.from_rema_to_ui(rema_instance.telemetry.coords, &tool);
-        ui_telemetry.targets = current_session.from_rema_to_ui(rema_instance.telemetry.targets, &tool);
+        struct telemetry ui_telemetry = rema.telemetry;
+        Tool tool = rema.get_selected_tool();
+        ui_telemetry.coords = current_session.from_rema_to_ui(rema.telemetry.coords, &tool);
+        ui_telemetry.targets = current_session.from_rema_to_ui(rema.telemetry.targets, &tool);
         res["TELEMETRY"] = ui_telemetry;
-        res["TELEMETRY"]["show_target"] = rema_instance.is_sequence_in_progress;
+        res["TELEMETRY"]["show_target"] = rema.is_sequence_in_progress;
 
         static auto prev = std::chrono::high_resolution_clock::from_time_t(0);
         auto now = std::chrono::high_resolution_clock::now();
         auto elapsed_time = now - prev;
         if (elapsed_time > std::chrono::milliseconds(500)) {
-            res["TEMP_INFO"] = rema_instance.temps;
+            res["TEMP_INFO"] = rema.temps;
         }
     } catch (std::exception& e) {
         SPDLOG_ERROR("Telemetry connection lost... {}", e.what());
     }
 
-    if (!rema_instance.command_client.is_connected || !rema_instance.telemetry_client.is_connected) {
+    if (!rema.command_client.is_connected || !rema.telemetry_client.is_connected) {
         res["SHOW_CONNECT"] = true;
         hide_sent = false;
     } else {
@@ -147,7 +144,7 @@ void get_method_handler(const std::shared_ptr<restbed::Session>& session) {
     }
 }
 
-void post_rtu_method_handler(const std::shared_ptr<restbed::Session>& session, REMA& rema) {
+void post_rtu_method_handler(const std::shared_ptr<restbed::Session>& session) {
     const auto request = session->get_request();
 
     size_t content_length = request->get_header("Content-Length", 0);
@@ -197,20 +194,19 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     spdlog::set_pattern("[%H:%M:%S %z] [%^%L%$] [%g:%#] [thread %t] %v");
 
     uint16_t rema_proxy_port = 4321;
-
-    REMA& rema_instance = REMA::get_instance();
-    rema_proxy_port = static_cast<uint16_t>(rema_instance.config["REMA_PROXY"].value("port", 4321));
-    std::string rtu_host = rema_instance.config["REMA"]["network"].value("ip", "192.168.2.20");
-    int rtu_port = rema_instance.config["REMA"]["network"].value("port", 5020);
+    
+    rema_proxy_port = static_cast<uint16_t>(rema.config["REMA_PROXY"].value("port", 4321));
+    std::string rtu_host = rema.config["REMA"]["network"].value("ip", "192.168.2.20");
+    int rtu_port = rema.config["REMA"]["network"].value("port", 5020);
     SPDLOG_INFO("REMA Proxy Server running on {}", rema_proxy_port);
 
-    rema_instance.connect(rtu_host, rtu_port);
+    rema.connect(rtu_host, rtu_port);
 
     auto resource_rtu = std::make_shared<restbed::Resource>();
     resource_rtu->set_path("/REMA");
     resource_rtu->set_failed_filter_validation_handler(failed_filter_validation_handler);
-    resource_rtu->set_method_handler("POST", [&rema_instance](const std::shared_ptr<restbed::Session>& session) {
-        post_rtu_method_handler(session, rema_instance);
+    resource_rtu->set_method_handler("POST", [](const std::shared_ptr<restbed::Session>& session) {
+        post_rtu_method_handler(session);
     });
 
     auto resource_html_file = std::make_shared<restbed::Resource>();

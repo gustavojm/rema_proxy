@@ -16,12 +16,6 @@
 #include "tool.hpp"
 #include "expected.hpp"
 
-const std::filesystem::path config_file_path = "config.json";
-const std::filesystem::path rema_dir = std::filesystem::path("rema");
-const std::filesystem::path tools_dir = rema_dir / "tools";
-
-std::map<std::string, Tool> REMA::tools;
-
 void REMA::cancel_sequence_in_progress() {
     while (is_sequence_in_progress) {
         cancel_sequence = true;

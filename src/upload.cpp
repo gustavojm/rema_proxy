@@ -5,8 +5,6 @@
 #include "session.hpp"
 #include "upload.hpp"
 
-extern Session current_session;
-
 void extract_plans_from_multipart_form_data(multipart::message& multipart_msg) {
     for (auto part : multipart_msg.parts) {
         for (auto header : part.headers) {
