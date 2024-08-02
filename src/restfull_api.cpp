@@ -747,6 +747,11 @@ void aligned_tubesheet_get(const std::shared_ptr<restbed::Session> &rest_session
     close_rest_session(rest_session, restbed::OK, res);
 }
 
+void send_startup_commands(const std::shared_ptr<restbed::Session> &rest_session) {
+    close_rest_session(rest_session, restbed::OK, rema.send_startup_commands());
+}
+
+
 // @formatter:off
 void restfull_api_create_endpoints(restbed::Service &service) {
     std::map<std::string, std::vector<ResourceEntry>> rest_resources = {
@@ -789,6 +794,7 @@ void restfull_api_create_endpoints(restbed::Service &service) {
         { "axes-hard-stop-all", { { "GET", &axes_hard_stop_all } } },
         { "axes-soft-stop-all", { { "GET", &axes_soft_stop_all } } },
         { "change-network-settings", { { "POST", &change_network_settings } } },
+        { "send-startup-commands", { { "POST", &send_startup_commands } } },
 
     };
     // @formatter:on

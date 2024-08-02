@@ -137,7 +137,7 @@ class REMA {
 
     void save_config();
 
-    void send_startup_commands();
+    nlohmann::json send_startup_commands();
 
     void execute_command_no_wait(const std::string cmd_name, const nlohmann::json command);
 

@@ -38,7 +38,8 @@ void REMA::load_config() {
 
 const std::filesystem::path rema_startup_cmds_file_path = "rema_startup.json";
 
-void REMA::send_startup_commands() {
+nlohmann::json REMA::send_startup_commands() {
+    nlohmann::json res;
     try {
         std::ifstream rema_startup_file(rema_startup_cmds_file_path);
         if (rema_startup_file.is_open()) {
@@ -46,12 +47,13 @@ void REMA::send_startup_commands() {
             nlohmann::json rema_startup_cmds;
             rema_startup_file >> rema_startup_cmds;
             for (auto cmd : rema_startup_cmds) {
-                execute_command(cmd["cmd"], cmd["pars"]);
+                res.push_back(execute_command(cmd["cmd"], cmd["pars"]));
             }
         }
     } catch (std::exception &e) {
         SPDLOG_WARN(e.what());
     }
+    return res;
 }
 
 void REMA::save_config() {

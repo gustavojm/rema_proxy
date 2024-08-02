@@ -72,7 +72,11 @@
             </fieldset>
         </div>
     </div>
-    
+    <div><hr/></div>
+    <div style="padding-bottom: 10px; padding-top: 10px;">
+        <textarea id="startup_commands_logs" style="width: 100%;" rows="5"  readonly="readonly"></textarea>
+        <input id="send_startup_commands_btn" type="button" value="Send startup commands"> (rema_startup.json)
+    </div>
 </div>
 
 <script type="text/javascript">
@@ -175,6 +179,22 @@
                 });
             }
 		});
+
+        $("#send_startup_commands_btn").click(function() {
+            $.ajax({
+                url : "/REST/send-startup-commands",
+                type : "POST",
+                dataType : "json",
+                contentType : "application/json",
+                success: function(data) {
+                    $("#startup_commands_logs").val(JSON.stringify(data, null, 4));
+                },
+                error: function(xhr, status, error) {
+                    $("#startup_commands_logs").val(xhr.responseText);
+
+                }
+            });
+        });
 
     });
 
