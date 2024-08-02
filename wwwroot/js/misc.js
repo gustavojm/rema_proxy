@@ -71,3 +71,15 @@ function findDifferencesShallow(old_obj, new_obj, path = '') {
  
     return differences;
  }
+
+ function replaceString(oldS, newS, fullS) {
+    for (let i = 0; i < fullS.length; ++i) {
+      if (fullS.substring(i, i + oldS.length) === oldS) {
+        fullS =
+          fullS.substring(0, i) +
+          newS +
+          fullS.substring(i + oldS.length, fullS.length);
+      }
+    }
+    return fullS;
+  }

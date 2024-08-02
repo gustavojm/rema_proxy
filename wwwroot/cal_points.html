@@ -146,9 +146,9 @@ function drawAlignedCircle(svg, id, aligned_tube, radius, scale) {
 	var g = svg.group({
 		stroke : 'blue',
 		strokeWidth : stroke,
-		"class" : "determined_tube",
+		"class" : "aligned-tube",
 		transform : "scale(1,-1)",
-		id : "determined_" + id,				
+		id : "aligned_" + id,				
 	});
 
 	svg.title(g, "Id=" + id + " Col=" + aligned_tube.x_label + " Row=" + aligned_tube.y_label);
@@ -156,8 +156,17 @@ function drawAlignedCircle(svg, id, aligned_tube, radius, scale) {
 	svg.circle(g, aligned_tube.coords.x, aligned_tube.coords.y, radius * scale, {
 		fill : 'white',
 		stroke : 'blue',
-		strokeWidth : stroke,				
+		strokeWidth : stroke,
+		"class" : "aligned-tube",
 	});
+
+	ideal_tube_coords = tubes[id].coords;
+
+	svg.line(g, aligned_tube.coords.x, aligned_tube.coords.y, ideal_tube_coords.x, ideal_tube_coords.y, {
+		stroke : 'lightblue',
+		strokeWidth : stroke * 0.3,
+	});
+
 }
 
 function aligned_tubes_get() {
@@ -167,17 +176,25 @@ function aligned_tubes_get() {
 		success : function(data) {
 			aligned_tubes = data.aligned_tubes;
 			var svg = $("#tubesheet_svg").svg("get");
-			$(".determined_tube").remove();
+			$(".aligned-tube").remove();
 			$.each(aligned_tubes, function(id, aligned_tube) {
 				  //console.log(`${key}: ${value}`);				  
 				  drawAlignedCircle(svg, id, aligned_tube, 0.05, scale);
 			});
 			aligned_coords = data.is_aligned;
+			$('#tubesheet_svg > g > .aligned-tube')
+				.click(
+					function() {
+						var g = $(this).parent();
+						aligned_tube_id = replaceString("aligned_", "", g.prop("id"));
+						ideal_tube_g = $("#tubesheet_svg > g > #" + aligned_tube_id);
+						show_tube_info(ideal_tube_g);
+					});
 		},
 		error: function(xhr, status, error) {
 			alert("Error");
 			console.log("Error", status, error);
-		}						
+		}
 	});
 	showing_aligned_tubeseet = true;
 	$("#show_hide_aligned_tubesheet").text("Hide Aligned Tubesheet");	
@@ -373,7 +390,7 @@ $(function() {
 
 	$("#show_hide_aligned_tubesheet").click(function(e) {
 		if (showing_aligned_tubeseet) {
-			$(".determined_tube").remove();
+			$(".aligned-tube").remove();
 			showing_aligned_tubeseet = false;
 			$("#show_hide_aligned_tubesheet").text("Show Aligned Tubesheet");
 			

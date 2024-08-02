@@ -307,8 +307,8 @@
 					.val(col);
 			$("#tube_info_row")
 					.val(row);
-			$("#tube_info_x").val(toFixedIfNecessary(aligned_tubes[id].x, decimals));
-			$("#tube_info_y").val(toFixedIfNecessary(aligned_tubes[id].y, decimals));
+			$("#tube_info_x").val(toFixedIfNecessary(aligned_tubes[id].coords.x, decimals));
+			$("#tube_info_y").val(toFixedIfNecessary(aligned_tubes[id].coords.y, decimals));
 			highligt_aligned_coords(aligned_coords);
 			update_location_pin_position(
 					cx, cy);
@@ -346,9 +346,9 @@
 									 "y" : parseFloat(cy),
 									 "z" : 0,
 					},
-					"determined_coords": {"x" : aligned_tubes[id].x,
-									      "y" : aligned_tubes[id].y,
-					                      "z" : aligned_tubes[id].z,					                     
+					"determined_coords": {"x" : aligned_tubes[id].coords.x,
+									      "y" : aligned_tubes[id].coords.y,
+					                      "z" : aligned_tubes[id].coords.z,					                     
 					}
 			};
 			show_cal_point_info(data);
@@ -423,7 +423,7 @@
 						path,
 						function() {
 							var tubes = $(
-									'#tubesheet_svg .tube_num, #tubesheet_svg circle ')
+									'#tubesheet_svg .tube_num, #tubesheet_svg circle')
 									.click(
 											function() {
 												var g = $(this).parent();
