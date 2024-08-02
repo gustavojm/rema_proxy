@@ -18,7 +18,7 @@ Session::Session(const std::filesystem::path &session_file) {
 
 void Session::copy_tubes_to_aligned_tubes() {
     for (auto [id, tube] : hx.tubes) {
-        aligned_tubes[id] = tube.coords;
+        aligned_tubes[id] = tube;
     }
 }
 
@@ -157,19 +157,14 @@ void Session::cal_points_delete(const std::string &tube_id) {
 }
 
 Point3D Session::get_tube_coordinates(const std::string &tube_id, bool ideal = true) {
-    if (ideal) {
-        if (auto iter = hx.tubes.find(tube_id); iter != hx.tubes.end()) {
-            return iter->second.coords;
-        }
-    } else {
-        if (auto iter = aligned_tubes.find(tube_id); iter != aligned_tubes.end()) {
-            return iter->second;
-        }
+    auto source = ideal ? hx.tubes : aligned_tubes;
+    if (auto iter = source.find(tube_id); iter != source.end()) {
+        return iter->second.coords;
     }
     return {};
 };
 
-std::map<std::string, Point3D> &Session::calculate_aligned_tubes() {
+std::map<std::string, TubeEntry> &Session::calculate_aligned_tubes() {
     is_aligned = false;
     SPDLOG_INFO("Aligning Tubes...");
     // std::vector<Point3D> src_points = { { 1.625, 0.704, 0 },
@@ -232,7 +227,9 @@ std::map<std::string, Point3D> &Session::calculate_aligned_tubes() {
         Eigen::Vector4d new_point = transformation_matrix * point;
         Eigen::Vector3d transformed_point = new_point.head<3>() / new_point(3);
 
-        aligned_tubes[id] = { transformed_point.x(), transformed_point.y(), transformed_point.z() };
+        TubeEntry aligned_tube = tube;
+        aligned_tube.coords = { transformed_point.x(), transformed_point.y(), transformed_point.z() };
+        aligned_tubes[id] = aligned_tube;
     }
     is_aligned = true;
     return aligned_tubes;

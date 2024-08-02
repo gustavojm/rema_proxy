@@ -140,7 +140,7 @@ function remove_highlight_calibration_tube(g) {
 	tubes.removeClass(highlight);
 }
 
-function drawAlignedCircle(svg, id, coords, radius, scale) {		
+function drawAlignedCircle(svg, id, aligned_tube, radius, scale) {		
 	stroke = 0.03 * scale;
 	
 	var g = svg.group({
@@ -148,13 +148,15 @@ function drawAlignedCircle(svg, id, coords, radius, scale) {
 		strokeWidth : stroke,
 		"class" : "determined_tube",
 		transform : "scale(1,-1)",
-		id : "determined_" + id, 
+		id : "determined_" + id,				
 	});
 
-	svg.circle(g, coords.x, coords.y, radius * scale, {
-		fill : 'none',
+	svg.title(g, "Id=" + id + " Col=" + aligned_tube.x_label + " Row=" + aligned_tube.y_label);
+
+	svg.circle(g, aligned_tube.coords.x, aligned_tube.coords.y, radius * scale, {
+		fill : 'white',
 		stroke : 'blue',
-		strokeWidth : stroke,					
+		strokeWidth : stroke,				
 	});
 }
 
@@ -166,9 +168,9 @@ function aligned_tubes_get() {
 			aligned_tubes = data.aligned_tubes;
 			var svg = $("#tubesheet_svg").svg("get");
 			$(".determined_tube").remove();
-			$.each(aligned_tubes, function(id, coords) {
+			$.each(aligned_tubes, function(id, aligned_tube) {
 				  //console.log(`${key}: ${value}`);				  
-				  drawAlignedCircle(svg, id, coords, 0.05, scale);
+				  drawAlignedCircle(svg, id, aligned_tube, 0.05, scale);
 			});
 			aligned_coords = data.is_aligned;
 		},

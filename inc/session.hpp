@@ -130,7 +130,7 @@ class Session {
 
     void copy_tubes_to_aligned_tubes();
 
-    std::map<std::string, Point3D> &calculate_aligned_tubes();
+    std::map<std::string, TubeEntry> &calculate_aligned_tubes();
 
     std::map<std::string, std::map<std::string, struct PlanEntry>> plans;
 
@@ -161,7 +161,7 @@ class Session {
     bool is_loaded = false;
     bool is_changed = false;
     bool is_aligned = false;
-    std::map<std::string, Point3D> aligned_tubes;
+    std::map<std::string, TubeEntry> aligned_tubes;
     std::map<std::string, CalPointEntry> cal_points;
 };
 

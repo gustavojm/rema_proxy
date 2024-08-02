@@ -275,11 +275,8 @@ void sessions_load(const std::shared_ptr<restbed::Session> &rest_session) {
     close_rest_session(rest_session, status, res);
 }
 
-void sessions_info(const std::shared_ptr<restbed::Session> &rest_session) {
-    nlohmann::json res = nlohmann::json::object();
-    res = current_session;
-    res["tubes"] = current_session.hx.tubes; // This values have not been serialized to JSON because we
-    close_rest_session(rest_session, restbed::OK, res);
+void current_session_info(const std::shared_ptr<restbed::Session> &rest_session) {
+    close_rest_session(rest_session, restbed::OK, current_session);
 }
 
 void sessions_delete(const std::shared_ptr<restbed::Session> &rest_session) {
@@ -776,7 +773,7 @@ void restfull_api_create_endpoints(restbed::Service &service) {
             },
         },
         { "sessions/{session_name: .*}", { { "GET", &sessions_load }, { "DELETE", &sessions_delete } } },
-        { "current-session/info", { { "GET", &sessions_info } } },
+        { "current-session/info", { { "GET", &current_session_info } } },
         { "calibration-points", { { "GET", &cal_points_list } } },
         { "calibration-points/{tube_id: .*}", { { "PUT", &cal_points_add_update }, { "DELETE", &cal_points_delete } } },
         { "tubes/{tube_id: .*}", { { "PUT", &tubes_set_status } } },

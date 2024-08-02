@@ -535,10 +535,10 @@ function get_rema_info() {
 
 		get_session_info_index()
 			.done(
-					function(data) {
+					function(current_session) {
 						active_tab = 0;
-						if (data.is_loaded) {
-							$(".units").text(data.hx.unit);
+						if (current_session.is_loaded) {
+							$(".units").text(current_session.hx.unit);
 							active_tab = 2
 						}
 						

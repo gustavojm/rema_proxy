@@ -460,20 +460,20 @@
 
 	get_session_info()
 			.done(
-					function(data) {
+					function(current_session) {
 						tube_od = 1;
 						var svg_url = "/static/no_session_loaded.svg";
-						if (data.is_loaded) {
-							$(".units").text(data.hx.unit);
-							$("#session_name").text("Session: " + data.name);
-							scale = data.hx.scale;
-							tube_od = data.hx.tube_od;
-							tubes = data.hx.tubes;
-							aligned_coords = data.is_aligned;
-							aligned_tubes = data.aligned_tubes;
+						if (current_session.is_loaded) {
+							$(".units").text(current_session.hx.unit);
+							$("#session_name").text("Session: " + current_session.name);
+							scale = current_session.hx.scale;
+							tube_od = current_session.hx.tube_od;
+							tubes = current_session.hx.tubes;
+							aligned_coords = current_session.is_aligned;
+							aligned_tubes = current_session.aligned_tubes;
 							var leg_switch = $('#leg_switch');
-							leg_switch.prop('checked', data.hx.leg == "cold" ? false : true);
-							if (data.hx.leg != "both") {
+							leg_switch.prop('checked', current_session.hx.leg == "cold" ? false : true);
+							if (current_session.hx.leg != "both") {
 								leg_switch.prop('disabled', true);	
 							}						
 							leg_switch.change();
@@ -496,7 +496,7 @@
 						var color = 0;
 						$
 								.each(
-										data.plans,
+										current_session.plans,
 										function(key, entry) {
 											plans_dropdown
 													.append($(

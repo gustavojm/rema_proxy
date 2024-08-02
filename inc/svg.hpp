@@ -84,7 +84,7 @@ add_tube(rapidxml::xml_document<char> *doc, TubeEntry tube, std::string id, floa
         });
 
     auto tooltip_node = doc->allocate_node(rapidxml::node_type::node_element, "title");
-    tooltip_node->value(doc->allocate_string((std::string("Col=") + tube.x_label + " Row=" + tube.y_label).c_str()));
+    tooltip_node->value(doc->allocate_string((std::string("Id=") + id + " Col=" + tube.x_label + " Row=" + tube.y_label).c_str()));
     tube_group_node->append_node(tooltip_node);
     tube_group_node->append_node(tube_node);
     auto number_node = doc->allocate_node(rapidxml::node_type::node_element, "text", doc->allocate_string(id.substr(3).c_str()));
