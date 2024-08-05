@@ -13,6 +13,7 @@
 #include "nlohmann/json.hpp"
 #include "rema.hpp"
 #include "session.hpp"
+#include "chart.hpp"
 #include "tool.hpp"
 
 void REMA::cancel_sequence_in_progress() {
@@ -86,7 +87,7 @@ void REMA::reconnect() {
 }
 
 void REMA::update_telemetry(std::string &stream) {
-    nlohmann::json json;
+    nlohmann::json json;    
     try {
         std::lock_guard<std::mutex> lock(mtx);
         if (!stream.empty()) {
@@ -94,6 +95,11 @@ void REMA::update_telemetry(std::string &stream) {
 
             if (json.contains("telemetry")) {
                 telemetry = json["telemetry"];
+
+                if (telemetry.coords != old_telemetry.coords || telemetry.targets != old_telemetry.targets) {
+                    current_session.chart.insertData({telemetry.coords, telemetry.targets});
+                    old_telemetry = telemetry;
+                }
             }
 
             if (json.contains("temps")) {

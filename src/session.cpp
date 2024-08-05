@@ -23,7 +23,7 @@ void Session::copy_tubes_to_aligned_tubes() {
 }
 
 Session::Session(const std::string &session_name, const std::filesystem::path &hx_dir_)
-    : name(session_name), hx_dir(hx_dir_) {
+    : name(session_name), hx_dir(hx_dir_), chart(session_name) {
 
     hx.process_csv_from_disk(hx_dir);
     hx.generate_svg();
@@ -31,7 +31,7 @@ Session::Session(const std::string &session_name, const std::filesystem::path &h
     calculate_aligned_tubes();
 }
 
-bool Session::load(const std::string &session_name) {
+bool Session::load(const std::string &session_name, bool load_charts) {
     std::filesystem::path session_path = sessions_dir / (session_name + std::string(".json"));
     std::ifstream i_file_stream(session_path);
 
@@ -41,6 +41,10 @@ bool Session::load(const std::string &session_name) {
 
     is_loaded = true;
     name = session_name;
+
+    if (load_charts) {
+        chart = Chart(name);
+    }
 
     return true;
 }

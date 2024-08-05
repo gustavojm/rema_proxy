@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cfloat>
+
 #include "nlohmann/json.hpp"
 #include <spdlog/spdlog.h>
 
@@ -83,6 +85,11 @@ class Point3D {
     // Distance of two 3D points only in XY
     double distance_xy(const Point3D &other) const {
         return sqrt(std::pow((x - other.x), 2) + std::pow((y - other.y), 2));
+    }
+
+    // Equality of two 3D points
+    double operator !=(const Point3D &other) const {
+        return !(std::fabs(x - other.x) < DBL_EPSILON) || !(std::fabs(y - other.y) < DBL_EPSILON) || !(std::fabs(z - other.z) < DBL_EPSILON);
     }
 
     double x = 0;

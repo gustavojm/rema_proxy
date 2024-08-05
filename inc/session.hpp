@@ -9,12 +9,7 @@
 #include "points.hpp"
 #include "tool.hpp"
 #include "tube_entry.hpp"
-
-template<typename TP> std::time_t to_time_t(TP tp) {
-    auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
-        tp - TP::clock::now() + std::chrono::system_clock::now());
-    return std::chrono::system_clock::to_time_t(sctp);
-}
+#include "chart.hpp"
 
 inline std::filesystem::path sessions_dir = std::filesystem::path("sessions");
 
@@ -66,7 +61,7 @@ class Session {
 
     Point3D get_tube_coordinates(const std::string &tube_id, bool ideal);
 
-    bool load(const std::string &session_name);
+    bool load(const std::string &session_name, bool load_charts = false);
 
     Point3D from_rema_to_ui(Point3D coords, Tool *tool = nullptr) {
         if (tool) {
@@ -163,6 +158,7 @@ class Session {
     bool is_aligned = false;
     std::map<std::string, TubeEntry> aligned_tubes;
     std::map<std::string, CalPointEntry> cal_points;
+    Chart chart;
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(

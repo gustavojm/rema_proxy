@@ -4,6 +4,7 @@
 #include <cmath>
 #include <iostream>
 #include <vector>
+#include <cfloat>
 
 #include "points.hpp"
 
@@ -465,7 +466,6 @@ static inline std::pair<int, Circle> CircleFitByLevenbergMarquardtFull(
     double factorUp = 10., factorDown = 0.04, lambda, ParLimit = 1.e+6;
     double dx, dy, ri, u, v;
     double Mu, Mv, Muu, Mvv, Muv, Mr, UUl, VVl, Nl, F1, F2, F3, dX, dY, dR;
-    double epsilon = 3.e-8;
     double G11, G22, G33, G12, G13, G23, D1, D2, D3;
 
     // Compute x and y sample means
@@ -543,7 +543,7 @@ try_again:
     dY = (D2 - G23 * dR) / G22;
     dX = (D1 - G12 * dY - G13 * dR) / G11;
 
-    if ((std::abs(dR) + std::abs(dX) + std::abs(dY)) / (1.0 + Old.radius) < epsilon)
+    if ((std::abs(dR) + std::abs(dX) + std::abs(dY)) / (1.0 + Old.radius) < DBL_EPSILON)
         goto enough;
 
     // Updating the parameters
