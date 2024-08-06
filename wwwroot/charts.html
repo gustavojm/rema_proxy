@@ -95,6 +95,7 @@
                     type : "DELETE",
                     success: function(data) {
                         get_previous_charts_list();
+                        draw_chart("last");
                     },
                     error: function(xhr, status, error) {                    
                     }						
