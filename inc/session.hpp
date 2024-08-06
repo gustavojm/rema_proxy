@@ -9,7 +9,7 @@
 #include "points.hpp"
 #include "tool.hpp"
 #include "tube_entry.hpp"
-#include "chart.hpp"
+#include "time_utils.hpp"
 
 inline std::filesystem::path sessions_dir = std::filesystem::path("sessions");
 
@@ -61,7 +61,7 @@ class Session {
 
     Point3D get_tube_coordinates(const std::string &tube_id, bool ideal);
 
-    bool load(const std::string &session_name, bool load_charts = false);
+    bool load(const std::string &session_name);
 
     Point3D from_rema_to_ui(Point3D coords, Tool *tool = nullptr) {
         if (tool) {
@@ -158,7 +158,6 @@ class Session {
     bool is_aligned = false;
     std::map<std::string, TubeEntry> aligned_tubes;
     std::map<std::string, CalPointEntry> cal_points;
-    Chart chart;
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(

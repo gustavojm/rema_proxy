@@ -3,44 +3,83 @@
 
 #include "chart.hpp"
 
-Chart::Chart(const std::filesystem::path &chart_file) : db_name(chart_file) {
-    db_name.replace_extension(".json");
-    std::ifstream i_file_stream(charts_dir / db_name);
-    std::cout << "opening: "<< (charts_dir / db_name) << std::endl;
+void Chart::insertData(const Point3D& coords) {
+    active_obj.Send([&coords, this] {
+        auto timestamp = std::chrono::system_clock::now();
+        auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(timestamp.time_since_epoch());
+
+        timestamps.push_back(millis.count());
+        double time_dif = timeDifference(timestamp, prev_timestamp);
+        speed_x.push_back((prev_coords.x - coords.x) / time_dif);
+        speed_y.push_back((prev_coords.y - coords.y) / time_dif);
+        speed_z.push_back((prev_coords.z - coords.z) / time_dif);
+        
+        prev_timestamp = timestamp;
+        prev_coords = coords;
+    }); 
+}
+
+void Chart::save_to_disk() {
+    active_obj.Send([this] {
+        auto now = to_time_t(std::chrono::steady_clock::now());
+        std::filesystem::path chart_file = charts_dir / ("chart" + std::to_string(now) + ".json");
+        
+        std::ofstream o_file_stream(chart_file);
+        o_file_stream << make_chart_js_data();
+        timestamps.clear();
+        speed_x.clear();
+        speed_y.clear();
+        speed_z.clear();
+    });
+}
+
+std::vector<std::string> Chart::list() {
+    std::vector<std::string> res;
+
+    for (const auto &entry : std::filesystem::directory_iterator(charts_dir)) {
+        if (entry.is_regular_file()) {
+            res.push_back(entry.path().filename().replace_extension());
+        }
+    }
+    return res;
+}
+
+
+nlohmann::json Chart::load_from_disk(std::string file_name) {
+    std::filesystem::path chart_file_path = charts_dir / (file_name + std::string(".json"));
+    std::ifstream i_file_stream(chart_file_path);
 
     nlohmann::json json;
-    try {
-        i_file_stream >> json;
-        chart_data = json;
-    } catch (std::exception &e) {
-        SPDLOG_ERROR("{}", e.what());
-    }
+    i_file_stream >> json;
+    return json;  
 }
 
-void Chart::insertData(const ChartEntry& data) {
-    auto timestamp = to_time_t(std::chrono::steady_clock::now());
-    chart_data.insert({timestamp, data});
-    save_to_disk();
+void Chart::delete_chart(const std::string &chart_file) {
+    std::filesystem::remove(charts_dir / (chart_file + std::string(".json")));
 }
 
-void Chart::save_to_disk() const {
-    std::filesystem::path chart_file = charts_dir / db_name;
 
-    std::ofstream o_file_stream(chart_file);
-    nlohmann::json json(chart_data);
-    o_file_stream << json;
-}
+nlohmann::json Chart::make_chart_js_data() const {
+    nlohmann::json chart_json;   
+    chart_json["labels"] = timestamps;
 
-nlohmann::json Chart::queryData(std::time_t startTime, std::time_t endTime) {    
-    nlohmann::json result;
+    nlohmann::json ds_x;
+    ds_x["label"] = "X";
+    ds_x["data"] = speed_x;
+    ds_x["fill"] = false;    
+    chart_json["datasets"].push_back(ds_x);
 
-    std::for_each(chart_data.begin(), chart_data.end(),
-        [startTime, endTime, &result] (auto it) {
-            if (it.first >= startTime && it.first <= endTime) {
-                result.push_back({it.first, it.second});
-            }
-        }
-    );
+    nlohmann::json ds_y;
+    ds_y["label"] = "Y";
+    ds_y["data"] = speed_y;
+    ds_y["fill"] = false;    
+    chart_json["datasets"].push_back(ds_y);
 
-    return result;   
+    nlohmann::json ds_z;
+    ds_z["label"] = "Z";
+    ds_z["data"] = speed_z;
+    ds_z["fill"] = false;    
+    chart_json["datasets"].push_back(ds_z);
+
+    return chart_json;
 }

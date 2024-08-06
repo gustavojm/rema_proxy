@@ -8,36 +8,37 @@
 
 #include "telemetry.hpp"
 #include "points.hpp"
+#include "active.hpp"
+#include "time_utils.hpp"
 
 inline std::filesystem::path charts_dir = "charts";
-
-template<typename TP> std::time_t to_time_t(TP tp) {
-    auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
-        tp - TP::clock::now() + std::chrono::system_clock::now());
-    return std::chrono::system_clock::to_time_t(sctp);
-}
-
-struct ChartEntry {
-    Point3D coords;
-    Point3D targets;
-};
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ChartEntry, coords, targets)
 
 class Chart {
 
 public:
     Chart() noexcept = default;
 
-    Chart(const std::filesystem::path &chart_file);
-
-    void insertData(const ChartEntry& data);
+    void insertData(const Point3D& coords);
     
-    void save_to_disk() const;
+    void save_to_disk();
 
-    nlohmann::json queryData(std::time_t startTime, std::time_t endTime);
+    nlohmann::json load_from_disk(std::string file_name);
 
-    std::map<std::time_t, ChartEntry> chart_data;
-    std::filesystem::path db_name;
+    static std::vector<std::string> list();
+
+    static void delete_chart(const std::string &chart_file);
+
+    nlohmann::json make_chart_js_data() const;
+
+    std::vector<std::time_t> timestamps;
+    std::vector<double> speed_x;
+    std::vector<double> speed_y;
+    std::vector<double> speed_z;
+    std::chrono::time_point<std::chrono::system_clock> prev_timestamp;
+    Point3D prev_coords = {};
+
+    Active active_obj;
+
 };
 
-
+inline Chart chart;

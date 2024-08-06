@@ -96,8 +96,8 @@ void REMA::update_telemetry(std::string &stream) {
             if (json.contains("telemetry")) {
                 telemetry = json["telemetry"];
 
-                if (telemetry.coords != old_telemetry.coords || telemetry.targets != old_telemetry.targets) {
-                    current_session.chart.insertData({telemetry.coords, telemetry.targets});
+                if (telemetry.coords != old_telemetry.coords) {
+                    chart.insertData({telemetry.coords});
                     old_telemetry = telemetry;
                 }
             }

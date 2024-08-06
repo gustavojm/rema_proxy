@@ -19,6 +19,7 @@
 #include "rema.hpp"
 #include "session.hpp"
 #include "tool.hpp"
+#include "chart.hpp"
 
 void close_rest_session(const std::shared_ptr<restbed::Session> &rest_session, int status) {
     rest_session->close(status, "", { { "Content-Type", "text/html ; charset=utf-8" }, { "Content-Length", "0" } });
@@ -257,7 +258,7 @@ void sessions_load(const std::shared_ptr<restbed::Session> &rest_session) {
     std::string res;
     if (!session_name.empty()) {
         try {
-            current_session.load(session_name, true);
+            current_session.load(session_name);
             current_session.hx.process_csv_from_disk(current_session.hx_dir);
             current_session.hx.generate_svg();
             current_session.copy_tubes_to_aligned_tubes();
@@ -402,6 +403,8 @@ void go_to_tube(const std::shared_ptr<restbed::Session> &rest_session) {
         goto_tube.axes = "XY";
         goto_tube.first_axis_setpoint = rema_coords.x;
         goto_tube.second_axis_setpoint = rema_coords.y;
+
+        chart.save_to_disk();
         nlohmann::json res = rema.move_closed_loop(goto_tube);
         close_rest_session(rest_session, restbed::OK, res);
     }
@@ -448,6 +451,7 @@ void move_joystick(const std::shared_ptr<restbed::Session> &rest_session) {
     }
 
     rema.axes_soft_stop_all();
+    chart.save_to_disk();
     nlohmann::json res = rema.execute_command("MOVE_JOYSTICK", pars_obj);
     close_rest_session(rest_session, restbed::OK, res);
 }
@@ -527,6 +531,7 @@ void move_incremental(const std::shared_ptr<restbed::Session> &rest_session) {
                 }
             }
             rema.axes_soft_stop_all();
+            chart.save_to_disk();
             nlohmann::json res = rema.execute_command("MOVE_INCREMENTAL", pars_obj);
             close_rest_session(rest_session_ptr, restbed::OK, res);
         });
@@ -752,7 +757,35 @@ void send_startup_commands(const std::shared_ptr<restbed::Session> &rest_session
 }
 
 void get_chart(const std::shared_ptr<restbed::Session> &rest_session) {
-    close_rest_session(rest_session, restbed::OK, current_session.chart.queryData(1, INT_MAX));
+    const auto request = rest_session->get_request();
+    std::string chart_file = request->get_path_parameter("chart_file", "");    
+    bool last = chart_file == "last";
+
+    if (last) {
+        close_rest_session(rest_session, restbed::OK, chart.make_chart_js_data());
+    } else {        
+        close_rest_session(rest_session, restbed::OK, chart.load_from_disk(chart_file));
+    }    
+}
+
+void charts_list(const std::shared_ptr<restbed::Session> &rest_session) {
+    close_rest_session(rest_session, restbed::OK, chart.list());
+}
+
+void charts_delete(const std::shared_ptr<restbed::Session> &rest_session) {
+    const auto request = rest_session->get_request();
+    std::string chart_file = request->get_path_parameter("chart_file", "");
+
+    std::string res;
+    int status = restbed::OK;
+    try {
+        Chart::delete_chart(chart_file);
+        status = restbed::NO_CONTENT;
+    } catch (const std::filesystem::filesystem_error &e) {
+        res = "Failed to delete the chart";
+        status = restbed::INTERNAL_SERVER_ERROR;
+    }
+    close_rest_session(rest_session, status, res);
 }
 
 
@@ -799,8 +832,8 @@ void restfull_api_create_endpoints(restbed::Service &service) {
         { "axes-soft-stop-all", { { "GET", &axes_soft_stop_all } } },
         { "change-network-settings", { { "POST", &change_network_settings } } },
         { "send-startup-commands", { { "POST", &send_startup_commands } } },
-        { "get-chart", { { "POST", &get_chart } } },
-
+        { "charts", { { "GET", &charts_list } } },
+        { "charts/{chart_file: .*}", { { "GET", &get_chart } , { "DELETE", &charts_delete } } },      
     };
     // @formatter:on
 

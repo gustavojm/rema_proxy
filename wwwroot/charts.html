@@ -1,0 +1,109 @@
+<script type="text/javascript" src="js/chart.js"></script>
+<script type="text/javascript" src="js/chartjs-adapter-date-fns.js"></script>
+    
+<div>
+    Chose a chart
+    <select name="hx" id="previous_charts"></select>
+    <button id="remove_chart_btn">Remove Chart</button>
+    <button id="reload_chart_btn">Reload</button>
+</div>
+
+<!-- Canvas element for the chart -->    
+<canvas id="myChart" width="400" height="160"></canvas>
+
+<script>
+    var myChart; 
+            
+    function draw_chart(name) {
+        $.ajax({
+            method : "GET",
+            url : "/REST/charts/" + name,
+            contentType : "application/json",
+            dataType : "json",
+            success : function(chart) {
+                if(Chart.getChart("myChart")) {
+                        Chart.getChart("myChart")?.destroy();
+                }
+                var ctx = document.getElementById('myChart').getContext('2d');
+                myChart = new Chart(ctx, {
+                    type: 'line',
+                    data: chart,
+                    options: {
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Speed'
+                            }
+                        },                        
+                        scales: {
+                            y: {                                
+                                title: {text: "inch/s", display: true},
+                                beginAtZero: true
+                            },
+                            x: {
+                                title: {text: "time", display: true},
+                                type: 'time',
+                                time: {
+                                    unit: 'millisecond',
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    var charts_dropdown = $('#previous_charts');
+
+    function get_previous_charts_list() {        
+        charts_dropdown.empty();
+        charts_dropdown
+                .append('<option value="last" selected="true">Last</option>');
+        charts_dropdown.prop('selectedIndex', 0);
+
+        // Populate dropdown with list of HXs
+        $.get('/REST/charts', null, function(data) {
+            $.each(data, function(key, value) {
+                charts_dropdown.append($('<option></option>').attr('value',
+                        value).text(value));
+            })
+        });
+    }
+
+    $(function() {
+        get_previous_charts_list();
+
+        charts_dropdown.on("change", function() {            
+            var chart_name = $("option:selected", this).val();
+            draw_chart(chart_name);
+        });
+
+        $("#reload_chart_btn").click(function () {
+            get_previous_charts_list();
+            var chart_name = $("#previous_charts").val();
+            draw_chart(chart_name);
+        });
+
+        $("#remove_chart_btn").click(function () {
+            var chart_name = $("#previous_charts").val();
+            if (chart_name != "last") {
+                var confirm_action = confirm("Are you sure you want to remove " + chart_name + " ?");
+                if (confirm_action) {
+                    $.ajax({
+                    url : "/REST/charts/" + chart_name,
+                    type : "DELETE",
+                    success: function(data) {
+                        get_previous_charts_list();
+                    },
+                    error: function(xhr, status, error) {                    
+                    }						
+                    });
+                }
+            }
+    });
+
+
+        draw_chart("last");
+    });
+</script>

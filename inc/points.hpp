@@ -89,7 +89,8 @@ class Point3D {
 
     // Equality of two 3D points
     double operator !=(const Point3D &other) const {
-        return !(std::fabs(x - other.x) < DBL_EPSILON) || !(std::fabs(y - other.y) < DBL_EPSILON) || !(std::fabs(z - other.z) < DBL_EPSILON);
+        //return !(std::fabs(x - other.x) < DBL_EPSILON) || !(std::fabs(y - other.y) < DBL_EPSILON) || !(std::fabs(z - other.z) < DBL_EPSILON);
+        return !(std::fabs(x - other.x) < 0.0001) || !(std::fabs(y - other.y) < 0.0001) || !(std::fabs(z - other.z) < 0.0001);
     }
 
     double x = 0;
