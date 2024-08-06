@@ -2,24 +2,24 @@
 
 #include <filesystem>
 #include <map>
-#include <string>
-#include <spdlog/spdlog.h>
 #include <nlohmann/json.hpp>
+#include <spdlog/spdlog.h>
+#include <string>
 
-#include "telemetry.hpp"
-#include "points.hpp"
 #include "active.hpp"
+#include "points.hpp"
+#include "telemetry.hpp"
 #include "time_utils.hpp"
 
 inline std::filesystem::path charts_dir = "charts";
 
 class Chart {
 
-public:
+  public:
     Chart() noexcept = default;
 
-    void insertData(const Point3D& coords);
-    
+    void insertData(const Point3D &coords);
+
     void save_to_disk();
 
     nlohmann::json load_from_disk(std::string file_name);
@@ -38,7 +38,6 @@ public:
     Point3D prev_coords = {};
 
     Active active_obj;
-
 };
 
 inline Chart chart;

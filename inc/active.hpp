@@ -1,44 +1,47 @@
 #pragma once
 
+#include <deque>
+#include <functional>
+#include <mutex>
 #include <thread>
 #include <utility>
-#include <functional>
-#include <deque>
-#include <mutex>
 
 class Active {
   public:
     typedef std::function<void()> Message;
 
   private:
-    Active(const Active &);                     // no copying
-    void operator=(const Active &) = delete;    // no copying
-    bool done;                                  // the termination flag
-    std::deque<Message> mq;                     // the queue
-    std::unique_ptr<std::thread> thd;    // le thread
-    void Run() {
-        while (!done) {
+    Active(const Active &);                  // no copying
+    void operator=(const Active &) = delete; // no copying
+    bool done;                               // the termination flag
+    std::deque<Message> mq;                  // the queue
+    std::unique_ptr<std::thread> thd;        // the thread
+
+    void run() {
+        while (!done) { // note: last message sets done to true
             std::lock_guard<std::mutex> lock(mtx);
             if (!mq.empty()) {
                 Message msg = mq.front();
                 mq.pop_front();
-                msg();      // execute message
+                msg(); // execute message
             }
-        }               // note: last message sets done to true
+        }
     }
 
   public:
     Active() : done(false) {
-        thd = std::unique_ptr<std::thread>(new std::thread([this] { this->Run(); }));
+        thd = std::unique_ptr<std::thread>(new std::thread([this] { this->run(); }));
     }
+
     ~Active() {
-        Send([&] { done = true; });
+        send([&] { done = true; });
         thd->join();
     }
-    void Send(Message m) {
+
+    void send(Message m) {
         std::lock_guard<std::mutex> lock(mtx);
         mq.push_back(m);
     }
 
-    std::mutex mtx;                             // to make deque thread_safe
+    std::mutex mtx; // to make deque thread_safe
 };
