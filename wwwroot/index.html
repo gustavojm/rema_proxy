@@ -87,12 +87,12 @@
 	<div id="tabs" style="height: 94.5%">
 		<ul>
 			<li><a href="sessions.html">Sessions</a></li>
-			<li><a href="tubes.html">Tubes</a></li>
 			<li><a href="tubesheet.html">Tubesheet View</a></li>
+			<li><a href="tubes.html">Tubes</a></li>
 			<li><a href="HXs.html">Heat Exchangers</a></li>			
-			<li><a href="logs.html">Logs</a></li>
 			<li><a href="tools.html">Tools</a></li>
 			<li><a href="charts.html">Charts</a></li>
+			<li><a href="logs.html">Logs</a></li>
 			<li><a href="about.html">About</a></li>
 			<!-- 			<li><a href="websocket.html">Websocket</a></li> -->
 			<li style="float: right;">
@@ -153,7 +153,7 @@
 </body>
 
 <script type="text/javascript">
-var TUBESHEET_VIEW_TAB = 2
+var TUBESHEET_VIEW_TAB = 1
 var decimals = 3
 var unit = "inch"
 var tabs_initialized = false;
@@ -542,7 +542,7 @@ function get_rema_info() {
 						if (current_session.is_loaded) {
 							unit = current_session.hx.unit;
 							$(".unit").text(unit);
-							active_tab = 2
+							active_tab = TUBESHEET_VIEW_TAB
 						}
 						
 						$("#tabs").tabs({
