@@ -95,10 +95,15 @@ void REMA::update_telemetry(std::string &stream) {
 
             if (json.contains("telemetry")) {
                 telemetry = json["telemetry"];
+                ui_telemetry = rema.telemetry;
+                Tool tool = rema.get_selected_tool();
+                ui_telemetry.coords = current_session.from_rema_to_ui(rema.telemetry.coords, &tool);
+                ui_telemetry.targets = current_session.from_rema_to_ui(rema.telemetry.targets, &tool);
 
-                if (telemetry.coords != old_telemetry.coords) {
-                    chart.insertData({telemetry.coords});
-                    old_telemetry = telemetry;
+
+                if (ui_telemetry.coords != old_telemetry.coords) {
+                    chart.insertData({ui_telemetry.coords});
+                    old_telemetry = ui_telemetry;
                 }
             }
 

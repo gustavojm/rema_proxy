@@ -125,6 +125,7 @@ class REMA {
     // Telemetry values
     std::mutex mtx;
     struct telemetry telemetry;
+    struct telemetry ui_telemetry;
     struct telemetry old_telemetry;
     struct temps temps;
 

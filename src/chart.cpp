@@ -9,13 +9,9 @@ void Chart::insertData(const Point3D &coords) {
         auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(timestamp.time_since_epoch());
 
         timestamps.push_back(millis.count());
-        double time_dif = timeDifference(timestamp, prev_timestamp);
-        speed_x.push_back((prev_coords.x - coords.x) / time_dif);
-        speed_y.push_back((prev_coords.y - coords.y) / time_dif);
-        speed_z.push_back((prev_coords.z - coords.z) / time_dif);
-
-        prev_timestamp = timestamp;
-        prev_coords = coords;
+        coords_x.push_back(coords.x);
+        coords_y.push_back(coords.y);
+        coords_z.push_back(coords.z);
     });
 }
 
@@ -25,11 +21,11 @@ void Chart::save_to_disk() {
         std::filesystem::path chart_file = charts_dir / ("chart" + std::to_string(now) + ".json");
 
         std::ofstream o_file_stream(chart_file);
-        o_file_stream << make_chart_js_data();
+        o_file_stream << make_chart_data();
         timestamps.clear();
-        speed_x.clear();
-        speed_y.clear();
-        speed_z.clear();
+        coords_x.clear();
+        coords_y.clear();
+        coords_z.clear();
     });
 }
 
@@ -57,27 +53,11 @@ void Chart::delete_chart(const std::string &chart_file) {
     std::filesystem::remove(charts_dir / (chart_file + std::string(".json")));
 }
 
-nlohmann::json Chart::make_chart_js_data() const {
+nlohmann::json Chart::make_chart_data() const {
     nlohmann::json chart_json;
-    chart_json["labels"] = timestamps;
-
-    nlohmann::json ds_x;
-    ds_x["label"] = "X";
-    ds_x["data"] = speed_x;
-    ds_x["fill"] = false;
-    chart_json["datasets"].push_back(ds_x);
-
-    nlohmann::json ds_y;
-    ds_y["label"] = "Y";
-    ds_y["data"] = speed_y;
-    ds_y["fill"] = false;
-    chart_json["datasets"].push_back(ds_y);
-
-    nlohmann::json ds_z;
-    ds_z["label"] = "Z";
-    ds_z["data"] = speed_z;
-    ds_z["fill"] = false;
-    chart_json["datasets"].push_back(ds_z);
-
+    chart_json["times"] = timestamps;
+    chart_json["coords_x"] = coords_x;
+    chart_json["coords_y"] = coords_y;
+    chart_json["coords_z"] = coords_z;
     return chart_json;
 }

@@ -762,7 +762,7 @@ void get_chart(const std::shared_ptr<restbed::Session> &rest_session) {
     bool last = chart_file == "last";
 
     if (last) {
-        close_rest_session(rest_session, restbed::OK, chart.make_chart_js_data());
+        close_rest_session(rest_session, restbed::OK, chart.make_chart_data());
     } else {        
         close_rest_session(rest_session, restbed::OK, chart.load_from_disk(chart_file));
     }    

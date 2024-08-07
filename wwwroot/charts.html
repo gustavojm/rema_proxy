@@ -1,18 +1,36 @@
 <script type="text/javascript" src="js/chart.js"></script>
 <script type="text/javascript" src="js/chartjs-adapter-date-fns.js"></script>
-    
-<div>
-    Chose a chart
-    <select name="hx" id="previous_charts"></select>
-    <button id="remove_chart_btn">Remove Chart</button>
-    <button id="reload_chart_btn">Reload</button>
+<div id="charts_tab"
+	style="overflow: visible; height: 92%; width: 100%; float: left; position: relative; ">
+    <div style="margin-bottom: 5px;">
+        Chose a chart
+        <select name="hx" id="previous_charts"></select>
+        <button id="remove_chart_btn">Remove Chart</button>
+        <button id="reload_chart_btn">Reload</button>
+    </div>    
+    <div style="overflow: scroll; height: 92%; width: 100%; float: left; position: relative;">
+
+        <div style="position: relative; overflow: hidden; display: flex; height: auto; " class="column">
+            <!-- Canvas element for the chart -->            
+            <div style="float: left; height: 50%; width: 80%;" ><canvas class="row" id="position_chart"></canvas></div>
+            <div style="float: left; height: 50%; width: 80%;" ><canvas class="row" id="speed_chart"></canvas></div>
+            <div style="float: left; height: 50%; width: 80%;" ><canvas class="row" id="accel_chart"></canvas></div>
+        </div>
+    </div>
 </div>
 
-<!-- Canvas element for the chart -->    
-<canvas id="myChart" width="400" height="160"></canvas>
-
 <script>
-    var myChart; 
+    function derive(coords, times) {
+        const result = [];
+        for (let i = 1; i < coords.length; i++) {
+            const delta_coord = coords[i] - coords[i - 1];
+            const delta_time = times[i] - times[i - 1];
+            result.push(delta_coord / delta_time);
+        }
+        return result;
+    }
+
+    var positionChart; 
             
     function draw_chart(name) {
         $.ajax({
@@ -21,13 +39,88 @@
             contentType : "application/json",
             dataType : "json",
             success : function(chart) {
-                if(Chart.getChart("myChart")) {
-                        Chart.getChart("myChart")?.destroy();
+
+                speed_x = derive(chart.coords_x, chart.times);
+                speed_y = derive(chart.coords_y, chart.times);
+                speed_z = derive(chart.coords_z, chart.times);
+
+                accel_x = derive(speed_x, chart.times);
+                accel_y = derive(speed_y, chart.times);
+                accel_z = derive(speed_z, chart.times);
+
+                // * Position chart *
+                if(Chart.getChart("position_chart")) {
+                        Chart.getChart("position_chart")?.destroy();
                 }
-                var ctx = document.getElementById('myChart').getContext('2d');
-                myChart = new Chart(ctx, {
+                var ctx = document.getElementById('position_chart').getContext('2d');
+                positionChart = new Chart(ctx, {
                     type: 'line',
-                    data: chart,
+                    data: {
+                        labels: chart.times,
+                        datasets: [{
+                            label: "X",
+                            data: chart.coords_x,
+                            fill: false
+                        },
+                        {
+                            label: "Y",
+                            data: chart.coords_y,
+                            fill: false
+                        },
+                        {
+                            label: "Z",
+                            data: chart.coords_z,
+                            fill: false
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Position'
+                            }
+                        },                        
+                        scales: {
+                            y: {                                
+                                title: {text: unit, display: true},
+                                beginAtZero: true
+                            },
+                            x: {
+                                title: {text: "time", display: true},
+                                type: 'time',
+                                time: {
+                                    unit: 'millisecond',
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // * Speed chart *
+                if(Chart.getChart("speed_chart")) {
+                        Chart.getChart("speed_chart")?.destroy();
+                }
+                var ctx = document.getElementById('speed_chart').getContext('2d');
+                positionChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: chart.times,
+                        datasets: [{
+                            label: "X",
+                            data: speed_x,
+                            fill: false
+                        },
+                        {
+                            label: "Y",
+                            data: speed_y,
+                            fill: false
+                        },
+                        {
+                            label: "Z",
+                            data: speed_z,
+                            fill: false
+                        }]
+                    },
                     options: {
                         plugins: {
                             title: {
@@ -37,7 +130,55 @@
                         },                        
                         scales: {
                             y: {                                
-                                title: {text: "inch/s", display: true},
+                                title: {text: unit + "/s", display: true},
+                                beginAtZero: true
+                            },
+                            x: {
+                                title: {text: "time", display: true},
+                                type: 'time',
+                                time: {
+                                    unit: 'millisecond',
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // * Acceleration chart *
+                if(Chart.getChart("accel_chart")) {
+                        Chart.getChart("accel_chart")?.destroy();
+                }
+                var ctx = document.getElementById('accel_chart').getContext('2d');
+                positionChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: chart.times,
+                        datasets: [{
+                            label: "X",
+                            data: accel_x,
+                            fill: false
+                        },
+                        {
+                            label: "Y",
+                            data: accel_y,
+                            fill: false
+                        },
+                        {
+                            label: "Z",
+                            data: accel_z,
+                            fill: false
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Acceleration'
+                            }
+                        },                        
+                        scales: {
+                            y: {                                
+                                title: {text: unit + "/s^2", display: true},
                                 beginAtZero: true
                             },
                             x: {

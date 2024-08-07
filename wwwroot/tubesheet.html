@@ -32,7 +32,7 @@
 						Col:<input type="text" id="tube_info_col" name="col" size="4" readonly> 
 						Row:<input type="text" id="tube_info_row" name="row" size="4" readonly> 
 						X:<input type="text" id="tube_info_x" name="x" size="4" readonly> 
-						Y:<input type="text" id="tube_info_y" name="y" size="4" readonly> <span class="units">inch</span>											
+						Y:<input type="text" id="tube_info_y" name="y" size="4" readonly> <span class="unit">inch</span>											
 					</form>
 				</div>
 			<div class="row">
@@ -464,7 +464,8 @@
 						tube_od = 1;
 						var svg_url = "/static/no_session_loaded.svg";
 						if (current_session.is_loaded) {
-							$(".units").text(current_session.hx.unit);
+							unit = current_session.hx.unit;
+							$(".unit").text(unit);
 							$("#session_name").text("Session: " + current_session.name);
 							scale = current_session.hx.scale;
 							tube_od = current_session.hx.tube_od;

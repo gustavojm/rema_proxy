@@ -103,7 +103,7 @@
 						id="offset_y" readonly="readonly" size="4">
 						Z: <input type="text"
 						id="offset_z" readonly="readonly" size="4">
-						<span class="units">inch</span>
+						<span class="unit">inch</span>
 				</div>
 			</li>
 		</ul>
@@ -127,7 +127,7 @@
 				readonly="readonly" size="4">&nbsp; Y:<input type="text"
 				id="position_y" name="position Y" readonly="readonly" size="4">&nbsp;
 			Z:<input type="text" id="position_z" name="position Z"
-				readonly="readonly" size="4">&nbsp; <span class="units">inch</span>
+				readonly="readonly" size="4">&nbsp; <span class="unit">inch</span>
 		</div>
 		<div style="float: left; justify-content:center; max-width: 10%"
 			class="row">
@@ -153,10 +153,11 @@
 </body>
 
 <script type="text/javascript">
-TUBESHEET_VIEW_TAB = 2
-decimals = 3
-tabs_initialized = false;
-reconnect_dialog_shown = false;
+var TUBESHEET_VIEW_TAB = 2
+var decimals = 3
+var unit = "inch"
+var tabs_initialized = false;
+var reconnect_dialog_shown = false;
 
 function toFixedIfNecessary(value, dp) {
 	return +parseFloat(value).toFixed(dp);	
@@ -539,7 +540,8 @@ function get_rema_info() {
 					function(current_session) {
 						active_tab = 0;
 						if (current_session.is_loaded) {
-							$(".units").text(current_session.hx.unit);
+							unit = current_session.hx.unit;
+							$(".unit").text(unit);
 							active_tab = 2
 						}
 						
