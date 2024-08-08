@@ -78,11 +78,19 @@ void REMA::connect(const std::string &rtu_host, int rtu_port) {
     } else {
         telemetry_client.start();
     }
+
+    if (logs_client.connect(rtu_host, rtu_port + 2) < 0) {
+        SPDLOG_WARN("Unable to connect to Logs endpoint");
+    } else {
+        logs_client.start();
+    }
+
 }
 
 void REMA::reconnect() {
     command_client.close();
     telemetry_client.close();
+    logs_client.close();
     connect(rtu_host_, rtu_port_);
 }
 

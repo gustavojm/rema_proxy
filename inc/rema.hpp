@@ -7,6 +7,7 @@
 #include "command_net_client.hpp"
 #include "nlohmann/json.hpp"
 #include "telemetry_net_client.hpp"
+#include "logs_net_client.hpp"
 #include "tl/expected.hpp"
 #include "points.hpp"
 #include "session.hpp"
@@ -117,6 +118,7 @@ class REMA {
 
     CommandNetClient command_client;
     TelemetryNetClient telemetry_client;
+    LogsNetClient logs_client;
 
     volatile bool is_sequence_in_progress;
     volatile bool cancel_sequence;
@@ -132,7 +134,8 @@ class REMA {
     std::string rtu_host_;
     int rtu_port_;
 
-    REMA() : telemetry_client([&](std::string line) { update_telemetry(line); }) {
+    REMA() : telemetry_client([&](std::string line) { update_telemetry(line); }), 
+             logs_client([&](std::string line) { std::cout << "LOGS_RECEIVED" << line << std::endl; }) {
         try {
             load_config();
             for (const auto &entry : std::filesystem::directory_iterator(tools_dir)) {
