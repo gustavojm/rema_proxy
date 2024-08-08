@@ -216,17 +216,11 @@
 	}
 
 	function update_bullseye_position(x, y) {
-		$("#bullseye").stop();			// Clear animation queue
-		$("#bullseye").animate({
-			svgTransform : 'scale(1 -1) translate(' + x + " " + y + ')'
-		}, 0);
+		$("#bullseye").attr('transform', 'scale(1 -1) translate(' + x + ',' + y + ')');
 	}
 
 	function update_destination_cross_position(x, y) {
-		$("#destination_cross").stop();			// Clear animation queue
-		$("#destination_cross").animate({
-			svgTransform : 'scale(1 -1) translate(' + x + " " + y + ') rotate(-45)'
-		}, 0);
+		$("#destination_cross").attr('transform', 'scale(1 -1) translate(' + x + ',' + y + ')');
 	}
 
 	function destination_cross_visible(status) {
@@ -445,6 +439,7 @@
 								onLoad : function (svg) {
 									// In the SVG 1.1 the rendering order is based on the document order:
 									drawBullseye(svg, tube_od, scale);
+									bullseye_drawn = true;
 									drawLocationPin(svg, tube_od, scale);
 									drawDestinationCross(svg, tube_od, scale);
 									var objDiv = document.getElementById("left_side_resizable");									
