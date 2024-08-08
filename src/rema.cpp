@@ -124,6 +124,17 @@ void REMA::update_telemetry(std::string &stream) {
     }
 }
 
+void REMA::save_logs(std::string &stream) {
+    try {
+        std::cout << "REMA: " << stream << std::endl;
+        logs_ofstream << stream << std::endl;
+        logs_vector.push_back(stream);
+    } catch (std::exception &e) {
+        SPDLOG_ERROR("LOGS STORAGE ERROR {}", e.what());
+    }
+}
+
+
 void REMA::set_home_xy(double x, double y) {
     execute_command("SET_COORDS", { { "position_x", x }, { "position_y", y } });
 }

@@ -17,6 +17,7 @@
 inline const std::filesystem::path config_file_path = "config.json";
 inline const std::filesystem::path rema_dir = std::filesystem::path("rema");
 inline const std::filesystem::path tools_dir = rema_dir / "tools";
+inline const std::filesystem::path logs_dir = "logs";
 
 struct temps {
     double x, y, z;
@@ -51,7 +52,9 @@ class REMA {
     void reconnect();
 
     void update_telemetry(std::string &stream);
-
+    
+    void save_logs(std::string &stream);
+    
     void set_last_selected_tool(std::string tool) {
         if (get_selected_tool().is_touch_probe) {
             retract_touch_probe();
@@ -131,12 +134,20 @@ class REMA {
     struct telemetry old_telemetry;
     struct temps temps;
 
+    std::vector<std::string> logs_vector;
+    std::ofstream logs_ofstream;
+
     std::string rtu_host_;
     int rtu_port_;
 
     REMA() : telemetry_client([&](std::string line) { update_telemetry(line); }), 
-             logs_client([&](std::string line) { std::cout << "REMA: " << line << std::endl; }) {
+             logs_client([&](std::string line) { save_logs(line); }) {
+
+        auto now = to_time_t(std::chrono::steady_clock::now());
+        std::filesystem::path log_file = logs_dir / ("log" + std::to_string(now) + ".json");
+       
         try {
+            logs_ofstream.open(log_file, std::fstream::out | std::ios::app);
             load_config();
             for (const auto &entry : std::filesystem::directory_iterator(tools_dir)) {
                 Tool t(entry.path());
