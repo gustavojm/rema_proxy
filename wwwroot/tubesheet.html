@@ -216,17 +216,11 @@
 	}
 
 	function update_bullseye_position(x, y) {
-		$("#bullseye").stop();			// Clear animation queue
-		$("#bullseye").animate({
-			svgTransform : 'scale(1 -1) translate(' + x + " " + y + ')'
-		}, 0);
+		$("#bullseye").attr('transform', 'scale(1 -1) translate(' + x + ',' + y + ')');
 	}
 
 	function update_destination_cross_position(x, y) {
-		$("#destination_cross").stop();			// Clear animation queue
-		$("#destination_cross").animate({
-			svgTransform : 'scale(1 -1) translate(' + x + " " + y + ') rotate(-45)'
-		}, 0);
+		$("#destination_cross").attr('transform', 'scale(1 -1) translate(' + x + ',' + y + ')');
 	}
 
 	function destination_cross_visible(status) {

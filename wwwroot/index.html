@@ -369,8 +369,9 @@ function get_rema_info() {
 		
 		if (tabs_initialized) {
 			if (current_tab == TUBESHEET_VIEW_TAB && typeof(update_bullseye_position) === "function") {
-				update_bullseye_position(pos_x, pos_y);				
+				update_bullseye_position(pos_x, pos_y);
 				if ((!areFloatsEqual(pos_x, prev_pos_x) || !areFloatsEqual(pos_y, prev_pos_y))) { 
+
 					if ($("#zoom_follow").prop("checked")) {
 						zoom_value = 1;
 						try {
