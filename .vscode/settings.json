@@ -82,7 +82,8 @@
         "semaphore": "cpp",
         "*.ipp": "cpp",
         "rope": "cpp",
-        "charconv": "cpp"
+        "charconv": "cpp",
+        "expected": "cpp"
     },
     "cmake.configureOnOpen": false
 }
