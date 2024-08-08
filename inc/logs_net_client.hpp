@@ -13,7 +13,7 @@
 class LogsNetClient : public NetClient {
   public:
     LogsNetClient(std::function<void(std::string)> onReceiveCallback)
-        : NetClient(), onReceiveCb(onReceiveCallback), wd(LostConnectionTimeout, [&] { close(); }) {
+        : NetClient(), onReceiveCb(onReceiveCallback) {
     }
 
     ~LogsNetClient() {
@@ -44,7 +44,6 @@ class LogsNetClient : public NetClient {
         if (int n; (n = NetClient::connect(host, port, nsec)) < 0) {
             return n;
         }
-        wd.resume();
         return 0;
     }
 
@@ -62,9 +61,7 @@ class LogsNetClient : public NetClient {
             if (is_connected) {
                 std::string line = get_response();
                 if (!line.empty()) {
-                    // std::cout << "t" << std::flush;
                     onReceiveCb(line);
-                    wd.reset();
                 }
             }
         }
@@ -77,7 +74,5 @@ class LogsNetClient : public NetClient {
     bool suspendFlag = false;
     bool stopFlag = false;
     bool alreadyStarted = false;
-    int LostConnectionTimeout = 2;
     int ConnectionTimeout = 5;
-    WatchdogTimer wd;
 };

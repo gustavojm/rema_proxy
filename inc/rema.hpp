@@ -135,7 +135,7 @@ class REMA {
     int rtu_port_;
 
     REMA() : telemetry_client([&](std::string line) { update_telemetry(line); }), 
-             logs_client([&](std::string line) { std::cout << "LOGS_RECEIVED" << line << std::endl; }) {
+             logs_client([&](std::string line) { std::cout << "REMA: " << line << std::endl; }) {
         try {
             load_config();
             for (const auto &entry : std::filesystem::directory_iterator(tools_dir)) {
