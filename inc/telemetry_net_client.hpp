@@ -14,7 +14,10 @@
 class TelemetryNetClient : public NetClient {
   public:
     TelemetryNetClient(std::function<void(std::vector<uint8_t>&)> onReceiveCallback)
-        : NetClient(), onReceiveCb(onReceiveCallback), wd(LostConnectionTimeout, [&] { close(); }) {
+        : NetClient(), onReceiveCb(onReceiveCallback) {
+
+        wd.onTimeoutCallback = [&] { close(); };
+        wd.start(std::chrono::seconds(2));
     }
 
     ~TelemetryNetClient() {
@@ -77,8 +80,7 @@ class TelemetryNetClient : public NetClient {
     std::condition_variable cv;
     bool suspendFlag = false;
     bool stopFlag = false;
-    bool alreadyStarted = false;
-    int LostConnectionTimeout = 2;
+    bool alreadyStarted = false;    
     int ConnectionTimeout = 5;
     WatchdogTimer wd;
 };
