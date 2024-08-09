@@ -51,7 +51,7 @@ class REMA {
 
     void reconnect();
 
-    void update_telemetry(std::string &stream);
+    void update_telemetry(std::vector<uint8_t>& stream);
     
     void save_logs(std::string &stream);
     
@@ -140,7 +140,7 @@ class REMA {
     std::string rtu_host_;
     int rtu_port_;
 
-    REMA() : telemetry_client([&](std::string line) { update_telemetry(line); }), 
+    REMA() : telemetry_client([&](std::vector<uint8_t> line) { update_telemetry(line); }), 
              logs_client([&](std::string line) { save_logs(line); }) {
 
         auto now = to_time_t(std::chrono::steady_clock::now());

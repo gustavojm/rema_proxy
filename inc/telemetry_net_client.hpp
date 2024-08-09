@@ -13,7 +13,7 @@
 
 class TelemetryNetClient : public NetClient {
   public:
-    TelemetryNetClient(std::function<void(std::string)> onReceiveCallback)
+    TelemetryNetClient(std::function<void(std::vector<uint8_t>&)> onReceiveCallback)
         : NetClient(), onReceiveCb(onReceiveCallback), wd(LostConnectionTimeout, [&] { close(); }) {
     }
 
@@ -61,7 +61,7 @@ class TelemetryNetClient : public NetClient {
             }
 
             if (is_connected) {
-                std::string line = get_response();
+                std::vector<uint8_t> line = get_response_binary();
                 if (!line.empty()) {
                     // std::cout << "t" << std::flush;
                     onReceiveCb(line);
@@ -71,7 +71,7 @@ class TelemetryNetClient : public NetClient {
         }
     }
 
-    std::function<void(std::string)> onReceiveCb;
+    std::function<void(std::vector<uint8_t>&)> onReceiveCb;
     std::thread thd;
     std::mutex mtx;
     std::condition_variable cv;

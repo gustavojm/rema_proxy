@@ -27,6 +27,8 @@ class NetClient {
     bool send_request(std::string);
 
     std::string get_response();
+    
+    std::vector<uint8_t> get_response_binary();
 
     int get_port() {
         return port_;
@@ -44,4 +46,5 @@ class NetClient {
     volatile int socket_;
     int buflen_ = 1024;
     char *buf_ = new char[buflen_];
+    std::string leftover_buffer; // Buffer for data after '\0'
 };

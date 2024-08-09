@@ -94,7 +94,7 @@ void REMA::reconnect() {
     connect(rtu_host_, rtu_port_);
 }
 
-void REMA::update_telemetry(std::string &stream) {
+void REMA::update_telemetry(std::vector<uint8_t>& stream) {
     nlohmann::json json;    
     try {
         std::lock_guard<std::mutex> lock(mtx);
