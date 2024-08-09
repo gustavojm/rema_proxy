@@ -214,7 +214,7 @@ std::vector<uint8_t> NetClient::get_response_binary() {
                 return {};
             }
 
-            for (ssize_t i = 0; i < nread - 1; ++i) {
+            for (ssize_t i = 0; i < nread; ++i) {
                 response.push_back(buf_[i]);
             }
 
