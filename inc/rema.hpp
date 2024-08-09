@@ -155,7 +155,7 @@ class REMA {
             }
 
             logs_ofstream.open(log_file, std::fstream::out | std::ios::app);
-            SPDLOG_INFO("Saving logs to {}", log_file.string());
+            SPDLOG_INFO("Saving logs to ./{}", log_file.string());
 
             load_config();
             for (const auto &entry : std::filesystem::directory_iterator(tools_dir)) {
