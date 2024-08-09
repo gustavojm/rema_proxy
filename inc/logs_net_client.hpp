@@ -5,22 +5,18 @@
 #include <condition_variable>
 #include <iostream>
 #include <memory>
-#include <restbed>
 #include <spdlog/spdlog.h>
 #include <string>
 #include <thread>
 #include <watchdog_timer.hpp>
 
-class TelemetryNetClient : public NetClient {
+class LogsNetClient : public NetClient {
   public:
-    TelemetryNetClient(std::function<void(std::vector<uint8_t>&)> onReceiveCallback)
+    LogsNetClient(std::function<void(std::string)> onReceiveCallback)
         : NetClient(), onReceiveCb(onReceiveCallback) {
-
-        wd.onTimeoutCallback = [&] { close(); };
-        wd.start(std::chrono::seconds(2));
     }
 
-    ~TelemetryNetClient() {
+    ~LogsNetClient() {
         if (thd.joinable()) {
             stop();
         }
@@ -28,7 +24,7 @@ class TelemetryNetClient : public NetClient {
 
     void start() {
         if (!alreadyStarted) {
-            thd = std::thread(&TelemetryNetClient::loop, this);
+            thd = std::thread(&LogsNetClient::loop, this);
             alreadyStarted = true;
         }
     }
@@ -48,7 +44,6 @@ class TelemetryNetClient : public NetClient {
         if (int n; (n = NetClient::connect(host, port, nsec)) < 0) {
             return n;
         }
-        wd.resume();
         return 0;
     }
 
@@ -64,23 +59,20 @@ class TelemetryNetClient : public NetClient {
             }
 
             if (is_connected) {
-                std::vector<uint8_t> line = get_response_binary();
+                std::string line = get_response();
                 if (!line.empty()) {
-                    // std::cout << "t" << std::flush;
                     onReceiveCb(line);
-                    wd.reset();
                 }
             }
         }
     }
 
-    std::function<void(std::vector<uint8_t>&)> onReceiveCb;
+    std::function<void(std::string)> onReceiveCb;
     std::thread thd;
     std::mutex mtx;
     std::condition_variable cv;
     bool suspendFlag = false;
     bool stopFlag = false;
-    bool alreadyStarted = false;    
+    bool alreadyStarted = false;
     int ConnectionTimeout = 5;
-    WatchdogTimer wd;
 };

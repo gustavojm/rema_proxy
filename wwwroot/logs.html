@@ -64,30 +64,33 @@
         $('#logViewer').append(line);
 		$('#logViewer').scrollTop($('#logViewer')[0].scrollHeight);
     }
-	
 	function get_logs() {
+		$.ajax({
+			url : "/REST/logs",
+			method : "GET",
+			contentType : "application/json",
+			dataType : "json",
+			success : function(data) {
+				$.each(data, function(key, entry) {
+					entry_arr = entry.split("|");
+					addLogEntry(entry_arr);
+				});				
+			}
+		});
+	}
+	
+	function get_mem_info() {
 		$.ajax({
 			url : "/REMA/",
 			method : "POST",
 			contentType : "application/json",
 			data : JSON.stringify([ 
 				{
-					cmd : "LOGS",
-					pars : {
-						quantity : 10
-					}
-				},
-				{
 					cmd : "MEM_INFO"
 				} 
 			]),
 			dataType : "json",
 			success : function(data) {
-				$.each(data.LOGS.DEBUG_MSGS, function(key, entry) {
-					entry_arr = entry.split("|");
-					addLogEntry(entry_arr);
-				});
-				
 				mem_free = (data.MEM_INFO.MEM_FREE / data.MEM_INFO.MEM_TOTAL * 100).toFixed(1);
 									mem_free_text = ((data.MEM_INFO.MEM_FREE/1024).toFixed(1) || 0) + "k(" + mem_free + "%)"
 									if (isNaN(mem_free)) {
@@ -121,7 +124,7 @@
 	}
 
 	$(function() {
-		timer_logs = setInterval(get_logs, 1000);
+		timer_logs = setInterval(function () {get_logs(); get_mem_info()}, 1000);
 		
 		$("#clear_logs").click(function(){
 			$('#logViewer').empty();

@@ -78,15 +78,23 @@ void REMA::connect(const std::string &rtu_host, int rtu_port) {
     } else {
         telemetry_client.start();
     }
+
+    if (logs_client.connect(rtu_host, rtu_port + 2) < 0) {
+        SPDLOG_WARN("Unable to connect to Logs endpoint");
+    } else {
+        logs_client.start();
+    }
+
 }
 
 void REMA::reconnect() {
     command_client.close();
     telemetry_client.close();
+    logs_client.close();
     connect(rtu_host_, rtu_port_);
 }
 
-void REMA::update_telemetry(std::string &stream) {
+void REMA::update_telemetry(std::vector<uint8_t>& stream) {
     nlohmann::json json;    
     try {
         std::lock_guard<std::mutex> lock(mtx);
@@ -115,6 +123,16 @@ void REMA::update_telemetry(std::string &stream) {
         SPDLOG_ERROR("TELEMETRY COMMUNICATIONS ERROR {}", e.what());
     }
 }
+
+void REMA::save_logs(std::string &stream) {
+    try {
+        logs_ofstream << stream << std::endl;
+        logs_vector.push_back(stream);
+    } catch (std::exception &e) {
+        SPDLOG_ERROR("LOGS STORAGE ERROR {}", e.what());
+    }
+}
+
 
 void REMA::set_home_xy(double x, double y) {
     execute_command("SET_COORDS", { { "position_x", x }, { "position_y", y } });

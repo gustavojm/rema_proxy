@@ -163,7 +163,7 @@ bool NetClient::send_request(std::string request) {
 
 std::string NetClient::get_response() {
     if (is_connected) {
-        std::string response;
+        std::string response = std::move(leftover_buffer); // Iniciar con cualquier dato restante
 
         // Read until we get a null character
         while (true) {
@@ -180,14 +180,45 @@ std::string NetClient::get_response() {
                 // The socket is closed
                 return {};
             }
-            // Append data to the response
-            response.append(buf_, nread);
-
-            // Check if the buffer contains a null character
-            if (response.find('\0') != std::string::npos) {
-                response.pop_back(); // Remove null character
-                return response;
+            
+            for (ssize_t i = 0; i < nread; ++i) {
+                    if (buf_[i] == '\0') {
+                        // Guardar lo que viene después del carácter nulo en el buffer restante
+                        leftover_buffer.assign(buf_ + i + 1, nread - i - 1);
+                        return response; // Retornar la respuesta acumulada hasta el carácter nulo
+                    }
+                    response += buf_[i];
             }
+        }
+    }
+    return {};
+}
+
+std::vector<uint8_t> NetClient::get_response_binary() {
+    if (is_connected) {
+        std::vector<uint8_t> response;
+
+        // Read until we get a null character
+        while (true) {
+            ssize_t nread = recv(socket_, buf_, buflen_, 0);
+            if (nread < 0) {
+                if (errno == EINTR) {
+                    // The socket call was interrupted -- try again
+                    continue;
+                } else {
+                    // An error occurred, so return false
+                    return {};
+                }
+            } else if (nread == 0) {
+                // The socket is closed
+                return {};
+            }
+
+            for (ssize_t i = 0; i < nread; ++i) {
+                response.push_back(buf_[i]);
+            }
+
+            return response;
         }
     }
     return {};

@@ -788,6 +788,10 @@ void charts_delete(const std::shared_ptr<restbed::Session> &rest_session) {
     close_rest_session(rest_session, status, res);
 }
 
+void logs(const std::shared_ptr<restbed::Session> &rest_session) {
+    close_rest_session(rest_session, restbed::OK, rema.logs_vector);
+    rema.logs_vector.clear();
+}
 
 // @formatter:off
 void restfull_api_create_endpoints(restbed::Service &service) {
@@ -834,6 +838,7 @@ void restfull_api_create_endpoints(restbed::Service &service) {
         { "send-startup-commands", { { "POST", &send_startup_commands } } },
         { "charts", { { "GET", &charts_list } } },
         { "charts/{chart_file: .*}", { { "GET", &get_chart } , { "DELETE", &charts_delete } } },      
+        { "logs", { { "GET", &logs } } },
     };
     // @formatter:on
 

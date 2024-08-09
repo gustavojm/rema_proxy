@@ -439,6 +439,7 @@
 								onLoad : function (svg) {
 									// In the SVG 1.1 the rendering order is based on the document order:
 									drawBullseye(svg, tube_od, scale);
+									bullseye_drawn = true;
 									drawLocationPin(svg, tube_od, scale);
 									drawDestinationCross(svg, tube_od, scale);
 									var objDiv = document.getElementById("left_side_resizable");									
