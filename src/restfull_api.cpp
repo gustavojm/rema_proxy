@@ -611,6 +611,7 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> &rest_session
             seq.push_back(step);
         }
 
+        chart.save_to_disk();
         auto seq_execution_response = rema.execute_sequence(seq);
         if (!seq_execution_response) {
             res["error"] = seq_execution_response.error();
@@ -688,6 +689,7 @@ void determine_tubesheet_z(const std::shared_ptr<restbed::Session> &rest_session
     seq.push_back(forewards);
     seq.push_back(backwards);
 
+    chart.save_to_disk();
     auto seq_execution_response = rema.execute_sequence(seq);
     if (!seq_execution_response) {
         res["error"] = seq_execution_response.error();

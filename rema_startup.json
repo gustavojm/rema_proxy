@@ -2,19 +2,19 @@
 	{"cmd": "KP_SET_TUNINGS",
 	 "pars": {
         "axes": "XY",
-		"kp": 100,
+		"kp": 10,
 		"update": 100,
-		"min": 10000,
-		"max": 60000
+		"min": 2000,
+		"max": 6000
 	 }
     },
 	{"cmd": "KP_SET_TUNINGS",
 	 "pars": {
         "axes": "Z",
-		"kp": 100,
+		"kp": 10,
 		"update": 100,
-		"min": 10000,
-		"max": 60000
+		"min": 2000,
+		"max": 6000
 	 }
     },	
 	{"cmd": "TOUCH_PROBE_PROTECTION_CONTROL",

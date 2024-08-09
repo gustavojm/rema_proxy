@@ -11,7 +11,8 @@
     <div style="overflow: scroll; height: 92%; width: 100%; float: left; position: relative;">
 
         <div style="position: relative; overflow: hidden; display: flex; height: auto; " class="column">
-            <!-- Canvas element for the chart -->            
+            <!-- Canvas elements for the charts -->
+            <div style="float: left; width: 35%;" ><canvas class="row" id="xy_chart"></canvas></div>
             <div style="float: left; height: 50%; width: 80%;" ><canvas class="row" id="position_chart"></canvas></div>
             <div style="float: left; height: 50%; width: 80%;" ><canvas class="row" id="speed_chart"></canvas></div>
             <div style="float: left; height: 50%; width: 80%;" ><canvas class="row" id="accel_chart"></canvas></div>
@@ -30,8 +31,16 @@
         return result;
     }
 
-    var positionChart; 
-            
+    function formatTimestamp(date) {
+        const hours = date.getHours() % 12 || 12; // Convert to 12-hour format
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        const seconds = date.getSeconds().toString().padStart(2, '0');
+        const milliseconds = date.getMilliseconds().toString().padStart(3, '0');
+        const ampm = date.getHours() >= 12 ? 'p.m.' : 'a.m.';
+
+        return `${hours}:${minutes}:${seconds}.${milliseconds} ${ampm}`;
+    }
+          
     function draw_chart(name) {
         $.ajax({
             method : "GET",
@@ -47,6 +56,65 @@
                 accel_x = derive(speed_x, chart.times);
                 accel_y = derive(speed_y, chart.times);
                 accel_z = derive(speed_z, chart.times);
+
+                const data_xy = chart.coords_x.map((x, index) => {
+                    const date = new Date(chart.times[index]);
+                    const date_formatted = formatTimestamp(date);
+                    return { 
+                        x: x, 
+                        y: chart.coords_y[index],
+                        timestamp: date_formatted,                        
+                    };
+                });
+
+                // * XY chart *
+                if(Chart.getChart("xy_chart")) {
+                        Chart.getChart("xy_chart")?.destroy();
+                }
+                var ctx = document.getElementById('xy_chart').getContext('2d');
+                xyChart = new Chart(ctx, {
+                    type: 'scatter',
+                    data: {
+                        datasets: [{
+                            label: 'Coordinates',
+                            data: data_xy
+                        }],
+                        backgroundColor: 'rgba(75, 192, 192, 1)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    },
+                    options: {
+                        aspectRatio: 1,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'X-Y'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(tooltipItem) {
+                                        const point = tooltipItem.raw;
+                                        return `(X: ${point.x}, Y: ${point.y}) : ${point.timestamp}`;
+                                    }
+                                }
+                            }
+
+                        },                        
+                        scales: {
+                            y: {                                
+                                title: {text: unit, display: true},
+                                beginAtZero: false,
+                                type: "linear"
+                            },
+                            x: {
+                                title: {text: unit, display: true},
+                                beginAtZero: false,
+                                type: "linear"
+                            }
+                        }
+                    }
+                });
+
 
                 // * Position chart *
                 if(Chart.getChart("position_chart")) {
