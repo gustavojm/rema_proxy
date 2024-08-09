@@ -16,7 +16,7 @@ inline std::filesystem::path charts_dir = "charts";
 class Chart {
 
   public:
-    Chart() noexcept = default;
+    Chart() noexcept;
 
     void insertData(const Point3D &coords);
 

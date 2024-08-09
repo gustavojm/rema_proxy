@@ -2,6 +2,20 @@
 #include <iostream>
 
 #include "chart.hpp"
+#include "log_pattern.hpp"
+
+Chart::Chart() noexcept {
+    spdlog::set_pattern(log_pattern);
+
+    try {           
+    if (!std::filesystem::exists(charts_dir)) {
+        std::filesystem::create_directories(charts_dir);
+    }
+    SPDLOG_INFO("Generating charts to ./{}/", charts_dir.string());
+    } catch (std::exception& e) {
+        SPDLOG_INFO(e.what());
+    }
+}
 
 void Chart::insertData(const Point3D &coords) {
     active_obj.send([&coords, this] {
@@ -19,13 +33,17 @@ void Chart::save_to_disk() {
     active_obj.send([this] {
         auto now = to_time_t(std::chrono::steady_clock::now());
         std::filesystem::path chart_file = charts_dir / ("chart" + std::to_string(now) + ".json");
-
-        std::ofstream o_file_stream(chart_file);
-        o_file_stream << make_chart_data();
-        timestamps.clear();
-        coords_x.clear();
-        coords_y.clear();
-        coords_z.clear();
+       
+        try {
+            std::ofstream o_file_stream(chart_file);
+            o_file_stream << make_chart_data();
+            timestamps.clear();
+            coords_x.clear();
+            coords_y.clear();
+            coords_z.clear();
+        } catch (std::exception &e) {
+            SPDLOG_ERROR("CHARTS STORAGE ERROR {}", e.what());
+        }
     });
 }
 

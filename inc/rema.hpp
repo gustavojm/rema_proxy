@@ -13,6 +13,7 @@
 #include "session.hpp"
 #include "tool.hpp"
 #include "telemetry.hpp"
+#include "log_pattern.hpp"
 
 inline const std::filesystem::path config_file_path = "config.json";
 inline const std::filesystem::path rema_dir = std::filesystem::path("rema");
@@ -143,11 +144,19 @@ class REMA {
     REMA() : telemetry_client([&](std::vector<uint8_t> line) { update_telemetry(line); }), 
              logs_client([&](std::string line) { save_logs(line); }) {
 
+        spdlog::set_pattern(log_pattern);
+
         auto now = to_time_t(std::chrono::steady_clock::now());
         std::filesystem::path log_file = logs_dir / ("log" + std::to_string(now) + ".json");
        
-        try {
+        try {           
+            if (!std::filesystem::exists(logs_dir)) {
+                std::filesystem::create_directories(logs_dir);
+            }
+
             logs_ofstream.open(log_file, std::fstream::out | std::ios::app);
+            SPDLOG_INFO("Saving logs to {}", log_file.string());
+
             load_config();
             for (const auto &entry : std::filesystem::directory_iterator(tools_dir)) {
                 Tool t(entry.path());

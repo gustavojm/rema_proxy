@@ -22,6 +22,7 @@
 #include "syslogger.hpp"
 #include "upload.hpp"
 #include "websocket-server.hpp"
+#include "log_pattern.hpp"
 
 std::vector<std::shared_ptr<restbed::Session>> sse_sessions;
 
@@ -187,7 +188,7 @@ void failed_filter_validation_handler(const std::shared_ptr<restbed::Session> &s
 }
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
-    spdlog::set_pattern("[%H:%M:%S %z] [%^%L%$] [%g:%#] [thread %t] %v");
+    spdlog::set_pattern(log_pattern);
 
     uint16_t rema_proxy_port = 4321;
 
