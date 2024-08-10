@@ -14,7 +14,7 @@ class LogsNetClient : public NetClient {
   public:
     LogsNetClient() = default;
 
-    void set_on_receive_callback(std::function<void(std::string)> onReceiveCallback) {
+    void set_on_receive_callback(std::function<void(std::string&)> onReceiveCallback) {
         onReceiveCb = onReceiveCallback;
     }
 
@@ -69,7 +69,7 @@ class LogsNetClient : public NetClient {
         }
     }
 
-    std::function<void(std::string)> onReceiveCb;
+    std::function<void(std::string&)> onReceiveCb;
     std::thread thd;
     std::mutex mtx;
     std::condition_variable cv;

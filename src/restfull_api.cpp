@@ -403,9 +403,10 @@ void go_to_tube(const std::shared_ptr<restbed::Session> &rest_session) {
         goto_tube.axes = "XY";
         goto_tube.first_axis_setpoint = rema_coords.x;
         goto_tube.second_axis_setpoint = rema_coords.y;
-
-        chart.save_to_disk();
+        
+        chart.init("go_to_tube");
         nlohmann::json res = rema.move_closed_loop(goto_tube);
+        
         close_rest_session(rest_session, restbed::OK, res);
     }
 }
@@ -451,8 +452,10 @@ void move_joystick(const std::shared_ptr<restbed::Session> &rest_session) {
     }
 
     rema.axes_soft_stop_all();
-    chart.save_to_disk();
+    
+    chart.init("joystick");
     nlohmann::json res = rema.execute_command("MOVE_JOYSTICK", pars_obj);
+    
     close_rest_session(rest_session, restbed::OK, res);
 }
 
@@ -531,8 +534,10 @@ void move_incremental(const std::shared_ptr<restbed::Session> &rest_session) {
                 }
             }
             rema.axes_soft_stop_all();
-            chart.save_to_disk();
+            
+            chart.init("incremental");
             nlohmann::json res = rema.execute_command("MOVE_INCREMENTAL", pars_obj);
+
             close_rest_session(rest_session_ptr, restbed::OK, res);
         });
 }
@@ -611,8 +616,9 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> &rest_session
             seq.push_back(step);
         }
 
-        chart.save_to_disk();
+        chart.init("determine_tube_center");
         auto seq_execution_response = rema.execute_sequence(seq);
+        
         if (!seq_execution_response) {
             res["error"] = seq_execution_response.error();
             std::cout << nlohmann::to_string(res) << std::endl;
@@ -689,8 +695,9 @@ void determine_tubesheet_z(const std::shared_ptr<restbed::Session> &rest_session
     seq.push_back(forewards);
     seq.push_back(backwards);
 
-    chart.save_to_disk();
+    chart.init("determine_tubesheet_z");
     auto seq_execution_response = rema.execute_sequence(seq);
+    
     if (!seq_execution_response) {
         res["error"] = seq_execution_response.error();
         std::cout << nlohmann::to_string(res) << std::endl;

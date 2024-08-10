@@ -146,13 +146,13 @@ class REMA {
         spdlog::set_pattern(log_pattern);
 
         telemetry_client.set_on_receive_callback(
-            [&](std::vector<uint8_t> line) { 
+            [&](std::vector<uint8_t>& line) { 
                 update_telemetry(line);
             }
         );
 
         logs_client.set_on_receive_callback(
-            [&](std::string line) { 
+            [&](std::string& line) { 
                 save_logs(line); 
             }
         );
@@ -165,7 +165,7 @@ class REMA {
                 std::filesystem::create_directories(logs_dir);
             }
 
-            logs_ofstream.open(log_file, std::fstream::out | std::ios::app);
+            logs_ofstream.open(log_file, std::ios::app);
             SPDLOG_INFO("Saving logs to ./{}", log_file.string());
 
             load_config();

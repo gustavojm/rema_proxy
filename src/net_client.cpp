@@ -171,7 +171,8 @@ std::string NetClient::get_response() {
             }
         }
 
-        std::string response = std::move(leftover_buffer); // Iniciar con cualquier dato restante
+                                                            // If something was left on leftover_buffer because no null was found...
+        std::string response = std::move(leftover_buffer);  // start with what was left
 
         // Read until we get a null character
         while (true) {
@@ -190,12 +191,12 @@ std::string NetClient::get_response() {
             }
             
             for (ssize_t i = 0; i < nread; ++i) {
-                    if (buf_[i] == '\0') {
-                        // Guardar lo que viene después del carácter nulo en el buffer restante
-                        leftover_buffer.assign(buf_ + i + 1, nread - i - 1);
-                        return response; // Retornar la respuesta acumulada hasta el carácter nulo
-                    }
-                    response += buf_[i];
+                if (buf_[i] == '\0') {
+                    // Guardar lo que viene después del carácter nulo en el buffer restante
+                    leftover_buffer.assign(buf_ + i + 1, nread - i - 1);
+                    return response; // Retornar la respuesta acumulada hasta el carácter nulo
+                }
+                response += buf_[i];
             }
         }
     }
@@ -206,7 +207,6 @@ std::vector<uint8_t> NetClient::get_response_binary() {
     if (is_connected) {
         std::vector<uint8_t> response;
 
-        // Read until we get a null character
         while (true) {
             ssize_t nread = recv(socket_, buf_, buflen_, 0);
             if (nread < 0) {
@@ -225,7 +225,6 @@ std::vector<uint8_t> NetClient::get_response_binary() {
             for (ssize_t i = 0; i < nread; ++i) {
                 response.push_back(buf_[i]);
             }
-
             return response;
         }
     }

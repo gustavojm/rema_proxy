@@ -29,18 +29,27 @@ void Chart::insertData(const Point3D &coords) {
     });
 }
 
-void Chart::save_to_disk() {
-    active_obj.send([this] {
+void Chart::close_curent() {
+    if (chart_file_stream.is_open()) {
+        chart_file_stream << make_chart_data();
+        chart_file_stream.close();
+
+        timestamps.clear();
+        coords_x.clear();
+        coords_y.clear();
+        coords_z.clear();
+    }
+}
+    
+void Chart::init(std::string type) {
+    active_obj.send([this, type] {
+        close_curent();
+
         auto now = to_time_t(std::chrono::steady_clock::now());
-        std::filesystem::path chart_file = charts_dir / ("chart" + std::to_string(now) + ".json");
+        std::filesystem::path chart_file = charts_dir / ("chart_" + type + "_" + std::to_string(now) + ".json");
        
         try {
-            std::ofstream o_file_stream(chart_file);
-            o_file_stream << make_chart_data();
-            timestamps.clear();
-            coords_x.clear();
-            coords_y.clear();
-            coords_z.clear();
+            chart_file_stream.open(chart_file, std::ios::app);            
         } catch (std::exception &e) {
             SPDLOG_ERROR("CHARTS STORAGE ERROR {}", e.what());
         }
@@ -59,6 +68,7 @@ std::vector<std::string> Chart::list() {
 }
 
 nlohmann::json Chart::load_from_disk(std::string file_name) {
+    close_curent();
     std::filesystem::path chart_file_path = charts_dir / (file_name + std::string(".json"));
     std::ifstream i_file_stream(chart_file_path);
 
