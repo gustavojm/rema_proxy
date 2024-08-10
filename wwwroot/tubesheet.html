@@ -425,15 +425,22 @@
 
 											});
 
+														
+							$('#zoom_follow').prop("checked", sessionStorage.getItem("zoom_follow") == "true");
+							
+							$('#zoom_follow').change(function() {
+								sessionStorage.setItem("zoom_follow", $(this).prop("checked"))
+							});							
+
 							var zoom_bar = $("#zoom_bar").slider({
 								min : 1,
 								max : 10,
+								value: sessionStorage.getItem("zoom_value"),
 								change : function(event, ui) {
+									sessionStorage.setItem("zoom_value", ui.value);
 									zoom_svg(ui.value);
 								}
-							});
-
-							zoom_svg(zoom_bar.slider("value"));
+							});							
 
 							$("#tubesheet_svg").svg({
 								onLoad : function (svg) {
@@ -442,9 +449,11 @@
 									drawLocationPin(svg, tube_od, scale);
 									drawDestinationCross(svg, tube_od, scale);
 									var objDiv = document.getElementById("left_side_resizable");									
-									objDiv.scrollTop = (objDiv.scrollHeight - objDiv.clientHeight) / 2;																
+									objDiv.scrollTop = (objDiv.scrollHeight - objDiv.clientHeight) / 2;
+									zoom_svg($("#zoom_bar").slider("value"));
+									do_first_zoom = true;
 								}
-							});
+							});							
 						});
 	}
 

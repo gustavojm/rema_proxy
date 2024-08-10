@@ -158,6 +158,7 @@ var decimals = 3
 var unit = "inch"
 var tabs_initialized = false;
 var reconnect_dialog_shown = false;
+do_first_zoom = false;
 
 function toFixedIfNecessary(value, dp) {
 	return +parseFloat(value).toFixed(dp);	
@@ -370,6 +371,11 @@ function get_rema_info() {
 		if (tabs_initialized) {
 			if (current_tab == TUBESHEET_VIEW_TAB && typeof(update_bullseye_position) === "function") {
 				update_bullseye_position(pos_x, pos_y);
+				if (do_first_zoom) {					
+					zoom_svg($("#zoom_bar").slider("value"));
+					do_first_zoom = false;
+				}
+
 				if ((!areFloatsEqual(pos_x, prev_pos_x) || !areFloatsEqual(pos_y, prev_pos_y))) { 
 
 					if ($("#zoom_follow").prop("checked")) {
@@ -525,6 +531,10 @@ function get_rema_info() {
 		}
 	}					
 
+	function get_session_info() {
+		return $.get('/REST/current-session/info');
+	}
+
 
 	$(function() {
 	    create_joystick();
@@ -532,11 +542,7 @@ function get_rema_info() {
 		create_reconnect_dialog();
 		create_settings_dialog();
 
-		function get_session_info_index() {
-			return $.get('/REST/current-session/info');
-		}
-
-		get_session_info_index()
+		get_session_info()
 			.done(
 					function(current_session) {
 						active_tab = sessionStorage.getItem('activeTab');					
