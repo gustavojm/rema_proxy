@@ -120,7 +120,7 @@ void shutdownSocket(int fd) {
 
 void NetClient::close() {
     is_connected = false;
-    shutdownSocket(socket_); // As I'm shutind down socket_ fro another thread, use shutdown instead of close
+    shutdownSocket(socket_); // As I'm shutind down socket_ from another thread, use shutdown instead of close
                              // otherwise the same socket number will be assigned and errno = EBADF
 }
 
@@ -163,6 +163,14 @@ bool NetClient::send_request(std::string request) {
 
 std::string NetClient::get_response() {
     if (is_connected) {
+        if (!leftover_buffer.empty()) {            
+            if (std::size_t null_pos; (null_pos = leftover_buffer.find('\0')) != std::string::npos) {
+                std:: string prev = leftover_buffer.substr(0, null_pos - 1);
+                leftover_buffer = leftover_buffer.substr(null_pos + 1);
+                return prev;
+            }
+        }
+
         std::string response = std::move(leftover_buffer); // Iniciar con cualquier dato restante
 
         // Read until we get a null character

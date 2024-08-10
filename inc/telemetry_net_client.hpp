@@ -13,27 +13,29 @@
 
 class TelemetryNetClient : public NetClient {
   public:
-    TelemetryNetClient(std::function<void(std::vector<uint8_t>&)> onReceiveCallback)
-        : NetClient(), onReceiveCb(onReceiveCallback) {
-
-        wd.onTimeoutCallback = [&] { close(); };
-        wd.start(std::chrono::seconds(2));
-    }
+    TelemetryNetClient() = default;
 
     ~TelemetryNetClient() {
-        if (thd.joinable()) {
+        if (alreadyStarted && thd.joinable()) {
             stop();
         }
     }
 
+    void set_on_receive_callback(std::function<void(std::vector<uint8_t>&)> onReceiveCallback) {
+        onReceiveCb = onReceiveCallback;
+    }
+
     void start() {
-        if (!alreadyStarted) {
+        if (!alreadyStarted && onReceiveCb) {
             thd = std::thread(&TelemetryNetClient::loop, this);
+            disconnect_watchdog.onTimeoutCallback = [&] { close(); };
+            disconnect_watchdog.start(std::chrono::seconds(2));
             alreadyStarted = true;
         }
     }
 
     void stop() {
+        disconnect_watchdog.stop();
         {
             std::unique_lock<std::mutex> lock(mtx);
             stopFlag = true;
@@ -48,7 +50,7 @@ class TelemetryNetClient : public NetClient {
         if (int n; (n = NetClient::connect(host, port, nsec)) < 0) {
             return n;
         }
-        wd.resume();
+        disconnect_watchdog.resume();
         return 0;
     }
 
@@ -68,7 +70,7 @@ class TelemetryNetClient : public NetClient {
                 if (!line.empty()) {
                     // std::cout << "t" << std::flush;
                     onReceiveCb(line);
-                    wd.reset();
+                    disconnect_watchdog.reset();
                 }
             }
         }
@@ -82,5 +84,5 @@ class TelemetryNetClient : public NetClient {
     bool stopFlag = false;
     bool alreadyStarted = false;    
     int ConnectionTimeout = 5;
-    WatchdogTimer wd;
+    WatchdogTimer disconnect_watchdog;
 };

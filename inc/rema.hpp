@@ -141,10 +141,21 @@ class REMA {
     std::string rtu_host_;
     int rtu_port_;
 
-    REMA() : telemetry_client([&](std::vector<uint8_t> line) { update_telemetry(line); }), 
-             logs_client([&](std::string line) { save_logs(line); }) {
+    REMA() {
 
         spdlog::set_pattern(log_pattern);
+
+        telemetry_client.set_on_receive_callback(
+            [&](std::vector<uint8_t> line) { 
+                update_telemetry(line);
+            }
+        );
+
+        logs_client.set_on_receive_callback(
+            [&](std::string line) { 
+                save_logs(line); 
+            }
+        );
 
         auto now = to_time_t(std::chrono::steady_clock::now());
         std::filesystem::path log_file = logs_dir / ("log" + std::to_string(now) + ".json");

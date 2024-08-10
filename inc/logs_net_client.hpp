@@ -12,8 +12,10 @@
 
 class LogsNetClient : public NetClient {
   public:
-    LogsNetClient(std::function<void(std::string)> onReceiveCallback)
-        : NetClient(), onReceiveCb(onReceiveCallback) {
+    LogsNetClient() = default;
+
+    void set_on_receive_callback(std::function<void(std::string)> onReceiveCallback) {
+        onReceiveCb = onReceiveCallback;
     }
 
     ~LogsNetClient() {
