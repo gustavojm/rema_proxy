@@ -539,11 +539,13 @@ function get_rema_info() {
 		get_session_info_index()
 			.done(
 					function(current_session) {
-						active_tab = 0;
+						active_tab = sessionStorage.getItem('activeTab');					
 						if (current_session.is_loaded) {
 							unit = current_session.hx.unit;
 							$(".unit").text(unit);
-							active_tab = TUBESHEET_VIEW_TAB
+							if (active_tab == 0) {		// Session tab
+								active_tab = TUBESHEET_VIEW_TAB
+							}
 						}
 						
 						$("#tabs").tabs({
@@ -551,6 +553,11 @@ function get_rema_info() {
 							//heightStyle : "fill"			
 							beforeActivate : function(event, ui) {
 								$(ui.oldTab).trigger("unload_tab");
+							},
+							activate: function(event, ui) {
+								// Save the index of the selected tab in sessionStorage
+								var newIndex = $("#tabs").tabs("option", "active");
+								sessionStorage.setItem('activeTab', newIndex);
 							},
 							create: function (event, ui) {
 								tabs_initialized = true;
