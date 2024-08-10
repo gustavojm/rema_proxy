@@ -457,10 +457,6 @@
 						});
 	}
 
-	function get_session_info() {
-		return $.get('/REST/current-session/info');
-	}
-
 	get_session_info()
 			.done(
 					function(current_session) {
