@@ -482,6 +482,8 @@ void network_settings(const std::shared_ptr<restbed::Session>& rest_session) {
                     rema.config["REMA"]["network"]["port"] = rtu_port;
                     rema.save_config();
 
+                    rema.telemetry_client.close();
+
                     pars["ipaddr"] = rtu_host;
                     pars["port"] = rtu_port;
                     pars["gw"] = form_data["ipaddr"];

@@ -89,7 +89,7 @@ void REMA::connect(const std::string &rtu_host, int rtu_port) {
 
 void REMA::reconnect() {
     command_client.close();
-    telemetry_client.close();
+    //telemetry_client.close();   // this would probably be closed by watchdog
     logs_client.close();
     connect(rtu_host_, rtu_port_);
 }
