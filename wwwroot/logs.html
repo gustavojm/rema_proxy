@@ -123,7 +123,25 @@
 		URL.revokeObjectURL(link.href);
 	}
 
+    function get_current_network_log_level() {
+        $.ajax({
+            url : "/REMA/",
+            method : "POST",
+            contentType : "application/json",
+            data : JSON.stringify([ 
+                {
+                    cmd : "LOG_LEVEL",
+                },
+            ]),
+            dataType : "json",
+            success : function(data) {
+                $("#net_log_level").val(data.LOG_LEVEL.net_level).change();
+            }
+        });
+    }
+
 	$(function() {
+		get_current_network_log_level();
 		timer_logs = setInterval(function () {get_logs(); get_mem_info()}, 1000);
 		
 		$("#clear_logs").click(function(){
@@ -149,7 +167,7 @@
 					contentType : "application/json",
 					data : JSON.stringify([ 
 						{
-							cmd : "SET_LOG_LEVEL",
+							cmd : "LOG_LEVEL",
 							pars : {
 								net_level : level
 							}

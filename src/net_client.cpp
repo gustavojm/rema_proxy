@@ -86,8 +86,8 @@ done:
         errno = error;
         return (-errno);
     }
-    SPDLOG_INFO("Connected to PORT: {}", port_);
     is_connected = true;
+    SPDLOG_INFO("Connected to PORT: {}", port_);    
     return (0);
 }
 
@@ -170,7 +170,6 @@ std::string NetClient::get_response() {
                 return prev;
             }
         }
-
                                                             // If something was left on leftover_buffer because no null was found...
         std::string response = std::move(leftover_buffer);  // start with what was left
 

@@ -98,7 +98,7 @@ class REMA {
 
     void execute_command_no_wait(const std::string cmd_name, const nlohmann::json command);
 
-    nlohmann::json execute_command(const std::string cmd_name, const nlohmann::json pars);
+    nlohmann::json execute_command(const std::string cmd_name, const nlohmann::json pars = {});
 
     nlohmann::json move_closed_loop(movement_cmd cmd);
 

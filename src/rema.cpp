@@ -161,7 +161,7 @@ void REMA::execute_command_no_wait(
 }
 
 nlohmann::json
-REMA::execute_command(const std::string cmd_name, const nlohmann::json pars = {}) { // do not change command to a reference
+REMA::execute_command(const std::string cmd_name, const nlohmann::json pars) { // do not change command to a reference
     execute_command_no_wait(cmd_name, pars);
     return nlohmann::json::parse(command_client.get_response());
 }

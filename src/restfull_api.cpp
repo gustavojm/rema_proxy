@@ -21,18 +21,18 @@
 #include "tool.hpp"
 #include "chart.hpp"
 
-void close_rest_session(const std::shared_ptr<restbed::Session> &rest_session, int status) {
+void close_rest_session(const std::shared_ptr<restbed::Session>& rest_session, int status) {
     rest_session->close(status, "", { { "Content-Type", "text/html ; charset=utf-8" }, { "Content-Length", "0" } });
 }
 
-void close_rest_session(const std::shared_ptr<restbed::Session> &rest_session, int status, const std::string &res) {
+void close_rest_session(const std::shared_ptr<restbed::Session>& rest_session, int status, const std::string &res) {
     rest_session->close(
         status,
         res,
         { { "Content-Type", "text/html ; charset=utf-8" }, { "Content-Length", std::to_string(res.length()) } });
 }
 
-void close_rest_session(const std::shared_ptr<restbed::Session> &rest_session, int status, const nlohmann::json &json_res) {
+void close_rest_session(const std::shared_ptr<restbed::Session>& rest_session, int status, const nlohmann::json &json_res) {
     std::string res = json_res.dump();
     rest_session->close(
         status,
@@ -48,7 +48,7 @@ struct ResourceEntry {
 /**
  * REMA related functions
  **/
-void REMA_connect(const std::shared_ptr<restbed::Session> &rest_session) {
+void REMA_connect(const std::shared_ptr<restbed::Session>& rest_session) {
     std::string res;
     int status = restbed::OK;
     try {
@@ -61,7 +61,7 @@ void REMA_connect(const std::shared_ptr<restbed::Session> &rest_session) {
     close_rest_session(rest_session, status, res);
 }
 
-void REMA_info(const std::shared_ptr<restbed::Session> &rest_session) {
+void REMA_info(const std::shared_ptr<restbed::Session>& rest_session) {
     nlohmann::json res = nlohmann::json(nlohmann::json::value_t::object);
 
     std::map<std::string, Tool> tools_to_ui;
@@ -79,11 +79,11 @@ void REMA_info(const std::shared_ptr<restbed::Session> &rest_session) {
 /**
  * HX related functions
  **/
-void HXs_list(const std::shared_ptr<restbed::Session> &rest_session) {
+void HXs_list(const std::shared_ptr<restbed::Session>& rest_session) {
     close_rest_session(rest_session, restbed::OK, nlohmann::json(HX::list()));
 }
 
-void HXs_delete(const std::shared_ptr<restbed::Session> &rest_session) {
+void HXs_delete(const std::shared_ptr<restbed::Session>& rest_session) {
     const auto request = rest_session->get_request();
     std::string HX_name = request->get_path_parameter("HX_name", "");
 
@@ -96,7 +96,7 @@ void HXs_delete(const std::shared_ptr<restbed::Session> &rest_session) {
     close_rest_session(rest_session, restbed::OK);
 }
 
-void HXs_tubesheet_load(const std::shared_ptr<restbed::Session> &rest_session) {
+void HXs_tubesheet_load(const std::shared_ptr<restbed::Session>& rest_session) {
     close_rest_session(rest_session, restbed::OK, nlohmann::json(current_session.hx.tubes));
 }
 
@@ -104,7 +104,7 @@ void HXs_tubesheet_load(const std::shared_ptr<restbed::Session> &rest_session) {
  * Plans related functions
  **/
 
-void plans(const std::shared_ptr<restbed::Session> &rest_session) {
+void plans(const std::shared_ptr<restbed::Session>& rest_session) {
     const auto request = rest_session->get_request();
     std::string plan = request->get_path_parameter("plan", "");
 
@@ -115,7 +115,7 @@ void plans(const std::shared_ptr<restbed::Session> &rest_session) {
     close_rest_session(rest_session, restbed::OK, res);
 }
 
-void plans_delete(const std::shared_ptr<restbed::Session> &rest_session) {
+void plans_delete(const std::shared_ptr<restbed::Session>& rest_session) {
     const auto request = rest_session->get_request();
     std::string plan = request->get_path_parameter("plan", "");
 
@@ -130,7 +130,7 @@ void plans_delete(const std::shared_ptr<restbed::Session> &rest_session) {
  * Tools related functions
  **/
 
-void tools_list(const std::shared_ptr<restbed::Session> &rest_session) {
+void tools_list(const std::shared_ptr<restbed::Session>& rest_session) {
     close_rest_session(rest_session, restbed::OK, REMA::tools);
 }
 
@@ -139,7 +139,7 @@ void tools_create(const std::shared_ptr<restbed::Session> rest_session) {
     size_t content_length = request->get_header("Content-Length", 0);
     rest_session->fetch(
         content_length,
-        [&]([[maybe_unused]] const std::shared_ptr<restbed::Session> &rest_session_ptr, const restbed::Bytes &body) {
+        [&]([[maybe_unused]] const std::shared_ptr<restbed::Session>& rest_session_ptr, const restbed::Bytes &body) {
             nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
             std::string res;
             int status = restbed::OK;
@@ -174,7 +174,7 @@ void tools_create(const std::shared_ptr<restbed::Session> rest_session) {
         });
 }
 
-void tools_delete(const std::shared_ptr<restbed::Session> &rest_session) {
+void tools_delete(const std::shared_ptr<restbed::Session>& rest_session) {
     const auto request = rest_session->get_request();
     std::string tool_name = request->get_path_parameter("tool_name", "");
 
@@ -190,7 +190,7 @@ void tools_delete(const std::shared_ptr<restbed::Session> &rest_session) {
     close_rest_session(rest_session, status, res);
 }
 
-void tools_select(const std::shared_ptr<restbed::Session> &rest_session) {
+void tools_select(const std::shared_ptr<restbed::Session>& rest_session) {
     auto request = rest_session->get_request();
     std::string tool_name = request->get_path_parameter("tool_name", "");
     rema.set_last_selected_tool(tool_name);
@@ -201,7 +201,7 @@ void tools_select(const std::shared_ptr<restbed::Session> &rest_session) {
  * Sessions related functions
  **/
 
-void sessions_list(const std::shared_ptr<restbed::Session> &rest_session) {
+void sessions_list(const std::shared_ptr<restbed::Session>& rest_session) {
     nlohmann::json res;
 
     for (auto &session : Session::sessions_list()) {
@@ -215,12 +215,12 @@ void sessions_list(const std::shared_ptr<restbed::Session> &rest_session) {
     close_rest_session(rest_session, restbed::OK, res);
 }
 
-void sessions_create(const std::shared_ptr<restbed::Session> &rest_session) {
+void sessions_create(const std::shared_ptr<restbed::Session>& rest_session) {
     const auto request = rest_session->get_request();
     size_t content_length = request->get_header("Content-Length", 0);
     rest_session->fetch(
         content_length,
-        [&]([[maybe_unused]] const std::shared_ptr<restbed::Session> &rest_session_ptr, const restbed::Bytes &body) {
+        [&]([[maybe_unused]] const std::shared_ptr<restbed::Session>& rest_session_ptr, const restbed::Bytes &body) {
             nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
             std::string res;
             int status = restbed::OK;
@@ -251,7 +251,7 @@ void sessions_create(const std::shared_ptr<restbed::Session> &rest_session) {
         });
 }
 
-void sessions_load(const std::shared_ptr<restbed::Session> &rest_session) {
+void sessions_load(const std::shared_ptr<restbed::Session>& rest_session) {
     auto request = rest_session->get_request();
     std::string session_name = request->get_path_parameter("session_name", "");
     int status = restbed::OK;
@@ -276,11 +276,11 @@ void sessions_load(const std::shared_ptr<restbed::Session> &rest_session) {
     close_rest_session(rest_session, status, res);
 }
 
-void current_session_info(const std::shared_ptr<restbed::Session> &rest_session) {
+void current_session_info(const std::shared_ptr<restbed::Session>& rest_session) {
     close_rest_session(rest_session, restbed::OK, current_session);
 }
 
-void sessions_delete(const std::shared_ptr<restbed::Session> &rest_session) {
+void sessions_delete(const std::shared_ptr<restbed::Session>& rest_session) {
     auto request = rest_session->get_request();
     std::string session_name = request->get_path_parameter("session_name", "");
     try {
@@ -297,18 +297,18 @@ void sessions_delete(const std::shared_ptr<restbed::Session> &rest_session) {
  * Calibration Points related functions
  **/
 
-void cal_points_list(const std::shared_ptr<restbed::Session> &rest_session) {
+void cal_points_list(const std::shared_ptr<restbed::Session>& rest_session) {
     close_rest_session(rest_session, restbed::OK, nlohmann::json(current_session.cal_points));
 }
 
-void cal_points_add_update(const std::shared_ptr<restbed::Session> &rest_session) {
+void cal_points_add_update(const std::shared_ptr<restbed::Session>& rest_session) {
     const auto request = rest_session->get_request();
     std::string tube_id = request->get_path_parameter("tube_id", "");
 
     size_t content_length = request->get_header("Content-Length", 0);
     rest_session->fetch(
         content_length,
-        [&]([[maybe_unused]] const std::shared_ptr<restbed::Session> &rest_session_ptr, const restbed::Bytes &body) {
+        [&]([[maybe_unused]] const std::shared_ptr<restbed::Session>& rest_session_ptr, const restbed::Bytes &body) {
             nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
             std::string res;
             int status = restbed::OK;
@@ -341,7 +341,7 @@ void cal_points_add_update(const std::shared_ptr<restbed::Session> &rest_session
         });
 };
 
-void cal_points_delete(const std::shared_ptr<restbed::Session> &rest_session) {
+void cal_points_delete(const std::shared_ptr<restbed::Session>& rest_session) {
     const auto request = rest_session->get_request();
     std::string tube_id = request->get_path_parameter("tube_id", "");
 
@@ -357,7 +357,7 @@ void cal_points_delete(const std::shared_ptr<restbed::Session> &rest_session) {
     close_rest_session(rest_session, status, res);
 }
 
-void tubes_set_status(const std::shared_ptr<restbed::Session> &rest_session) {
+void tubes_set_status(const std::shared_ptr<restbed::Session>& rest_session) {
 
     const auto request = rest_session->get_request();
     std::string tube_id = request->get_path_parameter("tube_id", "");
@@ -367,7 +367,7 @@ void tubes_set_status(const std::shared_ptr<restbed::Session> &rest_session) {
 
     rest_session->fetch(
         content_length,
-        [&]([[maybe_unused]] const std::shared_ptr<restbed::Session> &rest_session_ptr, const restbed::Bytes &body) {
+        [&]([[maybe_unused]] const std::shared_ptr<restbed::Session>& rest_session_ptr, const restbed::Bytes &body) {
             nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
             std::string res_string;
 
@@ -380,18 +380,18 @@ void tubes_set_status(const std::shared_ptr<restbed::Session> &rest_session) {
         });
 }
 
-void axes_hard_stop_all(const std::shared_ptr<restbed::Session> &rest_session) {
+void axes_hard_stop_all(const std::shared_ptr<restbed::Session>& rest_session) {
     rema.axes_hard_stop_all();
     close_rest_session(rest_session, restbed::OK);
 }
 
-void axes_soft_stop_all(const std::shared_ptr<restbed::Session> &rest_session) {
+void axes_soft_stop_all(const std::shared_ptr<restbed::Session>& rest_session) {
     SPDLOG_INFO("Received soft stop");
     rema.axes_soft_stop_all();
     close_rest_session(rest_session, restbed::OK);
 }
 
-void go_to_tube(const std::shared_ptr<restbed::Session> &rest_session) {
+void go_to_tube(const std::shared_ptr<restbed::Session>& rest_session) {
     const auto request = rest_session->get_request();
     std::string tube_id = request->get_path_parameter("tube_id", "");
 
@@ -411,7 +411,7 @@ void go_to_tube(const std::shared_ptr<restbed::Session> &rest_session) {
     }
 }
 
-void move_joystick(const std::shared_ptr<restbed::Session> &rest_session) {
+void move_joystick(const std::shared_ptr<restbed::Session>& rest_session) {
     const auto request = rest_session->get_request();
     std::string dir = request->get_path_parameter("dir", "");
 
@@ -463,50 +463,58 @@ bool equals(double f1, double f2) {
     return (fabs(f1 - f2) < 0.000001); /* EPSILON */
 }
 
-void change_network_settings(const std::shared_ptr<restbed::Session> &rest_session) {
-    nlohmann::json pars_obj;
+void network_settings(const std::shared_ptr<restbed::Session>& rest_session) {
+    nlohmann::json pars;
     const auto request = rest_session->get_request();
     size_t content_length = request->get_header("Content-Length", 0);
     rest_session->fetch(
         content_length,
-        [&]([[maybe_unused]] const std::shared_ptr<restbed::Session> &rest_session_ptr, const restbed::Bytes &body) {
-            nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
+        [&]([[maybe_unused]] const std::shared_ptr<restbed::Session>& rest_session_ptr, const restbed::Bytes &body) {
+            if (!body.empty()) {
+                nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
+                
+                if (isValidIPv4(form_data["ipaddr"])) {
+                    std::string rtu_host = form_data["ipaddr"];
+                    std::string rtu_port_str = form_data["port"];
+                    int rtu_port = std::stoi(rtu_port_str);
 
-            if (isValidIPv4(form_data["ipaddr"])) {
-                std::string rtu_host = form_data["ipaddr"];
-                int rtu_port = form_data["port"];
+                    rema.config["REMA"]["network"]["ip"] = rtu_host;
+                    rema.config["REMA"]["network"]["port"] = rtu_port;
+                    rema.save_config();
 
-                rema.config["REMA"]["network"]["ip"] = rtu_host;
-                rema.config["REMA"]["network"]["port"] = rtu_port;
-                rema.save_config();
+                    pars["ipaddr"] = rtu_host;
+                    pars["port"] = rtu_port;
+                    pars["gw"] = form_data["ipaddr"];
+                    pars["netmask"] = "255.255.255.0";
+                    rema.execute_command_no_wait("NETWORK_SETTINGS", pars);
 
-                if (form_data.contains("change_remote_network_settings")) {
-                    pars_obj["ipaddr"] = rtu_host;
-                    pars_obj["port"] = rtu_port;
-                    pars_obj["gw"] = form_data["ipaddr"];
-                    pars_obj["netmask"] = "255.255.255.0";
-                    rema.execute_command_no_wait("NETWORK_SETTINGS", pars_obj);
-                }
-
-                for (int retry = 0; retry < 3; ++retry) {
-                    try {
-                        rema.connect(rtu_host, rtu_port);
-                    } catch (const std::exception &e) {
-                        std::this_thread::sleep_for(std::chrono::milliseconds(500));
-                        SPDLOG_INFO("Retrying...");
+                    for (int retry = 0; retry < 3; ++retry) {
+                        try {
+                            rema.connect(rtu_host, rtu_port);
+                        } catch (const std::exception &e) {
+                            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                            SPDLOG_INFO("Retrying...");
+                        }
+                        if (rema.command_client.is_connected && rema.telemetry_client.is_connected) {
+                            break;
+                        }
                     }
+                    close_rest_session(rest_session_ptr, restbed::OK);                    
                 }
+                close_rest_session(rest_session_ptr, restbed::BAD_REQUEST);
+            } else {
+                nlohmann::json res = rema.execute_command("NETWORK_SETTINGS");
+                close_rest_session(rest_session_ptr, restbed::OK, res);
             }
-            close_rest_session(rest_session_ptr, restbed::OK);
         });
 }
 
-void move_incremental(const std::shared_ptr<restbed::Session> &rest_session) {
+void move_incremental(const std::shared_ptr<restbed::Session>& rest_session) {
     const auto request = rest_session->get_request();
     size_t content_length = request->get_header("Content-Length", 0);
     rest_session->fetch(
         content_length,
-        [&]([[maybe_unused]] const std::shared_ptr<restbed::Session> &rest_session_ptr, const restbed::Bytes &body) {
+        [&]([[maybe_unused]] const std::shared_ptr<restbed::Session>& rest_session_ptr, const restbed::Bytes &body) {
             nlohmann::json pars_obj;
             nlohmann::json form_data = nlohmann::json::parse(body.begin(), body.end());
             double incremental_x = 0.0;
@@ -542,7 +550,7 @@ void move_incremental(const std::shared_ptr<restbed::Session> &rest_session) {
         });
 }
 
-void set_home_xy(const std::shared_ptr<restbed::Session> &rest_session) {
+void set_home_xy(const std::shared_ptr<restbed::Session>& rest_session) {
     Tool tool = rema.get_selected_tool();
 
     const auto request = rest_session->get_request();
@@ -557,7 +565,7 @@ void set_home_xy(const std::shared_ptr<restbed::Session> &rest_session) {
     close_rest_session(rest_session, restbed::OK);
 }
 
-void set_home_z(const std::shared_ptr<restbed::Session> &rest_session) {
+void set_home_z(const std::shared_ptr<restbed::Session>& rest_session) {
     Tool tool = rema.get_selected_tool();
 
     const auto request = rest_session->get_request();
@@ -570,7 +578,7 @@ void set_home_z(const std::shared_ptr<restbed::Session> &rest_session) {
     close_rest_session(rest_session, restbed::OK, res);
 }
 
-void determine_tube_center(const std::shared_ptr<restbed::Session> &rest_session) {
+void determine_tube_center(const std::shared_ptr<restbed::Session>& rest_session) {
     Tool tool = rema.get_selected_tool();
     double probe_wiggle_factor = 1.2;
     double half_probe_wiggle_factor = 1 + ((probe_wiggle_factor - 1) / 2);
@@ -675,7 +683,7 @@ void determine_tube_center(const std::shared_ptr<restbed::Session> &rest_session
     }
 }
 
-void determine_tubesheet_z(const std::shared_ptr<restbed::Session> &rest_session) {
+void determine_tubesheet_z(const std::shared_ptr<restbed::Session>& rest_session) {
     const auto request = rest_session->get_request();
     std::string tube_id = request->get_path_parameter("tube_id", "");
     bool set_home = request->get_path_parameter("set_home", "") == "true";
@@ -753,7 +761,7 @@ void determine_tubesheet_z(const std::shared_ptr<restbed::Session> &rest_session
     close_rest_session(rest_session, status, res);
 }
 
-void aligned_tubesheet_get(const std::shared_ptr<restbed::Session> &rest_session) {
+void aligned_tubesheet_get(const std::shared_ptr<restbed::Session>& rest_session) {
     nlohmann::json res;
     res["aligned_tubes"] = current_session.calculate_aligned_tubes();
     res["is_aligned"] = current_session.is_aligned;
@@ -761,11 +769,11 @@ void aligned_tubesheet_get(const std::shared_ptr<restbed::Session> &rest_session
     close_rest_session(rest_session, restbed::OK, res);
 }
 
-void send_startup_commands(const std::shared_ptr<restbed::Session> &rest_session) {
+void send_startup_commands(const std::shared_ptr<restbed::Session>& rest_session) {
     close_rest_session(rest_session, restbed::OK, rema.send_startup_commands());
 }
 
-void get_chart(const std::shared_ptr<restbed::Session> &rest_session) {
+void get_chart(const std::shared_ptr<restbed::Session>& rest_session) {
     const auto request = rest_session->get_request();
     std::string chart_file = request->get_path_parameter("chart_file", "");    
     bool last = chart_file == "last";
@@ -777,11 +785,11 @@ void get_chart(const std::shared_ptr<restbed::Session> &rest_session) {
     }    
 }
 
-void charts_list(const std::shared_ptr<restbed::Session> &rest_session) {
+void charts_list(const std::shared_ptr<restbed::Session>& rest_session) {
     close_rest_session(rest_session, restbed::OK, chart.list());
 }
 
-void charts_delete(const std::shared_ptr<restbed::Session> &rest_session) {
+void charts_delete(const std::shared_ptr<restbed::Session>& rest_session) {
     const auto request = rest_session->get_request();
     std::string chart_file = request->get_path_parameter("chart_file", "");
 
@@ -797,7 +805,7 @@ void charts_delete(const std::shared_ptr<restbed::Session> &rest_session) {
     close_rest_session(rest_session, status, res);
 }
 
-void logs(const std::shared_ptr<restbed::Session> &rest_session) {
+void logs(const std::shared_ptr<restbed::Session>& rest_session) {
     close_rest_session(rest_session, restbed::OK, rema.logs_vector);
     rema.logs_vector.clear();
 }
@@ -843,7 +851,7 @@ void restfull_api_create_endpoints(restbed::Service &service) {
         { "aligned-tubesheet-get", { { "GET", &aligned_tubesheet_get } } },
         { "axes-hard-stop-all", { { "GET", &axes_hard_stop_all } } },
         { "axes-soft-stop-all", { { "GET", &axes_soft_stop_all } } },
-        { "change-network-settings", { { "POST", &change_network_settings } } },
+        { "network-settings", { { "POST", &network_settings } } },
         { "send-startup-commands", { { "POST", &send_startup_commands } } },
         { "charts", { { "GET", &charts_list } } },
         { "charts/{chart_file: .*}", { { "GET", &get_chart } , { "DELETE", &charts_delete } } },      

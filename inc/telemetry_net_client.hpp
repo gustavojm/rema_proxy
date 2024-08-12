@@ -65,13 +65,11 @@ class TelemetryNetClient : public NetClient {
                 }
             }
 
-            if (is_connected) {
-                std::vector<uint8_t> line = get_response_binary();
-                if (!line.empty()) {
-                    // std::cout << "t" << std::flush;
-                    onReceiveCb(line);
-                    disconnect_watchdog.reset();
-                }
+            std::vector<uint8_t> line = get_response_binary();
+            if (!line.empty()) {
+                // std::cout << "t" << std::flush;
+                onReceiveCb(line);
+                disconnect_watchdog.reset();
             }
         }
     }

@@ -147,7 +147,7 @@ void post_rtu_method_handler(const std::shared_ptr<restbed::Session> &session) {
     size_t content_length = request->get_header("Content-Length", 0);
 
     session->fetch(
-        content_length, [&](const std::shared_ptr<restbed::Session> &rest_session_ptr, const restbed::Bytes &body) {
+        content_length, [&](const std::shared_ptr<restbed::Session>rest_session_ptr, const restbed::Bytes &body) {
             std::string tx_buffer(body.begin(), body.end());
 
             try {
@@ -155,8 +155,6 @@ void post_rtu_method_handler(const std::shared_ptr<restbed::Session> &session) {
 
                 std::string stream = rema.command_client.get_response();
                 if (!stream.empty()) {
-                    // stream.pop_back(); // Erase null character at the end of stream response
-
                     rest_session_ptr->close(
                         restbed::OK,
                         stream,

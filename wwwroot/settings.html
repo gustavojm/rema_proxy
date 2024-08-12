@@ -10,81 +10,124 @@
                 <input type="text" id="rema_port" name="port" placeholder="5020" size="4" maxlength="5" data-inputmask-alias="numeric" data-inputmask-greedy="false" 
                 data-inputmask-digits="0" data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">
             </div>
-            <div class="row" style="position: relative; width:100%; justify-content: space-between;">
-                Change Remote Network Settings: <input type="checkbox" name="change_remote_network_settings" title="Change remote network settings">
-            </div>
         </div>
         <div class="column">
             <button type="submit">Save</button>
         </div>
     </form>
-    <div><hr/></div>
-    <div id="config_tab" style="overflow: hidden; width: 100%;" class="row">
-        Change UART Log Level: 
-        <select id="uart_log_level">
-            <option value="">Choose a Level</option>
-            <option class="Debug" value="Debug">Debug</option>
-            <option class="Info" value="Info">Info</option>
-            <option class="Warning" value="Warning">Warning</option>
-            <option class="Error" value="Error">Error</option>
-        </select>
-    </div>
-</div>
+    <div id="advanced_settings" style="display:none;">
+        <div><hr/></div>
+        <div id="config_tab" style="overflow: hidden; width: 100%;" class="row">
+            Change UART Log Level: 
+            <select id="uart_log_level">
+                <option value="">Choose a Level</option>
+                <option class="Debug" value="Debug">Debug</option>
+                <option class="Info" value="Info">Info</option>
+                <option class="Warning" value="Warning">Warning</option>
+                <option class="Error" value="Error">Error</option>
+            </select>
+        </div>
 
-    <div><hr/></div>
-    <div id="config_tab" style="overflow: hidden; width: 100%;" class="row">
-        <div id="x_axes_config" data-axes="XY" style="float: left; width: 50%;" class="axes-div">
-            <fieldset class="column" width="50%"><legend>X_Y Axes</legend>
-                <div class="row" style="position: relative; width:100%; justify-content: space-between;">
-                    <label>Proportional Gain: <input type="text" name="kp" size="4">%</label>
-                </div>
-                <div class="row" style="position: relative; width:100%; justify-content: space-between;">
-                    <label>Update Time: <input type="text"	name="update_time" size="4">ms</label>
-                </div>                
-                <div class="row" style="position: relative; width:100%; justify-content: space-between;">
-                    <label>Maximum Frequency: <input type="text" name="max_freq" size="4">hz</label>
-                </div>
-                <div class="row" style="position: relative; width:100%; justify-content: space-between;">
-                    <label>Minimum Frequency: <input type="text" name="min_freq" size="4">hz</label>
-                </div>
-                <div class="row" style="position: relative; width:100%; text-align: center;">
-                    <input type="button" name="start" onclick=save($(this)) value="Save">
-                </div>
-            </fieldset>
+        <div><hr/></div>
+        <div id="config_tab" style="overflow: hidden; width: 100%;" class="row">
+            <div id="x_axes_config" data-axes="XY" style="float: left; width: 50%;" class="axes-div">
+                <fieldset class="column" width="50%"><legend>X_Y Axes</legend>
+                    <div class="row" style="position: relative; width:100%; justify-content: space-between;">
+                        <label>Proportional Gain: <input type="text" name="prop_gain" size="4">%</label>
+                    </div>
+                    <div class="row" style="position: relative; width:100%; justify-content: space-between;">
+                        <label>Update Time: <input type="text"	name="update_time" size="4">ms</label>
+                    </div>                
+                    <div class="row" style="position: relative; width:100%; justify-content: space-between;">
+                        <label>Maximum Frequency: <input type="text" name="max_freq" size="4">hz</label>
+                    </div>
+                    <div class="row" style="position: relative; width:100%; justify-content: space-between;">
+                        <label>Minimum Frequency: <input type="text" name="min_freq" size="4">hz</label>
+                    </div>
+                    <div class="row" style="position: relative; width:100%; text-align: center;">
+                        <input type="button" name="start" onclick=save($(this)) value="Save">
+                    </div>
+                </fieldset>
+            </div>
+            <div id="z_axes_config" data-axes="Z" style="float: left; width: 50%;" class="axes-div">
+                <fieldset class="column" width="50%"><legend>Z Axis</legend>
+                    <div class="row" style="position: relative; width:100%; justify-content: space-between;">
+                        <label>Proportional Gain: <input type="text" name="prop_gain" size="4">%</label>
+                    </div>
+                    <div class="row" style="position: relative; width:100%; justify-content: space-between;">
+                        <label>Update Time: <input type="text"	name="update_time" size="4">ms</label>
+                    </div>
+                    <div class="row" style="position: relative; width:100%; justify-content: space-between;">
+                        <label>Maximum Frequency: <input type="text" name="max_freq" size="4">hz</label>
+                    </div>
+                    <div class="row" style="position: relative; width:100%; justify-content: space-between;">                
+                        <label>Minimum Frequency: <input type="text" name="min_freq" size="4">hz</label>
+                    </div>
+                    <div class="row" style="position: relative; width:100%; text-align: center;">
+                        <input type="button" name="start" onclick=save($(this)) value="Save">
+                    </div>
+                </fieldset>
+            </div>
         </div>
-        <div id="z_axes_config" data-axes="Z" style="float: left; width: 50%;" class="axes-div">
-            <fieldset class="column" width="50%"><legend>Z Axis</legend>
-                <div class="row" style="position: relative; width:100%; justify-content: space-between;">
-                    <label>Proportional Gain: <input type="text" name="kp" size="4">%</label>
-                </div>
-                <div class="row" style="position: relative; width:100%; justify-content: space-between;">
-                    <label>Update Time: <input type="text"	name="update_time" size="4">ms</label>
-                </div>
-                <div class="row" style="position: relative; width:100%; justify-content: space-between;">
-                    <label>Maximum Frequency: <input type="text" name="max_freq" size="4">hz</label>
-                </div>
-                <div class="row" style="position: relative; width:100%; justify-content: space-between;">                
-                    <label>Minimum Frequency: <input type="text" name="min_freq" size="4">hz</label>
-                </div>
-                <div class="row" style="position: relative; width:100%; text-align: center;">
-                    <input type="button" name="start" onclick=save($(this)) value="Save">
-                </div>
-            </fieldset>
+        <div><hr/></div>
+        <div style="padding-bottom: 10px; padding-top: 10px;">
+            <textarea id="startup_commands_logs" style="width: 100%;" rows="5"  readonly="readonly"></textarea>
+            <input id="send_startup_commands_btn" type="button" value="Send startup commands"> (rema_startup.json)
         </div>
-    </div>
-    <div><hr/></div>
-    <div style="padding-bottom: 10px; padding-top: 10px;">
-        <textarea id="startup_commands_logs" style="width: 100%;" rows="5"  readonly="readonly"></textarea>
-        <input id="send_startup_commands_btn" type="button" value="Send startup commands"> (rema_startup.json)
     </div>
 </div>
 
 <script type="text/javascript">
-	function save(btn) {
 
+    function get_network_settings() {
+        $.ajax({
+            url : "/REST/network-settings",
+            method : "POST",
+            contentType : "application/json",
+            success : function(data) {
+                $("#rema_ip_address").val(data.NETWORK_SETTINGS.ipaddr);
+                $("#rema_port").val(data.NETWORK_SETTINGS.port);
+            }
+        });
+    }
+
+	function get_current_settings() {
+        $.ajax({
+			url : "/REMA/",
+			method : "POST",
+			contentType : "application/json",
+			data : JSON.stringify([
+                {
+					cmd : "AXES_SETTINGS",
+				},
+                {
+                    cmd : "LOG_LEVEL",
+                },
+            ]),
+			dataType : "json",
+			success : function(data) {
+                axes_settings = data.AXES_SETTINGS
+		        $('#x_axes_config [name="prop_gain"]').val(axes_settings.XY.prop_gain);
+		        $('#x_axes_config [name="update_time"]').val(axes_settings.XY.update_time);
+		        $('#x_axes_config [name="min_freq"]').val(axes_settings.XY.min_freq);
+		        $('#x_axes_config [name="max_freq"]').val(axes_settings.XY.max_freq);
+
+		        $('#z_axes_config [name="prop_gain"]').val(axes_settings.Z.prop_gain);
+		        $('#z_axes_config [name="update_time"]').val(axes_settings.Z.update_time);
+		        $('#z_axes_config [name="min_freq"]').val(axes_settings.Z.min_freq);
+		        $('#z_axes_config [name="max_freq"]').val(axes_settings.Z.max_freq);
+
+                $("#uart_log_level").val(data.LOG_LEVEL.local_level).change();
+                get_network_settings();
+			}
+		});        
+    }
+
+
+	function save(btn) {
 		div = btn.closest(".axes-div");
-		axes = $(div).data("axes");
-		kp = parseInt($(div).find('[name="kp"]').val()) || 100;
+		axes = $(div).data("axes");        
+		prop_gain = parseInt($(div).find('[name="prop_gain"]').val()) || 100;
 		update_time = parseInt($(div).find('[name="update_time"]').val()) || 100;
 		max_freq = parseInt($(div).find('[name="max_freq"]').val()) || 125000;
 		min_freq = parseInt($(div).find('[name="min_freq"]').val()) || 10000;
@@ -95,10 +138,10 @@
 			contentType : "application/json",
 			data : JSON.stringify([
                 {
-					cmd : "KP_SET_TUNINGS",
+					cmd : "AXES_SETTINGS",
 					pars : {
 						axes : axes,
-						kp : kp,
+						prop_gain : prop_gain,
 						update : update_time,
 						min : min_freq,
 						max : max_freq,
@@ -107,16 +150,10 @@
             ]),
 			dataType : "json",
 			success : function(data) {
-				//console.log(data);					
+                get_current_settings();
 			}
 		});
 	};
-
-	$(function() {
-//		alert("script en config.html");
-	});
-</script>
-<script type="text/javascript">
 
     $("#network_settings_form").submit(function (event) {
 		event.preventDefault();
@@ -141,7 +178,7 @@
 
 		// If all validations pass, you can proceed to save the settings
         $.ajax({
-            url : "/REST/change-network-settings",
+            url : "/REST/network-settings",
             method : "POST",
             contentType : "application/json",
             data: JSON.stringify(Object.fromEntries(new FormData(document.getElementById("network_settings_form")))),
@@ -150,33 +187,42 @@
                 location.reload();
             }
         });
-		$("#network_settings_div").dialog("close");        
+		$("settings_div").dialog("close");
 	});
 
     $(function() {
-        $(":input").inputmask();
+        $("#settings_div").on("dialogopen", function(event, ui) {
+            get_current_settings();
+        });       
 
+        $(":input").inputmask();
+  
         $("#uart_log_level").change(function(e) {
-			var level = $("option:selected", this).val();
-            if (level!="") {
+            if (e.originalEvent) {
+                var level = $("option:selected", this).val();
+                if (level!="") {
+                    var level_class = $("option:selected", this).attr("class");
+                    $.ajax({
+                        url : "/REMA/",
+                        method : "POST",
+                        contentType : "application/json",
+                        data : JSON.stringify([ 
+                            {
+                                cmd : "LOG_LEVEL",
+                                pars : {
+                                    local_level : level
+                                }
+                            },
+                        ]),
+                        dataType : "json",
+                        success : function(data) {				
+                            $("#uart_log_level").removeClass().addClass(level_class);
+                        }
+                    });
+                }
+            } else {
                 var level_class = $("option:selected", this).attr("class");
-                $.ajax({
-                    url : "/REMA/",
-                    method : "POST",
-                    contentType : "application/json",
-                    data : JSON.stringify([ 
-                        {
-                            cmd : "SET_LOG_LEVEL",
-                            pars : {
-                                local_level : level
-                            }
-                        },
-                    ]),
-                    dataType : "json",
-                    success : function(data) {				
-                        $("#uart_log_level").removeClass().addClass(level_class);
-                    }
-                });
+                $("#uart_log_level").removeClass().addClass(level_class);
             }
 		});
 
@@ -188,6 +234,7 @@
                 contentType : "application/json",
                 success: function(data) {
                     $("#startup_commands_logs").val(JSON.stringify(data, null, 4));
+                    get_current_settings();
                 },
                 error: function(xhr, status, error) {
                     $("#startup_commands_logs").val(xhr.responseText);
