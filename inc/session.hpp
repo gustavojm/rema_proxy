@@ -9,7 +9,7 @@
 #include "points.hpp"
 #include "tool.hpp"
 #include "tube_entry.hpp"
-#include "time_utils.hpp"
+#include "misc_fns.hpp"
 
 inline std::filesystem::path sessions_dir = std::filesystem::path("sessions");
 
@@ -63,49 +63,15 @@ class Session {
 
     bool load(const std::string& session_name);
 
-    Point3D from_rema_to_ui(Point3D coords, Tool* tool = nullptr) {
-        if (tool) {
-            return ((coords - tool->offset) * hx.scale);
-        } else {
-            return (coords * hx.scale);
-        }
-    }
+    Point3D from_rema_to_ui(Point3D coords, Tool* tool = nullptr);
 
-    double from_rema_to_ui(double meassure) {
-        return (meassure * hx.scale);
-    }
+    double from_rema_to_ui(double meassure);
 
-    Point3D from_ui_to_rema(Point3D coords, Tool* tool = nullptr) {
-        if (tool) {
-            return ((coords / hx.scale) + tool->offset);
-        } else {
-            return (coords / hx.scale);
-        }
-    }
+    Point3D from_ui_to_rema(Point3D coords, Tool* tool = nullptr);
 
-    double from_ui_to_rema(double meassure) {
-        return (meassure / hx.scale);
-    }
+    double from_ui_to_rema(double meassure);
 
-    static std::vector<Session> sessions_list() {
-        std::vector<Session> res;
-
-        for (const auto& entry : std::filesystem::directory_iterator(sessions_dir)) {
-            if (entry.is_regular_file()) {
-                std::time_t tt = to_time_t(entry.last_write_time());
-                std::tm* gmt = std::gmtime(&tt);
-                std::stringstream buffer;
-                buffer << std::put_time(gmt, "%A, %d %B %Y %H:%M");
-                std::string formattedFileTime = buffer.str();
-
-                Session session(entry.path().filename().replace_extension());
-                session.last_write_time = buffer.str();
-
-                res.push_back(session);
-            }
-        }
-        return res;
-    }
+    static std::vector<Session> sessions_list() ;
 
     void save_to_disk() const;
 
@@ -119,9 +85,7 @@ class Session {
 
     int total_tubes_executed();
 
-    static void delete_session(std::string session_name) {
-        std::filesystem::remove(sessions_dir / (session_name + std::string(".json")));
-    }
+    static void delete_session(std::string session_name);
 
     void copy_tubes_to_aligned_tubes();
 
@@ -129,24 +93,9 @@ class Session {
 
     std::map<std::string, std::map<std::string, struct PlanEntry>> plans;
 
-    nlohmann::json to_json_to_disk() const {
-        nlohmann::json json;
-        json["hx_dir"] = hx_dir;
-        json["hx"] = hx;
-        json["last_selected_plan"] = last_selected_plan;
-        json["plans"] = plans;
-        json["cal_points"] = cal_points;
-        return json;
-    }
+    nlohmann::json to_json_to_disk() const;
 
-    void from_json_from_disk(const nlohmann::json& json) {
-        const Session nlohmann_json_default_obj{};
-        hx_dir = json.value("hx_dir", nlohmann_json_default_obj.hx_dir);
-        hx = json.value("hx", nlohmann_json_default_obj.hx);
-        last_selected_plan = json.value("last_selected_plan", nlohmann_json_default_obj.last_selected_plan);
-        plans = json.value("plans", nlohmann_json_default_obj.plans);
-        cal_points = json.value("cal_points", nlohmann_json_default_obj.cal_points);
-    }
+    void from_json_from_disk(const nlohmann::json& json);
 
     std::string name;
     std::filesystem::path hx_dir;

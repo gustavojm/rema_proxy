@@ -16,6 +16,10 @@ Session::Session(const std::filesystem::path& session_file) {
     load(session_file);
 }
 
+void Session::delete_session(std::string session_name) {
+    std::filesystem::remove(sessions_dir / (session_name + std::string(".json")));
+}
+
 void Session::copy_tubes_to_aligned_tubes() {
     for (auto [id, tube] : hx.tubes) {
         aligned_tubes[id] = tube;
@@ -99,6 +103,51 @@ void Session::plan_remove(const std::string& plan) {
         plans.erase(it);
     }
 }
+
+Point3D Session::from_rema_to_ui(Point3D coords, Tool* tool) {
+    if (tool) {
+        return ((coords - tool->offset) * hx.scale);
+    } else {
+        return (coords * hx.scale);
+    }
+}
+
+double Session::from_rema_to_ui(double meassure) {
+    return (meassure * hx.scale);
+}
+
+Point3D Session::from_ui_to_rema(Point3D coords, Tool* tool) {
+    if (tool) {
+        return ((coords / hx.scale) + tool->offset);
+    } else {
+        return (coords / hx.scale);
+    }
+}
+
+std::vector<Session> Session::sessions_list() {
+    std::vector<Session> res;
+
+    for (const auto& entry : std::filesystem::directory_iterator(sessions_dir)) {
+        if (entry.is_regular_file()) {
+            std::time_t tt = to_time_t(entry.last_write_time());
+            std::tm* gmt = std::gmtime(&tt);
+            std::stringstream buffer;
+            buffer << std::put_time(gmt, "%A, %d %B %Y %H:%M");
+            std::string formattedFileTime = buffer.str();
+
+            Session session(entry.path().filename().replace_extension());
+            session.last_write_time = buffer.str();
+
+            res.push_back(session);
+        }
+    }
+    return res;
+}
+
+double Session::from_ui_to_rema(double meassure) {
+    return (meassure / hx.scale);
+}
+
 
 void Session::save_to_disk() const {
     std::filesystem::path session_file = sessions_dir / (name + std::string(".json"));
@@ -232,4 +281,23 @@ std::map<std::string, TubeEntry>& Session::calculate_aligned_tubes() {
     }
     is_aligned = true;
     return aligned_tubes;
+}
+
+nlohmann::json Session::to_json_to_disk() const {
+    nlohmann::json json;
+    json["hx_dir"] = hx_dir;
+    json["hx"] = hx;
+    json["last_selected_plan"] = last_selected_plan;
+    json["plans"] = plans;
+    json["cal_points"] = cal_points;
+    return json;
+}
+
+void Session::from_json_from_disk(const nlohmann::json& json) {
+    const Session nlohmann_json_default_obj{};
+    hx_dir = json.value("hx_dir", nlohmann_json_default_obj.hx_dir);
+    hx = json.value("hx", nlohmann_json_default_obj.hx);
+    last_selected_plan = json.value("last_selected_plan", nlohmann_json_default_obj.last_selected_plan);
+    plans = json.value("plans", nlohmann_json_default_obj.plans);
+    cal_points = json.value("cal_points", nlohmann_json_default_obj.cal_points);
 }

@@ -16,6 +16,53 @@
 #include "chart.hpp"
 #include "tool.hpp"
 
+REMA::REMA() {
+
+    spdlog::set_pattern(log_pattern);
+
+    telemetry_client.set_on_receive_callback(
+        [&](std::vector<uint8_t>& line) { 
+            update_telemetry(line);
+        }
+    );
+
+    logs_client.set_on_receive_callback(
+        [&](std::string& line) { 
+            save_logs(line); 
+        }
+    );
+
+    auto now = to_time_t(std::chrono::steady_clock::now());
+    std::filesystem::path log_file = logs_dir / ("log" + std::to_string(now) + ".json");
+    
+    try {           
+        if (!std::filesystem::exists(logs_dir)) {
+            std::filesystem::create_directories(logs_dir);
+        }
+
+        logs_ofstream.open(log_file, std::ios::app);
+        SPDLOG_INFO("Saving logs to ./{}", log_file.string());
+
+        load_config();
+        for (const auto &entry : std::filesystem::directory_iterator(tools_dir)) {
+            Tool t(entry.path());
+            tools[entry.path().filename().replace_extension()] = t;
+        }
+        this->loaded = true;
+    } catch (std::exception &e) {
+        SPDLOG_WARN(e.what());
+    }
+}
+
+void REMA::add_tool(const Tool &tool) {
+    tools[tool.name] = tool;
+}
+
+void REMA::delete_tool(const std::string &tool) {
+    std::filesystem::remove(tools_dir / (tool + std::string(".json")));
+    tools.erase(tool);
+}
+
 void REMA::cancel_sequence_in_progress() {
     while (is_sequence_in_progress) {
         cancel_sequence = true;
@@ -235,3 +282,37 @@ tl::expected<void, std::string> REMA::execute_sequence(std::vector<movement_cmd>
     cancel_sequence = false;
     return {};
 }
+
+void REMA::set_last_selected_tool(std::string tool) {
+    if (get_selected_tool().is_touch_probe) {
+        retract_touch_probe();
+    }
+    last_selected_tool = tool;
+    if (get_selected_tool().is_touch_probe) {
+        extend_touch_probe();
+    }
+    save_config();
+}
+
+Tool REMA::get_selected_tool() const {
+    if (auto iter = tools.find(last_selected_tool); iter != tools.end()) {
+        return iter->second;
+    }
+    return {};
+}
+
+void REMA::extend_touch_probe() {
+    execute_command(
+        "TOUCH_PROBE",
+        {
+            { "position", "IN" },
+        });
+};
+
+void REMA::retract_touch_probe() {
+    execute_command(
+        "TOUCH_PROBE",
+        {
+            { "position", "OUT" },
+        });
+};

@@ -11,12 +11,6 @@ class Active {
     typedef std::function<void()> Message;
 
   private:
-    Active(const Active &);                  // no copying
-    void operator=(const Active &) = delete; // no copying
-    bool done;                               // the termination flag
-    std::deque<Message> mq;                  // the queue
-    std::unique_ptr<std::thread> thd;        // the thread
-
     void run() {
         while (!done) { // note: last message sets done to true
             std::lock_guard<std::mutex> lock(mtx);
@@ -43,5 +37,10 @@ class Active {
         mq.push_back(m);
     }
 
+    Active(const Active &);                  // no copying
+    void operator=(const Active &) = delete; // no copying
+    bool done;                               // the termination flag
+    std::deque<Message> mq;                  // the queue
+    std::unique_ptr<std::thread> thd;        // the thread
     std::mutex mtx; // to make deque thread_safe
 };

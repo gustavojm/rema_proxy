@@ -39,14 +39,9 @@ struct movement_cmd {
 
 class REMA {
   public:
-    static void add_tool(const Tool &tool) {
-        tools[tool.name] = tool;
-    }
+    static void add_tool(const Tool &tool);
 
-    static void delete_tool(const std::string &tool) {
-        std::filesystem::remove(tools_dir / (tool + std::string(".json")));
-        tools.erase(tool);
-    }
+    static void delete_tool(const std::string &tool);
 
     void connect(const std::string &rtu_host, int rtu_port);
 
@@ -56,39 +51,13 @@ class REMA {
     
     void save_logs(std::string &stream);
     
-    void set_last_selected_tool(std::string tool) {
-        if (get_selected_tool().is_touch_probe) {
-            retract_touch_probe();
-        }
-        last_selected_tool = tool;
-        if (get_selected_tool().is_touch_probe) {
-            extend_touch_probe();
-        }
-        save_config();
-    }
+    void set_last_selected_tool(std::string tool);
 
-    Tool get_selected_tool() const {
-        if (auto iter = tools.find(last_selected_tool); iter != tools.end()) {
-            return iter->second;
-        }
-        return {};
-    }
+    Tool get_selected_tool() const;
 
-    void extend_touch_probe() {
-        execute_command(
-            "TOUCH_PROBE",
-            {
-                { "position", "IN" },
-            });
-    };
+    void extend_touch_probe();
 
-    void retract_touch_probe() {
-        execute_command(
-            "TOUCH_PROBE",
-            {
-                { "position", "OUT" },
-            });
-    };
+    void retract_touch_probe();
 
     void load_config();
 
@@ -114,70 +83,8 @@ class REMA {
 
     void set_home_z(double z);
 
-    bool loaded = false;
 
-    static std::map<std::string, Tool> tools;
-
-    std::string last_selected_tool;
-
-    CommandNetClient command_client;
-    TelemetryNetClient telemetry_client;
-    LogsNetClient logs_client;
-
-    volatile bool is_sequence_in_progress;
-    volatile bool cancel_sequence;
-    nlohmann::json config;
-
-    // Telemetry values
-    std::mutex mtx;
-    struct telemetry telemetry;
-    struct telemetry ui_telemetry;
-    struct telemetry old_telemetry;
-    struct temps temps;
-
-    std::vector<std::string> logs_vector;
-    std::ofstream logs_ofstream;
-
-    std::string rtu_host_;
-    int rtu_port_;
-
-    REMA() {
-
-        spdlog::set_pattern(log_pattern);
-
-        telemetry_client.set_on_receive_callback(
-            [&](std::vector<uint8_t>& line) { 
-                update_telemetry(line);
-            }
-        );
-
-        logs_client.set_on_receive_callback(
-            [&](std::string& line) { 
-                save_logs(line); 
-            }
-        );
-
-        auto now = to_time_t(std::chrono::steady_clock::now());
-        std::filesystem::path log_file = logs_dir / ("log" + std::to_string(now) + ".json");
-       
-        try {           
-            if (!std::filesystem::exists(logs_dir)) {
-                std::filesystem::create_directories(logs_dir);
-            }
-
-            logs_ofstream.open(log_file, std::ios::app);
-            SPDLOG_INFO("Saving logs to ./{}", log_file.string());
-
-            load_config();
-            for (const auto &entry : std::filesystem::directory_iterator(tools_dir)) {
-                Tool t(entry.path());
-                tools[entry.path().filename().replace_extension()] = t;
-            }
-            this->loaded = true;
-        } catch (std::exception &e) {
-            SPDLOG_WARN(e.what());
-        }
-    }
+    REMA();
 
     // C++ 11
     // =======
@@ -193,6 +100,28 @@ class REMA {
     //       be public as it results in better error messages
     //       due to the compilers behavior to check accessibility
     //       before deleted status
+
+    bool loaded = false;
+    static std::map<std::string, Tool> tools;
+    std::string last_selected_tool;
+    CommandNetClient command_client;
+    TelemetryNetClient telemetry_client;
+    LogsNetClient logs_client;
+    volatile bool is_sequence_in_progress;
+    volatile bool cancel_sequence;
+    nlohmann::json config;
+
+    // Telemetry values
+    std::mutex mtx;
+    struct telemetry telemetry;
+    struct telemetry ui_telemetry;
+    struct telemetry old_telemetry;
+    struct temps temps;
+
+    std::vector<std::string> logs_vector;
+    std::ofstream logs_ofstream;
+    std::string rtu_host_;
+    int rtu_port_;
 };
 
 inline std::map<std::string, Tool> REMA::tools;

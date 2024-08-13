@@ -6,8 +6,9 @@
 #include <regex>
 #include <spdlog/spdlog.h>
 #include <vector>
+#include <chrono>
 
-static inline float to_float(std::string input) {
+inline float to_float(std::string input) {
     float res;
     if (input.empty()) {
         res = 0.0f; // Set to 0 if the input string is empty
@@ -23,7 +24,7 @@ static inline float to_float(std::string input) {
     return res;
 }
 
-static inline double to_double(std::string input) {
+inline double to_double(std::string input) {
     float res;
     if (input.empty()) {
         res = 0.0f; // Set to 0 if the input string is empty
@@ -39,7 +40,18 @@ static inline double to_double(std::string input) {
     return res;
 }
 
-bool isValidIPv4(const std::string &str) {
+inline bool isValidIPv4(const std::string &str) {
     std::regex ipv4Regex("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$");
     return std::regex_match(str, ipv4Regex);
+}
+
+template<typename TP> std::time_t to_time_t(TP tp) {
+    auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
+        tp - TP::clock::now() + std::chrono::system_clock::now());
+    return std::chrono::system_clock::to_time_t(sctp);
+}
+
+inline double timeDifference(const std::chrono::time_point<std::chrono::system_clock>& t1, const std::chrono::time_point<std::chrono::system_clock>& t2) {
+    std::chrono::duration<double> diff = t2 - t1;
+    return diff.count(); // Time difference in seconds
 }

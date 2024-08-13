@@ -7,6 +7,14 @@
 #include "rema.hpp"
 #include "tool.hpp"
 
+Tool::Tool(std::string tool_name, Point3D offset_, bool is_touch_probe_) : name(tool_name), is_touch_probe(is_touch_probe_) {
+    if (is_touch_probe) {
+        offset = {};
+    } else {
+        offset = offset_;
+    }
+}
+
 Tool::Tool(const std::filesystem::path &tool_file) {
     std::ifstream i_file_stream(tool_file);
 

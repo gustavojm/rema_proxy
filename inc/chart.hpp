@@ -9,7 +9,7 @@
 #include "active.hpp"
 #include "points.hpp"
 #include "telemetry.hpp"
-#include "time_utils.hpp"
+#include "misc_fns.hpp"
 
 inline std::filesystem::path charts_dir = "charts";
 
@@ -18,9 +18,9 @@ class Chart {
   public:
     Chart() noexcept;
 
-    void insertData(const Point3D &coords);
-
     void init(std::string type);
+
+    void insertData(const Point3D &coords);
 
     nlohmann::json load_from_disk(std::string file_name);
 
@@ -33,12 +33,10 @@ class Chart {
     void close_curent();
 
     std::ofstream chart_file_stream;
-
     std::vector<std::time_t> timestamps;
     std::vector<double> coords_x;
     std::vector<double> coords_y;
     std::vector<double> coords_z;
-
     Active active_obj;
 };
 
