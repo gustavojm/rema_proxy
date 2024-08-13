@@ -61,13 +61,13 @@ void extract_HX_from_multipart_form_data(multipart::message &multipart_msg) {
     }
 }
 
-void file_upload_handler(const std::shared_ptr<restbed::Session> &session) {
+void file_upload_handler(const std::shared_ptr<restbed::Session>& session) {
     const auto request = session->get_request();
     std::string asset = request->get_path_parameter("asset", "");
     size_t content_length = request->get_header("Content-Length", 0);
 
     session->fetch(
-        content_length, [&, asset](const std::shared_ptr<restbed::Session> &rest_session_ptr, const restbed::Bytes &body) {
+        content_length, [&, asset](const std::shared_ptr<restbed::Session>& rest_session_ptr, const restbed::Bytes& body) {
             nlohmann::json res;
             int status = restbed::OK;
             std::string buffer(body.begin(), body.end());

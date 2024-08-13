@@ -44,8 +44,8 @@ void HX::generate_svg() {
 
     // Create the SVG document
     rapidxml::xml_document<char> document;
-    rapidxml::xml_document<char> *doc = &document;
-    auto *svg_node = doc->allocate_node(rapidxml::node_type::node_element, "svg");
+    rapidxml::xml_document<char>* doc = &document;
+    auto* svg_node = doc->allocate_node(rapidxml::node_type::node_element, "svg");
 
     append_attributes(
         doc,
@@ -59,7 +59,7 @@ void HX::generate_svg() {
                   std::to_string(svg.height) },
         });
 
-    auto *style_node = doc->allocate_node(rapidxml::node_type::node_element, "style");
+    auto* style_node = doc->allocate_node(rapidxml::node_type::node_element, "style");
     append_attributes(doc, style_node, { { "type", "text/css" } });
 
     float stroke_width = stof(svg.font_size) / 10;
@@ -76,18 +76,18 @@ void HX::generate_svg() {
     svg_node->append_node(style_node);
     doc->append_node(svg_node);
 
-    auto *cartesian_g_node = doc->allocate_node(rapidxml::node_type::node_element, "g");
+    auto* cartesian_g_node = doc->allocate_node(rapidxml::node_type::node_element, "g");
     append_attributes(doc, cartesian_g_node, { { "id", "cartesian" }, { "transform", "scale(1,-1)" } });
     svg_node->append_node(cartesian_g_node);
 
-    auto *x_axis = add_dashed_line(doc, 0, svg.min_y, 0, svg.min_y + svg.height, stof(svg.font_size));
-    auto *y_axis = add_dashed_line(doc, svg.min_x, 0, svg.min_x + svg.width, 0, stof(svg.font_size));
+    auto* x_axis = add_dashed_line(doc, 0, svg.min_y, 0, svg.min_y + svg.height, stof(svg.font_size));
+    auto* y_axis = add_dashed_line(doc, svg.min_x, 0, svg.min_x + svg.width, 0, stof(svg.font_size));
     cartesian_g_node->append_node(x_axis);
     cartesian_g_node->append_node(y_axis);
 
     for (const auto &config_coord : svg.config_x_labels_coords) {
         for (auto [label, coord] : svg.x_labels) {
-            auto *label_x = add_label(doc, coord, std::stof(config_coord), label.c_str());
+            auto* label_x = add_label(doc, coord, std::stof(config_coord), label.c_str());
             append_attributes(
                 doc,
                 label_x,
@@ -101,7 +101,7 @@ void HX::generate_svg() {
 
     for (const auto &config_coord : svg.config_y_labels_coords) {
         for (auto [label, coord] : svg.y_labels) {
-            auto *label_y = add_label(doc, std::stof(config_coord), coord, label.c_str());
+            auto* label_y = add_label(doc, std::stof(config_coord), coord, label.c_str());
             append_attributes(
                 doc,
                 label_y,
@@ -117,7 +117,7 @@ void HX::generate_svg() {
     for (const auto &tube_pair : tubes) {
         auto tube = tube_pair.second;
 
-        auto *tube_node = add_tube(doc, tube, tube_pair.first, tube_r);
+        auto* tube_node = add_tube(doc, tube, tube_pair.first, tube_r);
         cartesian_g_node->append_node(tube_node);
     }
 

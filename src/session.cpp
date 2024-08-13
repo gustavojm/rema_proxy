@@ -12,7 +12,7 @@
 
 Session::Session() noexcept = default;
 
-Session::Session(const std::filesystem::path &session_file) {
+Session::Session(const std::filesystem::path& session_file) {
     load(session_file);
 }
 
@@ -22,7 +22,7 @@ void Session::copy_tubes_to_aligned_tubes() {
     }
 }
 
-Session::Session(const std::string &session_name, const std::filesystem::path &hx_dir_)
+Session::Session(const std::string& session_name, const std::filesystem::path& hx_dir_)
     : name(session_name), hx_dir(hx_dir_) {
 
     hx.process_csv_from_disk(hx_dir);
@@ -31,7 +31,7 @@ Session::Session(const std::string &session_name, const std::filesystem::path &h
     calculate_aligned_tubes();
 }
 
-bool Session::load(const std::string &session_name) {
+bool Session::load(const std::string& session_name) {
     std::filesystem::path session_path = sessions_dir / (session_name + std::string(".json"));
     std::ifstream i_file_stream(session_path);
 
@@ -44,7 +44,7 @@ bool Session::load(const std::string &session_name) {
     return true;
 }
 
-void Session::load_plan(const std::string &plan_name, std::istream &stream) {
+void Session::load_plan(const std::string& plan_name, std::istream& stream) {
     // Parse the CSV file to extract the data for the plan
     io::CSVReader<4, io::trim_chars<' ', '\t'>, io::no_quote_escape<';'>> ip(plan_name, stream);
     ip.read_header(io::ignore_extra_column, "SEQ", "ROW", "COL", "TUBE");
@@ -57,9 +57,9 @@ void Session::load_plan(const std::string &plan_name, std::istream &stream) {
     }
 }
 
-void Session::load_plan_from_disk(const std::filesystem::path &plan_file) {
+void Session::load_plan_from_disk(const std::filesystem::path& plan_file) {
     std::ifstream filestream(plan_file);
-    std::istream &inputstream = filestream;
+    std::istream& inputstream = filestream;
     load_plan(plan_file.filename().replace_extension(), inputstream);
 }
 
@@ -68,7 +68,7 @@ std::string Session::load_plans() {
 
     std::filesystem::path plans_path = HX::hxs_path / hx_dir / "plans";
     if (std::filesystem::is_directory(plans_path)) {
-        for (const auto &entry : std::filesystem::directory_iterator(plans_path)) {
+        for (const auto& entry : std::filesystem::directory_iterator(plans_path)) {
             if (!(entry.path().filename().extension() == ".csv")) {
                 continue;
             }
@@ -80,7 +80,7 @@ std::string Session::load_plans() {
     return out.str();
 }
 
-std::map<std::string, PlanEntry> Session::plan_get(const std::string &plan) {
+std::map<std::string, PlanEntry> Session::plan_get(const std::string& plan) {
     last_selected_plan = plan;
 
     auto it = plans.find(plan);
@@ -91,7 +91,7 @@ std::map<std::string, PlanEntry> Session::plan_get(const std::string &plan) {
     }
 }
 
-void Session::plan_remove(const std::string &plan) {
+void Session::plan_remove(const std::string& plan) {
     last_selected_plan = "";
 
     auto it = plans.find(plan);
@@ -107,7 +107,7 @@ void Session::save_to_disk() const {
     file << json;
 }
 
-void Session::set_selected_plan(std::string &plan) {
+void Session::set_selected_plan(std::string& plan) {
     last_selected_plan = plan;
     is_changed = true;
 }
@@ -116,7 +116,7 @@ std::string Session::get_selected_plan() const {
     return last_selected_plan;
 }
 
-void Session::set_tube_executed(std::string &plan, std::string &tube_id, bool state) {
+void Session::set_tube_executed(std::string& plan, std::string& tube_id, bool state) {
     plans[plan][tube_id].executed = state;
     is_changed = true;
 }
@@ -131,18 +131,18 @@ int Session::total_tubes_in_plans() {
 
 int Session::total_tubes_executed() {
     int total = 0;
-    for (auto &[key, value] : plans) {
-        total += std::count_if(value.begin(), value.end(), [](auto &entry) { return entry.second.executed; });
+    for (auto& [key, value] : plans) {
+        total += std::count_if(value.begin(), value.end(), [](auto& entry) { return entry.second.executed; });
     }
     return total;
 }
 
 void Session::cal_points_add_update(
-    const std::string &tube_id,
-    const std::string &col,
-    const std::string &row,
-    Point3D &ideal_coords,
-    Point3D &determined_coords) {
+    const std::string& tube_id,
+    const std::string& col,
+    const std::string& row,
+    Point3D& ideal_coords,
+    Point3D& determined_coords) {
     CalPointEntry cpe = {
         col, row, ideal_coords, determined_coords, true,
     };
@@ -150,12 +150,12 @@ void Session::cal_points_add_update(
     is_changed = true;
 }
 
-void Session::cal_points_delete(const std::string &tube_id) {
+void Session::cal_points_delete(const std::string& tube_id) {
     cal_points.erase(tube_id);
     is_changed = true;
 }
 
-Point3D Session::get_tube_coordinates(const std::string &tube_id, bool ideal = true) {
+Point3D Session::get_tube_coordinates(const std::string& tube_id, bool ideal = true) {
     auto source = ideal ? hx.tubes : aligned_tubes;
     if (auto iter = source.find(tube_id); iter != source.end()) {
         return iter->second.coords;
@@ -163,7 +163,7 @@ Point3D Session::get_tube_coordinates(const std::string &tube_id, bool ideal = t
     return {};
 };
 
-std::map<std::string, TubeEntry> &Session::calculate_aligned_tubes() {
+std::map<std::string, TubeEntry>& Session::calculate_aligned_tubes() {
     is_aligned = false;
     SPDLOG_INFO("Aligning Tubes...");
     // std::vector<Point3D> src_points = { { 1.625, 0.704, 0 },
@@ -181,7 +181,7 @@ std::map<std::string, TubeEntry> &Session::calculate_aligned_tubes() {
     open3d::geometry::PointCloud target_cloud;
 
     int used_points = 0;
-    for (const auto &cal_point : cal_points) {
+    for (const auto& cal_point : cal_points) {
         if (cal_point.second.determined) {
             source_cloud.points_.emplace_back(Eigen::Vector3d(
                 cal_point.second.ideal_coords.x, cal_point.second.ideal_coords.y, cal_point.second.ideal_coords.z));
@@ -219,7 +219,7 @@ std::map<std::string, TubeEntry> &Session::calculate_aligned_tubes() {
     std::cout << transformation_matrix << std::endl;
 
     // Transform the source point cloud
-    for (const auto &[id, tube] : hx.tubes) {
+    for (const auto& [id, tube] : hx.tubes) {
 
         // Code from Open3D Geometry3D.cpp TransformPoints() method
         Eigen::Vector4d point(tube.coords.x, tube.coords.y, tube.coords.z, 1.0);

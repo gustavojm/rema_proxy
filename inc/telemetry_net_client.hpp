@@ -28,7 +28,10 @@ class TelemetryNetClient : public NetClient {
     void start() {
         if (!alreadyStarted && onReceiveCb) {
             thd = std::thread(&TelemetryNetClient::loop, this);
-            disconnect_watchdog.onTimeoutCallback = [&] { std::cout << "CLOSING TIMEOUTTTTTT" << std::endl; close(); };
+            disconnect_watchdog.onTimeoutCallback = [&] { 
+                SPDLOG_WARN("Telemetry watchdog timer expired. Closing connection");
+                close(); 
+            };
             disconnect_watchdog.start(std::chrono::seconds(2));
             alreadyStarted = true;
         }

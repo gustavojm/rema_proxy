@@ -72,6 +72,8 @@ find_package(nlohmann_json CONFIG REQUIRED)
 # Find Open3D (not found in vcpkg repo)
 find_package(Open3D REQUIRED)
 
+find_package(magic_enum CONFIG REQUIRED)
+
 # Include restbed headers
 include_directories(${RESTBED_DIR}/include)
 
@@ -94,5 +96,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
                           OpenSSL::Crypto
                           tl::expected
                           nlohmann_json::nlohmann_json
+                          magic_enum::magic_enum
                      )
 

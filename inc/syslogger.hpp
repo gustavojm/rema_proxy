@@ -14,7 +14,7 @@ class SyslogLogger : public restbed::Logger {
         return;
     }
 
-    void start(const std::shared_ptr<const restbed::Settings> &) {
+    void start(const std::shared_ptr<const restbed::Settings>&) {
         return;
     }
 
@@ -43,7 +43,7 @@ class SyslogLogger : public restbed::Logger {
         closelog();
     }
 
-    void log_if(bool expression, const Level level, const char *format, ...) {
+    void log_if(bool expression, const Level level, const char* format, ...) {
         if (expression) {
             va_list arguments;
             va_start(arguments, format);

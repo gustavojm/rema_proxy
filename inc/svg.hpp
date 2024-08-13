@@ -14,8 +14,8 @@
 #include <utility>
 
 static inline void append_attributes(
-    rapidxml::xml_document<char> *doc,
-    rapidxml::xml_node<char> *node,
+    rapidxml::xml_document<char>* doc,
+    rapidxml::xml_node<char>* node,
     std::vector<std::pair<std::string, std::string>> attrs) {
     if (node) {
 
@@ -26,8 +26,8 @@ static inline void append_attributes(
     }
 }
 
-static inline rapidxml::xml_node<char> *
-add_dashed_line(rapidxml::xml_document<char> *doc, float x1, float y1, float x2, float y2, float font_size) {
+static inline rapidxml::xml_node<char>* 
+add_dashed_line(rapidxml::xml_document<char>* doc, float x1, float y1, float x2, float y2, float font_size) {
     float stroke_width = font_size / 10;
     float line = font_size / 2;
     float space = line / 2;
@@ -49,7 +49,7 @@ add_dashed_line(rapidxml::xml_document<char> *doc, float x1, float y1, float x2,
     return line_node;
 }
 
-static inline rapidxml::xml_node<char> *add_label(rapidxml::xml_document<char> *doc, float x, float y, const char *label) {
+static inline rapidxml::xml_node<char>* add_label(rapidxml::xml_document<char>* doc, float x, float y, const char* label) {
     auto label_node = doc->allocate_node(rapidxml::node_type::node_element, "text", doc->allocate_string(label));
 
     append_attributes(
@@ -64,8 +64,8 @@ static inline rapidxml::xml_node<char> *add_label(rapidxml::xml_document<char> *
     return label_node;
 }
 
-static inline rapidxml::xml_node<char> *
-add_tube(rapidxml::xml_document<char> *doc, TubeEntry tube, std::string id, float radius) {
+static inline rapidxml::xml_node<char>* 
+add_tube(rapidxml::xml_document<char>* doc, TubeEntry tube, std::string id, float radius) {
     auto tube_group_node = doc->allocate_node(rapidxml::node_type::node_element, "g");
     append_attributes(
         doc,

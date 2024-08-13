@@ -178,7 +178,7 @@ function get_rema_info() {
 	$.get('/REST/REMA/info', function(data) {
 		var tools_dropdown = $('#tools');
 		reconnect_div_html = '<div class="row"><img src="images/disconnected.png" class="reconnect" id="disconnected_img" style="margin-right:10px;">'+
-							 'REMA Host: <span id="network_disconnect_info">' + data.host + ":" + data.service + '</span>'
+							 'REMA Host: ' + data.host + ":" + data.service
 							 '</div>';							 
 		$("#reconnect_div").html(reconnect_div_html);
 		$("#disconnected_img").click(function() {

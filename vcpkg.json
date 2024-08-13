@@ -10,6 +10,7 @@
     "spdlog",
     "tl-expected",
     "nlohmann-json",
-    "rapidxml"
+    "rapidxml",
+    "magic-enum"
   ]
 }

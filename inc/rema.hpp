@@ -108,7 +108,7 @@ class REMA {
 
     void cancel_sequence_in_progress();
 
-    tl::expected<void, std::string> execute_sequence(std::vector<movement_cmd> &sequence);
+    tl::expected<void, std::string> execute_sequence(std::vector<movement_cmd>& sequence);
 
     void set_home_xy(double x, double y);
 

@@ -15,11 +15,11 @@ struct Circle {
     int iter;
 };
 
-static inline double distance(const Point3D &p1, const Point3D &p2) {
+static inline double distance(const Point3D& p1, const Point3D& p2) {
     return std::sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y));
 }
 
-static inline double calculate_sigma(const std::vector<Point3D> &data, const Circle &circle) {
+static inline double calculate_sigma(const std::vector<Point3D>& data, const Circle& circle) {
     double sum = 0.0f;
     double dx, dy;
 
@@ -32,16 +32,16 @@ static inline double calculate_sigma(const std::vector<Point3D> &data, const Cir
     return std::sqrt(sum / data.size());
 }
 
-static inline std::pair<double, double> calculate_means(const std::vector<Point3D> &data) {
+static inline std::pair<double, double> calculate_means(const std::vector<Point3D>& data) {
 
     double mean_x =
         std::accumulate(
-            data.begin(), data.end(), 0.0, [](double accumulator, const Point3D &point) { return accumulator + point.x; }) /
+            data.begin(), data.end(), 0.0, [](double accumulator, const Point3D& point) { return accumulator + point.x; }) /
         data.size();
 
     double mean_y =
         std::accumulate(
-            data.begin(), data.end(), 0.0, [](double accumulator, const Point3D &point) { return accumulator + point.y; }) /
+            data.begin(), data.end(), 0.0, [](double accumulator, const Point3D& point) { return accumulator + point.y; }) /
         data.size();
 
     return { mean_x, mean_y };
@@ -86,12 +86,12 @@ static inline Circle CircleFitByHyper(std::vector<Point3D> data) {
     // Compute x and y sample means
     double mean_x =
         std::accumulate(
-            data.begin(), data.end(), 0.0, [](double accumulator, const Point3D &point) { return accumulator + point.x; }) /
+            data.begin(), data.end(), 0.0, [](double accumulator, const Point3D& point) { return accumulator + point.x; }) /
         data.size();
 
     double mean_y =
         std::accumulate(
-            data.begin(), data.end(), 0.0, [](double accumulator, const Point3D &point) { return accumulator + point.y; }) /
+            data.begin(), data.end(), 0.0, [](double accumulator, const Point3D& point) { return accumulator + point.y; }) /
         data.size();
 
     // Computing moments
@@ -184,7 +184,7 @@ static inline Circle CircleFitByHyper(std::vector<Point3D> data) {
  *
  *@author: Nikolai Chernov  (September 2012)
  */
-static inline Circle CircleFitByKasa(std::vector<Point3D> &data) {
+static inline Circle CircleFitByKasa(std::vector<Point3D>& data) {
     double Xi, Yi, Zi;
     double Mxy, Mxx, Myy, Mxz, Myz;
     double B, C, G11, G12, G22, D1, D2;
@@ -258,7 +258,7 @@ static inline Circle CircleFitByKasa(std::vector<Point3D> &data) {
  * It provides a good initial guess for a subsequent geometric fit.
  * @author: Nikolai Chernov  (September 2012)
  */
-static inline Circle CircleFitByPratt(const std::vector<Point3D> &data) {
+static inline Circle CircleFitByPratt(const std::vector<Point3D>& data) {
     int iter, IterMAX = 99;
 
     double Xi, Yi, Zi;
@@ -458,10 +458,10 @@ static inline Circle CircleFitByTaubin(std::vector<Point3D> data) {
  * @author: Nikolai Chernov  (September 2012)
  */
 static inline std::pair<int, Circle> CircleFitByLevenbergMarquardtFull(
-    const std::vector<Point3D> &data,
-    const Circle &circleIni,
+    const std::vector<Point3D>& data,
+    const Circle& circleIni,
     double LambdaIni,
-    [[maybe_unused]] Circle &circle) {
+    [[maybe_unused]] Circle& circle) {
     int code, iter, inner, IterMAX = 99;
     double factorUp = 10., factorDown = 0.04, lambda, ParLimit = 1.e+6;
     double dx, dy, ri, u, v;
@@ -587,7 +587,7 @@ enough:
     return { code, New };
 }
 
-static inline std::vector<Point3D> calculateCirclePoints(const Point3D &center, double radius, int numPoints) {
+static inline std::vector<Point3D> calculateCirclePoints(const Point3D& center, double radius, int numPoints) {
     std::vector<Point3D> points;
 
     double angleIncrement = 360.0 / numPoints;

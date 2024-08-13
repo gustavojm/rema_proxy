@@ -45,6 +45,6 @@ class NetClient {
     int port_;
     volatile int socket_;
     int buflen_ = 1024;
-    char *buf_ = new char[buflen_];
+    char* buf_ = new char[buflen_];
     std::string leftover_buffer; // Buffer for data after '\0'
 };

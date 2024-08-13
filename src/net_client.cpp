@@ -14,7 +14,7 @@ int NetClient::connect(std::string host, int port, int nsec) {
     struct sockaddr_in server_addr;
 
     // use DNS to get IP address
-    struct hostent *hostEntry;
+    struct hostent* hostEntry;
     hostEntry = gethostbyname(host_.c_str());
     if (!hostEntry) {
         SPDLOG_ERROR("No such host name: {}", host_);
@@ -44,7 +44,7 @@ int NetClient::connect(std::string host, int port, int nsec) {
     ::fcntl(socket_, F_SETFL, flags | O_NONBLOCK);
 
     error = 0;
-    if ((n = ::connect(socket_, reinterpret_cast<const struct sockaddr *>(&server_addr), sizeof(server_addr))) < 0) {
+    if ((n = ::connect(socket_, reinterpret_cast<const struct sockaddr*>(&server_addr), sizeof(server_addr))) < 0) {
         if (errno != EINPROGRESS) {
             return (-errno);
         }
