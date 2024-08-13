@@ -40,10 +40,10 @@ void HX::process_csv(std::string hx_name, std::istream &stream) {
         }
     }
 
-    create_label_coords(x_labels, y_labels);
+    create_label_coords_axis(x_labels, y_labels);
 }
 
-void HX::create_label_coords(std::set<std::pair<std::string, float>> x_labels, std::set<std::pair<std::string, float>> y_labels) {
+void HX::create_label_coords_axis(std::set<std::pair<std::string, float>> x_labels, std::set<std::pair<std::string, float>> y_labels) {
     for (const auto &config_coord : svg.config_x_labels_coords) {
         for (auto [label, coord] : x_labels) {
             Point3D label_coord = Point3D(coord, std::stof(config_coord), 0);
@@ -57,6 +57,9 @@ void HX::create_label_coords(std::set<std::pair<std::string, float>> x_labels, s
             svg.y_labels.push_back({label, label_coord});
         }
     }
+
+    svg.x_axis = {Point3D(0, svg.min_y, 0), Point3D(0, svg.min_y + svg.height, 0)};
+    svg.y_axis = {Point3D(svg.min_x, 0, 0), Point3D(svg.min_x + svg.width, 0, 0)};
 }
 
 void HX::generate_svg() {
@@ -102,8 +105,13 @@ void HX::generate_svg() {
     append_attributes(doc, cartesian_g_node, { { "id", "cartesian" }, { "transform", "scale(1,-1)" } });
     svg_node->append_node(cartesian_g_node);
 
-    auto* x_axis = add_dashed_line(doc, 0, svg.min_y, 0, svg.min_y + svg.height, stof(svg.font_size));
-    auto* y_axis = add_dashed_line(doc, svg.min_x, 0, svg.min_x + svg.width, 0, stof(svg.font_size));
+    auto x_axis_init = svg.x_axis.first;
+    auto x_axis_end = svg.x_axis.second;
+    auto* x_axis = add_dashed_line(doc, x_axis_init.x, x_axis_init.y, x_axis_end.x, x_axis_end.y, stof(svg.font_size));
+
+    auto y_axis_init = svg.y_axis.first;
+    auto y_axis_end = svg.y_axis.second;
+    auto* y_axis = add_dashed_line(doc, y_axis_init.x, y_axis_init.y, y_axis_end.x, y_axis_end.y, stof(svg.font_size));
     cartesian_g_node->append_node(x_axis);
     cartesian_g_node->append_node(y_axis);
 

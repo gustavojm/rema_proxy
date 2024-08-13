@@ -27,7 +27,7 @@ class HX {
 
     static std::vector<std::string> list();
 
-    void create_label_coords(std::set<std::pair<std::string, float>> x_labels, std::set<std::pair<std::string, float>> y_labels);
+    void create_label_coords_axis(std::set<std::pair<std::string, float>> x_labels, std::set<std::pair<std::string, float>> y_labels);
 
     static bool create(std::string hx_name, std::string tubesheet_csv, std::string config_json);
 
@@ -45,6 +45,8 @@ class HX {
         std::string font_size;
         std::string x_labels_param;
         std::string y_labels_param;
+        std::pair<Point3D, Point3D> x_axis;
+        std::pair<Point3D, Point3D> y_axis;
         std::vector<std::string> config_x_labels_coords;
         std::vector<std::string> config_y_labels_coords;
         std::vector<std::pair<std::string, Point3D>> x_labels;

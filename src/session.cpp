@@ -206,6 +206,16 @@ Point3D Session::get_tube_coordinates(const std::string& tube_id, bool ideal = t
     return {};
 };
 
+static Point3D transform_point(Eigen::Matrix4d& transformation_matrix, Point3D point)  {
+    // Code from Open3D Geometry3D.cpp TransformPoints() method
+    Eigen::Vector4d point4d(point.x, point.y, point.z, 1.0);
+    Eigen::Vector4d new_point = transformation_matrix * point4d;
+    Eigen::Vector3d transformed_point = new_point.head<3>() / new_point(3);
+
+    return {transformed_point.x(), transformed_point.y(), transformed_point.z()};
+}
+
+
 HX Session::calculate_aligned_HX() {
     HX aligned = hx;
     is_aligned = false;
@@ -263,37 +273,29 @@ HX Session::calculate_aligned_HX() {
 
     // Transform the source point cloud
     for (const auto& [id, tube] : hx.tubes) {
-
-        // Code from Open3D Geometry3D.cpp TransformPoints() method
-        Eigen::Vector4d point(tube.coords.x, tube.coords.y, tube.coords.z, 1.0);
-        Eigen::Vector4d new_point = transformation_matrix * point;
-        Eigen::Vector3d transformed_point = new_point.head<3>() / new_point(3);
-
         TubeEntry aligned_tube = tube;
-        aligned_tube.coords = { transformed_point.x(), transformed_point.y(), transformed_point.z() };
+        aligned_tube.coords = transform_point(transformation_matrix, tube.coords);
         aligned.tubes[id] = aligned_tube;
     }
 
     // Transform the label points
     aligned.svg.x_labels.clear();
     for (const auto& [label, coord] : hx.svg.x_labels) {
-        Eigen::Vector4d point(coord.x, coord.y, coord.z, 1.0);
-        Eigen::Vector4d new_point = transformation_matrix * point;
-        Eigen::Vector3d transformed_point = new_point.head<3>() / new_point(3);
-
-        Point3D aligned_coord = { transformed_point.x(), transformed_point.y(), transformed_point.z()};
+        Point3D aligned_coord = transform_point(transformation_matrix, coord);
         aligned.svg.x_labels.push_back({label, aligned_coord });
     }
 
     aligned.svg.y_labels.clear();
     for (const auto& [label, coord] : hx.svg.y_labels) {
-        Eigen::Vector4d point(coord.x, coord.y, coord.z, 1.0);
-        Eigen::Vector4d new_point = transformation_matrix * point;
-        Eigen::Vector3d transformed_point = new_point.head<3>() / new_point(3);
-
-        Point3D aligned_coord = { transformed_point.x(), transformed_point.y(), transformed_point.z()};
+        Point3D aligned_coord = transform_point(transformation_matrix, coord);
         aligned.svg.y_labels.push_back({label, aligned_coord });
     }
+
+    aligned.svg.x_axis.first = transform_point(transformation_matrix, aligned.svg.x_axis.first);
+    aligned.svg.x_axis.second = transform_point(transformation_matrix, aligned.svg.x_axis.second);
+    
+    aligned.svg.y_axis.first = transform_point(transformation_matrix, aligned.svg.y_axis.first);
+    aligned.svg.y_axis.second = transform_point(transformation_matrix, aligned.svg.y_axis.second);
 
     is_aligned = true;
     return aligned;

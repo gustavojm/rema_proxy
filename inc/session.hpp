@@ -87,8 +87,6 @@ class Session {
 
     static void delete_session(std::string session_name);
 
-    void copy_tubes_to_aligned_tubes();
-
     HX calculate_aligned_HX();
 
     std::map<std::string, std::map<std::string, struct PlanEntry>> plans;

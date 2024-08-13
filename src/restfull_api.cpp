@@ -767,6 +767,7 @@ void determine_tubesheet_z(const std::shared_ptr<restbed::Session>& rest_session
 void aligned_tubesheet_get(const std::shared_ptr<restbed::Session>& rest_session) {
     nlohmann::json res;
     current_session.aligned_hx = current_session.calculate_aligned_HX();
+    current_session.aligned_hx.generate_svg();
     res["aligned_tubes"] = current_session.aligned_hx.tubes;
     res["is_aligned"] = current_session.is_aligned;
 
