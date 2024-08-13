@@ -270,6 +270,7 @@ $(function() {
 					success: function(data) {
 						table.ajax.reload();
 						aligned_tubes_get();
+						svg_load(svg_url, tube_od, scale);
 					},
 					error: function(xhr, status, error) {
 						alert("Error");
@@ -379,6 +380,7 @@ $(function() {
 					table = $('#calibration_table').DataTable();
 					table.ajax.reload();
 					aligned_tubes_get();
+					svg_load(svg_url, tube_od, scale);
 				},
 				error: function(xhr, status, error) {
 					alert("Error");
@@ -396,6 +398,7 @@ $(function() {
 			
 		} else {
 			aligned_tubes_get();
+			svg_load(svg_url, tube_od, scale);
 		}
 	});	
 });

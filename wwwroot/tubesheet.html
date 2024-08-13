@@ -99,7 +99,8 @@
 </div>	
 
 <script type="text/javascript">
-	var scale = 1;
+	scale = 1;
+	svg_url = ""
 	var currentRow = null;
 	var aligned_coords = false;
 
@@ -461,7 +462,7 @@
 			.done(
 					function(current_session) {
 						tube_od = 1;
-						var svg_url = "/static/no_session_loaded.svg";
+						svg_url = "/static/no_session_loaded.svg";
 						if (current_session.is_loaded) {
 							unit = current_session.hx.unit;
 							$(".unit").text(unit);
@@ -478,7 +479,7 @@
 							}						
 							leg_switch.change();
 
-							svg_url = "../HXs_svg/false";
+							svg_url = "../HXs_svg";
 						}
 						svg_load(svg_url, tube_od, scale);
 

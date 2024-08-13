@@ -159,6 +159,7 @@ var unit = "inch"
 var tabs_initialized = false;
 var reconnect_dialog_shown = false;
 do_first_zoom = false;
+svg_url = "";
 
 function toFixedIfNecessary(value, dp) {
 	return +parseFloat(value).toFixed(dp);	
@@ -607,7 +608,7 @@ function get_rema_info() {
 				method : "POST",
 				url : "/REST/REMA/connect",
 				success: function () {
-					window.location.reload();					
+					window.location.reload();
 				}
 			});			
 		});

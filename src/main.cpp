@@ -101,14 +101,16 @@ void event_stream_handler() {
 void get_HXs_method_handler(const std::shared_ptr<restbed::Session>& session) {
     const auto request = session->get_request();
     std::string tube_id = request->get_path_parameter("tube_id", "");
-    bool ideal = request->get_path_parameter("ideal", "") == "true";
 
     if (current_session.is_loaded) {
         std::string body;
-        if (ideal) {
-            body = current_session.hx.tubesheet_svg;
-        } else {
+
+        current_session.aligned_hx = current_session.calculate_aligned_HX();        
+        if (current_session.is_aligned) {
+            current_session.aligned_hx.generate_svg();
             body = current_session.aligned_hx.tubesheet_svg;
+        } else {
+            body = current_session.hx.tubesheet_svg;
         }
 
         std::string content_type = "image/svg+xml";
@@ -226,7 +228,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     resource_html_file->set_method_handler("GET", get_method_handler);
 
     auto resource_HXs = std::make_shared<restbed::Resource>();
-    resource_HXs->set_path("/HXs_svg/{ideal: .*}");
+    resource_HXs->set_path("/HXs_svg");
     resource_HXs->set_failed_filter_validation_handler(failed_filter_validation_handler);
     resource_HXs->set_method_handler("GET", get_HXs_method_handler);
 
