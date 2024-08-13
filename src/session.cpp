@@ -20,19 +20,13 @@ void Session::delete_session(std::string session_name) {
     std::filesystem::remove(sessions_dir / (session_name + std::string(".json")));
 }
 
-void Session::copy_tubes_to_aligned_tubes() {
-    for (auto [id, tube] : hx.tubes) {
-        aligned_tubes[id] = tube;
-    }
-}
-
 Session::Session(const std::string& session_name, const std::filesystem::path& hx_dir_)
     : name(session_name), hx_dir(hx_dir_) {
 
-    hx.process_csv_from_disk(hx_dir);
+    hx.process_csv_from_disk(hx_dir);    
     hx.generate_svg();
-    copy_tubes_to_aligned_tubes();
-    calculate_aligned_tubes();
+    aligned_hx = calculate_aligned_HX();
+    aligned_hx.generate_svg();
 }
 
 bool Session::load(const std::string& session_name) {
@@ -205,14 +199,15 @@ void Session::cal_points_delete(const std::string& tube_id) {
 }
 
 Point3D Session::get_tube_coordinates(const std::string& tube_id, bool ideal = true) {
-    auto source = ideal ? hx.tubes : aligned_tubes;
+    auto source = ideal ? hx.tubes : aligned_hx.tubes;
     if (auto iter = source.find(tube_id); iter != source.end()) {
         return iter->second.coords;
     }
     return {};
 };
 
-std::map<std::string, TubeEntry>& Session::calculate_aligned_tubes() {
+HX Session::calculate_aligned_HX() {
+    HX aligned = hx;
     is_aligned = false;
     SPDLOG_INFO("Aligning Tubes...");
     // std::vector<Point3D> src_points = { { 1.625, 0.704, 0 },
@@ -245,8 +240,7 @@ std::map<std::string, TubeEntry>& Session::calculate_aligned_tubes() {
 
     if (used_points < 3) {
         SPDLOG_ERROR("At least 3 alignment points are required");
-        copy_tubes_to_aligned_tubes();
-        return aligned_tubes;
+        return aligned;
     }
 
     // Set ICP parameters and perform ICP
@@ -277,10 +271,32 @@ std::map<std::string, TubeEntry>& Session::calculate_aligned_tubes() {
 
         TubeEntry aligned_tube = tube;
         aligned_tube.coords = { transformed_point.x(), transformed_point.y(), transformed_point.z() };
-        aligned_tubes[id] = aligned_tube;
+        aligned.tubes[id] = aligned_tube;
     }
+
+    // Transform the label points
+    aligned.svg.x_labels.clear();
+    for (const auto& [label, coord] : hx.svg.x_labels) {
+        Eigen::Vector4d point(coord.x, coord.y, coord.z, 1.0);
+        Eigen::Vector4d new_point = transformation_matrix * point;
+        Eigen::Vector3d transformed_point = new_point.head<3>() / new_point(3);
+
+        Point3D aligned_coord = { transformed_point.x(), transformed_point.y(), transformed_point.z()};
+        aligned.svg.x_labels.push_back({label, aligned_coord });
+    }
+
+    aligned.svg.y_labels.clear();
+    for (const auto& [label, coord] : hx.svg.y_labels) {
+        Eigen::Vector4d point(coord.x, coord.y, coord.z, 1.0);
+        Eigen::Vector4d new_point = transformation_matrix * point;
+        Eigen::Vector3d transformed_point = new_point.head<3>() / new_point(3);
+
+        Point3D aligned_coord = { transformed_point.x(), transformed_point.y(), transformed_point.z()};
+        aligned.svg.y_labels.push_back({label, aligned_coord });
+    }
+
     is_aligned = true;
-    return aligned_tubes;
+    return aligned;
 }
 
 nlohmann::json Session::to_json_to_disk() const {

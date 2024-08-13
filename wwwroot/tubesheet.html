@@ -470,7 +470,7 @@
 							tube_od = current_session.hx.tube_od;
 							tubes = current_session.hx.tubes;
 							aligned_coords = current_session.is_aligned;
-							aligned_tubes = current_session.aligned_tubes;
+							aligned_tubes = current_session.aligned_hx.tubes;
 							var leg_switch = $('#leg_switch');
 							leg_switch.prop('checked', current_session.hx.leg == "cold" ? false : true);
 							if (current_session.hx.leg != "both") {
@@ -478,7 +478,7 @@
 							}						
 							leg_switch.change();
 
-							svg_url = "../HXs_svg";
+							svg_url = "../HXs_svg/false";
 						}
 						svg_load(svg_url, tube_od, scale);
 

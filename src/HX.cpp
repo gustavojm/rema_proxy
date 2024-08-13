@@ -22,17 +22,39 @@ void HX::process_csv(std::string hx_name, std::istream &stream) {
     std::string x_label, y_label;
     float cl_x, cl_y, hl_x, hl_y;
     std::string tube_id;
+
+    std::set<std::pair<std::string, float>> x_labels;       // sets for uniqueness
+    std::set<std::pair<std::string, float>> y_labels;   
+
     while (in.read_row(x_label, y_label, cl_x, cl_y, hl_x, hl_y, tube_id)) {
         if (leg == "cold" || leg == "both") {
             tubes.insert({ std::string("CL_") + tube_id.substr(5), { x_label, y_label, { cl_x, cl_y, 0 } } });
-            svg.x_labels.insert(std::make_pair(x_label, cl_x));
-            svg.y_labels.insert(std::make_pair(y_label, cl_y));
+            x_labels.insert(std::make_pair(x_label, cl_x));
+            y_labels.insert(std::make_pair(y_label, cl_y));
         }
 
         if (leg == "hot" || leg == "both") {
             tubes.insert({ std::string("HL_") + tube_id.substr(5), { x_label, y_label, { hl_x, hl_y, 0 } } });
-            svg.x_labels.insert(std::make_pair(x_label, hl_x));
-            svg.y_labels.insert(std::make_pair(y_label, hl_y));
+            x_labels.insert(std::make_pair(x_label, hl_x));
+            y_labels.insert(std::make_pair(y_label, hl_y));
+        }
+    }
+
+    create_label_coords(x_labels, y_labels);
+}
+
+void HX::create_label_coords(std::set<std::pair<std::string, float>> x_labels, std::set<std::pair<std::string, float>> y_labels) {
+    for (const auto &config_coord : svg.config_x_labels_coords) {
+        for (auto [label, coord] : x_labels) {
+            Point3D label_coord = Point3D(coord, std::stof(config_coord), 0);
+            svg.x_labels.push_back({label, label_coord});
+        }
+    }
+
+    for (const auto &config_coord : svg.config_y_labels_coords) {
+        for (auto [label, coord] : y_labels) {
+            Point3D label_coord = Point3D(std::stof(config_coord), coord, 0);
+            svg.y_labels.push_back({label, label_coord});
         }
     }
 }
@@ -85,32 +107,28 @@ void HX::generate_svg() {
     cartesian_g_node->append_node(x_axis);
     cartesian_g_node->append_node(y_axis);
 
-    for (const auto &config_coord : svg.config_x_labels_coords) {
-        for (auto [label, coord] : svg.x_labels) {
-            auto* label_x = add_label(doc, coord, std::stof(config_coord), label.c_str());
-            append_attributes(
-                doc,
-                label_x,
-                {
-                    { "transform-origin", std::to_string(coord) + " " + config_coord },
-                    { "transform", "scale(1, -1) rotate(270)" },
-                });
-            cartesian_g_node->append_node(label_x);
-        }
+    for (auto& [label, coord] : svg.x_labels) {
+        auto* label_x = add_label(doc, coord.x, coord.y, label.c_str());
+        append_attributes(
+            doc,
+            label_x,
+            {
+                { "transform-origin", std::to_string(coord.x) + " " + std::to_string(coord.y) },
+                { "transform", "scale(1, -1) rotate(270)" },
+            });
+        cartesian_g_node->append_node(label_x);
     }
 
-    for (const auto &config_coord : svg.config_y_labels_coords) {
-        for (auto [label, coord] : svg.y_labels) {
-            auto* label_y = add_label(doc, std::stof(config_coord), coord, label.c_str());
-            append_attributes(
-                doc,
-                label_y,
-                {
-                    { "transform-origin", config_coord + " " + std::to_string(coord) },
-                    { "transform", "scale(1, -1)" },
-                });
-            cartesian_g_node->append_node(label_y);
-        }
+    for (auto& [label, coord] : svg.y_labels) {
+        auto* label_y = add_label(doc, coord.x, coord.y, label.c_str());
+        append_attributes(
+            doc,
+            label_y,
+            {
+                { "transform-origin", std::to_string(coord.x) + " " + std::to_string(coord.y) },
+                { "transform", "scale(1, -1)" },
+            });
+        cartesian_g_node->append_node(label_y);
     }
 
     // Create an SVG circle element for each tube in the CSV data

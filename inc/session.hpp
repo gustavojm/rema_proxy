@@ -89,7 +89,7 @@ class Session {
 
     void copy_tubes_to_aligned_tubes();
 
-    std::map<std::string, TubeEntry>& calculate_aligned_tubes();
+    HX calculate_aligned_HX();
 
     std::map<std::string, std::map<std::string, struct PlanEntry>> plans;
 
@@ -100,12 +100,12 @@ class Session {
     std::string name;
     std::filesystem::path hx_dir;
     HX hx;
+    HX aligned_hx;
     std::string last_selected_plan;
     std::string last_write_time;
     bool is_loaded = false;
     bool is_changed = false;
     bool is_aligned = false;
-    std::map<std::string, TubeEntry> aligned_tubes;
     std::map<std::string, CalPointEntry> cal_points;
 };
 
@@ -115,10 +115,10 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(
     last_write_time,
     hx_dir,
     hx,
+    aligned_hx,
     last_selected_plan,
     plans,
-    cal_points,
-    aligned_tubes,
+    cal_points,    
     is_aligned,
     is_loaded)
 

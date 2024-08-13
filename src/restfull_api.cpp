@@ -261,8 +261,9 @@ void sessions_load(const std::shared_ptr<restbed::Session>& rest_session) {
             current_session.load(session_name);
             current_session.hx.process_csv_from_disk(current_session.hx_dir);
             current_session.hx.generate_svg();
-            current_session.copy_tubes_to_aligned_tubes();
-            current_session.calculate_aligned_tubes();
+
+            current_session.aligned_hx = current_session.calculate_aligned_HX();
+            current_session.aligned_hx.generate_svg();
 
             status = restbed::OK;
         } catch (std::exception &e) {
@@ -765,7 +766,8 @@ void determine_tubesheet_z(const std::shared_ptr<restbed::Session>& rest_session
 
 void aligned_tubesheet_get(const std::shared_ptr<restbed::Session>& rest_session) {
     nlohmann::json res;
-    res["aligned_tubes"] = current_session.calculate_aligned_tubes();
+    current_session.aligned_hx = current_session.calculate_aligned_HX();
+    res["aligned_tubes"] = current_session.aligned_hx.tubes;
     res["is_aligned"] = current_session.is_aligned;
 
     close_rest_session(rest_session, restbed::OK, res);
