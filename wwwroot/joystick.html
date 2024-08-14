@@ -314,7 +314,7 @@ h1 {
 			// autoFontSize: true,
 			autoStick : true,
 		}).on('toggle.rcSwitcher', function(e, data, type) {
-			$.ajax({
+			$.ajaxQueue({
 				url : "/REMA/",
 				method : "POST",
 				contentType : "application/json",
@@ -343,7 +343,7 @@ h1 {
 			// autoFontSize: true,
 			autoStick : true,
 		}).on('toggle.rcSwitcher', function(e, data, type) {
-			$.ajax({
+			$.ajaxQueue({
 				url : "/REMA/",
 				method : "POST",
 				contentType : "application/json",
