@@ -373,8 +373,8 @@ h1 {
 				tube_id = $("#tube_info_id").val() || "";
 				var x = 0, y = 0;
 				if (tube_id !== "") {						
-					x = tubes[tube_id].coords.x;
-					y = tubes[tube_id].coords.y;
+					x = ideal_tubes[tube_id].coords.x;
+					y = ideal_tubes[tube_id].coords.y;
 				}
 				if (e.shiftKey) {
 					if (tube_id == "") {

@@ -260,7 +260,7 @@ std::map<std::string, TubeEntry> Session::calculate_aligned_tubes() {
     icp_criteria.relative_fitness_ = 1e-6;
     icp_criteria.relative_rmse_ = 1e-6;
 
-    bool with_scaling = true;
+    bool with_scaling = false;  // always false, to make homogeneous transforms
     transformation_matrix = open3d::pipelines::registration::RegistrationICP(
         source_cloud,
         target_cloud,
@@ -284,7 +284,6 @@ std::map<std::string, TubeEntry> Session::calculate_aligned_tubes() {
         inverse_transformation_matrix.block<1,3>(3,0) = Eigen::RowVector3d::Zero();         // First 3 elements of last row must be 0 for homogeneous transform
         inverse_transformation_matrix(3,3) = scale_factor;
 
-    std::cout << transformation_matrix << std::endl;
     is_aligned = true;
 
     // Transform the source point cloud

@@ -558,7 +558,7 @@ void set_home_xy(const std::shared_ptr<restbed::Session>& rest_session) {
     const auto request = rest_session->get_request();
     std::string tube_id = request->get_path_parameter("tube_id", "");
     if (!tube_id.empty()) {
-        Point3D tube_coords = current_session.from_ui_to_rema(current_session.get_tube_coordinates(tube_id, true), &tool);
+        Point3D tube_coords = current_session.from_ui_to_rema(current_session.get_tube_coordinates(tube_id, false), &tool);
         rema.set_home_xy(tube_coords.x, tube_coords.y);
     } else {
         Point3D zero_coords = current_session.from_ui_to_rema(Point3D(), &tool);
