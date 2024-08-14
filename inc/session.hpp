@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <set>
 #include <string>
+#include <Eigen/Eigen>
 
 #include "nlohmann/json.hpp"
 #include "HX.hpp"
@@ -34,7 +35,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(CalPointEntry, col, row, ideal_coords, determ
 
 class Session {
   public:
-    Session() noexcept;
+    Session();
 
     explicit Session(const std::string& session_name, const std::filesystem::path& hx_dir_);
 
@@ -87,11 +88,9 @@ class Session {
 
     static void delete_session(std::string session_name);
 
-    void copy_tubes_to_aligned_tubes();
+    std::map<std::string, TubeEntry> calculate_aligned_tubes();
 
-    std::map<std::string, TubeEntry>& calculate_aligned_tubes();
-
-    std::map<std::string, std::map<std::string, struct PlanEntry>> plans;
+    Point3D transform_point_if_aligned(Point3D point, bool inverse = false);
 
     nlohmann::json to_json_to_disk() const;
 
@@ -105,8 +104,11 @@ class Session {
     bool is_loaded = false;
     bool is_changed = false;
     bool is_aligned = false;
-    std::map<std::string, TubeEntry> aligned_tubes;
+    Eigen::Matrix4d transformation_matrix;
+    Eigen::Matrix4d inverse_transformation_matrix;
     std::map<std::string, CalPointEntry> cal_points;
+    std::map<std::string, std::map<std::string, struct PlanEntry>> plans;
+    
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(
@@ -117,8 +119,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(
     hx,
     last_selected_plan,
     plans,
-    cal_points,
-    aligned_tubes,
+    cal_points,    
     is_aligned,
     is_loaded)
 

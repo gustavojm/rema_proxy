@@ -10,29 +10,22 @@
 
 #include "session.hpp"
 
-Session::Session() noexcept = default;
+Session::Session() : transformation_matrix(Eigen::Matrix4d::Identity()) {};
 
 Session::Session(const std::filesystem::path& session_file) {
+    Session();
     load(session_file);
-}
-
-void Session::delete_session(std::string session_name) {
-    std::filesystem::remove(sessions_dir / (session_name + std::string(".json")));
-}
-
-void Session::copy_tubes_to_aligned_tubes() {
-    for (auto [id, tube] : hx.tubes) {
-        aligned_tubes[id] = tube;
-    }
 }
 
 Session::Session(const std::string& session_name, const std::filesystem::path& hx_dir_)
     : name(session_name), hx_dir(hx_dir_) {
-
+    Session();
     hx.process_csv_from_disk(hx_dir);
     hx.generate_svg();
-    copy_tubes_to_aligned_tubes();
-    calculate_aligned_tubes();
+}
+
+void Session::delete_session(std::string session_name) {
+    std::filesystem::remove(sessions_dir / (session_name + std::string(".json")));
 }
 
 bool Session::load(const std::string& session_name) {
@@ -205,14 +198,27 @@ void Session::cal_points_delete(const std::string& tube_id) {
 }
 
 Point3D Session::get_tube_coordinates(const std::string& tube_id, bool ideal = true) {
-    auto source = ideal ? hx.tubes : aligned_tubes;
-    if (auto iter = source.find(tube_id); iter != source.end()) {
-        return iter->second.coords;
+    if (auto iter = hx.tubes.find(tube_id); iter != hx.tubes.end()) {
+        return (ideal ? iter->second.coords : transform_point_if_aligned(iter->second.coords));
     }
     return {};
 };
 
-std::map<std::string, TubeEntry>& Session::calculate_aligned_tubes() {
+Point3D Session::transform_point_if_aligned(Point3D point, bool inverse)  {
+    // Code from Open3D Geometry3D.cpp TransformPoints() method
+    if (is_aligned) {
+        Eigen::Vector4d point4d(point.x, point.y, point.z, 1.0);
+        Eigen::Vector4d new_point;
+        new_point = (inverse ? inverse_transformation_matrix : transformation_matrix) * point4d;
+        Eigen::Vector3d transformed_point = new_point.head<3>() / new_point(3);
+        return {transformed_point.x(), transformed_point.y(), transformed_point.z()};
+    } else {
+        return point;
+    }
+}
+
+std::map<std::string, TubeEntry> Session::calculate_aligned_tubes() {
+    std::map<std::string, TubeEntry> aligned_tubes = hx.tubes;
     is_aligned = false;
     SPDLOG_INFO("Aligning Tubes...");
     // std::vector<Point3D> src_points = { { 1.625, 0.704, 0 },
@@ -245,7 +251,6 @@ std::map<std::string, TubeEntry>& Session::calculate_aligned_tubes() {
 
     if (used_points < 3) {
         SPDLOG_ERROR("At least 3 alignment points are required");
-        copy_tubes_to_aligned_tubes();
         return aligned_tubes;
     }
 
@@ -256,30 +261,38 @@ std::map<std::string, TubeEntry>& Session::calculate_aligned_tubes() {
     icp_criteria.relative_rmse_ = 1e-6;
 
     bool with_scaling = true;
-    auto result = open3d::pipelines::registration::RegistrationICP(
+    transformation_matrix = open3d::pipelines::registration::RegistrationICP(
         source_cloud,
         target_cloud,
         1000,
         Eigen::Matrix4d::Identity(),
         open3d::pipelines::registration::TransformationEstimationPointToPoint(with_scaling),
-        icp_criteria);
+        icp_criteria).transformation_;
 
-    Eigen::Matrix4d transformation_matrix = result.transformation_;
+        // Extract the rotation matrix (3x3) and translation vector (3x1)
+        Eigen::Matrix3d rotation_matrix = transformation_matrix.block<3,3>(0,0);
+        Eigen::Vector3d translation_vector = transformation_matrix.block<3,1>(0,3);
+        double scale_factor = transformation_matrix(3,3);        
+
+        // Calculate the inverse of the transformation matrix
+        Eigen::Matrix3d transpose_rotation_matrix = rotation_matrix.transpose();            // Transpose of the rotation matrix
+        Eigen::Vector3d inv_translation_vector = -transpose_rotation_matrix * translation_vector;            // Inverse translation vector
+
+        // Construct the inverse transformation matrix
+        inverse_transformation_matrix.block<3,3>(0,0) = transpose_rotation_matrix;
+        inverse_transformation_matrix.block<3,1>(0,3) = inv_translation_vector;
+        inverse_transformation_matrix.block<1,3>(3,0) = Eigen::RowVector3d::Zero();         // First 3 elements of last row must be 0 for homogeneous transform
+        inverse_transformation_matrix(3,3) = scale_factor;
+
     std::cout << transformation_matrix << std::endl;
+    is_aligned = true;
 
     // Transform the source point cloud
     for (const auto& [id, tube] : hx.tubes) {
-
-        // Code from Open3D Geometry3D.cpp TransformPoints() method
-        Eigen::Vector4d point(tube.coords.x, tube.coords.y, tube.coords.z, 1.0);
-        Eigen::Vector4d new_point = transformation_matrix * point;
-        Eigen::Vector3d transformed_point = new_point.head<3>() / new_point(3);
-
         TubeEntry aligned_tube = tube;
-        aligned_tube.coords = { transformed_point.x(), transformed_point.y(), transformed_point.z() };
+        aligned_tube.coords = transform_point_if_aligned(tube.coords);
         aligned_tubes[id] = aligned_tube;
     }
-    is_aligned = true;
     return aligned_tubes;
 }
 

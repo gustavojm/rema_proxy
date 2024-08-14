@@ -55,6 +55,7 @@ void event_stream_handler() {
 
     try {
         res["TELEMETRY"] = rema.ui_telemetry;
+        res["TELEMETRY"]["aligned_coords"] = current_session.transform_point_if_aligned(rema.ui_telemetry.coords, true);
         res["TELEMETRY"]["show_target"] = rema.is_sequence_in_progress;
 
         static auto prev = std::chrono::high_resolution_clock::from_time_t(0);

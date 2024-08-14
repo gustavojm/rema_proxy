@@ -160,7 +160,7 @@ function drawAlignedCircle(svg, id, aligned_tube, radius, scale) {
 		"class" : "aligned-tube",
 	});
 
-	ideal_tube_coords = tubes[id].coords;
+	ideal_tube_coords = ideal_tubes[id].coords;
 
 	svg.line(g, aligned_tube.coords.x, aligned_tube.coords.y, ideal_tube_coords.x, ideal_tube_coords.y, {
 		stroke : 'lightblue',
@@ -190,6 +190,8 @@ function aligned_tubes_get() {
 						ideal_tube_g = $("#tubesheet_svg > g > #" + aligned_tube_id);
 						show_tube_info(ideal_tube_g);
 					});
+			
+			$("#aligned_position").prop("checked", aligned_coords).change();
 		},
 		error: function(xhr, status, error) {
 			alert("Error");

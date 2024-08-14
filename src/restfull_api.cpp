@@ -260,9 +260,7 @@ void sessions_load(const std::shared_ptr<restbed::Session>& rest_session) {
         try {
             current_session.load(session_name);
             current_session.hx.process_csv_from_disk(current_session.hx_dir);
-            current_session.hx.generate_svg();
-            current_session.copy_tubes_to_aligned_tubes();
-            current_session.calculate_aligned_tubes();
+            current_session.hx.generate_svg();            
 
             status = restbed::OK;
         } catch (std::exception &e) {
@@ -277,7 +275,9 @@ void sessions_load(const std::shared_ptr<restbed::Session>& rest_session) {
 }
 
 void current_session_info(const std::shared_ptr<restbed::Session>& rest_session) {
-    close_rest_session(rest_session, restbed::OK, current_session);
+    nlohmann::json res = current_session;
+    res["aligned_tubes"] = current_session.calculate_aligned_tubes();
+    close_rest_session(rest_session, restbed::OK, res);
 }
 
 void sessions_delete(const std::shared_ptr<restbed::Session>& rest_session) {

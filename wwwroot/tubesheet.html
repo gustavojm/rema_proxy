@@ -301,8 +301,8 @@
 					.val(col);
 			$("#tube_info_row")
 					.val(row);
-			$("#tube_info_x").val(toFixedIfNecessary(aligned_tubes[id].coords.x, decimals));
-			$("#tube_info_y").val(toFixedIfNecessary(aligned_tubes[id].coords.y, decimals));
+			$("#tube_info_x").val(toFixedIfNecessary(ideal_tubes[id].coords.x, decimals));
+			$("#tube_info_y").val(toFixedIfNecessary(ideal_tubes[id].coords.y, decimals));
 			highligt_aligned_coords(aligned_coords);
 			update_location_pin_position(
 					cx, cy);
@@ -426,8 +426,7 @@
 											});
 
 														
-							$('#zoom_follow').prop("checked", sessionStorage.getItem("zoom_follow") == "true");
-							
+							$('#zoom_follow').prop("checked", sessionStorage.getItem("zoom_follow") == "true");							
 							$('#zoom_follow').change(function() {
 								sessionStorage.setItem("zoom_follow", $(this).prop("checked"))
 							});							
@@ -468,7 +467,7 @@
 							$("#session_name").text("Session: " + current_session.name);
 							scale = current_session.hx.scale;
 							tube_od = current_session.hx.tube_od;
-							tubes = current_session.hx.tubes;
+							ideal_tubes = current_session.hx.tubes;
 							aligned_coords = current_session.is_aligned;
 							aligned_tubes = current_session.aligned_tubes;
 							var leg_switch = $('#leg_switch');

@@ -128,6 +128,7 @@
 				id="position_y" name="position Y" readonly="readonly" size="4">&nbsp;
 			Z:<input type="text" id="position_z" name="position Z"
 				readonly="readonly" size="4">&nbsp; <span class="unit">inch</span>
+				<input type="checkbox" id="aligned_position"> Aligned
 		</div>
 		<div style="float: left; justify-content:center; max-width: 10%"
 			class="row">
@@ -330,9 +331,16 @@ function get_rema_info() {
 
 		old_telemetry = telemetry;
 
-		var pos_x = telemetry.coords.x;
-		var pos_y = telemetry.coords.y;
-		var pos_z = telemetry.coords.z;
+		if ($("#aligned_position").prop("checked")) {
+			pos_x = telemetry.aligned_coords.x;
+			pos_y = telemetry.aligned_coords.y;
+			pos_z = telemetry.aligned_coords.z;
+		} else {
+			pos_x = telemetry.coords.x;
+			pos_y = telemetry.coords.y;
+			pos_z = telemetry.coords.z;
+		}
+
 		$("#position_x").val(toFixedIfNecessary(pos_x, decimals));
 		$("#position_y").val(toFixedIfNecessary(pos_y, decimals));
 		$("#position_z").val(toFixedIfNecessary(pos_z, decimals));	
@@ -573,6 +581,25 @@ function get_rema_info() {
 						});
 						
 						get_rema_info();
+
+						var aligned_position_checked = false;
+						if ((current_session.is_aligned) && (sessionStorage.getItem("aligned_position") != null)) {
+							aligned_position_checked = (sessionStorage.getItem("aligned_position") == "true");						
+						}
+						$("#aligned_position").prop("checked", aligned_position_checked);
+						$("#aligned_position").change(function() {
+							sessionStorage.setItem("aligned_position", $(this).prop("checked"));
+							if ($(this).prop("checked")) {								
+								$("#position_x").addClass("aligned-coords");
+								$("#position_y").addClass("aligned-coords");
+								$("#position_z").addClass("aligned-coords");
+							} else {
+								$("#position_x").removeClass("aligned-coords");
+								$("#position_y").removeClass("aligned-coords");
+								$("#position_z").removeClass("aligned-coords");
+							}
+						});
+
 					}
 			);
 
