@@ -12,14 +12,8 @@
 #include <watchdog_timer.hpp>
 
 class TelemetryNetClient : public NetClient {
-  public:
+  public:    
     TelemetryNetClient() = default;
-
-    ~TelemetryNetClient() {
-        if (alreadyStarted && thd.joinable()) {
-            stop();
-        }
-    }
 
     void set_on_receive_callback(std::function<void(std::vector<uint8_t>&)> onReceiveCallback) {
         onReceiveCb = onReceiveCallback;
@@ -27,7 +21,7 @@ class TelemetryNetClient : public NetClient {
 
     void start() {
         if (!alreadyStarted && onReceiveCb) {
-            thd = std::thread(&TelemetryNetClient::loop, this);
+            thd = std::jthread(&TelemetryNetClient::loop, this);
             disconnect_watchdog.onTimeoutCallback = [&] { 
                 SPDLOG_WARN("Telemetry watchdog timer expired. Closing connection");
                 close(); 
@@ -35,17 +29,6 @@ class TelemetryNetClient : public NetClient {
             disconnect_watchdog.start(std::chrono::seconds(2));
             alreadyStarted = true;
         }
-    }
-
-    void stop() {
-        disconnect_watchdog.stop();
-        {
-            std::unique_lock<std::mutex> lock(mtx);
-            stopFlag = true;
-            suspendFlag = false; // Ensure it doesn't stay suspended when stopping
-        }
-        cv.notify_one();
-        thd.join();
     }
 
     int connect(std::string host, int port, int nsec = 0) override {
@@ -57,15 +40,11 @@ class TelemetryNetClient : public NetClient {
         return 0;
     }
 
-    void loop() {
-        while (true) {
+    void loop(std::stop_token stop_token) {
+        while (!stop_token.stop_requested()) {
             {
                 std::unique_lock<std::mutex> lock(mtx);
-                cv.wait(lock, [this] { return !suspendFlag || stopFlag; });
-
-                if (stopFlag) {
-                    break;
-                }
+                cv.wait(lock, [this] { return !suspendFlag; });
             }
 
             std::vector<uint8_t> line = get_response_binary();
@@ -78,12 +57,11 @@ class TelemetryNetClient : public NetClient {
     }
 
     std::function<void(std::vector<uint8_t>&)> onReceiveCb;
-    std::thread thd;
+    std::jthread thd;
     std::mutex mtx;
     std::condition_variable cv;
-    bool suspendFlag = false;
-    bool stopFlag = false;
-    bool alreadyStarted = false;    
+    bool suspendFlag = false;    
+    bool alreadyStarted = false;
     int ConnectionTimeout = 5;
     WatchdogTimer disconnect_watchdog;
 };

@@ -8,8 +8,7 @@
 #include <thread>
 
 class WatchdogTimer {
-  public:
-
+  public:  
     WatchdogTimer() = default;
 
     WatchdogTimer(std::chrono::duration<double> timeout_, std::function<void()> timeoutCallback)
@@ -17,16 +16,9 @@ class WatchdogTimer {
             start();
     }
 
-    ~WatchdogTimer() {
-        stop();
-        if (watchdogThread.joinable()) {
-            watchdogThread.join();
-        }
-    }
-
     void start() {
         if (onTimeoutCallback && timeout != std::chrono::duration<double>::zero()) {
-            watchdogThread = std::thread(&WatchdogTimer::watchdogLoop, this);
+            watchdogThread = std::jthread(&WatchdogTimer::watchdogLoop, this);
         }
     }
 
@@ -54,26 +46,12 @@ class WatchdogTimer {
         cv.notify_one();
     }
 
-    void stop() {
-        {
-            std::unique_lock<std::mutex> lock(mtx);
-            stopFlag = true;
-            cv.notify_one();
-        }
-        if (watchdogThread.joinable()) {
-            watchdogThread.join();
-        }
-    }
-
   private:
-    void watchdogLoop() {
+    void watchdogLoop(std::stop_token stop_token) {
         std::unique_lock<std::mutex> lock(mtx);
-        while (!stopFlag) {
-            if (cv.wait_for(lock, timeout, [this] { return resetFlag || stopFlag; })) {
-                // Timer was reset or stopped
-                if (stopFlag) {
-                    break;
-                }
+        while (!stop_token.stop_requested()) {
+            if (cv.wait_for(lock, timeout, [this] { return resetFlag; })) {
+                // Timer was reset
                 resetFlag = false;
             } else {
                 if (pauseFlag) {
@@ -87,12 +65,11 @@ class WatchdogTimer {
     }
 
     std::chrono::duration<double> timeout;
-    std::atomic<bool> stopFlag;
     bool resetFlag;
     bool pauseFlag;
     std::mutex mtx;
     std::condition_variable cv;
-    std::thread watchdogThread;
+    std::jthread watchdogThread;
 
 public:
     std::function<void()> onTimeoutCallback;
