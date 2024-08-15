@@ -21,7 +21,6 @@
 #include "session.hpp"
 #include "syslogger.hpp"
 #include "upload.hpp"
-#include "websocket-server.hpp"
 #include "log_pattern.hpp"
 
 std::vector<std::shared_ptr<restbed::Session>> sse_sessions;
@@ -249,12 +248,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
 
     service.set_logger(std::make_shared<SyslogLogger>());
 
-    //    // Websocket
-    //    std::thread websocket_thread(websocket_init);
     std::string proxy_url = fmt::format("http://127.0.0.1:{0}/static/index.html", rema_proxy_port);
     SPDLOG_INFO("Open a browser to: \033]8;;{0}\033\\{0}\033]8;;\033\\", proxy_url);
     service.start(settings);
 
-    //    websocket_thread.join();
     return 0;
 }
