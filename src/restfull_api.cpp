@@ -54,6 +54,7 @@ void REMA_connect(const std::shared_ptr<restbed::Session>& rest_session) {
     try {
         rema.reconnect();
         status = restbed::OK;
+        res = "Connected";
     } catch (std::exception &e) {
         res = e.what();
         status = restbed::INTERNAL_SERVER_ERROR;
@@ -482,7 +483,9 @@ void network_settings(const std::shared_ptr<restbed::Session>& rest_session) {
                     rema.config["REMA"]["network"]["port"] = rtu_port;
                     rema.save_config();
 
-                    rema.telemetry_client.close();
+                    rema.telemetry_client.close();      // Doing this else wont connect after restart
+                    rema.logs_client.close();           // Doing this else wont connect after restart
+                    // Do not close rema.command_client becaus it is needed to send the network parameters
 
                     pars["ipaddr"] = rtu_host;
                     pars["port"] = rtu_port;
@@ -551,6 +554,22 @@ void move_incremental(const std::shared_ptr<restbed::Session>& rest_session) {
             close_rest_session(rest_session_ptr, restbed::OK, res);
         });
 }
+
+void set_home_xyz(const std::shared_ptr<restbed::Session>& rest_session) {
+    Tool tool = rema.get_selected_tool();
+
+    const auto request = rest_session->get_request();
+    std::string tube_id = request->get_path_parameter("tube_id", "");
+    if (!tube_id.empty()) {
+        Point3D tube_coords = current_session.from_ui_to_rema(current_session.get_tube_coordinates(tube_id, false), &tool);
+        rema.set_home_xyz(tube_coords);
+    } else {
+        Point3D zero_coords = current_session.from_ui_to_rema(Point3D(), &tool);
+        rema.set_home_xyz(zero_coords);
+    }
+    close_rest_session(rest_session, restbed::OK);
+}
+
 
 void set_home_xy(const std::shared_ptr<restbed::Session>& rest_session) {
     Tool tool = rema.get_selected_tool();
@@ -815,8 +834,7 @@ void logs(const std::shared_ptr<restbed::Session>& rest_session) {
 // @formatter:off
 void restfull_api_create_endpoints(restbed::Service &service) {
     std::map<std::string, std::vector<ResourceEntry>> rest_resources = {
-        { "REMA/connect", { { "POST", &REMA_connect } } },
-        { "REMA/connect_get", { { "GET", &REMA_connect } } },
+        { "REMA/connect", { { "POST", &REMA_connect } } },        
         { "REMA/info", { { "GET", &REMA_info } } },
         { "HXs", { { "GET", &HXs_list } } },
         { "HXs/{HX_name: .*}", { { "DELETE", &HXs_delete } } },
@@ -846,6 +864,7 @@ void restfull_api_create_endpoints(restbed::Service &service) {
         { "move-joystick/{dir: .*}", { { "GET", &move_joystick } } },
         { "move-incremental", { { "POST", &move_incremental } } },
         { "determine-tube-center/{tube_id: .*}/{set_home: .*}", { { "GET", &determine_tube_center } } },
+        { "set-home-xyz/", { { "GET", &set_home_xyz } } },
         { "set-home-xy/", { { "GET", &set_home_xy } } },
         { "set-home-xy/{tube_id: .*}", { { "GET", &set_home_xy } } },
         { "determine-tubesheet-z/{set_home: .*}", { { "GET", &determine_tubesheet_z } } },

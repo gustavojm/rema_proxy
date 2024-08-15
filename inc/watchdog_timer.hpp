@@ -48,8 +48,8 @@ class WatchdogTimer {
 
   private:
     void watchdogLoop(std::stop_token stop_token) {
-        std::unique_lock<std::mutex> lock(mtx);
         while (!stop_token.stop_requested()) {
+            std::unique_lock<std::mutex> lock(mtx);
             if (cv.wait_for(lock, timeout, [this] { return resetFlag; })) {
                 // Timer was reset
                 resetFlag = false;

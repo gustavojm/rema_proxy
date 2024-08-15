@@ -79,6 +79,8 @@ class REMA {
 
     tl::expected<void, std::string> execute_sequence(std::vector<movement_cmd>& sequence);
 
+    void set_home_xyz(Point3D coords);
+
     void set_home_xy(double x, double y);
 
     void set_home_z(double z);

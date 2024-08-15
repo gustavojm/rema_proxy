@@ -136,7 +136,7 @@ void REMA::connect(const std::string &rtu_host, int rtu_port) {
 
 void REMA::reconnect() {
     command_client.close();
-    //telemetry_client.close();   // this would probably be closed by watchdog
+    telemetry_client.close();   // this would probably be closed by watchdog
     logs_client.close();
     connect(rtu_host_, rtu_port_);
 }
@@ -180,6 +180,9 @@ void REMA::save_logs(std::string &stream) {
     }
 }
 
+void REMA::set_home_xyz(Point3D coords) {
+    execute_command("SET_COORDS", { { "position_x", coords.x }, { "position_y", coords.y }, { "position_z", coords.z } });
+}
 
 void REMA::set_home_xy(double x, double y) {
     execute_command("SET_COORDS", { { "position_x", x }, { "position_y", y } });

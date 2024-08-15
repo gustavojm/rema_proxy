@@ -634,8 +634,11 @@ function get_rema_info() {
 				method : "POST",
 				url : "/REST/REMA/connect",
 				success: function () {
-					window.location.reload();					
-				}
+					window.location.reload();
+				},
+				error: function(xhr, status, error) {
+            		window.location.reload();
+          		}						
 			});			
 		});
 		

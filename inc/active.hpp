@@ -11,36 +11,35 @@ class Active {
     typedef std::function<void()> Message;
 
   private:
-    void run() {
-        while (!done) { // note: last message sets done to true
-            std::lock_guard<std::mutex> lock(mtx);
-            if (!mq.empty()) {
-                Message msg = mq.front();
-                mq.pop_front();
-                msg(); // execute message
-            }
+    void run(std::stop_token stop_token) {
+        while (!stop_token.stop_requested()) { 
+            std::unique_lock<std::mutex> lock(mtx);
+            cv.wait(lock, [this] { return !mq.empty(); });      // During the wait the mutex is unlocked
+                                                                // The mutex is automatically re-acquired here
+            Message msg = mq.front();                           
+            mq.pop_front();
+            lock.unlock();
+            msg(); // execute message
         }
     }
 
   public:
-    Active() : done(false) {
-        thd = std::unique_ptr<std::thread>(new std::thread([this] { this->run(); }));
-    }
-
-    ~Active() {
-        send([&] { done = true; });
-        thd->join();
+    Active() {
+        thd = std::jthread(&Active::run, this);
     }
 
     void send(Message m) {
-        std::lock_guard<std::mutex> lock(mtx);
-        mq.push_back(m);
+        {
+            std::lock_guard<std::mutex> lock(mtx);        
+            mq.push_back(m);
+        }
+        cv.notify_one();
     }
 
-    Active(const Active &);                  // no copying
+    Active(const Active &) = delete;         // no copying
     void operator=(const Active &) = delete; // no copying
-    bool done;                               // the termination flag
     std::deque<Message> mq;                  // the queue
-    std::unique_ptr<std::thread> thd;        // the thread
-    std::mutex mtx; // to make deque thread_safe
+    std::jthread thd;                        // the thread
+    std::mutex mtx;                          // to make deque thread_safe
+    std::condition_variable cv;
 };

@@ -18,27 +18,11 @@ class LogsNetClient : public NetClient {
         onReceiveCb = onReceiveCallback;
     }
 
-    ~LogsNetClient() {
-        if (thd.joinable()) {
-            stop();
-        }
-    }
-
     void start() {
         if (!alreadyStarted) {
-            thd = std::thread(&LogsNetClient::loop, this);
+            thd = std::jthread(&LogsNetClient::loop, this);
             alreadyStarted = true;
         }
-    }
-
-    void stop() {
-        {
-            std::unique_lock<std::mutex> lock(mtx);
-            stopFlag = true;
-            suspendFlag = false; // Ensure it doesn't stay suspended when stopping
-        }
-        cv.notify_one();
-        thd.join();
     }
 
     int connect(std::string host, int port, int nsec = 0) override {
@@ -49,17 +33,8 @@ class LogsNetClient : public NetClient {
         return 0;
     }
 
-    void loop() {
-        while (true) {
-            {
-                std::unique_lock<std::mutex> lock(mtx);
-                cv.wait(lock, [this] { return !suspendFlag || stopFlag; });
-
-                if (stopFlag) {
-                    break;
-                }
-            }
-
+    void loop(std::stop_token stop_token) {
+        while (!stop_token.stop_requested()) {
             if (is_connected) {
                 std::string line = get_response();
                 if (!line.empty()) {
@@ -70,11 +45,7 @@ class LogsNetClient : public NetClient {
     }
 
     std::function<void(std::string&)> onReceiveCb;
-    std::thread thd;
-    std::mutex mtx;
-    std::condition_variable cv;
-    bool suspendFlag = false;
-    bool stopFlag = false;
+    std::jthread thd;
     bool alreadyStarted = false;
     int ConnectionTimeout = 5;
 };
