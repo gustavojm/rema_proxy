@@ -612,12 +612,12 @@ function get_rema_info() {
 				dataType : "json",
 				data : JSON.stringify([
 					{
-						cmd : "TOUCH_PROBE_PROTECTION_CONTROL",
-						pars : {enabled: touch_probe_div.hasClass('crossed-out')}
+						cmd : "TOUCH_PROBE_SETTINGS",
+						pars : {protection: touch_probe_div.hasClass('crossed-out')}
 					}, 
 				]),
 				success : function(data) {
-					touch_probe_protection_control(data["TOUCH_PROBE_PROTECTION_CONTROL"].STATUS);
+					touch_probe_protection_control(data["TOUCH_PROBE_SETTINGS"].PROTECTION);
 				}
 			});    	    
 	    });	

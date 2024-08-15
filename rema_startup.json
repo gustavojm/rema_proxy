@@ -17,14 +17,16 @@
 		"max": 6005
 	 }
     },	
-	{"cmd": "TOUCH_PROBE_PROTECTION_CONTROL",
+	{"cmd": "TOUCH_PROBE_SETTINGS",
 	 "pars": {
 		"enabled": true,
+		"protection": true,
         "axes": "XY",
-		"counts": 20
+		"counts": 20,
+		"debounce_time_ms" : 2000
 	 }
     },
-	{"cmd": "TOUCH_PROBE_PROTECTION_CONTROL",
+	{"cmd": "TOUCH_PROBE_SETTINGS",
 	 "pars": {
         "axes": "Z",
 		"counts": 20

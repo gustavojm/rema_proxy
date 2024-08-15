@@ -229,7 +229,7 @@ h1 {
 					cmd : "BRAKES_MODE",
 				},
 				{
-					cmd : "TOUCH_PROBE_PROTECTION_CONTROL",
+					cmd : "TOUCH_PROBE_SETTINGS",
 				} 
 
 			]),
@@ -243,7 +243,7 @@ h1 {
 								
 				$("#brakes_mode_switch").value = ON_AUTO_OFF.revGet(data["BRAKES_MODE"].STATUS);
 
-				touch_probe_protection_control(data["TOUCH_PROBE_PROTECTION_CONTROL"].STATUS);			}
+				touch_probe_protection_control(data["TOUCH_PROBE_SETTINGS"].PROTECTION);			}
 		});
 	}
 	
