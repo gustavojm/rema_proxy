@@ -91,8 +91,9 @@
 				$.ajax({
 						url: '/REST/sessions/' + session_name,
 						success: function () {
-							alert("Session loaded successfully");
-							window.location.reload(true);
+							$("#tabs").tabs({
+								active: TUBESHEET_VIEW_TAB
+							});
 						},
 						error: function (xhr, status, error) {
 							console.log(xhr, status, error);

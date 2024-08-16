@@ -185,7 +185,7 @@ void REMA::set_home_xyz(Point3D coords) {
 }
 
 void REMA::set_home_xy(double x, double y) {
-    execute_command("SET_COORDS", { { "position_Y", x }, { "position_Y", y } });
+    execute_command("SET_COORDS", { { "position_X", x }, { "position_Y", y } });
 }
 
 void REMA::set_home_z(double z) {
