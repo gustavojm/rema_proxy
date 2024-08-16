@@ -21,16 +21,10 @@
 	 "pars": {
 		"enabled": true,
 		"protection": true,
-        "axes": "XY",
-		"counts": 20,
+		"counts_XY": 20,
+		"counts_Z": 20,
 		"debounce_time_ms" : 2000
-	 }
-    },
-	{"cmd": "TOUCH_PROBE_SETTINGS",
-	 "pars": {
-        "axes": "Z",
-		"counts": 20
-	 }
+		}
     },
 	{"cmd": "STALL_CONTROL",
 	 "pars": {
@@ -48,6 +42,11 @@
 	 "pars": {
         "axis": "Z",
 		"counts": 5
+	 }
+    },
+	{"cmd": "CONTROL_ENABLE",
+	 "pars": {
+        "enabled": true
 	 }
     }
 ]

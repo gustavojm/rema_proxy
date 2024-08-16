@@ -608,8 +608,8 @@
 				contentType : "application/json",
 				dataType : "json",
 				success : function(data) {
-					if ("ERROR" in data.MOVE_CLOSED_LOOP) {
-						add_notification(data.MOVE_CLOSED_LOOP.ERROR.toUpperCase(), "Warning");
+					if ("error" in data.MOVE_CLOSED_LOOP) {
+						add_notification(data.MOVE_CLOSED_LOOP.error.toUpperCase(), "Warning");
 					}
 				}
 			});						

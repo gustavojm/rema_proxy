@@ -181,15 +181,15 @@ void REMA::save_logs(std::string &stream) {
 }
 
 void REMA::set_home_xyz(Point3D coords) {
-    execute_command("SET_COORDS", { { "position_x", coords.x }, { "position_y", coords.y }, { "position_z", coords.z } });
+    execute_command("SET_COORDS", { { "position_X", coords.x }, { "position_Y", coords.y }, { "position_Z", coords.z } });
 }
 
 void REMA::set_home_xy(double x, double y) {
-    execute_command("SET_COORDS", { { "position_x", x }, { "position_y", y } });
+    execute_command("SET_COORDS", { { "position_Y", x }, { "position_Y", y } });
 }
 
 void REMA::set_home_z(double z) {
-    execute_command("SET_COORDS", { { "position_z", z } });
+    execute_command("SET_COORDS", { { "position_Z", z } });
 }
 
 void REMA::execute_command_no_wait(

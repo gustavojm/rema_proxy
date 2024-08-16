@@ -60,8 +60,8 @@
 				data : JSON.stringify(Object.fromEntries(new FormData(
 						document.getElementById("incremental_form_xy")))),
 				success : function(data) {
-					if ("ERROR" in data.MOVE_INCREMENTAL) {
-						add_notification(data.MOVE_INCREMENTAL.ERROR, "Warning");
+					if ("error" in data.MOVE_INCREMENTAL) {
+						add_notification(data.MOVE_INCREMENTAL.error, "Warning");
 					}
 				}				
 			});
