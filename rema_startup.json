@@ -2,19 +2,19 @@
 	{"cmd": "AXES_SETTINGS",
 	 "pars": {
         "axes": "XY",
-		"prop_gain": 15,
-		"update": 105,
-		"min": 2005,
-		"max": 6005
+		"prop_gain": 10,
+		"update": 100,
+		"min": 2000,
+		"max": 6000
 	 }
     },
 	{"cmd": "AXES_SETTINGS",
 	 "pars": {
         "axes": "Z",
-		"prop_gain": 15,
-		"update": 105,
-		"min": 2005,
-		"max": 6005
+		"prop_gain": 10,
+		"update": 100,
+		"min": 2000,
+		"max": 6000
 	 }
     },	
 	{"cmd": "TOUCH_PROBE_SETTINGS",
@@ -26,22 +26,11 @@
 		"debounce_time_ms" : 2000
 		}
     },
-	{"cmd": "STALL_CONTROL",
+	{"cmd": "STALL_CONTROL_SETTINGS",
 	 "pars": {
-        "axis": "X",
-		"counts": 5
-	 }
-    },
-	{"cmd": "STALL_CONTROL",
-	 "pars": {
-        "axis": "Y",
-		"counts": 5
-	 }
-    },
-	{"cmd": "STALL_CONTROL",
-	 "pars": {
-        "axis": "Z",
-		"counts": 5
+		"counts_X": 5,
+		"counts_Y": 5,
+		"counts_Z": 5
 	 }
     },
 	{"cmd": "CONTROL_ENABLE",
@@ -50,4 +39,3 @@
 	 }
     }
 ]
-
