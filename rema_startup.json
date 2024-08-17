@@ -19,7 +19,6 @@
     },	
 	{"cmd": "TOUCH_PROBE_SETTINGS",
 	 "pars": {
-		"enabled": true,
 		"protection": true,
 		"counts_XY": 20,
 		"counts_Z": 20,
@@ -28,14 +27,10 @@
     },
 	{"cmd": "STALL_CONTROL_SETTINGS",
 	 "pars": {
+		"enabled": true,
 		"counts_X": 5,
 		"counts_Y": 5,
 		"counts_Z": 5
-	 }
-    },
-	{"cmd": "CONTROL_ENABLE",
-	 "pars": {
-        "enabled": true
 	 }
     }
 ]
