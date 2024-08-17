@@ -165,7 +165,7 @@ std::string NetClient::get_response() {
     if (is_connected) {
         if (!leftover_buffer.empty()) {            
             if (std::size_t null_pos; (null_pos = leftover_buffer.find('\0')) != std::string::npos) {
-                std:: string prev = leftover_buffer.substr(0, null_pos - 1);
+                std:: string prev = leftover_buffer.substr(0, null_pos);
                 leftover_buffer = leftover_buffer.substr(null_pos + 1);
                 return prev;
             }
