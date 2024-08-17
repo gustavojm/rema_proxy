@@ -92,14 +92,14 @@
 			]),
 			dataType : "json",
 			success : function(data) {
-				mem_free = (data.MEM_INFO.mem_free / data.MEM_INFO.mem_total * 100).toFixed(1);
-									mem_free_text = ((data.MEM_INFO.mem_free/1024).toFixed(1) || 0) + "k(" + mem_free + "%)"
+				mem_free = (data.MEM_INFO.free / data.MEM_INFO.total * 100).toFixed(1);
+									mem_free_text = ((data.MEM_INFO.free/1024).toFixed(1) || 0) + "k(" + mem_free + "%)"
 									if (isNaN(mem_free)) {
 										mem_free = 0;
 										mem_free_text = "---";
 									}									
 
-				mem_min_free = (data.MEM_INFO.mem_min_free / data.MEM_INFO.mem_total * 100).toFixed(1);
+				mem_min_free = (data.MEM_INFO.free / data.MEM_INFO.total * 100).toFixed(1);
 
 				$("#free_mem .progress").css("width", mem_free+"%");
 				$("#free_mem .progress-text").text(mem_free_text);
