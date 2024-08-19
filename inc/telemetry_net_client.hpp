@@ -31,12 +31,17 @@ class TelemetryNetClient : public NetClient {
         }
     }
 
+    void close() override {
+        NetClient::close();        
+    }
+
     int connect(std::string host, int port, int nsec = 0) override {
         nsec = (nsec == 0 ? ConnectionTimeout : nsec);
         if (int n; (n = NetClient::connect(host, port, nsec)) < 0) {
             return n;
         }
         disconnect_watchdog.resume();
+        cv.notify_all();      // NetClient::connect will change is_connected to true if successful
         return 0;
     }
 
@@ -44,7 +49,7 @@ class TelemetryNetClient : public NetClient {
         while (!stop_token.stop_requested()) {
             {
                 std::unique_lock<std::mutex> lock(mtx);
-                cv.wait(lock, [this] { return !suspendFlag; });
+                cv.wait(lock, [this] { return is_connected; });
             }
 
             std::vector<uint8_t> line = get_response_binary();
@@ -59,8 +64,7 @@ class TelemetryNetClient : public NetClient {
     std::function<void(std::vector<uint8_t>&)> onReceiveCb;
     std::jthread thd;
     std::mutex mtx;
-    std::condition_variable cv;
-    bool suspendFlag = false;    
+    std::condition_variable cv;    
     bool alreadyStarted = false;
     int ConnectionTimeout = 5;
     WatchdogTimer disconnect_watchdog;
