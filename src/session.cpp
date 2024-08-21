@@ -117,6 +117,10 @@ Point3D Session::from_ui_to_rema(Point3D coords, Tool* tool) {
     }
 }
 
+double Session::from_ui_to_rema(double meassure) {
+    return (meassure / hx.scale);
+}
+
 std::vector<Session> Session::sessions_list() {
     std::vector<Session> res;
 
@@ -136,11 +140,6 @@ std::vector<Session> Session::sessions_list() {
     }
     return res;
 }
-
-double Session::from_ui_to_rema(double meassure) {
-    return (meassure / hx.scale);
-}
-
 
 void Session::save_to_disk() const {
     std::filesystem::path session_file = sessions_dir / (name + std::string(".json"));
