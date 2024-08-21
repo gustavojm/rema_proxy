@@ -64,8 +64,9 @@
 				$("#free_mem .progress-text").text(mem_free_text);
 				$("#free_mem .progress-min-mark").css("left", mem_min_free + "%");
 			},
-			error:function (jqXHR, textStatus, errorThrown) {
-			}
+			error: function() {
+				clearTimeout(timer_logs);
+			}			
 		});
 	}
 
@@ -101,7 +102,7 @@
 					addLogEntry(entry_arr);
 				});
 				timer_logs = setTimeout(function() { get_logs(); get_mem_info()}, 1000);
-			}
+			},
 		});
 	}
 
