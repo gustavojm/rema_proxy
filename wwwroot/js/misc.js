@@ -153,18 +153,13 @@ function AjaxREMA(dataObject, successCallback, errorCallback) {
         // Store the success and error callbacks in the map, associated with this request_id
         requestCallbacks.set(request_id, { success: ajaxOpts.success, error: ajaxOpts.error });
 
-        data = {
-            request_id: request_id,
-            payload: ajaxOpts.data
-        };
-
         // Send the AJAX request
         $.ajax({
-            url: "/REMA",
+            url: "/REMA/" + request_id,
             method: "POST",
             contentType: ajaxOpts.contentType | "application/json",
             dataType: ajaxOpts.dataType | "json",
-            data: JSON.stringify(data),
+            data: JSON.stringify(ajaxOpts.data),
             success: function (response) {
                 const receivedRequestId = response.request_id;  // Get the request_id from the response
 
