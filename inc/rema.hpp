@@ -124,6 +124,7 @@ class REMA {
     std::ofstream logs_ofstream;
     std::string rtu_host_;
     int rtu_port_;
+    std::mutex rtu_mutex;
 };
 
 inline std::map<std::string, Tool> REMA::tools;

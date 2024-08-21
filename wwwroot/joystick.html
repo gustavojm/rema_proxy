@@ -1,53 +1,52 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-<link rel="stylesheet" href="css/rcswitcher.css" type="text/css"
-	media="all" />
+	<link rel="stylesheet" href="css/rcswitcher.css" type="text/css" media="all" />
 
-<style>
-h1 {
-  font-size: 1em;
-  text-transform: uppercase;
-  color: darkgray;
-  letter-spacing: .1em;
-  margin: 0.1em;
-}
+	<style>
+		h1 {
+			font-size: 1em;
+			text-transform: uppercase;
+			color: darkgray;
+			letter-spacing: .1em;
+			margin: 0.1em;
+		}
 
-.options {
-  width: 110px;
-  border: 1px solid silver;
-  border-radius: 1em;
-  background-color: ghostwhite;
-  padding: 0 0 0.1em 0;
-  margin: 0 0 0.2em 0;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-}
+		.options {
+			width: 110px;
+			border: 1px solid silver;
+			border-radius: 1em;
+			background-color: ghostwhite;
+			padding: 0 0 0.1em 0;
+			margin: 0 0 0.2em 0;
+			text-align: center;
+			display: flex;
+			flex-direction: column;
+		}
 
-.ticks {
-  display: flex;
-}
+		.ticks {
+			display: flex;
+		}
 
-.o_txt {
-  flex: 1;
-}
+		.o_txt {
+			flex: 1;
+		}
 
-.o_on {
-  font-weight: 400;
-  color: blue;
-}
-</style>
-<script type="text/javascript" src="js/rcswitcher.js"></script>
-<script type="text/javascript" src="js/ajaxqueue.js"></script>
-<script type="text/javascript" src="js/misc.js"></script>
+		.o_on {
+			font-weight: 400;
+			color: blue;
+		}
+	</style>
+	<script type="text/javascript" src="js/rcswitcher.js"></script>
+	<script type="text/javascript" src="js/ajaxqueue.js"></script>
+	<script type="text/javascript" src="js/misc.js"></script>
 </head>
+
 <body>
-	<div id="outer">		<!--tabindex="0" outline: none to make the div selectable and receive keydown-->
-		<div id="up"
-			style="display: flex; justify-content: center; align-items: center; outline: none" tabindex="0">
-			<div id="left"
-				style="display: flex; background-color: #F3F3F3; margin: 2px; padding: 3px;">
+	<div id="outer"> <!--tabindex="0" outline: none to make the div selectable and receive keydown-->
+		<div id="up" style="display: flex; justify-content: center; align-items: center; outline: none" tabindex="0">
+			<div id="left" style="display: flex; background-color: #F3F3F3; margin: 2px; padding: 3px;">
 				<div class="joystick-container" style="float: left;">
 					<div class="row">
 						<div class="joystick-limit-horizontal" data-limit="none"></div>
@@ -56,23 +55,27 @@ h1 {
 					</div>
 					<div class="row">
 						<div class="joystick-limit-vertical" data-limit="none"></div>
-						<img alt="" src="images/up_left.png" class="joystick-arrow" data-dir="up_left" title="KeyPad 7"> 
-						<img alt="" src="images/up.png" class="joystick-arrow" data-dir="up" title="KeyPad 8"> 
-						<img alt="" src="images/up_right.png" class="joystick-arrow" data-dir="up_right" title="KeyPad 9">
+						<img alt="" src="images/up_left.png" class="joystick-arrow" data-dir="up_left" title="KeyPad 7">
+						<img alt="" src="images/up.png" class="joystick-arrow" data-dir="up" title="KeyPad 8">
+						<img alt="" src="images/up_right.png" class="joystick-arrow" data-dir="up_right"
+							title="KeyPad 9">
 						<div class="joystick-limit-vertical" data-limit="none"></div>
 					</div>
 					<div class="row">
 						<div class="joystick-limit-vertical off" data-limit="left"></div>
-						<img alt="" src="images/left.png" class="joystick-arrow" data-dir="left" title="KeyPad 4"> 
-						<img alt="" src="images/h.png" class="joystick-arrow-home" data-dir="none" id="home_xy" title="KeyPad 5"> 
+						<img alt="" src="images/left.png" class="joystick-arrow" data-dir="left" title="KeyPad 4">
+						<img alt="" src="images/h.png" class="joystick-arrow-home" data-dir="none" id="home_xy"
+							title="KeyPad 5">
 						<img alt="" src="images/right.png" class="joystick-arrow" data-dir="right" title="KeyPad 6">
 						<div class="joystick-limit-vertical off" data-limit="right"></div>
 					</div>
 					<div class="row">
 						<div class="joystick-limit-vertical" data-limit="none"></div>
-						<img alt="" src="images/down_left.png" class="joystick-arrow" data-dir="down_left" title="KeyPad 1"> 
-						<img alt="" src="images/down.png" class="joystick-arrow" data-dir="down" title="KeyPad 2"> 
-						<img alt="" src="images/down_right.png" class="joystick-arrow" data-dir="down_right" title="KeyPad 3">
+						<img alt="" src="images/down_left.png" class="joystick-arrow" data-dir="down_left"
+							title="KeyPad 1">
+						<img alt="" src="images/down.png" class="joystick-arrow" data-dir="down" title="KeyPad 2">
+						<img alt="" src="images/down_right.png" class="joystick-arrow" data-dir="down_right"
+							title="KeyPad 3">
 						<div class="joystick-limit-vertical" data-limit="none"></div>
 					</div>
 					<div class="row">
@@ -82,79 +85,76 @@ h1 {
 					</div>
 				</div>
 			</div>
-			<div id="right"
-				style="display: flex; background-color: #F3F3F3; margin: 2px; padding: 3px;">
+			<div id="right" style="display: flex; background-color: #F3F3F3; margin: 2px; padding: 3px;">
 				<div class="joystick-container" style="float: left;">
 					<div class="row">
 						<div class="joystick-limit-horizontal off" data-limit="in"></div>
 					</div>
 					<div class="row">
-						<img alt="" src="images/z_up.png" class="joystick-arrow"
-							data-dir="z_in" title="KeyPad +">
+						<img alt="" src="images/z_up.png" class="joystick-arrow" data-dir="z_in" title="KeyPad +">
 					</div>
-					<img alt="" src="images/h.png" class="joystick-arrow-home"
-						data-dir="none" id="home_z" title="Z"">
-					<div class="row">
-						<img alt="" src="images/z_down.png" class="joystick-arrow"
-							data-dir="z_out" title="KeyPad -">
-					</div>
-					<div class="row">
-						<div class="joystick-limit-horizontal off" data-limit="out"></div>
-					</div>
+					<img alt="" src="images/h.png" class="joystick-arrow-home" data-dir="none" id="home_z" title="Z"">
+					<div class=" row">
+					<img alt="" src="images/z_down.png" class="joystick-arrow" data-dir="z_out" title="KeyPad -">
+				</div>
+				<div class="row">
+					<div class="joystick-limit-horizontal off" data-limit="out"></div>
 				</div>
 			</div>
 		</div>
-		<div>
-			<hr>
-		</div>
-		<div class="row" style="float: left; width: 100%;">
-			<div style="width: 50%; text-align: center;	align-items: center;
+	</div>
+	<div>
+		<hr>
+	</div>
+	<div class="row" style="float: left; width: 100%;">
+		<div style="width: 50%; text-align: center;	align-items: center;
 				display: flex;	flex-direction: column;">
-				<div>					
-				</div>
-				<datalist id="steplist">
-					<option>0</option>
-					<option>1</option>
-					<option>2</option>
-				</datalist>
-				<div class="options">
-					<h1>Brakes</h1>
-					<input class="slider" type="range" min="0" max="2" step="1" list="steplist" id="brakes_mode_switch" />
-					<div class="ticks">
-						<span class="o_txt">OFF</span>
-						<span class="o_txt o_on">AUTO</span>
-						<span class="o_txt">ON</span>
-					</div>
-				</div>	
+			<div>
 			</div>
-			<div style="float: left; width: 50%;">
-				<div style="text-align: center;">
-					<div>
-							<img alt="" src="images/stop_red.png" class="emergency-stop" id="emergency_stop" title="Ctrl + Space">
-					</div>
-				</div>
-			</div>		
-		</div>
-		<div class="row" style="float: left; width: 100%;">
-			<div style="width: 50%; text-align: center;	align-items: center;
-				display: flex;	flex-direction: column;">
-				<div class="options">
-					<h1>Stall</h1>
-					<div style="margin-bottom: 5px;">
-						<input type="checkbox" name="stall_switch" id="stall_switch">
-					</div>
-				</div>
-			</div>
-			<div style="width: 50%; text-align: center;	align-items: center;
-				display: flex;	flex-direction: column;">
-				<div class="options">
-					<h1>Power</h1>
-					<div style="margin-bottom: 5px;">
-						<input type="checkbox" name="power_switch" id="power_switch">
-					</div>
+			<datalist id="steplist">
+				<option>0</option>
+				<option>1</option>
+				<option>2</option>
+			</datalist>
+			<div class="options">
+				<h1>Brakes</h1>
+				<input class="slider" type="range" min="0" max="2" step="1" list="steplist" id="brakes_mode_switch" />
+				<div class="ticks">
+					<span class="o_txt">OFF</span>
+					<span class="o_txt o_on">AUTO</span>
+					<span class="o_txt">ON</span>
 				</div>
 			</div>
 		</div>
+		<div style="float: left; width: 50%;">
+			<div style="text-align: center;">
+				<div>
+					<img alt="" src="images/stop_red.png" class="emergency-stop" id="emergency_stop"
+						title="Ctrl + Space">
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="row" style="float: left; width: 100%;">
+		<div style="width: 50%; text-align: center;	align-items: center;
+				display: flex;	flex-direction: column;">
+			<div class="options">
+				<h1>Stall</h1>
+				<div style="margin-bottom: 5px;">
+					<input type="checkbox" name="stall_switch" id="stall_switch">
+				</div>
+			</div>
+		</div>
+		<div style="width: 50%; text-align: center;	align-items: center;
+				display: flex;	flex-direction: column;">
+			<div class="options">
+				<h1>Power</h1>
+				<div style="margin-bottom: 5px;">
+					<input type="checkbox" name="power_switch" id="power_switch">
+				</div>
+			</div>
+		</div>
+	</div>
 	</div>
 
 </body>
@@ -163,10 +163,10 @@ h1 {
 	var moving = false;
 
 	const ON_AUTO_OFF = new TwoWayMap({
-										0 : "OFF", 
-										1 : "AUTO",
-										2 : "ON",
- 									  });
+		0: "OFF",
+		1: "AUTO",
+		2: "ON",
+	});
 
 	function stop(forced) {
 		var cmds = [];
@@ -174,11 +174,11 @@ h1 {
 		if (moving || forced) {
 
 			$.ajaxQueue({
-				url : "/REST/axes-soft-stop-all",
-				method : "GET",
-				contentType : "application/json",
-				dataType : "json",
-				success : function(data) {
+				url: "/REST/axes-soft-stop-all",
+				method: "GET",
+				contentType: "application/json",
+				dataType: "json",
+				success: function (data) {
 
 				}
 			});
@@ -189,173 +189,147 @@ h1 {
 	function mousedown_fn(btn) {
 		var dir = $(btn).data("dir");
 		$(btn).addClass('activated');
-		
+
 		if (dir == "none") {
 			stop(forced = true);
 			return;
 		}
 
 		$.ajaxQueue({
-			url : "/REST/move-joystick/" + dir,
-			method : "GET",
-			contentType : "application/json",
-			dataType : "json",
-			success : function(data) {
+			url: "/REST/move-joystick/" + dir,
+			method: "GET",
+			contentType: "application/json",
+			dataType: "json",
+			success: function (data) {
 				if ("error" in data.MOVE_JOYSTICK) {
-						add_notification(data.MOVE_JOYSTICK.error.toUpperCase(), "Warning");
+					add_notification(data.MOVE_JOYSTICK.error.toUpperCase(), "Warning");
 				}
 			}
-		});		
+		});
 		moving = true;
 	}
 
-	$(".joystick-arrow").mousedown(function() {		
+	$(".joystick-arrow").mousedown(function () {
 		mousedown_fn(this);
 	});
 
 	function update_switches() {
-		$.ajax({
-			url : "/REMA/",
-			method : "POST",
-			contentType : "application/json",
-			data : JSON.stringify([
-				{
-					cmd : "CONTROL_ENABLE",
-				}, 
-				{
-					cmd : "BRAKES_MODE",
-				},
-				{
-					cmd : "STALL_CONTROL_SETTINGS",
-				}, 
-				{
-					cmd : "TOUCH_PROBE_SETTINGS",
-				} 
-
-			]),
-			dataType : "json",
-			success : function(data) {
+		$.ajaxREMA({
+			data: [{ cmd: "CONTROL_ENABLE" },
+			{ cmd: "BRAKES_MODE" },
+			{ cmd: "STALL_CONTROL_SETTINGS" },
+			{ cmd: "TOUCH_PROBE_SETTINGS" }
+			],
+			success: function (data) {
 				var power_switch = $('#power_switch');
 				power_switch.prop('checked', data["CONTROL_ENABLE"].status).change();
-							
+
 				$("#brakes_mode_switch").value = ON_AUTO_OFF.revGet(data["BRAKES_MODE"].status);
-				
+
 				var stall_switch = $('#stall_switch');
 				stall_switch.prop('checked', data["STALL_CONTROL_SETTINGS"].status).change();
 
 				touch_probe_protection_control(data["TOUCH_PROBE_SETTINGS"].protection);
 			}
 		});
-	}
-	
+	};
+
 	function update_limits(limits) {
 		$.each(limits, function (limit, status) {
-			$("#joystick_div").find(`[data-limit='${limit}']`).each(function() {
+			$("#joystick_div").find(`[data-limit='${limit}']`).each(function () {
 				if (status) {
 					$(this).switchClass("off", "on", 0);
 				} else {
 					$(this).switchClass("on", "off", 0);
 				}
-			});		
+			});
 		});
 	}
 
-	function set_home_xy(tube_id = "") {		
+	function set_home_xy(tube_id = "") {
 		$.ajaxQueue({
-			url : "/REST/set-home-xy/" + tube_id,
-			method : "GET",
-			contentType : "application/json",
-			dataType : "json",
-			success : function(data) {				
+			url: "/REST/set-home-xy/" + tube_id,
+			method: "GET",
+			contentType: "application/json",
+			dataType: "json",
+			success: function (data) {
 			}
-		});						
+		});
 	}
 
 	function set_home_z(z = 0) {
 		$.ajaxQueue({
-			url : "/REST/set-home-z/" + z,
-			method : "GET",
-			contentType : "application/json",
-			dataType : "json",
-			success : function(data) {				
+			url: "/REST/set-home-z/" + z,
+			method: "GET",
+			contentType: "application/json",
+			dataType: "json",
+			success: function (data) {
 			}
-		});						
+		});
 	}
-	
-	$(function() {
-		$(".joystick-arrow").mouseup(function() {
+
+	$(function () {
+		$(".joystick-arrow").mouseup(function () {
 			$(".joystick-arrow").removeClass('activated');
 			stop();
-		}).mouseout(function() {
+		}).mouseout(function () {
 			$(".joystick-arrow").removeClass('activated');
 			stop();
 		});
 
-		$("#emergency_stop").click(function() {
+		$("#emergency_stop").click(function () {
 			$.ajax({								// Do not send through AjaxQueue or sequences do not stop
-				url : "/REST/axes-hard-stop-all",
-				method : "GET",
-				contentType : "application/json",
-				dataType : "json",
-				success : function(data) {
+				url: "/REST/axes-hard-stop-all",
+				method: "GET",
+				contentType: "application/json",
+				dataType: "json",
+				success: function (data) {
 				}
 			});
 			moving = false;
 		});
-		
+
 		var stall_switch = $('#stall_switch').rcSwitcher({
 			// reverse: true,
 			// inputs: true,
-			width : 60,
-			height : 24,
-			blobOffset : 1,
-			onText : 'ON',
-			offText : 'OFF',
-			theme : 'flat',
+			width: 60,
+			height: 24,
+			blobOffset: 1,
+			onText: 'ON',
+			offText: 'OFF',
+			theme: 'flat',
 			// autoFontSize: true,
-			autoStick : true,
-		}).on('toggle.rcSwitcher', function(e, data, type) {
-			$.ajaxQueue({
-				url : "/REMA/",
-				method : "POST",
-				contentType : "application/json",
-				data : JSON.stringify([ 
-					{
-						cmd : "STALL_CONTROL_SETTINGS",
-						pars : {enabled :stall_switch.is(':checked')},
-					}
-				]),
-				dataType : "json",
-				success : function(data) {
+			autoStick: true,
+		}).on('toggle.rcSwitcher', function (e, data, type) {
+			$.ajaxREMA({
+				data: [{
+					cmd: "STALL_CONTROL_SETTINGS",
+					pars: { enabled: stall_switch.is(':checked') },
+				}],
+				success: function (data) {
 					stall_switch.prop('checked', data.STALL_CONTROL_SETTINGS.status).change();
 				}
 			});
-		});			
+		});
 
 		var power_switch = $('#power_switch').rcSwitcher({
 			// reverse: true,
 			// inputs: true,
-			width : 60,
-			height : 24,
-			blobOffset : 1,
-			onText : 'ON',
-			offText : 'OFF',
-			theme : 'flat',
+			width: 60,
+			height: 24,
+			blobOffset: 1,
+			onText: 'ON',
+			offText: 'OFF',
+			theme: 'flat',
 			// autoFontSize: true,
-			autoStick : true,
-		}).on('toggle.rcSwitcher', function(e, data, type) {
-			$.ajaxQueue({
-				url : "/REMA/",
-				method : "POST",
-				contentType : "application/json",
-				data : JSON.stringify([ 
-					{
-						cmd : "CONTROL_ENABLE",
-						pars : {enabled :power_switch.is(':checked')},
-					}
-				]),
-				dataType : "json",
-				success : function(data) {
+			autoStick: true,
+		}).on('toggle.rcSwitcher', function (e, data, type) {
+			$.ajaxREMA({
+				data: [{
+					cmd: "CONTROL_ENABLE",
+					pars: { enabled: power_switch.is(':checked') },
+				}],
+				success: function (data) {
 					power_switch.prop('checked', data.CONTROL_ENABLE.status).change();
 				}
 			});
@@ -363,17 +337,17 @@ h1 {
 
 		update_switches(); // brings current status from REMA
 
-		
-		$("#home_xy").click(function(e, orig_event) {
+
+		$("#home_xy").click(function (e, orig_event) {
 			$(this).addClass("activated");
-				setTimeout(() => {  
+			setTimeout(() => {
 
 				if (orig_event) {
 					e = orig_event;
-				}		
+				}
 				tube_id = $("#tube_info_id").val() || "";
 				var x = 0, y = 0;
-				if (tube_id !== "") {						
+				if (tube_id !== "") {
 					x = ideal_tubes[tube_id].coords.x;
 					y = ideal_tubes[tube_id].coords.y;
 				}
@@ -383,90 +357,84 @@ h1 {
 					} else {
 						if (confirm("Are you sure you want to determine current tube center and make it position X:" + toFixedIfNecessary(x, decimals) + ", Y:" + toFixedIfNecessary(y, decimals) + " ?")) {
 							$.ajax({
-								method : "GET",
-								url : "/REST/determine-tube-center/" + tube_id + "/true",
-								data : JSON.stringify(),
+								method: "GET",
+								url: "/REST/determine-tube-center/" + tube_id + "/true",
+								data: JSON.stringify(),
 								timeout: 50000,
 							})
-							.catch(function(e) {
-								if(e.statusText == 'timeout') {     
-									// TODO Send a cancel command? 
-									alert('Timeout');
-								} else {
-									alert("Error: " + e.responseJSON.error);
-								}
-							});			
+								.catch(function (e) {
+									if (e.statusText == 'timeout') {
+										// TODO Send a cancel command? 
+										alert('Timeout');
+									} else {
+										alert("Error: " + e.responseJSON.error);
+									}
+								});
 						}
 					}
 				} else {
 					if (confirm("Are you sure you want to make current position X:" + toFixedIfNecessary(x, decimals) + ", Y:" + toFixedIfNecessary(y, decimals) + " ?")) {
 						set_home_xy(tube_id);
-					}				
+					}
 				}
 				$(this).removeClass("activated");
-			}, 10);				
+			}, 10);
 		});
-		
-		$("#home_z").click(function(e, orig_event) {
+
+		$("#home_z").click(function (e, orig_event) {
 			$(this).addClass("activated");
-				setTimeout(() => {  
+			setTimeout(() => {
 
 				if (orig_event) {
 					e = orig_event;
-				}		
+				}
 				if (e.shiftKey) {
 					if (confirm("Are you sure you want to determine the position of the tubesheet and make it position Z:0 ?")) {
 						$.ajaxQueue({
-							method : "GET",
-							url : "/REST/determine-tubesheet-z/true",
-							data : JSON.stringify(),
+							method: "GET",
+							url: "/REST/determine-tubesheet-z/true",
+							data: JSON.stringify(),
 							timeout: 25000,
 						})
-						.catch(function(e) {
-							if(e.statusText == 'timeout') {     
-								// TODO Send a cancel command? 
-								alert('Timeout');
-							} else {
-								alert("Error: " + e.responseJSON.error);
-							}
-						});			
+							.catch(function (e) {
+								if (e.statusText == 'timeout') {
+									// TODO Send a cancel command? 
+									alert('Timeout');
+								} else {
+									alert("Error: " + e.responseJSON.error);
+								}
+							});
 					}
 				} else {
 					if (confirm("Are you sure you want to make current position Z:0 ?")) {
 						set_home_z(0)
-					}				
+					}
 				}
 				$(this).removeClass("activated");
 			}, 10);
-		});		
+		});
 
-		$("#brakes_mode_switch").on("input", function(e) {
-				$.ajax({
-					url : "/REMA/",
-					method : "POST",
-					contentType : "application/json",
-					data : JSON.stringify([
-						{
-							cmd : "BRAKES_MODE",
-							pars : {mode :ON_AUTO_OFF.get([this.value])},
-						}
-					]),
-					dataType : "json",
-					success : function(data) {
-						$("#brakes_mode_switch").value = ON_AUTO_OFF.revGet(data["BRAKES_MODE"].status);
-						return false;
-					}
-				});
+		$("#brakes_mode_switch").on("input", function (e) {
+			$.ajaxREMA({
+				data: [{
+					cmd: "BRAKES_MODE",
+					pars: { mode: ON_AUTO_OFF.get([this.value]) },
+				}],
+				success: function (data) {
+					$("#brakes_mode_switch").value = ON_AUTO_OFF.revGet(data["BRAKES_MODE"].status);
+					return false;
+				}
+			});
 		});
 	});
 
 	keysPressed = {};
 
 	function isKeyDown(keyCode) {
-	    return keysPressed[keyCode] === true;
+		return keysPressed[keyCode] === true;
 	}
 
-    $("#up").keydown(function(e) {			// for this to work the <div> element should have tabstop="0" 
+	$("#up").keydown(function (e) {			// for this to work the <div> element should have tabstop="0" 
 
 		if (isKeyDown(e.keyCode)) {			// Repeated event?
 			return;
@@ -474,7 +442,7 @@ h1 {
 
 		keysPressed[e.keyCode] = true;
 
-		switch(e.keyCode) {
+		switch (e.keyCode) {
 			case 36:			// 7 from keypad with numlock off
 				mousedown_fn($('[data-dir="up_left"]'));
 				break;
@@ -485,7 +453,7 @@ h1 {
 				mousedown_fn($('[data-dir="up_right"]'));
 				break;
 			case 37:			// 4 from keypad with numlock off
-				mousedown_fn($('[data-dir="left"]'));	
+				mousedown_fn($('[data-dir="left"]'));
 				break;
 			case 39:			// 6 from keypad with numlock off
 				mousedown_fn($('[data-dir="right"]'));
@@ -497,23 +465,23 @@ h1 {
 				mousedown_fn($('[data-dir="down"]'));
 				break;
 			case 34:			// 3 from keypad with numlock off
-				mousedown_fn($('[data-dir="down_right"]'));	
+				mousedown_fn($('[data-dir="down_right"]'));
 				break;
-			
+
 			case 107:			// + from keypad
-				mousedown_fn($('[data-dir="z_in"]'));		
-				break;				
-			case 109:			// - from keypad
-				mousedown_fn($('[data-dir="z_out"]'));		
+				mousedown_fn($('[data-dir="z_in"]'));
 				break;
-									
-			default:					
+			case 109:			// - from keypad
+				mousedown_fn($('[data-dir="z_out"]'));
+				break;
+
+			default:
 				return true;
 		}
 		e.preventDefault();
 	});
 
-	$("#up").keyup(function(e) {
+	$("#up").keyup(function (e) {
 		delete keysPressed[e.keyCode];
 		$(".joystick-arrow").trigger("mouseup");
 	});
@@ -521,4 +489,3 @@ h1 {
 </script>
 
 </html>
-

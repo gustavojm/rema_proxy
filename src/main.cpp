@@ -141,7 +141,7 @@ void get_method_handler(const std::shared_ptr<restbed::Session>& session) {
     }
 }
 
-void post_rtu_method_handler(const std::shared_ptr<restbed::Session>& session) {
+void post_rema_method_handler(const std::shared_ptr<restbed::Session>& session) {
     const auto request = session->get_request();
 
     size_t content_length = request->get_header("Content-Length", 0);
@@ -150,11 +150,22 @@ void post_rtu_method_handler(const std::shared_ptr<restbed::Session>& session) {
         content_length, [&](const std::shared_ptr<restbed::Session>rest_session_ptr, const restbed::Bytes& body) {
             std::string tx_buffer(body.begin(), body.end());
 
-            try {
-                rema.command_client.send_request(tx_buffer);
+            nlohmann::json req = nlohmann::json::parse(tx_buffer);
+            int64_t request_id = req["request_id"];
 
-                std::string stream = rema.command_client.get_response();
-                if (!stream.empty()) {
+            try {
+                std::string rema_response;
+                {
+                    std::lock_guard<std::mutex> lock(rema.rtu_mutex);
+                    rema.command_client.send_request(req["payload"].dump());
+                    rema_response = rema.command_client.get_response();
+                }
+                if (!rema_response.empty()) {
+                    nlohmann::json res;
+                    res["request_id"] = request_id;
+                    res["payload"] = nlohmann::json::parse(rema_response);
+
+                    std::string stream = res.dump();
                     rest_session_ptr->close(
                         restbed::OK,
                         stream,
@@ -197,11 +208,12 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
 
     rema.connect(rtu_host, rtu_port);
 
-    auto resource_rtu = std::make_shared<restbed::Resource>();
-    resource_rtu->set_path("/REMA");
-    resource_rtu->set_failed_filter_validation_handler(failed_filter_validation_handler);
-    resource_rtu->set_method_handler(
-        "POST", [](const std::shared_ptr<restbed::Session>& session) { post_rtu_method_handler(session); });
+    auto resource_rema = std::make_shared<restbed::Resource>();
+    resource_rema->set_path("/REMA");
+    resource_rema->set_failed_filter_validation_handler(failed_filter_validation_handler);
+    resource_rema->set_method_handler(
+        "POST", [](const std::shared_ptr<restbed::Session>& session) { post_rema_method_handler(session); });
+
 
     auto resource_html_file = std::make_shared<restbed::Resource>();
 
@@ -237,7 +249,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     resource_server_side_events->set_method_handler("GET", register_event_source_handler);
 
     restbed::Service service;
-    service.publish(resource_rtu);
+    service.publish(resource_rema);
     service.publish(resource_HXs);
     service.publish(resource_html_file);
     service.publish(resource_server_side_events);

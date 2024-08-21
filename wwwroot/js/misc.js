@@ -83,3 +83,122 @@ function findDifferencesShallow(old_obj, new_obj, path = '') {
     }
     return fullS;
   }
+
+
+// A map to store callbacks associated with unique request identifiers
+const requestCallbacks = new Map();
+
+function AjaxREMA(dataObject, successCallback, errorCallback) {
+    // Generate a unique identifier for the request
+    const request_id = Date.now();  // You can use a UUID or other method for generating unique IDs
+
+    // Store the success and error callbacks in the map, associated with this request_id
+    requestCallbacks.set(request_id, { success: successCallback, error: errorCallback });
+
+    data = {
+        request_id: request_id,
+        payload: dataObject
+    };
+
+    // Send the AJAX request
+    $.ajax({
+        url: "/REMA",
+        method: "POST",
+        contentType : "application/json",
+        dataType : "json",
+        data: JSON.stringify(data),
+        success: function(response) {
+            const receivedRequestId = response.request_id;  // Get the request_id from the response
+            
+            if (requestCallbacks.has(receivedRequestId)) {
+                // Retrieve the original callbacks
+                const callbacks = requestCallbacks.get(receivedRequestId);
+
+                // Execute the success callback if it exists
+                if (callbacks.success) {
+                    callbacks.success(response.payload);
+                }
+
+                // Remove the callback from the map since it's no longer needed
+                requestCallbacks.delete(receivedRequestId);
+            } else {
+                console.warn("No callback found for Request ID:", receivedRequestId);
+            }
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            // Handle errors using the request_id
+            if (requestCallbacks.has(request_id)) {
+                const callbacks = requestCallbacks.get(request_id);
+                
+                // Execute the error callback if it exists
+                if (callbacks.error) {
+                    callbacks.error(textStatus, errorThrown);
+                }
+
+                // Remove the callback from the map
+                requestCallbacks.delete(request_id);
+            } else {
+                console.warn("No callback found for Request ID:", request_id);
+            }
+        }
+    });
+}
+
+(function($) {
+    
+    $.ajaxREMA = function (ajaxOpts) {
+        // Generate a unique identifier for the request
+        const request_id = Date.now();  // You can use a UUID or other method for generating unique IDs
+
+        // Store the success and error callbacks in the map, associated with this request_id
+        requestCallbacks.set(request_id, { success: ajaxOpts.success, error: ajaxOpts.error });
+
+        data = {
+            request_id: request_id,
+            payload: ajaxOpts.data
+        };
+
+        // Send the AJAX request
+        $.ajax({
+            url: "/REMA",
+            method: "POST",
+            contentType: ajaxOpts.contentType | "application/json",
+            dataType: ajaxOpts.dataType | "json",
+            data: JSON.stringify(data),
+            success: function (response) {
+                const receivedRequestId = response.request_id;  // Get the request_id from the response
+
+                if (requestCallbacks.has(receivedRequestId)) {
+                    // Retrieve the original callbacks
+                    const callbacks = requestCallbacks.get(receivedRequestId);
+
+                    // Execute the success callback if it exists
+                    if (callbacks.success) {
+                        callbacks.success(response.payload);
+                    }
+
+                    // Remove the callback from the map since it's no longer needed
+                    requestCallbacks.delete(receivedRequestId);
+                } else {
+                    console.warn("No callback found for Request ID:", receivedRequestId);
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                // Handle errors using the request_id
+                if (requestCallbacks.has(request_id)) {
+                    const callbacks = requestCallbacks.get(request_id);
+
+                    // Execute the error callback if it exists
+                    if (callbacks.error) {
+                        callbacks.error(textStatus, errorThrown);
+                    }
+
+                    // Remove the callback from the map
+                    requestCallbacks.delete(request_id);
+                } else {
+                    console.warn("No callback found for Request ID:", request_id);
+                }
+            }
+        });
+    }
+})(jQuery);

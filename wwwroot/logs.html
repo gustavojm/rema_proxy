@@ -2,7 +2,8 @@
 	.log {
 		font-family: monospace;
 		font-size: 1.1em;
-		white-space: pre-wrap; /* Preserves whitespace and wraps lines */
+		white-space: pre-wrap;
+		/* Preserves whitespace and wraps lines */
 		padding: 10px;
 		border: 1px solid #ccc;
 		height: 80%;
@@ -12,7 +13,7 @@
 
 <div id="logs_tab" style="overflow: hidden; width: 100%;" class="tabs-div">
 	<div style="margin-bottom: 10px;">
-	Change Network Log Level: 
+		Change Network Log Level:
 		<select id="net_log_level">
 			<option value="">Choose a Level</option>
 			<option class="Debug" value="Debug">Debug</option>
@@ -22,7 +23,7 @@
 		</select>
 	</div>
 
-	<div id="logViewer" class="log"></div>	
+	<div id="logViewer" class="log"></div>
 	<div style="display: flex; width: 100%; margin-top: 5px;">
 		<div style="display: flex; float: left; width: 33%;">
 			<input type="button" id="clear_logs" value="Clear Logs">
@@ -39,83 +40,79 @@
 			</div>
 		</div>
 		<div style="display: flex; float: left; width: 33%;"></div>
-	</div>		
+	</div>
 </div>
 
 <script type="text/javascript">
 
 	var timer_logs
 
+	function get_mem_info() {
+		$.ajaxREMA({
+			data: [{ cmd: "MEM_INFO" }],
+			success: function (data) {
+				mem_free = (data.MEM_INFO.free / data.MEM_INFO.total * 100).toFixed(1);
+				mem_free_text = ((data.MEM_INFO.free / 1024).toFixed(1) || 0) + "k(" + mem_free + "%)"
+				if (isNaN(mem_free)) {
+					mem_free = 0;
+					mem_free_text = "---";
+				}
+
+				mem_min_free = (data.MEM_INFO.free / data.MEM_INFO.total * 100).toFixed(1);
+
+				$("#free_mem .progress").css("width", mem_free + "%");
+				$("#free_mem .progress-text").text(mem_free_text);
+				$("#free_mem .progress-min-mark").css("left", mem_min_free + "%");
+			},
+			error:function (jqXHR, textStatus, errorThrown) {
+			}
+		});
+	}
+
 	function addLogEntry(entry) {
 		severity = entry[0];
 		ticks = entry[1];
 		file = entry[2];
-		line = entry[3];		
+		line = entry[3];
 		func = entry[4];
 		message = entry[5];
-		var github_link = $('<a>',{
-			text: file + "[" +line + "]",
+		var github_link = $('<a>', {
+			text: file + "[" + line + "]",
 			title: 'GitHub',
-			href: "https://github.com/gustavojm/rema_plusplus/blob/main/"+ file + "#L" + line,
+			href: "https://github.com/gustavojm/rema_plusplus/blob/main/" + file + "#L" + line,
 			class: severity
 		});
 
-		var line = $("<div>").html("["+ severity +"] " + ticks + " " + github_link.prop('outerHTML') + " " + func + "() " + message + "</div>");
-        $(line).addClass(severity);
-        $('#logViewer').append(line);
+		var line = $("<div>").html("[" + severity + "] " + ticks + " " + github_link.prop('outerHTML') + " " + func + "() " + message + "</div>");
+		$(line).addClass(severity);
+		$('#logViewer').append(line);
 		$('#logViewer').scrollTop($('#logViewer')[0].scrollHeight);
-    }
+	}
+
 	function get_logs() {
 		$.ajax({
-			url : "/REST/logs",
-			method : "GET",
-			contentType : "application/json",
-			dataType : "json",
-			success : function(data) {
-				$.each(data, function(key, entry) {
+			url: "/REST/logs",
+			method: "GET",
+			contentType: "application/json",
+			dataType: "json",
+			success: function (data) {
+				$.each(data, function (key, entry) {
 					entry_arr = entry.split("|");
 					addLogEntry(entry_arr);
-				});				
+				});
+				timer_logs = setTimeout(function() { get_logs(); get_mem_info()}, 1000);
 			}
 		});
-	}
-	
-	function get_mem_info() {
-		$.ajax({
-			url : "/REMA/",
-			method : "POST",
-			contentType : "application/json",
-			data : JSON.stringify([ 
-				{
-					cmd : "MEM_INFO"
-				} 
-			]),
-			dataType : "json",
-			success : function(data) {
-				mem_free = (data.MEM_INFO.free / data.MEM_INFO.total * 100).toFixed(1);
-									mem_free_text = ((data.MEM_INFO.free/1024).toFixed(1) || 0) + "k(" + mem_free + "%)"
-									if (isNaN(mem_free)) {
-										mem_free = 0;
-										mem_free_text = "---";
-									}									
-
-				mem_min_free = (data.MEM_INFO.free / data.MEM_INFO.total * 100).toFixed(1);
-
-				$("#free_mem .progress").css("width", mem_free+"%");
-				$("#free_mem .progress-text").text(mem_free_text);
-				$("#free_mem .progress-min-mark").css("left", mem_min_free+"%");				
-			}
-		})
 	}
 
 	function saveToFile() {
 		var textarea = document.getElementById(("logViewer"));
 
 		var textToSave = ""
-		$.each($("#logViewer").children(), function(key, entry) {
+		$.each($("#logViewer").children(), function (key, entry) {
 			textToSave += $(entry).text() + "\n";
 		});
-		
+
 		var blob = new Blob([textToSave], { type: 'text/plain' });
 		var link = document.createElement('a');
 		link.href = URL.createObjectURL(blob);
@@ -124,64 +121,48 @@
 		URL.revokeObjectURL(link.href);
 	}
 
-    function get_current_network_log_level() {
-        $.ajax({
-            url : "/REMA/",
-            method : "POST",
-            contentType : "application/json",
-            data : JSON.stringify([ 
-                {
-                    cmd : "LOG_LEVEL",
-                },
-            ]),
-            dataType : "json",
-            success : function(data) {
-                $("#net_log_level").val(data.LOG_LEVEL.net_level).change();
-            }
-        });
-    }
+	function get_current_network_log_level() {
+		$.ajaxREMA({
+			data: [{ cmd: "LOG_LEVEL" }],
+			success: function (data) {
+				$("#net_log_level").val(data.LOG_LEVEL.net_level).change();
+			}
+		});
+	}
 
-	$(function() {
-		get_current_network_log_level();
-		timer_logs = setInterval(function () {get_logs(); get_mem_info()}, 1000);
-		
-		$("#clear_logs").click(function(){
+	$(function () {
+		get_current_network_log_level();		
+		get_logs();
+
+		$("#clear_logs").click(function () {
 			$('#logViewer').empty();
 		});
 
-		$("#save_logs_to_file").click(function(){
+		$("#save_logs_to_file").click(function () {
 			saveToFile();
 		});
-	
-		$('.ui-tabs-tab').on('unload_tab',function() {
-			clearInterval(timer_logs);
-		    timer_logs = null;		
+
+		$('.ui-tabs-tab').on('unload_tab', function () {
+			clearTimeout(timer_logs);
 		});
 
-		$("#net_log_level").change(function(e) {
+		$("#net_log_level").change(function (e) {
 			var level = $("option:selected", this).val();
-			if (level!="") {
+			if (level != "") {
 				var level_class = $("option:selected", this).attr("class");
-				$.ajax({
-					url : "/REMA/",
-					method : "POST",
-					contentType : "application/json",
-					data : JSON.stringify([ 
-						{
-							cmd : "LOG_LEVEL",
-							pars : {
-								net_level : level
-							}
-						},
-					]),
-					dataType : "json",
-					success : function(data) {				
+				$.ajaxREMA({
+					data: [{
+						cmd: "LOG_LEVEL",
+						pars: {
+							net_level: level
+						}
+					}],
+					success: function (data) {
 						$("#net_log_level").removeClass().addClass(level_class);
 					}
 				});
 			}
 		});
 	});
-	
 
 </script>

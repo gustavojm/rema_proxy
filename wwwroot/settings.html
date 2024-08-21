@@ -3,12 +3,14 @@
         <div class="column" style="width:60%">
             <div class="row" style="position: relative; width:100%; justify-content: space-between;">
                 <label for="rema_ip_address">IP Address:</label>
-                <input type="text" id="rema_ip_address" name="ipaddr" placeholder="192.168.2.20" size="12" data-inputmask-alias="ip" data-inputmask-greedy="false">
+                <input type="text" id="rema_ip_address" name="ipaddr" placeholder="192.168.2.20" size="12"
+                    data-inputmask-alias="ip" data-inputmask-greedy="false">
             </div>
             <div class="row" style="position: relative; width:100%; justify-content: space-between;">
-                <label for="rema_port">Port:</label>                
-                <input type="text" id="rema_port" name="port" placeholder="5020" size="4" maxlength="5" data-inputmask-alias="numeric" data-inputmask-greedy="false" 
-                data-inputmask-digits="0" data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">
+                <label for="rema_port">Port:</label>
+                <input type="text" id="rema_port" name="port" placeholder="5020" size="4" maxlength="5"
+                    data-inputmask-alias="numeric" data-inputmask-greedy="false" data-inputmask-digits="0"
+                    data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">
             </div>
         </div>
         <div class="column">
@@ -17,9 +19,11 @@
     </form>
 
     <div id="advanced_settings" style="display:none;">
-        <div><hr/></div>
+        <div>
+            <hr />
+        </div>
         <div id="config_tab" style="overflow: hidden; width: 100%;" class="row">
-            Change UART Log Level: 
+            Change UART Log Level:
             <select id="uart_log_level">
                 <option value="">Choose a Level</option>
                 <option class="Debug" value="Debug">Debug</option>
@@ -29,25 +33,32 @@
             </select>
         </div>
 
-        <div><hr/></div>
+        <div>
+            <hr />
+        </div>
         <div id="config_tab" style="overflow: hidden; width: 100%;" class="row">
             <div id="x_axes_config" data-axes="XY" style="float: left; width: 50%;" class="axes-div">
-                <fieldset class="column" width="50%"><legend>X_Y Axes</legend>
+                <fieldset class="column" width="50%">
+                    <legend>X_Y Axes</legend>
                     <div class="row" style="position: relative; width:100%; justify-content: space-between;">
-                        <label>Proportional Gain: <input type="text" name="prop_gain" size="4" data-inputmask-alias="numeric" data-inputmask-greedy="false" 
-                            data-inputmask-digits="0" data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">%</label>
+                        <label>Proportional Gain: <input type="text" name="prop_gain" size="4"
+                                data-inputmask-alias="numeric" data-inputmask-greedy="false" data-inputmask-digits="0"
+                                data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">%</label>
                     </div>
                     <div class="row" style="position: relative; width:100%; justify-content: space-between;">
-                        <label>Update Time: <input type="text"	name="update_time" size="4" data-inputmask-alias="numeric" data-inputmask-greedy="false" 
-                            data-inputmask-digits="0" data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">ms</label>
-                    </div>                
-                    <div class="row" style="position: relative; width:100%; justify-content: space-between;">
-                        <label>Maximum Frequency: <input type="text" name="max_freq" size="4" data-inputmask-alias="numeric" data-inputmask-greedy="false" 
-                            data-inputmask-digits="0" data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">hz</label>
+                        <label>Update Time: <input type="text" name="update_time" size="4"
+                                data-inputmask-alias="numeric" data-inputmask-greedy="false" data-inputmask-digits="0"
+                                data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">ms</label>
                     </div>
                     <div class="row" style="position: relative; width:100%; justify-content: space-between;">
-                        <label>Minimum Frequency: <input type="text" name="min_freq" size="4" data-inputmask-alias="numeric" data-inputmask-greedy="false" 
-                            data-inputmask-digits="0" data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">hz</label>
+                        <label>Maximum Frequency: <input type="text" name="max_freq" size="4"
+                                data-inputmask-alias="numeric" data-inputmask-greedy="false" data-inputmask-digits="0"
+                                data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">hz</label>
+                    </div>
+                    <div class="row" style="position: relative; width:100%; justify-content: space-between;">
+                        <label>Minimum Frequency: <input type="text" name="min_freq" size="4"
+                                data-inputmask-alias="numeric" data-inputmask-greedy="false" data-inputmask-digits="0"
+                                data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">hz</label>
                     </div>
                     <div class="row" style="position: relative; width:100%; text-align: center;">
                         <input type="button" onclick=save($(this)) value="Save">
@@ -56,22 +67,27 @@
             </div>
 
             <div id="z_axes_config" data-axes="Z" style="float: left; width: 50%;" class="axes-div">
-                <fieldset class="column" width="50%"><legend>Z Axis</legend>
+                <fieldset class="column" width="50%">
+                    <legend>Z Axis</legend>
                     <div class="row" style="position: relative; width:100%; justify-content: space-between;">
-                        <label>Proportional Gain: <input type="text" name="prop_gain" size="4" data-inputmask-alias="numeric" data-inputmask-greedy="false" 
-                            data-inputmask-digits="0" data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">%</label>
+                        <label>Proportional Gain: <input type="text" name="prop_gain" size="4"
+                                data-inputmask-alias="numeric" data-inputmask-greedy="false" data-inputmask-digits="0"
+                                data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">%</label>
                     </div>
                     <div class="row" style="position: relative; width:100%; justify-content: space-between;">
-                        <label>Update Time: <input type="text"	name="update_time" size="4" data-inputmask-alias="numeric" data-inputmask-greedy="false" 
-                            data-inputmask-digits="0" data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">ms</label>
+                        <label>Update Time: <input type="text" name="update_time" size="4"
+                                data-inputmask-alias="numeric" data-inputmask-greedy="false" data-inputmask-digits="0"
+                                data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">ms</label>
                     </div>
                     <div class="row" style="position: relative; width:100%; justify-content: space-between;">
-                        <label>Maximum Frequency: <input type="text" name="max_freq" size="4" data-inputmask-alias="numeric" data-inputmask-greedy="false" 
-                            data-inputmask-digits="0" data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">hz</label>
+                        <label>Maximum Frequency: <input type="text" name="max_freq" size="4"
+                                data-inputmask-alias="numeric" data-inputmask-greedy="false" data-inputmask-digits="0"
+                                data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">hz</label>
                     </div>
-                    <div class="row" style="position: relative; width:100%; justify-content: space-between;">                
-                        <label>Minimum Frequency: <input type="text" name="min_freq" size="4" data-inputmask-alias="numeric" data-inputmask-greedy="false" 
-                            data-inputmask-digits="0" data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">hz</label>
+                    <div class="row" style="position: relative; width:100%; justify-content: space-between;">
+                        <label>Minimum Frequency: <input type="text" name="min_freq" size="4"
+                                data-inputmask-alias="numeric" data-inputmask-greedy="false" data-inputmask-digits="0"
+                                data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">hz</label>
                     </div>
                     <div class="row" style="position: relative; width:100%; text-align: center;">
                         <input type="button" onclick=save($(this)) value="Save">
@@ -80,33 +96,41 @@
             </div>
         </div>
         <br>
-        
+
         <form id="stall_settings_form" class="row">
-            <fieldset class="column"><legend>Stall Settings</legend>
+            <fieldset class="column">
+                <legend>Stall Settings</legend>
                 <div class="row" style="position: relative; width:100%; justify-content: space-between;">
-                    <label>X: <input type="text" name="counts_X" size="4" data-inputmask-alias="numeric" data-inputmask-greedy="false" 
-                        data-inputmask-digits="0" data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">counts</label>
-                    <label>Y: <input type="text" name="counts_Y" size="4" data-inputmask-alias="numeric" data-inputmask-greedy="false" 
-                        data-inputmask-digits="0" data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">counts</label>
-                    <label>Z: <input type="text" name="counts_Z" size="4" data-inputmask-alias="numeric" data-inputmask-greedy="false" 
-                        data-inputmask-digits="0" data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">counts</label>
+                    <label>X: <input type="text" name="counts_X" size="4" data-inputmask-alias="numeric"
+                            data-inputmask-greedy="false" data-inputmask-digits="0" data-inputmask-allowPlus="false"
+                            data-inputmask-allowMinus="false">counts</label>
+                    <label>Y: <input type="text" name="counts_Y" size="4" data-inputmask-alias="numeric"
+                            data-inputmask-greedy="false" data-inputmask-digits="0" data-inputmask-allowPlus="false"
+                            data-inputmask-allowMinus="false">counts</label>
+                    <label>Z: <input type="text" name="counts_Z" size="4" data-inputmask-alias="numeric"
+                            data-inputmask-greedy="false" data-inputmask-digits="0" data-inputmask-allowPlus="false"
+                            data-inputmask-allowMinus="false">counts</label>
                     <button type="submit">Save</button>
                 </div>
             </fieldset>
         </form>
 
         <form id="touch_probe_settings_form" class="row">
-            <fieldset class="column"><legend>Touch Probe</legend>
+            <fieldset class="column">
+                <legend>Touch Probe</legend>
                 <div class="row" style="position: relative; width:100%; justify-content: space-between;">
-                    <label>Protection XY: <input type="text" name="counts_XY" size="4" data-inputmask-alias="numeric" data-inputmask-greedy="false" 
-                        data-inputmask-digits="0" data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">counts</label>
-                    <label>Protection Z: <input type="text" name="counts_Z" size="4" data-inputmask-alias="numeric" data-inputmask-greedy="false" 
-                        data-inputmask-digits="0" data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">counts</label>
+                    <label>Protection XY: <input type="text" name="counts_XY" size="4" data-inputmask-alias="numeric"
+                            data-inputmask-greedy="false" data-inputmask-digits="0" data-inputmask-allowPlus="false"
+                            data-inputmask-allowMinus="false">counts</label>
+                    <label>Protection Z: <input type="text" name="counts_Z" size="4" data-inputmask-alias="numeric"
+                            data-inputmask-greedy="false" data-inputmask-digits="0" data-inputmask-allowPlus="false"
+                            data-inputmask-allowMinus="false">counts</label>
                 </div>
                 <div class="row" style="position: relative; width:100%; justify-content: space-between;">
-                    <label>Debounce Time: <input type="text" name="debounce_time_ms" size="4" data-inputmask-alias="numeric" data-inputmask-greedy="false" 
-                        data-inputmask-digits="0" data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">ms</label>
-                </div>                
+                    <label>Debounce Time: <input type="text" name="debounce_time_ms" size="4"
+                            data-inputmask-alias="numeric" data-inputmask-greedy="false" data-inputmask-digits="0"
+                            data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">ms</label>
+                </div>
                 <div class="row" style="position: relative; width:100%; text-align: center;">
                     <button type="submit">Save</button>
                 </div>
@@ -115,7 +139,7 @@
 
         <div style="padding-bottom: 10px; padding-top: 10px;">
             Startup Commands:
-            <textarea id="startup_commands_logs" style="width: 100%;" rows="5"  readonly="readonly"></textarea>
+            <textarea id="startup_commands_logs" style="width: 100%;" rows="5" readonly="readonly"></textarea>
             <input id="send_startup_commands_btn" type="button" value="Send startup commands"> (rema_startup.json)
         </div>
     </div>
@@ -125,75 +149,60 @@
 
     function get_network_settings() {
         $.ajax({
-            url : "/REST/network-settings",
-            method : "POST",
-            contentType : "application/json",
-            success : function(data) {
+            url: "/REST/network-settings",
+            method: "POST",
+            contentType: "application/json",
+            success: function (data) {
                 $("#rema_ip_address").val(data.NETWORK_SETTINGS.ipaddr);
                 $("#rema_port").val(data.NETWORK_SETTINGS.port);
             }
         });
     }
 
-	function get_current_settings() {
-        $.ajax({
-			url : "/REMA/",
-			method : "POST",
-			contentType : "application/json",
-			data : JSON.stringify([
-                {
-					cmd : "AXES_SETTINGS",
-				},
-                {
-                    cmd : "LOG_LEVEL",
-                },
-                {
-                    cmd : "STALL_CONTROL_SETTINGS",
-                },
-                {
-                    cmd : "TOUCH_PROBE_SETTINGS",
-                },
-            ]),
-			dataType : "json",
-			success : function(data) {
+    function get_current_settings() {
+        $.ajaxREMA({
+            data: [{ cmd: "AXES_SETTINGS" },
+            { cmd: "LOG_LEVEL" },
+            { cmd: "STALL_CONTROL_SETTINGS" },
+            { cmd: "TOUCH_PROBE_SETTINGS" }
+            ],
+            success: function (data) {
                 axes_settings = data.AXES_SETTINGS
-		        $('#x_axes_config [name="prop_gain"]').val(axes_settings.XY.prop_gain);
-		        $('#x_axes_config [name="update_time"]').val(axes_settings.XY.update_time);
-		        $('#x_axes_config [name="min_freq"]').val(axes_settings.XY.min_freq);
-		        $('#x_axes_config [name="max_freq"]').val(axes_settings.XY.max_freq);
+                $('#x_axes_config [name="prop_gain"]').val(axes_settings.XY.prop_gain);
+                $('#x_axes_config [name="update_time"]').val(axes_settings.XY.update_time);
+                $('#x_axes_config [name="min_freq"]').val(axes_settings.XY.min_freq);
+                $('#x_axes_config [name="max_freq"]').val(axes_settings.XY.max_freq);
 
-		        $('#z_axes_config [name="prop_gain"]').val(axes_settings.Z.prop_gain);
-		        $('#z_axes_config [name="update_time"]').val(axes_settings.Z.update_time);
-		        $('#z_axes_config [name="min_freq"]').val(axes_settings.Z.min_freq);
-		        $('#z_axes_config [name="max_freq"]').val(axes_settings.Z.max_freq);
+                $('#z_axes_config [name="prop_gain"]').val(axes_settings.Z.prop_gain);
+                $('#z_axes_config [name="update_time"]').val(axes_settings.Z.update_time);
+                $('#z_axes_config [name="min_freq"]').val(axes_settings.Z.min_freq);
+                $('#z_axes_config [name="max_freq"]').val(axes_settings.Z.max_freq);
 
                 $("#uart_log_level").val(data.LOG_LEVEL.local_level).change();
                 get_network_settings();
-                
+
                 $('#touch_probe_settings_form [name="counts_XY"]').val(data.TOUCH_PROBE_SETTINGS.counts_XY);
                 $('#touch_probe_settings_form [name="counts_Z"]').val(data.TOUCH_PROBE_SETTINGS.counts_Z);
                 $('#touch_probe_settings_form [name="debounce_time_ms"]').val(data.TOUCH_PROBE_SETTINGS.debounce_time_ms);
 
                 $('#stall_settings_form [name="counts_X"]').val(data.STALL_CONTROL_SETTINGS.counts_X);
                 $('#stall_settings_form [name="counts_Y"]').val(data.STALL_CONTROL_SETTINGS.counts_Y);
-                $('#stall_settings_form [name="counts_Z"]').val(data.STALL_CONTROL_SETTINGS.counts_Z);                
-			}
-		});
+                $('#stall_settings_form [name="counts_Z"]').val(data.STALL_CONTROL_SETTINGS.counts_Z);
+            }
+        });
     }
 
     $("#stall_settings_form").submit(function (event) {
-		event.preventDefault();
+        event.preventDefault();
 
-        touch_probe_settings = [{cmd: "STALL_CONTROL_SETTINGS", 
-                                pars : Object.fromEntries(new FormData(document.getElementById("stall_settings_form")))
-                               }];
+        touch_probe_settings = [{
+            cmd: "STALL_CONTROL_SETTINGS",
+            pars: Object.fromEntries(new FormData(document.getElementById("stall_settings_form")))
+        }];
 
-        $.ajax({
-            url : "/REMA/",
-            method : "POST",
-            contentType : "application/json",
-            data: JSON.stringify(touch_probe_settings),
-            success : function(data) {
+        $.ajaxREMA({
+            data: touch_probe_settings,
+            success: function (data) {
                 alert("Settings saved successfully!");
             }
         });
@@ -201,115 +210,101 @@
 
 
     $("#touch_probe_settings_form").submit(function (event) {
-		event.preventDefault();
+        event.preventDefault();
 
-        touch_probe_settings = [{cmd: "TOUCH_PROBE_SETTINGS", 
-                                pars : Object.fromEntries(new FormData(document.getElementById("touch_probe_settings_form")))
-                               }];
+        touch_probe_settings = [{
+            cmd: "TOUCH_PROBE_SETTINGS",
+            pars: Object.fromEntries(new FormData(document.getElementById("touch_probe_settings_form")))
+        }];
 
-        $.ajax({
-            url : "/REMA/",
-            method : "POST",
-            contentType : "application/json",
-            data: JSON.stringify(touch_probe_settings),
-            success : function(data) {
+        $.ajaxREMA({
+            data: touch_probe_settings,
+            success: function (data) {
                 alert("Settings saved successfully!");
             }
         });
     });
 
-	function save(btn) {
-		div = btn.closest(".axes-div");
-		axes = $(div).data("axes");        
-		prop_gain = parseInt($(div).find('[name="prop_gain"]').val()) || 100;
-		update_time = parseInt($(div).find('[name="update_time"]').val()) || 100;
-		max_freq = parseInt($(div).find('[name="max_freq"]').val()) || 125000;
-		min_freq = parseInt($(div).find('[name="min_freq"]').val()) || 10000;
-		
-		$.ajax({
-			url : "/REMA/",
-			method : "POST",
-			contentType : "application/json",
-			data : JSON.stringify([
-                {
-					cmd : "AXES_SETTINGS",
-					pars : {
-						axes : axes,
-						prop_gain : prop_gain,
-						update : update_time,
-						min : min_freq,
-						max : max_freq,
-					}
-				}
-            ]),
-			dataType : "json",
-			success : function(data) {
+    function save(btn) {
+        div = btn.closest(".axes-div");
+        axes = $(div).data("axes");
+        prop_gain = parseInt($(div).find('[name="prop_gain"]').val()) || 100;
+        update_time = parseInt($(div).find('[name="update_time"]').val()) || 100;
+        max_freq = parseInt($(div).find('[name="max_freq"]').val()) || 125000;
+        min_freq = parseInt($(div).find('[name="min_freq"]').val()) || 10000;
+
+        $.ajaxREMA({
+            data: [{
+                cmd: "AXES_SETTINGS",
+                pars: {
+                    axes: axes,
+                    prop_gain: prop_gain,
+                    update: update_time,
+                    min: min_freq,
+                    max: max_freq,
+                }
+            }],
+            success: function (data) {
                 get_current_settings();
-			}
-		});
-	};
+            }
+        });
+    };
 
     $("#network_settings_form").submit(function (event) {
-		event.preventDefault();
+        event.preventDefault();
 
         var rema_ip_address = $("#rema_ip_address").val();
-		var rema_port = $("#rema_port").val();
+        var rema_port = $("#rema_port").val();
 
-		// Basic validation
-		if (rema_ip_address === "" || rema_port === "") {
-			alert("All fields are required.");
-			return;
-		}
+        // Basic validation
+        if (rema_ip_address === "" || rema_port === "") {
+            alert("All fields are required.");
+            return;
+        }
 
-		// Additional validation (you can customize this based on your requirements)
-		var ipRegex = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/;
-		if (!ipRegex.test(rema_ip_address)) {
-			alert("Invalid IP address.");
-			return;
-		}
+        // Additional validation (you can customize this based on your requirements)
+        var ipRegex = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/;
+        if (!ipRegex.test(rema_ip_address)) {
+            alert("Invalid IP address.");
+            return;
+        }
 
-		// Add more validation as needed
+        // Add more validation as needed
 
-		// If all validations pass, you can proceed to save the settings
+        // If all validations pass, you can proceed to save the settings
         $.ajax({
-            url : "/REST/network-settings",
-            method : "POST",
-            contentType : "application/json",
+            url: "/REST/network-settings",
+            method: "POST",
+            contentType: "application/json",
             data: JSON.stringify(Object.fromEntries(new FormData(document.getElementById("network_settings_form")))),
-            success : function(data) {
+            success: function (data) {
                 alert("Settings saved successfully!");
                 location.reload();
             }
         });
-		$("settings_div").dialog("close");
-	});
+        $("settings_div").dialog("close");
+    });
 
-    $(function() {
-        $("#settings_div").on("dialogopen", function(event, ui) {
+    $(function () {
+        $("#settings_div").on("dialogopen", function (event, ui) {
             get_current_settings();
-        });       
+        });
 
         $(":input").inputmask();
-  
-        $("#uart_log_level").change(function(e) {
+
+        $("#uart_log_level").change(function (e) {
             if (e.originalEvent) {
                 var level = $("option:selected", this).val();
-                if (level!="") {
+                if (level != "") {
                     var level_class = $("option:selected", this).attr("class");
-                    $.ajax({
-                        url : "/REMA/",
-                        method : "POST",
-                        contentType : "application/json",
-                        data : JSON.stringify([ 
-                            {
-                                cmd : "LOG_LEVEL",
-                                pars : {
-                                    local_level : level
-                                }
-                            },
-                        ]),
-                        dataType : "json",
-                        success : function(data) {				
+                    $.ajaxREMA({
+                        data:[{
+                            cmd: "LOG_LEVEL",
+                            pars: {
+                                local_level: level
+                            }
+                        }],
+                        success: function (data) {
                             $("#uart_log_level").removeClass().addClass(level_class);
                         }
                     });
@@ -318,19 +313,19 @@
                 var level_class = $("option:selected", this).attr("class");
                 $("#uart_log_level").removeClass().addClass(level_class);
             }
-		});
+        });
 
-        $("#send_startup_commands_btn").click(function() {
+        $("#send_startup_commands_btn").click(function () {
             $.ajax({
-                url : "/REST/send-startup-commands",
-                type : "POST",
-                dataType : "json",
-                contentType : "application/json",
-                success: function(data) {
+                url: "/REST/send-startup-commands",
+                type: "POST",
+                dataType: "json",
+                contentType: "application/json",
+                success: function (data) {
                     $("#startup_commands_logs").val(JSON.stringify(data, null, 4));
                     get_current_settings();
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     $("#startup_commands_logs").val(xhr.responseText);
 
                 }

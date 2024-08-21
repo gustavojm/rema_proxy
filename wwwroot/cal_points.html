@@ -323,8 +323,7 @@ $(function() {
 				timeout: 50000,
 			}))
 			.then(function(data) {
-				var svg = $("#tubesheet_svg").svg("get");	
-				console.log("centro: " + data.center);
+				var svg = $("#tubesheet_svg").svg("get");
 				data.center.x *= scale;
 				data.center.y *= scale;
 				data.center.z *= scale;

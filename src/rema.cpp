@@ -207,7 +207,10 @@ void REMA::execute_command_no_wait(
     std::string tx_buffer = to_rema.dump();
 
     SPDLOG_INFO("Sending to REMA: {}", tx_buffer);
-    command_client.send_request(tx_buffer);
+    {
+        std::lock_guard<std::mutex> lock(rtu_mutex);
+        command_client.send_request(tx_buffer);
+    }
 }
 
 nlohmann::json
