@@ -230,21 +230,18 @@
 								$(this).val(previous_tool.val());
 							}
 						} else {
-							$("#brakes_mode_switch").val(1).trigger("input");		// AUTO
+							$.post('/REST/tools/' + tool_name + '/select');
+							$("#brakes_mode_switch").val(1).trigger("input");			// AUTO
 						}
+					} else {
+						$.post('/REST/tools/' + tool_name + '/select');
 					}
-					$.post('/REST/tools/' + tool_name + '/select');
 					previous_tool = $("option:selected", this);
 				}
 			});
 
 			tools_dropdown.val(data.last_selected_tool).change();
 			show_tool_offsets($("option:selected", tools_dropdown));
-
-			tool_is_touch_probe = $("option:selected", tools_dropdown).data("is_touch_probe");
-			if (tool_is_touch_probe) {
-				$("#brakes_mode_switch").val(0).trigger("input");		// OFF
-			}
 		}
 		);
 	}
