@@ -290,14 +290,16 @@ tl::expected<void, std::string> REMA::execute_sequence(std::vector<movement_cmd>
 }
 
 void REMA::set_last_selected_tool(std::string tool) {
-    if (get_selected_tool().is_touch_probe) {
-        retract_touch_probe();
+    if (tool != last_selected_tool) {
+        if (get_selected_tool().is_touch_probe) {
+            retract_touch_probe();
+        }
+        last_selected_tool = tool;
+        if (get_selected_tool().is_touch_probe) {
+            extend_touch_probe();
+        }
+        save_config();
     }
-    last_selected_tool = tool;
-    if (get_selected_tool().is_touch_probe) {
-        extend_touch_probe();
-    }
-    save_config();
 }
 
 Tool REMA::get_selected_tool() const {
