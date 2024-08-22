@@ -606,7 +606,7 @@ void determine_tube_center(const std::shared_ptr<restbed::Session>& rest_session
     double half_probe_wiggle_factor = 1 + ((probe_wiggle_factor - 1) / 2);
     const auto request = rest_session->get_request();
     std::string tube_id = request->get_path_parameter("tube_id", "");
-    bool set_home = request->get_path_parameter("set_home", "") == "true";
+    bool set_home = request->get_path_parameter("set_home", false);
 
     nlohmann::json res;
 
@@ -708,7 +708,7 @@ void determine_tube_center(const std::shared_ptr<restbed::Session>& rest_session
 void determine_tubesheet_z(const std::shared_ptr<restbed::Session>& rest_session) {
     const auto request = rest_session->get_request();
     std::string tube_id = request->get_path_parameter("tube_id", "");
-    bool set_home = request->get_path_parameter("set_home", "") == "true";
+    bool set_home = request->get_path_parameter("set_home", false);
 
     nlohmann::json res;
     std::vector<movement_cmd> seq;
