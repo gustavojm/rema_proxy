@@ -245,11 +245,11 @@ tl::expected<void, std::string> REMA::execute_sequence(std::vector<movement_cmd>
     execute_command("AXES_SOFT_STOP_ALL");
 
     // Create an individual command object and add it to the array
-    for (int i = 0; auto &step : sequence) {
+    for (auto &step : sequence) {
         nlohmann::json cmd_response = move_closed_loop(step);
-        if (cmd_response["MOVE_CLOSED_LOOP"].contains("ERROR")) {
+        if (cmd_response["MOVE_CLOSED_LOOP"].contains("error")) {
             is_sequence_in_progress = false;
-            return tl::make_unexpected(cmd_response["MOVE_CLOSED_LOOP"]["ERROR"]);
+            return tl::make_unexpected(cmd_response["MOVE_CLOSED_LOOP"]["error"]);
         }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1000)); // Wait for telemetry update...
@@ -282,7 +282,6 @@ tl::expected<void, std::string> REMA::execute_sequence(std::vector<movement_cmd>
             step.execution_results.stopped_on_condition = stopped_on_condition;
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(250)); // Wait for vibrations to stop
-        i++;
     }
     is_sequence_in_progress = false;
     cancel_sequence = false;
