@@ -776,7 +776,9 @@
 
 		create_manage_plans_dialog();
 
-		
+		$('#hx_svg').on('selectstart', function(e) {
+  			e.preventDefault();
+		});		
 	});
 	
 </script>
