@@ -363,7 +363,7 @@
 				}
 				if (e.shiftKey) {
 					if (tube_id == "") {
-						alert("Please, select a tube");
+						add_notification("PLEASE SELECT A TUBE");
 					} else {
 						if (confirm("Are you sure you want to determine current tube center and make it position X:" + toFixedIfNecessary(x, decimals) + ", Y:" + toFixedIfNecessary(y, decimals) + " ?")) {
 							$.ajax({
@@ -375,9 +375,9 @@
 								.catch(function (e) {
 									if (e.statusText == 'timeout') {
 										// TODO Send a cancel command? 
-										alert('Timeout');
+										add_notification("TIMEOUT: CENTER DETERMINATION TOOK TOO LONG", "Error");
 									} else {
-										alert("Error: " + e.responseJSON.error);
+										add_notification(e.responseJSON.error.toUpperCase(), "Error");
 									}
 								});
 						}
@@ -409,9 +409,9 @@
 							.catch(function (e) {
 								if (e.statusText == 'timeout') {
 									// TODO Send a cancel command? 
-									alert('Timeout');
+									add_notification("TIMEOUT: TUBESHEET POSITION DETERMINATION TOOK TOO LONG", "Error");
 								} else {
-									alert("Error: " + e.responseJSON.error);
+									add_notification(e.responseJSON.error.toUpperCase(), "Error");
 								}
 							});
 					}

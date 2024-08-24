@@ -300,5 +300,58 @@ svg .tube:hover {
 }
 
 .Error {
-	color: red !important;
+	color: red !important;	
+}
+
+/* Notifications window */
+
+#notifications_outer {
+	width: 600px;
+	height: 60px;
+	z-index: 10;
+	position: absolute;
+	font-size: small;
+	text-align: center;
+	background-color: rgb(222, 221, 218);
+	align-content: center;
+}
+
+#notifications {
+	position: relative;
+	height: 40px;
+	overflow: auto;
+}
+
+.icon {
+	height: 24px;
+	width: 24px;
+	padding: 2px;
+}
+
+.disabled {
+	opacity: 25%;
+}
+
+.enabled {
+	opacity: 100%;
+}
+
+.notification {
+	padding-left: 20px;
+	padding-right: 20px;
+	opacity: 30%;
+    transition: all 2s ease-in-out;	
+}
+
+.notification-highlight {
+	opacity: 100%;
+	background: linear-gradient(
+		to right, 
+		rgba(255, 255, 0, 0),  /* Transparent to the lef */
+		yellow 20%,    		
+		yellow 80%,    		
+		rgba(255, 255, 0, 0)   /* Transparent to the right */	
+	);
+
+    transition: all 2s ease-in-out;
 }

@@ -194,7 +194,7 @@ function aligned_tubes_get() {
 			$("#aligned_position").prop("checked", aligned_coords).change();
 		},
 		error: function(xhr, status, error) {
-			alert("Error");
+			add_notification("ERROR", "Error");
 			console.log("Error", status, error);
 		}
 	});
@@ -274,7 +274,7 @@ $(function() {
 						aligned_tubes_get();
 					},
 					error: function(xhr, status, error) {
-						alert("Error");
+						add_notification("ERROR", "Error");
 						console.log("Error", status, error);
 					}						
 	        	});
@@ -309,8 +309,8 @@ $(function() {
 		e.preventDefault();
 		cal_point_id = $("#cal_point_tube_id").val();
 		
-		if (cal_point_id === "") {
-			alert("Select a tube from calibration points table");
+		if (cal_point_id === "") {			
+			add_notification("PLEASE SELECT A TUBE");
 			return;
 		}
 		
@@ -336,9 +336,9 @@ $(function() {
 			.catch(function(e) {
 				if(e.statusText == 'timeout') {     
 				    // TODO Send a cancel command? 
-					alert('Timeout');		    
+					add_notification("TIMEOUT: CENTER DETERMINATION TOOK TOO LONG", "Error");
 				} else {
-					alert("Error: " + e.responseJSON.error);
+					add_notification(e.responseJSON.error.toUpperCase(), "Error");
 				}
 			});			
 	});	
@@ -358,9 +358,9 @@ $(function() {
 		.catch(function(e) {
 			if(e.statusText == 'timeout') {     
 				// TODO Send a cancel command? 
-				alert('Timeout');
+				add_notification("TIMEOUT: TUBESHEET POSITION DETERMINATION TOOK TOO LONG", "Error");
 			} else {
-				alert("Error: " + e.responseJSON.error);
+				add_notification(e.responseJSON.error.toUpperCase(), "Error");				
 			}
 		});			
 	});
@@ -368,8 +368,8 @@ $(function() {
 	$("#cal_point_add_update").click(function(e) {
 		e.preventDefault();
 		cal_point_id = $("#cal_point_tube_id").val();
-		if (cal_point_id==="") {
-			alert("Select a tube");	
+		if (cal_point_id==="") {			
+			add_notification("PLEASE SELECT A TUBE");
 		} else {		
 			$.ajax({
 				method : "PUT",
@@ -382,7 +382,7 @@ $(function() {
 					aligned_tubes_get();
 				},
 				error: function(xhr, status, error) {
-					alert("Error");
+					add_notification("ERROR", "Error");
 					console.log("Error", status, error);
 				}						
 			});

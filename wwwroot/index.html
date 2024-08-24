@@ -15,37 +15,6 @@
 	<script src="js/jquery-ui.min.js"></script>
 
 	<style>
-		#notifications_outer {
-			width: 500px;
-			height: 60px;
-			z-index: 10;
-			position: absolute;
-			font-size: small;
-			text-align: center;
-			background-color: rgb(222, 221, 218);
-			align-content: center;
-		}
-
-		#notifications {
-			position: relative;
-			height: 40px;
-			overflow: auto;
-		}
-
-		.icon {
-			height: 24px;
-			width: 24px;
-			padding: 2px;
-		}
-
-		.disabled {
-			opacity: 25%;
-		}
-
-		.enabled {
-			opacity: 100%;
-		}
-
 		.crossed-out {
 			position: relative;
 			border: 2px solid black;
@@ -247,10 +216,16 @@
 	}
 
 
-	function add_notification(text, level = '') {
-		msg_line = $("<div>").html(text).addClass("msg").addClass(level);
-		$('#notifications').append(msg_line);
-		$('#notifications').scrollTop($('#notifications')[0].scrollHeight);
+	function add_notification(text, level = '') {		
+		if (typeof msg_line !== 'undefined') {
+			msg_line.removeClass("notification-highlight");
+		}
+
+		msg_line = $("<div>").html(text).addClass("notification").addClass(level).addClass("notification-highlight");
+		notifications_div = $('#notifications')
+		notifications_div.append(msg_line);
+		notifications_div.scrollTop($('#notifications')[0].scrollHeight);		
+		setTimeout(function() { $(".notification-highlight", notifications_div).removeClass("notification-highlight"); }, 2000);
 	}
 
 	var prev_pos_x = 0;
