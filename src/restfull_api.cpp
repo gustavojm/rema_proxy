@@ -602,11 +602,11 @@ void set_home_z(const std::shared_ptr<restbed::Session>& rest_session) {
 
 void determine_tube_center(const std::shared_ptr<restbed::Session>& rest_session) {
     Tool tool = rema.get_selected_tool();
-    double touch_probe_radius_inch = 0.1;
+    double touch_probe_radius_inch = 0.085;
     double probe_wiggle_factor = 1.1;
     const auto request = rest_session->get_request();
     std::string tube_id = request->get_path_parameter("tube_id", "");
-    bool set_home = request->get_path_parameter("set_home", false);
+    bool set_home = request->get_path_parameter("set_home", "") == "true";
 
     nlohmann::json res;
 
@@ -709,7 +709,7 @@ void determine_tubesheet_z(const std::shared_ptr<restbed::Session>& rest_session
     Tool tool = rema.get_selected_tool();
     const auto request = rest_session->get_request();
     std::string tube_id = request->get_path_parameter("tube_id", "");
-    bool set_home = request->get_path_parameter("set_home", false);
+    bool set_home = request->get_path_parameter("set_home", "") == "true";
 
     nlohmann::json res;
     movement_cmd first_touch_search;
