@@ -349,7 +349,7 @@ $(function() {
 			method : "GET",
 			url : "/REST/determine-tubesheet-z/false",
 			data : JSON.stringify(),
-			timeout: 25000,
+			timeout: 50000,
 		})
 		.then(function(data) {
 			$("#determined_coords_z").val(toFixedIfNecessary(data.z, decimals));
