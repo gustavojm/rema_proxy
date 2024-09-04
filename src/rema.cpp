@@ -237,7 +237,62 @@ void REMA::axes_soft_stop_all() {
     execute_command("AXES_SOFT_STOP_ALL");
 }
 
-tl::expected<void, std::string> REMA::execute_sequence(std::vector<movement_cmd> &sequence) {
+tl::expected<void, std::string> REMA::execute_step(movement_cmd& step) {
+    nlohmann::json cmd_response = move_closed_loop(step);
+    if (cmd_response["MOVE_CLOSED_LOOP"].contains("error")) {
+        is_sequence_in_progress = false;
+        return tl::make_unexpected(cmd_response["MOVE_CLOSED_LOOP"]["error"]);
+    }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000)); // Wait for telemetry update...
+
+    bool stopped_on_probe = false;
+    bool stopped_on_condition = false;
+    bool abort_from_rema = false;
+    do {
+        if (step.axes == "XY") {
+            stopped_on_probe = telemetry.probe.x_y;
+            stopped_on_condition = telemetry.on_condition.x_y;
+        } else {
+            stopped_on_probe = telemetry.probe.z;
+            stopped_on_condition = telemetry.on_condition.z;
+        }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Avoid hogging the processor
+        abort_from_rema = !telemetry.control_enabled || telemetry.stalled.x || telemetry.stalled.y ||
+                            telemetry.stalled.z || telemetry.probe_protected;
+    } while (!(stopped_on_probe || stopped_on_condition || cancel_sequence || abort_from_rema));
+
+    if (cancel_sequence || abort_from_rema) {
+        is_sequence_in_progress = false;
+        return tl::make_unexpected("Sequence cancelled");            
+    } else {
+        step.executed = true;
+        step.execution_results.coords = telemetry.coords;
+        step.execution_results.stopped_on_probe = stopped_on_probe;
+        step.execution_results.stopped_on_condition = stopped_on_condition;
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(250)); // Wait for vibrations to stop
+    return {};
+}
+
+tl::expected<void, std::string> REMA::execute_sequence(movement_cmd& step) {
+    nlohmann::json res;
+    cancel_sequence_in_progress();
+    cancel_sequence = false;
+    is_sequence_in_progress = true;
+    execute_command("AXES_SOFT_STOP_ALL");
+
+    auto ret = execute_step(step);
+    if (!ret) {
+        return ret;
+    }
+    is_sequence_in_progress = false;
+    cancel_sequence = false;
+    return {};
+}
+
+tl::expected<void, std::string> REMA::execute_sequence(std::vector<movement_cmd>& sequence) {
     nlohmann::json res;
     cancel_sequence_in_progress();
     cancel_sequence = false;
@@ -246,42 +301,10 @@ tl::expected<void, std::string> REMA::execute_sequence(std::vector<movement_cmd>
 
     // Create an individual command object and add it to the array
     for (auto &step : sequence) {
-        nlohmann::json cmd_response = move_closed_loop(step);
-        if (cmd_response["MOVE_CLOSED_LOOP"].contains("error")) {
-            is_sequence_in_progress = false;
-            return tl::make_unexpected(cmd_response["MOVE_CLOSED_LOOP"]["error"]);
+        auto ret = execute_step(step);
+        if (!ret) {
+            return ret;
         }
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000)); // Wait for telemetry update...
-
-        bool stopped_on_probe = false;
-        bool stopped_on_condition = false;
-        bool abort_from_rema = false;
-        do {
-            if (step.axes == "XY") {
-                stopped_on_probe = telemetry.probe.x_y;
-                stopped_on_condition = telemetry.on_condition.x_y;
-            } else {
-                stopped_on_probe = telemetry.probe.z;
-                stopped_on_condition = telemetry.on_condition.z;
-            }
-
-            std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Avoid hogging the processor
-            abort_from_rema = !telemetry.control_enabled || telemetry.stalled.x || telemetry.stalled.y ||
-                              telemetry.stalled.z || telemetry.probe_protected;
-        } while (!(stopped_on_probe || stopped_on_condition || cancel_sequence || abort_from_rema));
-
-        if (cancel_sequence || abort_from_rema) {
-            is_sequence_in_progress = false;
-            return tl::make_unexpected("Sequence cancelled");
-            break;
-        } else {
-            step.executed = true;
-            step.execution_results.coords = telemetry.coords;
-            step.execution_results.stopped_on_probe = stopped_on_probe;
-            step.execution_results.stopped_on_condition = stopped_on_condition;
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(250)); // Wait for vibrations to stop
     }
     is_sequence_in_progress = false;
     cancel_sequence = false;

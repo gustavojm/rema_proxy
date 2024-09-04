@@ -29,6 +29,7 @@ struct movement_cmd {
     std::string axes;
     double first_axis_setpoint;
     double second_axis_setpoint;
+    bool is_relevant = false;
     bool executed = false;
     struct {
         Point3D coords;
@@ -76,6 +77,10 @@ class REMA {
     void axes_soft_stop_all();
 
     void cancel_sequence_in_progress();
+
+    tl::expected<void, std::string> execute_step(movement_cmd& step);
+
+    tl::expected<void, std::string> execute_sequence(movement_cmd& step);
 
     tl::expected<void, std::string> execute_sequence(std::vector<movement_cmd>& sequence);
 

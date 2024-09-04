@@ -602,8 +602,8 @@ void set_home_z(const std::shared_ptr<restbed::Session>& rest_session) {
 
 void determine_tube_center(const std::shared_ptr<restbed::Session>& rest_session) {
     Tool tool = rema.get_selected_tool();
-    double probe_wiggle_factor = 1.2;
-    double half_probe_wiggle_factor = 1 + ((probe_wiggle_factor - 1) / 2);
+    double touch_probe_radius_inch = 0.1;
+    double probe_wiggle_factor = 1.1;
     const auto request = rest_session->get_request();
     std::string tube_id = request->get_path_parameter("tube_id", "");
     bool set_home = request->get_path_parameter("set_home", false);
@@ -622,29 +622,32 @@ void determine_tube_center(const std::shared_ptr<restbed::Session>& rest_session
             return;
         }
 
-        constexpr int points_number = 5;
+        constexpr int points_number = 3;
         static_assert(points_number % 2 != 0, "Number of points must be odd");
-        std::vector<Point3D> reordered_points;
+        Point3D initial_center = rema.telemetry.coords;
         std::vector<Point3D> points = calculateCirclePoints(
-            current_session.from_ui_to_rema(ideal_center, &tool),
-            current_session.from_ui_to_rema(tube_radius) * half_probe_wiggle_factor,
+            current_session.from_ui_to_rema(initial_center, &tool),
+            current_session.from_ui_to_rema(tube_radius) * probe_wiggle_factor,
             points_number);
 
+        std::vector<movement_cmd> seq;
         int vertex = 0;
         for (int n = 0; n < points_number; n++) {
-            reordered_points.push_back(
-                points[vertex % points_number]); // To touch the tube boundary following a star pattern
-            vertex += 2;
-        }
-
-        std::vector<movement_cmd> seq;
-        for (auto &point : reordered_points) {
+            Point3D point = points[vertex % points_number]; // To touch the tube boundary following a star pattern
             movement_cmd step;
             step.axes = "XY";
             step.first_axis_setpoint = point.x;
             step.second_axis_setpoint = point.y;
+            step.is_relevant = true;
             seq.push_back(step);
+
+            step.first_axis_setpoint = initial_center.x;    // Go back to initial center
+            step.second_axis_setpoint = initial_center.y;
+            seq.push_back(step);
+
+            vertex += 2;
         }
+        seq.pop_back();     // Remove the last "Go back to initial center" sequence step
 
         chart.init("determine_tube_center");
         auto seq_execution_response = rema.execute_sequence(seq);
@@ -659,7 +662,7 @@ void determine_tube_center(const std::shared_ptr<restbed::Session>& rest_session
         std::vector<Point3D> tube_boundary_points;
 
         for (const auto &step : seq) {
-            if (step.executed && (step.execution_results.stopped_on_probe || step.execution_results.stopped_on_condition)) {
+            if (step.is_relevant && step.executed && (step.execution_results.stopped_on_probe || step.execution_results.stopped_on_condition)) {
                 tube_boundary_points.push_back(step.execution_results.coords);
             }
         }
@@ -673,27 +676,24 @@ void determine_tube_center(const std::shared_ptr<restbed::Session>& rest_session
                 "Point determined too far away, would break probe x: {}, y: {}", circle.center.x, circle.center.y);
             status = restbed::CONFLICT;
         } else {
-            std::vector<movement_cmd> goto_center_seq;
             movement_cmd goto_center;
             goto_center.axes = "XY";
             goto_center.first_axis_setpoint = circle.center.x;
             goto_center.second_axis_setpoint = circle.center.y;
-            goto_center_seq.push_back(goto_center);
 
             res["center"] = { { "x", circle.center.x - tool.offset.x },
                               { "y", circle.center.y - tool.offset.y },
                               { "z", circle.center.z } };
-            res["radius"] = circle.radius;
+            res["radius"] = circle.radius + touch_probe_radius_inch;
 
-            seq_execution_response = rema.execute_sequence(goto_center_seq);
+            seq_execution_response = rema.execute_sequence(goto_center);
             if (!seq_execution_response) {
                 res["error"] = seq_execution_response.error();
                 std::cout << nlohmann::to_string(res) << std::endl;
                 close_rest_session(rest_session, restbed::CONFLICT, res);
                 status = restbed::CONFLICT;
-            } else if (set_home) {
-                auto step = goto_center_seq.begin();
-                if (step->executed && step->execution_results.stopped_on_condition) {
+            } else if (set_home) {                
+                if (goto_center.executed && goto_center.execution_results.stopped_on_condition) {
                     rema.set_home_xy(
                         current_session.from_ui_to_rema(ideal_center.x) + tool.offset.x,
                         current_session.from_ui_to_rema(ideal_center.y) + tool.offset.y);
@@ -706,76 +706,95 @@ void determine_tube_center(const std::shared_ptr<restbed::Session>& rest_session
 }
 
 void determine_tubesheet_z(const std::shared_ptr<restbed::Session>& rest_session) {
+    Tool tool = rema.get_selected_tool();
     const auto request = rest_session->get_request();
     std::string tube_id = request->get_path_parameter("tube_id", "");
     bool set_home = request->get_path_parameter("set_home", false);
 
     nlohmann::json res;
-    std::vector<movement_cmd> seq;
-    movement_cmd forewards;
-    forewards.axes = "Z";
-    forewards.first_axis_setpoint = 0.25;
-    forewards.second_axis_setpoint = 0;
-
-    movement_cmd backwards = forewards;
-    backwards.first_axis_setpoint = -0.25;
-
-    seq.push_back(forewards);
-    seq.push_back(backwards);
-    seq.push_back(forewards);
-    seq.push_back(backwards);
+    movement_cmd first_touch_search;
+    first_touch_search.axes = "Z";
+    first_touch_search.first_axis_setpoint = 1;
+    first_touch_search.second_axis_setpoint = 0;
 
     chart.init("determine_tubesheet_z");
-    auto seq_execution_response = rema.execute_sequence(seq);
+    auto seq_execution_response = rema.execute_sequence(first_touch_search);
     
     if (!seq_execution_response) {
         res["error"] = seq_execution_response.error();
         std::cout << nlohmann::to_string(res) << std::endl;
         close_rest_session(rest_session, restbed::CONFLICT, res);
+        return;
     }
 
-    double sum_z = 0;
-    int count = 0;
-    for (const auto &step : seq) {
-        if (step.executed && step.execution_results.stopped_on_probe) {
+    if (!(first_touch_search.executed && first_touch_search.execution_results.stopped_on_probe)) {
+        res["error"] = "Touch probe didn't touch tubesheet";
+        close_rest_session(rest_session, restbed::CONFLICT, res);
+        return;        
+    } 
+    
+    double first_touch_z = first_touch_search.execution_results.coords.z;
+    
+    std::vector<movement_cmd> seq;
+    movement_cmd backwards;
+    backwards.axes = "Z";
+    backwards.first_axis_setpoint = first_touch_z - 0.25;
+    backwards.second_axis_setpoint = 0;
+    seq.push_back(backwards);
+
+    movement_cmd second_touch_search;
+    second_touch_search.axes = "Z";
+    second_touch_search.first_axis_setpoint = first_touch_z + 0.01;
+    second_touch_search.second_axis_setpoint = 0;
+    second_touch_search.is_relevant = true;
+    seq.push_back(second_touch_search);
+
+    seq.push_back(backwards);
+
+    seq_execution_response = rema.execute_sequence(seq);
+    
+    if (!seq_execution_response) {
+        res["error"] = seq_execution_response.error();
+        std::cout << nlohmann::to_string(res) << std::endl;
+        close_rest_session(rest_session, restbed::CONFLICT, res);
+        return;
+    }
+    
+    double sum_z = first_touch_z;
+    bool second_touch_found = false;
+    for (auto &step : seq) {
+        if (step.executed && step.is_relevant && step.execution_results.stopped_on_probe) {
             sum_z += step.execution_results.coords.z;
-            count++;
+            second_touch_found = true;
         }
     }
 
+    if (!second_touch_found) {
+        res["error"] = "Touch probe didn't touch tubesheet the second time";
+        close_rest_session(rest_session, restbed::CONFLICT, res);
+        return;
+    }
+    
+    double z = sum_z / 2;
+
     int status = restbed::OK;
+    movement_cmd goto_tubesheet;
+    goto_tubesheet.axes = "Z";
+    goto_tubesheet.first_axis_setpoint = z;
+    goto_tubesheet.second_axis_setpoint = 0;
 
-    int required_touches = 2;
-    if (count < required_touches) {
-        status = restbed::CONFLICT;
-        res["error"] = fmt::format(
-            "Probe didn't touch the tubesheet enough times. \nTouch count = {}, required {} or more",
-            count,
-            required_touches);
+    seq_execution_response = rema.execute_sequence(goto_tubesheet);
+    if (!seq_execution_response) {
+        res["error"] = seq_execution_response.error();
+        std::cout << nlohmann::to_string(res) << std::endl;
+        close_rest_session(rest_session, restbed::RESET_CONTENT, res);
+        status = restbed::RESET_CONTENT;
     } else {
-        double z = sum_z / count;
-
-        std::vector<movement_cmd> goto_tubesheet_seq;
-        movement_cmd goto_tubesheet;
-        goto_tubesheet.axes = "Z";
-        goto_tubesheet.first_axis_setpoint = z;
-        goto_tubesheet.second_axis_setpoint = 0;
-        goto_tubesheet_seq.push_back(goto_tubesheet);
-
-        seq_execution_response = rema.execute_sequence(goto_tubesheet_seq);
-        if (!seq_execution_response) {
-            res["error"] = seq_execution_response.error();
-            std::cout << nlohmann::to_string(res) << std::endl;
-            close_rest_session(rest_session, restbed::RESET_CONTENT, res);
-            status = restbed::RESET_CONTENT;
-        } else {
-            auto step = goto_tubesheet_seq.begin();
-            if (step->executed && step->execution_results.stopped_on_condition) {
-                if (set_home) {
-                    rema.set_home_z(0);
-                } else {
-                    res["z"] = z;
-                }
+        if (goto_tubesheet.executed) {
+            if (set_home) {
+                rema.set_home_z(0);
+            } else {
+                res["z"] = current_session.from_rema_to_ui(z) + tool.offset.z;
             }
         }
     }
