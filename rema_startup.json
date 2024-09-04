@@ -2,26 +2,26 @@
 	{"cmd": "AXES_SETTINGS",
 	 "pars": {
         "axes": "XY",
-		"prop_gain": 10,
+		"prop_gain": 20,
 		"update": 100,
-		"min": 2000,
-		"max": 6000
+		"min": 2500,
+		"max": 60000
 	 }
     },
 	{"cmd": "AXES_SETTINGS",
 	 "pars": {
         "axes": "Z",
-		"prop_gain": 10,
+		"prop_gain": 20,
 		"update": 100,
-		"min": 2000,
-		"max": 6000
+		"min": 2500,
+		"max": 60000
 	 }
     },	
 	{"cmd": "TOUCH_PROBE_SETTINGS",
 	 "pars": {
 		"protection": true,
-		"counts_XY": 20,
-		"counts_Z": 20,
+		"counts_XY": 15,
+		"counts_Z": 15,
 		"debounce_time_ms" : 2000
 		}
     },
