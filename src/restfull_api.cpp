@@ -21,6 +21,11 @@
 #include "tool.hpp"
 #include "chart.hpp"
 
+// These value goes into bresenham error determination that needs to be multiplied by 2
+constexpr int MAX_POSITIVE_SETPOINT = INT32_MAX / 2; 
+constexpr int MAX_NEGATIVE_SETPOINT = INT32_MIN / 2;
+
+
 void close_rest_session(const std::shared_ptr<restbed::Session>& rest_session, int status) {
     rest_session->close(status, "", { { "Content-Type", "text/html ; charset=utf-8" }, { "Content-Length", "0" } });
 }
@@ -417,40 +422,36 @@ void move_joystick(const std::shared_ptr<restbed::Session>& rest_session) {
     const auto request = rest_session->get_request();
     std::string dir = request->get_path_parameter("dir", "");
 
-    constexpr int positive_big_number =
-        INT32_MAX / 2; // This value goes into bresenham error determination that needs to be multiplied by 2
-    constexpr int negative_big_number = INT32_MIN / 2;
-
     nlohmann::json pars_obj;
 
     if (dir.find("left") != std::string::npos) {
         pars_obj["axes"] = "XY";
-        pars_obj["first_axis_setpoint"] = negative_big_number;
+        pars_obj["first_axis_setpoint"] = MAX_NEGATIVE_SETPOINT;
     }
 
     if (dir.find("right") != std::string::npos) {
         pars_obj["axes"] = "XY";
-        pars_obj["first_axis_setpoint"] = positive_big_number;
+        pars_obj["first_axis_setpoint"] = MAX_POSITIVE_SETPOINT;
     }
 
     if (dir.find("up") != std::string::npos) {
         pars_obj["axes"] = "XY";
-        pars_obj["second_axis_setpoint"] = positive_big_number;
+        pars_obj["second_axis_setpoint"] = MAX_POSITIVE_SETPOINT;
     }
 
     if (dir.find("down") != std::string::npos) {
         pars_obj["axes"] = "XY";
-        pars_obj["second_axis_setpoint"] = negative_big_number;
+        pars_obj["second_axis_setpoint"] = MAX_NEGATIVE_SETPOINT;
     }
 
     if (dir.find("z_in") != std::string::npos) {
         pars_obj["axes"] = "Z";
-        pars_obj["first_axis_setpoint"] = positive_big_number;
+        pars_obj["first_axis_setpoint"] = MAX_POSITIVE_SETPOINT;
     }
 
     if (dir.find("z_out") != std::string::npos) {
         pars_obj["axes"] = "Z";
-        pars_obj["first_axis_setpoint"] = negative_big_number;
+        pars_obj["first_axis_setpoint"] = MAX_NEGATIVE_SETPOINT;
     }
 
     rema.axes_soft_stop_all();
@@ -714,7 +715,7 @@ void determine_tubesheet_z(const std::shared_ptr<restbed::Session>& rest_session
     nlohmann::json res;
     movement_cmd first_touch_search;
     first_touch_search.axes = "Z";
-    first_touch_search.first_axis_setpoint = 1;
+    first_touch_search.first_axis_setpoint = MAX_POSITIVE_SETPOINT;
     first_touch_search.second_axis_setpoint = 0;
 
     chart.init("determine_tubesheet_z");
@@ -738,13 +739,13 @@ void determine_tubesheet_z(const std::shared_ptr<restbed::Session>& rest_session
     std::vector<movement_cmd> seq;
     movement_cmd backwards;
     backwards.axes = "Z";
-    backwards.first_axis_setpoint = first_touch_z - 0.25;
+    backwards.first_axis_setpoint = first_touch_z - 0.1;
     backwards.second_axis_setpoint = 0;
     seq.push_back(backwards);
 
     movement_cmd second_touch_search;
     second_touch_search.axes = "Z";
-    second_touch_search.first_axis_setpoint = first_touch_z + 0.01;
+    second_touch_search.first_axis_setpoint = first_touch_z + 0.1;
     second_touch_search.second_axis_setpoint = 0;
     second_touch_search.is_relevant = true;
     seq.push_back(second_touch_search);
