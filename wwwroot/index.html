@@ -685,6 +685,18 @@
 		}
 	});
 
+	window.addEventListener('mousewheel', function(e) {	
+		if(event.ctrlKey == true) {
+			event.preventDefault();
+			current_zoom = $("#zoom_bar").slider("value");
+			if(event.deltaY > 0) {
+				$("#zoom_bar").slider("value", current_zoom - 1);
+			} else {
+				$("#zoom_bar").slider("value", current_zoom + 1);
+			}
+		}
+	}, { passive: false });
+
 </script>
 
 </html>
