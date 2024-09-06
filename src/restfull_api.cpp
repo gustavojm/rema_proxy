@@ -604,7 +604,7 @@ void set_home_z(const std::shared_ptr<restbed::Session>& rest_session) {
 void determine_tube_center(const std::shared_ptr<restbed::Session>& rest_session) {
     Tool tool = rema.get_selected_tool();
     double touch_probe_radius_inch = 0.085;
-    double probe_wiggle_factor = 1.1;
+    double probe_wiggle_factor = 1.2;
     const auto request = rest_session->get_request();
     std::string tube_id = request->get_path_parameter("tube_id", "");
     bool set_home = request->get_path_parameter("set_home", "") == "true";
@@ -614,10 +614,11 @@ void determine_tube_center(const std::shared_ptr<restbed::Session>& rest_session
     if (!tube_id.empty()) {
         double tube_radius = current_session.hx.tube_od / 2;
         Point3D ideal_center = current_session.get_tube_coordinates(tube_id, true);
+        Point3D initial_center = rema.telemetry.coords;
 
         if (auto distance =
-                std::abs(rema.telemetry.coords.distance_xy(current_session.from_ui_to_rema(ideal_center, &tool)));
-            distance > tube_radius * probe_wiggle_factor) {
+                std::abs(initial_center.distance_xy(current_session.from_ui_to_rema(ideal_center, &tool)));
+            distance > current_session.from_ui_to_rema(tube_radius) * probe_wiggle_factor) {
             res["error"] = "Please have the touch probe inserted into the tube to be detected";
             close_rest_session(rest_session, restbed::CONFLICT, res);
             return;
@@ -625,9 +626,8 @@ void determine_tube_center(const std::shared_ptr<restbed::Session>& rest_session
 
         constexpr int points_number = 3;
         static_assert(points_number % 2 != 0, "Number of points must be odd");
-        Point3D initial_center = rema.telemetry.coords;
         std::vector<Point3D> points = calculateCirclePoints(
-            current_session.from_ui_to_rema(initial_center, &tool),
+            initial_center,
             current_session.from_ui_to_rema(tube_radius) * probe_wiggle_factor,
             points_number);
 
@@ -671,34 +671,27 @@ void determine_tube_center(const std::shared_ptr<restbed::Session>& rest_session
         int status = restbed::OK;
         Circle circle = CircleFitByHyper(tube_boundary_points);
 
-        if (auto distance = std::abs(rema.telemetry.coords.distance_xy(circle.center));
-            distance > tube_radius * probe_wiggle_factor) {
-            res["error"] = fmt::format(
-                "Point determined too far away, would break probe x: {}, y: {}", circle.center.x, circle.center.y);
+        movement_cmd goto_center;
+        goto_center.axes = "XY";
+        goto_center.first_axis_setpoint = circle.center.x;
+        goto_center.second_axis_setpoint = circle.center.y;
+
+        res["center"] = { { "x", circle.center.x - tool.offset.x },
+                            { "y", circle.center.y - tool.offset.y },
+                            { "z", circle.center.z } };
+        res["radius"] = circle.radius + touch_probe_radius_inch;
+
+        seq_execution_response = rema.execute_sequence(goto_center);
+        if (!seq_execution_response) {
+            res["error"] = seq_execution_response.error();
+            std::cout << nlohmann::to_string(res) << std::endl;
+            close_rest_session(rest_session, restbed::CONFLICT, res);
             status = restbed::CONFLICT;
-        } else {
-            movement_cmd goto_center;
-            goto_center.axes = "XY";
-            goto_center.first_axis_setpoint = circle.center.x;
-            goto_center.second_axis_setpoint = circle.center.y;
-
-            res["center"] = { { "x", circle.center.x - tool.offset.x },
-                              { "y", circle.center.y - tool.offset.y },
-                              { "z", circle.center.z } };
-            res["radius"] = circle.radius + touch_probe_radius_inch;
-
-            seq_execution_response = rema.execute_sequence(goto_center);
-            if (!seq_execution_response) {
-                res["error"] = seq_execution_response.error();
-                std::cout << nlohmann::to_string(res) << std::endl;
-                close_rest_session(rest_session, restbed::CONFLICT, res);
-                status = restbed::CONFLICT;
-            } else if (set_home) {                
-                if (goto_center.executed && goto_center.execution_results.stopped_on_condition) {
-                    rema.set_home_xy(
-                        current_session.from_ui_to_rema(ideal_center.x) + tool.offset.x,
-                        current_session.from_ui_to_rema(ideal_center.y) + tool.offset.y);
-                }
+        } else if (set_home) {
+            if (goto_center.executed && goto_center.execution_results.stopped_on_condition) {
+                rema.set_home_xy(
+                    current_session.from_ui_to_rema(ideal_center.x) + tool.offset.x,
+                    current_session.from_ui_to_rema(ideal_center.y) + tool.offset.y);
             }
         }
 
