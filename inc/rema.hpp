@@ -124,6 +124,7 @@ class REMA {
     struct telemetry ui_telemetry;
     struct telemetry old_telemetry;
     struct temps temps;
+    volatile bool new_temps_available;
 
     std::vector<std::string> logs_vector;
     std::ofstream logs_ofstream;

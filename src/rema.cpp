@@ -163,6 +163,7 @@ void REMA::update_telemetry(std::vector<uint8_t>& stream) {
             }
 
             if (json.contains("temps")) {
+                new_temps_available = true;
                 temps = json["temps"];
             }
         }
