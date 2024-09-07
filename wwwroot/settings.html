@@ -202,8 +202,8 @@
 
         $.ajaxREMA({
             data: touch_probe_settings,
-            success: function (data) {
-                alert("Settings saved successfully!");
+            success: function (data) {                
+                add_notification("SETTINGS SAVED", "Info");
             }
         });
     });
@@ -220,7 +220,7 @@
         $.ajaxREMA({
             data: touch_probe_settings,
             success: function (data) {
-                alert("Settings saved successfully!");
+                add_notification("SETTINGS SAVED", "Info");
             }
         });
     });
@@ -245,6 +245,7 @@
                 }
             }],
             success: function (data) {
+                add_notification("SETTINGS SAVED", "Info");
                 get_current_settings();
             }
         });
@@ -258,14 +259,14 @@
 
         // Basic validation
         if (rema_ip_address === "" || rema_port === "") {
-            alert("All fields are required.");
+            
             return;
         }
 
         // Additional validation (you can customize this based on your requirements)
         var ipRegex = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/;
         if (!ipRegex.test(rema_ip_address)) {
-            alert("Invalid IP address.");
+            add_notification("INVALID IP ADDRESS", "Warning");            
             return;
         }
 
@@ -276,10 +277,13 @@
             url: "/REST/network-settings",
             method: "POST",
             contentType: "application/json",
-            data: JSON.stringify(Object.fromEntries(new FormData(document.getElementById("network_settings_form")))),
+            data: JSON.stringify(Object.fromEntries(new FormData(document.getElementById("network_settings_form")))),            
             success: function (data) {
-                alert("Settings saved successfully!");
-                location.reload();
+                add_notification("SETTINGS SAVED", "Info");
+                setTimeout(() => {                    
+                    alert("Restarting REMA");
+                    location.reload();
+                }, 10);                           
             }
         });
         $("settings_div").dialog("close");
@@ -306,6 +310,7 @@
                         }],
                         success: function (data) {
                             $("#uart_log_level").removeClass().addClass(level_class);
+                            add_notification("SETTINGS SAVED", "Info");
                         }
                     });
                 }

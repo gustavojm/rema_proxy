@@ -93,7 +93,7 @@
 	
 	</div>
 	<div style="padding: 2px; width: 100%">
-		<div id="coordinates" style="float: left; width: 35%; color: green">Coordinates:</div>
+		<div id="coordinates" style="float: left; width: 35%">Coordinates:</div>
 		<div id="session_name" style="float: left; width: 35%"></div>		
 	</div>
 </div>	
@@ -112,8 +112,8 @@
 			var svgCoords = point.matrixTransform(svg.getScreenCTM().inverse());
 			var x = toFixedIfNecessary(svgCoords.x, decimals);
 			var y = toFixedIfNecessary(-svgCoords.y, decimals);					// Reverse the SVG Y coordinate to make it Cartesian
-			document.getElementById("coordinates").innerHTML = "Coordinates: " + x
-					+ ", " + y;
+			document.getElementById("coordinates").innerHTML = "Coordinates: X:" + x
+					+ ", Y:" + y + " " + unit;
 		}
 	}
 

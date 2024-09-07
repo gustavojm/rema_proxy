@@ -126,7 +126,7 @@
 		$.ajaxREMA({
 			data: [{ cmd: "LOG_LEVEL" }],
 			success: function (data) {
-				$("#net_log_level").val(data.LOG_LEVEL.net_level).change();
+				$("#net_log_level").val(data.LOG_LEVEL.net_level).change();				
 			}
 		});
 	}
@@ -160,6 +160,9 @@
 					}],
 					success: function (data) {
 						$("#net_log_level").removeClass().addClass(level_class);
+						if (e.originalEvent) {
+							add_notification("SETTINGS SAVED", "Info");
+						}
 					}
 				});
 			}
