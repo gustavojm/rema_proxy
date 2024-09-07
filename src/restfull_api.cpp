@@ -616,13 +616,13 @@ void determine_tube_center(const std::shared_ptr<restbed::Session>& rest_session
         Point3D ideal_center = current_session.get_tube_coordinates(tube_id, true);
         Point3D initial_center = rema.telemetry.coords;
 
-        if (auto distance =
-                std::abs(initial_center.distance_xy(current_session.from_ui_to_rema(ideal_center, &tool)));
-            distance > current_session.from_ui_to_rema(tube_radius) * probe_wiggle_factor) {
-            res["error"] = "Please have the touch probe inserted into the tube to be detected";
-            close_rest_session(rest_session, restbed::CONFLICT, res);
-            return;
-        }
+        // if (auto distance =
+        //         std::abs(initial_center.distance_xy(current_session.from_ui_to_rema(ideal_center, &tool)));
+        //     distance > current_session.from_ui_to_rema(tube_radius) * probe_wiggle_factor) {
+        //     res["error"] = "Please have the touch probe inserted into the tube to be detected";
+        //     close_rest_session(rest_session, restbed::CONFLICT, res);
+        //     return;
+        // }
 
         constexpr int points_number = 3;
         static_assert(points_number % 2 != 0, "Number of points must be odd");
