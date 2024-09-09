@@ -21,7 +21,7 @@
 	 "pars": {
 		"protection": true,
 		"counts_XY": 15,
-		"counts_Z": 15,
+		"counts_Z": 5,
 		"debounce_time_ms" : 2000
 		}
     },
