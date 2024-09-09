@@ -281,9 +281,11 @@ void sessions_load(const std::shared_ptr<restbed::Session>& rest_session) {
 }
 
 void current_session_info(const std::shared_ptr<restbed::Session>& rest_session) {
-    auto aligned_tubes = current_session.calculate_aligned_tubes();         // Done before to update is_aligned;
     nlohmann::json res = current_session;
-    res["aligned_tubes"] = aligned_tubes;
+    if (current_session.is_loaded) {
+        auto aligned_tubes = current_session.calculate_aligned_tubes();         // Done before to update is_aligned;
+        res["aligned_tubes"] = aligned_tubes;
+    }
     close_rest_session(rest_session, restbed::OK, res);
 }
 
