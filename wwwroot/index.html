@@ -191,16 +191,26 @@
 					previous_tool_is_touch_probe = previous_tool.data("is_touch_probe");
 					current_tool_is_touch_probe = $("option:selected", this).data("is_touch_probe");
 					if (previous_tool_is_touch_probe != current_tool_is_touch_probe) {
+						alert_line_1 = `⚠️ WARNING: CRITICAL OPERATION ⚠️\n\n`;
+						alert_line_2 = `DANGER! Executing this command will EXTEND the touch probe.\n`;
+						alert_line_3 = `Proceed with caution, as any obstruction during movement can cause irreversible damage to the probe.\n`;
+						alert_line_4 = `Ensure the path is completely clear before proceeding.`;
 						if (current_tool_is_touch_probe) {
-							if (confirm("This will extend the touch probe")) {
+							if (confirm(alert_line_1 + alert_line_2 + alert_line_3 + alert_line_4)) {
 								$.post('/REST/tools/' + tool_name + '/select');
 								$("#brakes_mode_switch").val(0).trigger("input");		// OFF
 							} else {
 								$(this).val(previous_tool.val());
 							}
 						} else {
-							$.post('/REST/tools/' + tool_name + '/select');
-							$("#brakes_mode_switch").val(1).trigger("input");			// AUTO
+							alert_line_2 = alert_line_2.replace("EXTEND", "RETRACT");
+							operation = "retract";
+							if (confirm(alert_line_1 + alert_line_2 + alert_line_3 + alert_line_4)) {
+								$.post('/REST/tools/' + tool_name + '/select');
+								$("#brakes_mode_switch").val(1).trigger("input");			// AUTO
+							} else {
+								$(this).val(previous_tool.val());
+							}
 						}
 					} else {
 						$.post('/REST/tools/' + tool_name + '/select');
