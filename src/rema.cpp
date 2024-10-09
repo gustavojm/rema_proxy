@@ -312,17 +312,56 @@ tl::expected<void, std::string> REMA::execute_sequence(std::vector<movement_cmd>
     return {};
 }
 
-void REMA::set_last_selected_tool(std::string tool) {
+
+nlohmann::json REMA::would_move_touch_probe(std::string new_tool_string) {
+    nlohmann::json res = nlohmann::json::object();
+    Tool new_tool = get_tool(new_tool_string);
+    if (get_selected_tool().is_touch_probe != new_tool.is_touch_probe) {
+        if (!telemetry.control_enabled) {
+            res["error"]="CONTROL IS DISABLED";
+        } else {
+            std::string message = "⚠️ WARNING: CRITICAL OPERATION ⚠️\n\n";
+            if (new_tool.is_touch_probe) {
+                message.append("DANGER! Executing this command will EXTEND the touch probe. \n");
+            } else {
+                message.append("DANGER! Executing this command will RETRACT the touch probe. \n");
+            }
+            message.append("Proceed with caution, as any obstruction during movement can cause irreversible damage to the probe.\n" 
+                "Ensure the path is completely clear before proceeding.");
+            res["message"] = message;
+        }
+    }    
+    return res;
+}
+
+tl::expected<void, std::string> REMA::set_last_selected_tool(std::string tool) {
+    std::string prev_last_selected_tool = last_selected_tool;
     if (tool != last_selected_tool) {
         if (get_selected_tool().is_touch_probe) {
-            retract_touch_probe();
+            auto ret = retract_touch_probe();
+            if (!ret) {
+                return ret;
+            }
         }
+
         last_selected_tool = tool;
         if (get_selected_tool().is_touch_probe) {
-            extend_touch_probe();
+            auto ret = extend_touch_probe();
+            if (!ret) {
+                last_selected_tool = prev_last_selected_tool;
+                return ret;
+            }
         }
         save_config();
     }
+    return {};
+}
+
+Tool REMA::get_tool(std::string tool) const {
+    if (auto iter = tools.find(tool); iter != tools.end()) {
+        return iter->second;
+    }
+    return {};
 }
 
 Tool REMA::get_selected_tool() const {
@@ -332,18 +371,20 @@ Tool REMA::get_selected_tool() const {
     return {};
 }
 
-void REMA::extend_touch_probe() {
-    execute_command(
-        "TOUCH_PROBE",
-        {
-            { "position", "IN" },
-        });
+tl::expected<void, std::string> REMA::extend_touch_probe() {
+    nlohmann::json cmd_response = execute_command("TOUCH_PROBE", {{ "position", "EXTEND" }});
+    if (cmd_response["TOUCH_PROBE"].contains("error")) {
+        is_sequence_in_progress = false;
+        return tl::make_unexpected(cmd_response["TOUCH_PROBE"]["error"]);
+    }
+    return {};
 };
 
-void REMA::retract_touch_probe() {
-    execute_command(
-        "TOUCH_PROBE",
-        {
-            { "position", "OUT" },
-        });
+tl::expected<void, std::string> REMA::retract_touch_probe() {
+    nlohmann::json cmd_response = execute_command("TOUCH_PROBE", {{ "position", "RETRACT" }});
+    if (cmd_response["TOUCH_PROBE"].contains("error")) {
+        is_sequence_in_progress = false;
+        return tl::make_unexpected(cmd_response["TOUCH_PROBE"]["error"]);
+    }
+    return {};
 };

@@ -52,13 +52,17 @@ class REMA {
     
     void save_logs(std::string &stream);
     
-    void set_last_selected_tool(std::string tool);
+    tl::expected<void, std::string> set_last_selected_tool(std::string tool);
 
     Tool get_selected_tool() const;
+    
+    Tool get_tool(std::string tool) const;
 
-    void extend_touch_probe();
+    nlohmann::json would_move_touch_probe(std::string new_tool_string);
 
-    void retract_touch_probe();
+    tl::expected<void, std::string> extend_touch_probe();
+
+    tl::expected<void, std::string> retract_touch_probe();
 
     void load_config();
 

@@ -174,538 +174,535 @@
 							.attr(
 								'data-offset_z',
 								entry.offset.z)
-							.attr(
-								'data-is_touch_probe',
-								entry.is_touch_probe)
 							.text(
 								entry.name));
 				});
 
-			var previous_tool;
-			tools_dropdown.focus(function () {
-				previous_tool = $("option:selected", this);
-			}).change(function (e) {
+			tools_dropdown.change(function (e) {
 				if (e.originalEvent) {
+					previous_tool = tools_dropdown.data("prev");
+					console.log(previous_tool.val());
 					show_tool_offsets($("option:selected", this))
 					var tool_name = $("option:selected", this).val();
-					previous_tool_is_touch_probe = previous_tool.data("is_touch_probe");
-					current_tool_is_touch_probe = $("option:selected", this).data("is_touch_probe");
-					if (previous_tool_is_touch_probe != current_tool_is_touch_probe) {
-						alert_line_1 = `⚠️ WARNING: CRITICAL OPERATION ⚠️\n\n`;
-						alert_line_2 = `DANGER! Executing this command will EXTEND the touch probe.\n`;
-						alert_line_3 = `Proceed with caution, as any obstruction during movement can cause irreversible damage to the probe.\n`;
-						alert_line_4 = `Ensure the path is completely clear before proceeding.`;
-						if (current_tool_is_touch_probe) {
-							if (confirm(alert_line_1 + alert_line_2 + alert_line_3 + alert_line_4)) {
-								$.post('/REST/tools/' + tool_name + '/select');
-								$("#brakes_mode_switch").val(0).trigger("input");		// OFF
-							} else {
-								$(this).val(previous_tool.val());
+					$.post('/REST/tools/' + tool_name + '/would_move_touch_probe')
+						.done(function (data) {
+							console.log(data);
+							if ("error" in data) {
+								add_notification(data.error, "Warning");
+								tools_dropdown.val(previous_tool.val());
 							}
-						} else {
-							alert_line_2 = alert_line_2.replace("EXTEND", "RETRACT");
-							operation = "retract";
-							if (confirm(alert_line_1 + alert_line_2 + alert_line_3 + alert_line_4)) {
-								$.post('/REST/tools/' + tool_name + '/select');
-								$("#brakes_mode_switch").val(1).trigger("input");			// AUTO
+
+							if ("message" in data) {
+								if (confirm(data.message)) {
+									$.post('/REST/tools/' + tool_name + '/select')
+									.done(function() {
+										tools_dropdown.data("prev", $("option:selected", tools_dropdown));
+									})
+									.fail(function() {
+										add_notification(data.responseJSON.error.toUpperCase(), "Error");
+									});
+								} else {
+									tools_dropdown.val(previous_tool.val());
+								}
 							} else {
-								$(this).val(previous_tool.val());
+								$.post('/REST/tools/' + tool_name + '/select')
+								.done(function() {
+										tools_dropdown.data("prev", $("option:selected", tools_dropdown));
+								})
+								.fail(function() {
+										add_notification(data.responseJSON.error.toUpperCase(), "Error");
+								});
 							}
-						}
-					} else {
-						$.post('/REST/tools/' + tool_name + '/select');
-					}
-					previous_tool = $("option:selected", this);
+						});					
+					show_tool_offsets($("option:selected", tools_dropdown));
 				}
 			});
 
 			tools_dropdown.val(data.last_selected_tool).change();
-			show_tool_offsets($("option:selected", tools_dropdown));
-		}
-		);
+			tools_dropdown.data("prev", $("option:selected", tools_dropdown));
+		});
 	}
 
+	function add_notification(text, level = '') {
+				if (typeof msg_line !== 'undefined') {
+					msg_line.removeClass("notification-highlight");
+				}
 
-	function add_notification(text, level = '') {		
-		if (typeof msg_line !== 'undefined') {
-			msg_line.removeClass("notification-highlight");
-		}
-
-		msg_line = $("<div>").html(text).addClass("notification").addClass(level).addClass("notification-highlight");
-		notifications_div = $('#notifications')
-		notifications_div.append(msg_line);
-		notifications_div.scrollTop($('#notifications')[0].scrollHeight);		
-		setTimeout(function() { $(".notification-highlight", notifications_div).removeClass("notification-highlight"); }, 2000);
-	}
+				msg_line = $("<div>").html(text).addClass("notification").addClass(level).addClass("notification-highlight");
+				notifications_div = $('#notifications')
+				notifications_div.append(msg_line);
+				notifications_div.scrollTop($('#notifications')[0].scrollHeight);
+				setTimeout(function () { $(".notification-highlight", notifications_div).removeClass("notification-highlight"); }, 2000);
+			}
 
 	var prev_pos_x = 0;
-	var prev_pos_y = 0;
-	var target_x;
-	var target_y;
-	var control_disabled_by_stall = false;
-	var old_telemetry = {};
-	//old_telemetry = {"brakes_mode":0,"control_enabled":false,"coords":{"x":-5e-05,"y":-5e-05,"z":5e-05},"limits":{"down":false,"in":true,"left":true,"out":false,"probe":false,"right":true,"up":true},"on_condition":{"x_y":false,"z":false},"probe":{"x_y":false,"z":false},"stall_control":true,"stalled":{"x":false,"y":true,"z":false}};
+		var prev_pos_y = 0;
+		var target_x;
+		var target_y;
+		var control_disabled_by_stall = false;
+		var old_telemetry = {};
+		//old_telemetry = {"brakes_mode":0,"control_enabled":false,"coords":{"x":-5e-05,"y":-5e-05,"z":5e-05},"limits":{"down":false,"in":true,"left":true,"out":false,"probe":false,"right":true,"up":true},"on_condition":{"x_y":false,"z":false},"probe":{"x_y":false,"z":false},"stall_control":true,"stalled":{"x":false,"y":true,"z":false}};
 
-	function update_ui(telemetry) {
-		if (target_x === undefined || target_y === undefined) {
-			target_x = telemetry.targets.x;
-			target_y = telemetry.targets.y
-		}
-		if (tabs_initialized) {
-			var current_tab = $("#tabs").tabs('option', 'active');
-		}
-		//telemetry = {"brakes_mode":0,"control_enabled":false,"coords":{"x":-25,"y":-5e-05,"z":5},"limits":{"down":true,"in":true,"left":true,"out":true,"probe":true,"right":true,"up":true},"on_condition":{"x_y":true,"z":false},"probe":{"x_y":true,"z":false},"stall_control":true,"stalled":{"x":false,"y":true,"z":false}};
-		var difs = findDifferencesShallow(old_telemetry, telemetry);
-		$.each(difs, function (id, value) {
-			var msg_line;
-			var value_text;
-			key = Object.keys(value)[0];
-			if (key == "control_enabled") {
-				add_notification("CONTROL " + ((value[key] == true) ? "ENABLED" : "DISABLED"), "Info");
+		function update_ui(telemetry) {
+			if (target_x === undefined || target_y === undefined) {
+				target_x = telemetry.targets.x;
+				target_y = telemetry.targets.y
 			}
-
-			if (key == "stall_control") {
-				add_notification("STALL CONTROL " + ((value[key] == true) ? "ENABLED" : "DISABLED"), "Info");
+			if (tabs_initialized) {
+				var current_tab = $("#tabs").tabs('option', 'active');
 			}
+			//telemetry = {"brakes_mode":0,"control_enabled":false,"coords":{"x":-25,"y":-5e-05,"z":5},"limits":{"down":true,"in":true,"left":true,"out":true,"probe":true,"right":true,"up":true},"on_condition":{"x_y":true,"z":false},"probe":{"x_y":true,"z":false},"stall_control":true,"stalled":{"x":false,"y":true,"z":false}};
+			var difs = findDifferencesShallow(old_telemetry, telemetry);
+			$.each(difs, function (id, value) {
+				var msg_line;
+				var value_text;
+				key = Object.keys(value)[0];
+				if (key == "control_enabled") {
+					add_notification("CONTROL " + ((value[key] == true) ? "ENABLED" : "DISABLED"), "Info");
+				}
 
-			if (key == "brakes_mode") {
-				var brakes_mode_text = ["OFF", "AUTO", "ON"];
-				add_notification("BRAKES MODE " + brakes_mode_text[value[key]], "Info");
-			}
+				if (key == "stall_control") {
+					add_notification("STALL CONTROL " + ((value[key] == true) ? "ENABLED" : "DISABLED"), "Info");
+				}
 
-			if (key == "probe_protected" && (value[key] == true)) {
-				add_notification("TOUCH PROBE PROTECTED", "Warning");
-			}
+				if (key == "brakes_mode") {
+					var brakes_mode_text = ["OFF", "AUTO", "ON"];
+					add_notification("BRAKES MODE " + brakes_mode_text[value[key]], "Info");
+				}
 
-			if (key == "show_target" && current_tab == TUBESHEET_VIEW_TAB && typeof (destination_cross_visible) === "function") {
-				destination_cross_visible(value[key]);
-			}
-		});
+				if (key == "probe_protected" && (value[key] == true)) {
+					add_notification("TOUCH PROBE PROTECTED", "Warning");
+				}
 
-		var difs = findDifferencesShallow(old_telemetry.limits, telemetry.limits);
-		$.each(difs, function (id, value) {
-			key = Object.keys(value)[0];
-			if (value[key] == true) {
-				add_notification("LIMIT " + key.replace('.', ' ').toUpperCase(), "Error");
-			}
-		});
+				if (key == "show_target" && current_tab == TUBESHEET_VIEW_TAB && typeof (destination_cross_visible) === "function") {
+					destination_cross_visible(value[key]);
+				}
+			});
 
-		var difs = findDifferencesShallow(old_telemetry.probe, telemetry.probe);
-		$.each(difs, function (id, value) {
-			key = Object.keys(value)[0];
-			add_notification("PROBE " + key.toUpperCase() + ((value[key] == true) ? " TOUCH" : " RELEASE"), "Info");
-		});
-
-		if (current_tab == TUBESHEET_VIEW_TAB && typeof (update_destination_cross_position) === "function") {
-			var difs = findDifferencesShallow(old_telemetry.targets, telemetry.targets);
+			var difs = findDifferencesShallow(old_telemetry.limits, telemetry.limits);
 			$.each(difs, function (id, value) {
 				key = Object.keys(value)[0];
-				if (key == "x") {
-					target_x = value.x;
-				}
-				if (key == "y") {
-					target_y = value.y;
-				}
-			});
-			update_destination_cross_position(target_x, target_y);
-		}
-
-		old_telemetry = telemetry;
-
-		if ($("#aligned_position").prop("checked")) {
-			pos_x = telemetry.aligned_coords.x;
-			pos_y = telemetry.aligned_coords.y;
-			pos_z = telemetry.aligned_coords.z;
-		} else {
-			pos_x = telemetry.coords.x;
-			pos_y = telemetry.coords.y;
-			pos_z = telemetry.coords.z;
-		}
-
-		$("#position_x").val(toFixedIfNecessary(pos_x, decimals));
-		$("#position_y").val(toFixedIfNecessary(pos_y, decimals));
-		$("#position_z").val(toFixedIfNecessary(pos_z, decimals));
-
-		if (telemetry.stalled.x || telemetry.stalled.y || telemetry.stalled.z) {
-			stalled_message = "STALLED " + (telemetry.stalled.x ? "X" : "") + (telemetry.stalled.y ? "Y" : "") + (telemetry.stalled.z ? "Z" : "");
-			$("#stalled_notification").removeClass("disabled").addClass("enabled");
-			$("#stalled_notification_text").html(stalled_message);
-			var power_switch = $('#power_switch');
-			if (power_switch.prop('checked') && !control_disabled_by_stall) {
-				power_switch.prop('checked', false).change();
-				control_disabled_by_stall = true;
-			}
-		} else {
-			$("#stalled_notification").removeClass("enabled").addClass("disabled");
-			$("#stalled_notification_text").html("STALLED");
-			control_disabled_by_stall = false;
-		}
-
-		if (telemetry.on_condition.x_y) {
-			$("#on_condition_notification").removeClass("disabled").addClass("enabled");
-		} else {
-			$("#on_condition_notification").removeClass("enabled").addClass("disabled");
-		}
-
-		if (typeof update_limits === "function") {
-			update_limits(telemetry.limits);
-		}
-
-		if (telemetry.limits.probe) {
-			$("#touch_probe").addClass("touch");
-		} else {
-			$("#touch_probe").removeClass("touch");
-		}
-
-		if (tabs_initialized) {
-			if (current_tab == TUBESHEET_VIEW_TAB && typeof (update_bullseye_position) === "function") {
-				update_bullseye_position(pos_x, pos_y);
-				if (do_first_zoom) {
-					zoom_svg($("#zoom_bar").slider("value"));
-					do_first_zoom = false;
-				}
-
-				if ((!areFloatsEqual(pos_x, prev_pos_x) || !areFloatsEqual(pos_y, prev_pos_y))) {
-
-					if ($("#zoom_follow").prop("checked")) {
-						zoom_value = 1;
-						try {
-							zoom_value = $("#zoom_bar").slider("value")
-						} catch (e) { };
-						zoom_svg(zoom_value);
-					}
-					prev_pos_x = pos_x;
-					prev_pos_y = pos_y;
-				}
-
-			}
-		}
-	}
-
-	function temp_ranges(temp) {
-		if (temp > 70) {
-			return "high";
-		}
-
-		if (temp > 50) {
-			return "danger";
-		}
-
-		return "normal";
-	}
-
-	function update_temps(temps) {
-
-		var temp_x = (temps.x / 10).toFixed(1);
-		var temp_y = (temps.y / 10).toFixed(1);
-		var temp_z = (temps.z / 10).toFixed(1);
-		$("#temperature_x").text(temp_x + "ºC");
-		$("#temperature_y").text(temp_y + "ºC");
-		$("#temperature_z").text(temp_z + "ºC");
-
-		$("#temperature_x").removeClass().addClass("temperature").addClass(temp_ranges(temp_x));
-		$("#temperature_y").removeClass().addClass("temperature").addClass(temp_ranges(temp_y));
-		$("#temperature_z").removeClass().addClass("temperature").addClass(temp_ranges(temp_z));
-	}
-
-	function create_reconnect_dialog() {
-
-		$("#reconnect_div").dialog({
-			autoOpen: false,
-			//width : '30%',
-			title: "Connection Lost",
-			//position: { my: "center", at: "center", of: $("#tabs") },		// default to center
-			modal: true,
-			buttons: [{
-				text: "Reconnect REMA",
-				icon: "ui-icon-transfer-e-w",
-				click: function (event) {
-					$("#reconnect_rema").trigger("click");
-				}
-			}],
-			open: function (event, ui) {
-			},
-			close: function (event, ui) {
-			},
-		});
-	}
-
-	function create_settings_dialog() {
-		$.when(
-			$.get('settings.html', function (data) {
-				$('#settings_div').html(data);
-			}),
-		).done(function () {
-			settings = $("#settings_div").dialog({
-				autoOpen: false,
-				modal: true,
-				width: 500,
-				title: "Settings",
-				buttons: {
-					"Close": function () {
-						$(this).dialog("close");
-					}
-				},
-				close: function () {
-					// Clear form fields on close
-					$("#network_settings_form")[0].reset();
-					$("#advanced_settings").hide();
+				if (value[key] == true) {
+					add_notification("LIMIT " + key.replace('.', ' ').toUpperCase(), "Error");
 				}
 			});
 
-			$("#logo_nasa").click(function () {
-				$("#advanced_settings").show();
-				settings.dialog("open");
-			})
-		});
-	}
+			var difs = findDifferencesShallow(old_telemetry.probe, telemetry.probe);
+			$.each(difs, function (id, value) {
+				key = Object.keys(value)[0];
+				add_notification("PROBE " + key.toUpperCase() + ((value[key] == true) ? " TOUCH" : " RELEASE"), "Info");
+			});
 
-	function create_incremental_dialog() {
-		$.when(
-			$.get('incremental.html', function (data) {
-				$('#incremental_div').html(data);
-			}),
-		).done(function () {
-			var incremental = $("#incremental_div").dialog({
+			if (current_tab == TUBESHEET_VIEW_TAB && typeof (update_destination_cross_position) === "function") {
+				var difs = findDifferencesShallow(old_telemetry.targets, telemetry.targets);
+				$.each(difs, function (id, value) {
+					key = Object.keys(value)[0];
+					if (key == "x") {
+						target_x = value.x;
+					}
+					if (key == "y") {
+						target_y = value.y;
+					}
+				});
+				update_destination_cross_position(target_x, target_y);
+			}
+
+			old_telemetry = telemetry;
+
+			if ($("#aligned_position").prop("checked")) {
+				pos_x = telemetry.aligned_coords.x;
+				pos_y = telemetry.aligned_coords.y;
+				pos_z = telemetry.aligned_coords.z;
+			} else {
+				pos_x = telemetry.coords.x;
+				pos_y = telemetry.coords.y;
+				pos_z = telemetry.coords.z;
+			}
+
+			$("#position_x").val(toFixedIfNecessary(pos_x, decimals));
+			$("#position_y").val(toFixedIfNecessary(pos_y, decimals));
+			$("#position_z").val(toFixedIfNecessary(pos_z, decimals));
+
+			if (telemetry.stalled.x || telemetry.stalled.y || telemetry.stalled.z) {
+				stalled_message = "STALLED " + (telemetry.stalled.x ? "X" : "") + (telemetry.stalled.y ? "Y" : "") + (telemetry.stalled.z ? "Z" : "");
+				$("#stalled_notification").removeClass("disabled").addClass("enabled");
+				$("#stalled_notification_text").html(stalled_message);
+				var power_switch = $('#power_switch');
+				if (power_switch.prop('checked') && !control_disabled_by_stall) {
+					power_switch.prop('checked', false).change();
+					control_disabled_by_stall = true;
+				}
+			} else {
+				$("#stalled_notification").removeClass("enabled").addClass("disabled");
+				$("#stalled_notification_text").html("STALLED");
+				control_disabled_by_stall = false;
+			}
+
+			if (telemetry.on_condition.x_y) {
+				$("#on_condition_notification").removeClass("disabled").addClass("enabled");
+			} else {
+				$("#on_condition_notification").removeClass("enabled").addClass("disabled");
+			}
+
+			if (typeof update_limits === "function") {
+				update_limits(telemetry.limits);
+			}
+
+			if (telemetry.limits.probe) {
+				$("#touch_probe").addClass("touch");
+			} else {
+				$("#touch_probe").removeClass("touch");
+			}
+
+			if (tabs_initialized) {
+				if (current_tab == TUBESHEET_VIEW_TAB && typeof (update_bullseye_position) === "function") {
+					update_bullseye_position(pos_x, pos_y);
+					if (do_first_zoom) {
+						zoom_svg($("#zoom_bar").slider("value"));
+						do_first_zoom = false;
+					}
+
+					if ((!areFloatsEqual(pos_x, prev_pos_x) || !areFloatsEqual(pos_y, prev_pos_y))) {
+
+						if ($("#zoom_follow").prop("checked")) {
+							zoom_value = 1;
+							try {
+								zoom_value = $("#zoom_bar").slider("value")
+							} catch (e) { };
+							zoom_svg(zoom_value);
+						}
+						prev_pos_x = pos_x;
+						prev_pos_y = pos_y;
+					}
+
+				}
+			}
+		}
+
+		function temp_ranges(temp) {
+			if (temp > 70) {
+				return "high";
+			}
+
+			if (temp > 50) {
+				return "danger";
+			}
+
+			return "normal";
+		}
+
+		function update_temps(temps) {
+
+			var temp_x = (temps.x / 10).toFixed(1);
+			var temp_y = (temps.y / 10).toFixed(1);
+			var temp_z = (temps.z / 10).toFixed(1);
+			$("#temperature_x").text(temp_x + "ºC");
+			$("#temperature_y").text(temp_y + "ºC");
+			$("#temperature_z").text(temp_z + "ºC");
+
+			$("#temperature_x").removeClass().addClass("temperature").addClass(temp_ranges(temp_x));
+			$("#temperature_y").removeClass().addClass("temperature").addClass(temp_ranges(temp_y));
+			$("#temperature_z").removeClass().addClass("temperature").addClass(temp_ranges(temp_z));
+		}
+
+		function create_reconnect_dialog() {
+
+			$("#reconnect_div").dialog({
 				autoOpen: false,
 				//width : '30%',
-				title: "Incremental",
+				title: "Connection Lost",
 				//position: { my: "center", at: "center", of: $("#tabs") },		// default to center
 				modal: true,
+				buttons: [{
+					text: "Reconnect REMA",
+					icon: "ui-icon-transfer-e-w",
+					click: function (event) {
+						$("#reconnect_rema").trigger("click");
+					}
+				}],
 				open: function (event, ui) {
 				},
 				close: function (event, ui) {
-
 				},
-
 			});
-			$("#incremental_link").click(function () {
-				incremental.dialog("open");
-			})
-		});
-	}
-
-	function create_joystick() {
-		$.when(
-			$.get('joystick.html', function (data) {
-				$('#joystick_div').html(data);
-			}),
-		).done(function () {
-			var joystick = $("#joystick_div").dialog({
-				autoOpen: true,
-				title: "Joystick",
-				position: { my: "right bottom", at: "right-500 bottom-150", of: $("#tabs") },
-				//modal : true,
-				open: function (event, ui) {
-					$("#joystick_btn_div").hide();
-				},
-				close: function (event, ui) {
-					$("#joystick_btn_div").show();
-				},
-
-			});
-			$("#joystick_btn").click(function () {
-				joystick.dialog("open");
-			})
-		});
-	}
-
-	function touch_probe_protection_control(status) {
-		if (status === false) {
-			$('#touch_probe').addClass('crossed-out');
-			$('#touch_probe').prop("title", "Touch Probe protection is DISABLED")
-			add_notification("* DANGER * </br> TOUCH PROBE PROTECTION DISABLED", "Error");
-		} else {
-			$('#touch_probe').removeClass('crossed-out');
-			$('#touch_probe').prop("title", "Touch Probe protection is ENABLED")
-			add_notification("TOUCH PROBE PROTECTION ENABLED", "Info");
 		}
-	}
 
-	function get_session_info() {
-		return $.get('/REST/current-session/info');
-	}
-
-
-	$(function () {
-		create_joystick();
-		create_incremental_dialog();
-		create_reconnect_dialog();
-		create_settings_dialog();
-
-		get_session_info()
-			.done(
-				function (current_session) {
-					active_tab = sessionStorage.getItem('activeTab');
-					if (current_session.is_loaded) {
-						unit = current_session.hx.unit;
-						$(".unit").text(unit);
-						if (active_tab == 0) {		// Session tab
-							active_tab = TUBESHEET_VIEW_TAB
+		function create_settings_dialog() {
+			$.when(
+				$.get('settings.html', function (data) {
+					$('#settings_div').html(data);
+				}),
+			).done(function () {
+				settings = $("#settings_div").dialog({
+					autoOpen: false,
+					modal: true,
+					width: 500,
+					title: "Settings",
+					buttons: {
+						"Close": function () {
+							$(this).dialog("close");
 						}
+					},
+					close: function () {
+						// Clear form fields on close
+						$("#network_settings_form")[0].reset();
+						$("#advanced_settings").hide();
 					}
+				});
 
-					$("#tabs").tabs({
-						active: active_tab,
-						//heightStyle : "fill"			
-						beforeActivate: function (event, ui) {
-							$(ui.oldTab).trigger("unload_tab");
-						},
-						activate: function (event, ui) {
-							// Save the index of the selected tab in sessionStorage
-							var newIndex = $("#tabs").tabs("option", "active");
-							sessionStorage.setItem('activeTab', newIndex);
-						},
-						create: function (event, ui) {
-							tabs_initialized = true;
-						}
-					});
-
-					get_rema_info();
-
-					var aligned_position_checked = false;
-					if ((current_session.is_aligned) && (sessionStorage.getItem("aligned_position") != null)) {
-						aligned_position_checked = (sessionStorage.getItem("aligned_position") == "true");
-					}
-					$("#aligned_position").prop("checked", aligned_position_checked);
-					$("#aligned_position").change(function () {
-						sessionStorage.setItem("aligned_position", $(this).prop("checked"));
-						if ($(this).prop("checked")) {
-							$("#position_x").addClass("aligned-coords");
-							$("#position_y").addClass("aligned-coords");
-							$("#position_z").addClass("aligned-coords");
-						} else {
-							$("#position_x").removeClass("aligned-coords");
-							$("#position_y").removeClass("aligned-coords");
-							$("#position_z").removeClass("aligned-coords");
-						}
-					});
-
-				}
-			);
-
-		var touch_probe_div = $('#touch_probe');
-		touch_probe_div.on('dblclick', function () {
-			$.ajaxREMA({
-				data: [{
-					cmd: "TOUCH_PROBE_SETTINGS",
-					pars: { protection: touch_probe_div.hasClass('crossed-out') }
-				}
-				],
-				success: function (data) {
-					touch_probe_protection_control(data["TOUCH_PROBE_SETTINGS"].protection);
-				}
+				$("#logo_nasa").click(function () {
+					$("#advanced_settings").show();
+					settings.dialog("open");
+				})
 			});
-		});
-
-		notifications_outer_left = $("#tabs").width() - $("#notifications_outer").width() - 20;
-		notifications_outer_top = $("#tabs").height() - $("#notifications_outer").height() + 5;
-
-		$("#notifications_outer").css("left", notifications_outer_left + 'px');
-		$("#notifications_outer").css("top", notifications_outer_top + 'px');
-		$("#notifications_outer").draggable({ containment: "#tabs" });
-
-		$("#reconnect_rema").on("click", function () {
-			$.ajax({
-				method: "POST",
-				url: "/REST/REMA/connect",
-				success: function () {
-					window.location.reload();
-				},
-				error: function (xhr, status, error) {
-					window.location.reload();
-				}
-			});
-		});
-
-		// Handle Server Side Events
-		var sse = $.SSE('/sse', {
-			onMessage: function (e) {
-				jdata = JSON.parse(e.data);
-
-				if ("SESSION_MSG" in jdata) {
-					$("#sse").text(jdata.SESSION_MSG).animate({
-						opacity: 1
-					}, 2000).animate({
-						opacity: 0
-					}, 2000);
-				}
-
-				if ("SHOW_CONNECT" in jdata) {
-					if (!reconnect_dialog_shown) {
-						$("#reconnect_div").dialog("open");
-						reconnect_dialog_shown = true;
-					}
-					$("#reconnect_span").animate({
-						opacity: 1
-					}, 0);
-				}
-
-				if ("HIDE_CONNECT" in jdata) {
-					$("#reconnect_div").dialog("close");
-					reconnect_dialog_shown = false;
-					$("#reconnect_span").animate({
-						opacity: 0
-					}, 2000);
-				}
-				if ("TELEMETRY" in jdata) {
-					update_ui(jdata.TELEMETRY);
-				}
-
-				if ("TEMP_INFO" in jdata) {
-					update_temps(jdata.TEMP_INFO);
-				}
-
-			},
-		});
-		sse.start();
-
-		$("#notifications_clear_btn").click(function () {
-			$("#notifications").empty();
-		});
-
-	});
-
-	$(document).keydown(function (e) {
-		const formElements = ['INPUT', 'TEXTAREA', 'SELECT', 'OPTION'];
-		e = e || window.event;
-		if (!formElements.includes(e.target.tagName)) {
-			switch (e.keyCode) {
-				case 32:			// SPACE BAR
-					if (e.ctrlKey) {
-						$("#emergency_stop").trigger("click");
-						e.preventDefault();
-						return false;
-						break;
-					}
-				case 71:			// g
-					tube_id = $("#tube_info_id").val();
-					if (tube_id) {
-						$("#go_button").trigger("click");
-					}
-					break;
-				case 90:			// z
-					$("#home_z").trigger("click", e);
-					break;
-				case 12:			// 5 from keypad with numlock ofF
-					tube_id = $("#tube_info_id").val() || "";
-					$("#home_xy").trigger("click", e);
-					break;
-			}
 		}
-	});
 
-	window.addEventListener('mousewheel', function(e) {	
-		if(event.ctrlKey == true) {
-			event.preventDefault();
-			current_zoom = $("#zoom_bar").slider("value");
-			if(event.deltaY > 0) {
-				$("#zoom_bar").slider("value", current_zoom - 1);
+		function create_incremental_dialog() {
+			$.when(
+				$.get('incremental.html', function (data) {
+					$('#incremental_div').html(data);
+				}),
+			).done(function () {
+				var incremental = $("#incremental_div").dialog({
+					autoOpen: false,
+					//width : '30%',
+					title: "Incremental",
+					//position: { my: "center", at: "center", of: $("#tabs") },		// default to center
+					modal: true,
+					open: function (event, ui) {
+					},
+					close: function (event, ui) {
+
+					},
+
+				});
+				$("#incremental_link").click(function () {
+					incremental.dialog("open");
+				})
+			});
+		}
+
+		function create_joystick() {
+			$.when(
+				$.get('joystick.html', function (data) {
+					$('#joystick_div').html(data);
+				}),
+			).done(function () {
+				var joystick = $("#joystick_div").dialog({
+					autoOpen: true,
+					title: "Joystick",
+					position: { my: "right bottom", at: "right-500 bottom-150", of: $("#tabs") },
+					//modal : true,
+					open: function (event, ui) {
+						$("#joystick_btn_div").hide();
+					},
+					close: function (event, ui) {
+						$("#joystick_btn_div").show();
+					},
+
+				});
+				$("#joystick_btn").click(function () {
+					joystick.dialog("open");
+				})
+			});
+		}
+
+		function touch_probe_protection_control(status) {
+			if (status === false) {
+				$('#touch_probe').addClass('crossed-out');
+				$('#touch_probe').prop("title", "Touch Probe protection is DISABLED")
+				add_notification("* DANGER * </br> TOUCH PROBE PROTECTION DISABLED", "Error");
 			} else {
-				$("#zoom_bar").slider("value", current_zoom + 1);
+				$('#touch_probe').removeClass('crossed-out');
+				$('#touch_probe').prop("title", "Touch Probe protection is ENABLED")
+				add_notification("TOUCH PROBE PROTECTION ENABLED", "Info");
 			}
 		}
-	}, { passive: false });
+
+		function get_session_info() {
+			return $.get('/REST/current-session/info');
+		}
+
+
+		$(function () {
+			create_joystick();
+			create_incremental_dialog();
+			create_reconnect_dialog();
+			create_settings_dialog();
+
+			get_session_info()
+				.done(
+					function (current_session) {
+						active_tab = sessionStorage.getItem('activeTab');
+						if (current_session.is_loaded) {
+							unit = current_session.hx.unit;
+							$(".unit").text(unit);
+							if (active_tab == 0) {		// Session tab
+								active_tab = TUBESHEET_VIEW_TAB
+							}
+						}
+
+						$("#tabs").tabs({
+							active: active_tab,
+							//heightStyle : "fill"			
+							beforeActivate: function (event, ui) {
+								$(ui.oldTab).trigger("unload_tab");
+							},
+							activate: function (event, ui) {
+								// Save the index of the selected tab in sessionStorage
+								var newIndex = $("#tabs").tabs("option", "active");
+								sessionStorage.setItem('activeTab', newIndex);
+							},
+							create: function (event, ui) {
+								tabs_initialized = true;
+							}
+						});
+
+						get_rema_info();
+
+						var aligned_position_checked = false;
+						if ((current_session.is_aligned) && (sessionStorage.getItem("aligned_position") != null)) {
+							aligned_position_checked = (sessionStorage.getItem("aligned_position") == "true");
+						}
+						$("#aligned_position").prop("checked", aligned_position_checked);
+						$("#aligned_position").change(function () {
+							sessionStorage.setItem("aligned_position", $(this).prop("checked"));
+							if ($(this).prop("checked")) {
+								$("#position_x").addClass("aligned-coords");
+								$("#position_y").addClass("aligned-coords");
+								$("#position_z").addClass("aligned-coords");
+							} else {
+								$("#position_x").removeClass("aligned-coords");
+								$("#position_y").removeClass("aligned-coords");
+								$("#position_z").removeClass("aligned-coords");
+							}
+						});
+
+					}
+				);
+
+			var touch_probe_div = $('#touch_probe');
+			touch_probe_div.on('dblclick', function () {
+				$.ajaxREMA({
+					data: [{
+						cmd: "TOUCH_PROBE_SETTINGS",
+						pars: { protection: touch_probe_div.hasClass('crossed-out') }
+					}
+					],
+					success: function (data) {
+						touch_probe_protection_control(data["TOUCH_PROBE_SETTINGS"].protection);
+					}
+				});
+			});
+
+			notifications_outer_left = $("#tabs").width() - $("#notifications_outer").width() - 20;
+			notifications_outer_top = $("#tabs").height() - $("#notifications_outer").height() + 5;
+
+			$("#notifications_outer").css("left", notifications_outer_left + 'px');
+			$("#notifications_outer").css("top", notifications_outer_top + 'px');
+			$("#notifications_outer").draggable({ containment: "#tabs" });
+
+			$("#reconnect_rema").on("click", function () {
+				$.ajax({
+					method: "POST",
+					url: "/REST/REMA/connect",
+					success: function () {
+						window.location.reload();
+					},
+					error: function (xhr, status, error) {
+						window.location.reload();
+					}
+				});
+			});
+
+			// Handle Server Side Events
+			var sse = $.SSE('/sse', {
+				onMessage: function (e) {
+					jdata = JSON.parse(e.data);
+
+					if ("SESSION_MSG" in jdata) {
+						$("#sse").text(jdata.SESSION_MSG).animate({
+							opacity: 1
+						}, 2000).animate({
+							opacity: 0
+						}, 2000);
+					}
+
+					if ("SHOW_CONNECT" in jdata) {
+						if (!reconnect_dialog_shown) {
+							$("#reconnect_div").dialog("open");
+							reconnect_dialog_shown = true;
+						}
+						$("#reconnect_span").animate({
+							opacity: 1
+						}, 0);
+					}
+
+					if ("HIDE_CONNECT" in jdata) {
+						$("#reconnect_div").dialog("close");
+						reconnect_dialog_shown = false;
+						$("#reconnect_span").animate({
+							opacity: 0
+						}, 2000);
+					}
+					if ("TELEMETRY" in jdata) {
+						update_ui(jdata.TELEMETRY);
+					}
+
+					if ("TEMP_INFO" in jdata) {
+						update_temps(jdata.TEMP_INFO);
+					}
+
+				},
+			});
+			sse.start();
+
+			$("#notifications_clear_btn").click(function () {
+				$("#notifications").empty();
+			});
+
+		});
+
+		$(document).keydown(function (e) {
+			const formElements = ['INPUT', 'TEXTAREA', 'SELECT', 'OPTION'];
+			e = e || window.event;
+			if (!formElements.includes(e.target.tagName)) {
+				switch (e.keyCode) {
+					case 32:			// SPACE BAR
+						if (e.ctrlKey) {
+							$("#emergency_stop").trigger("click");
+							e.preventDefault();
+							return false;
+							break;
+						}
+					case 71:			// g
+						tube_id = $("#tube_info_id").val();
+						if (tube_id) {
+							$("#go_button").trigger("click");
+						}
+						break;
+					case 90:			// z
+						$("#home_z").trigger("click", e);
+						break;
+					case 12:			// 5 from keypad with numlock ofF
+						tube_id = $("#tube_info_id").val() || "";
+						$("#home_xy").trigger("click", e);
+						break;
+				}
+			}
+		});
+
+		window.addEventListener('mousewheel', function (e) {
+			if (event.ctrlKey == true) {
+				event.preventDefault();
+				current_zoom = $("#zoom_bar").slider("value");
+				if (event.deltaY > 0) {
+					$("#zoom_bar").slider("value", current_zoom - 1);
+				} else {
+					$("#zoom_bar").slider("value", current_zoom + 1);
+				}
+			}
+		}, { passive: false });
 
 </script>
 

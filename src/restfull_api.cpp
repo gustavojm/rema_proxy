@@ -199,9 +199,23 @@ void tools_delete(const std::shared_ptr<restbed::Session>& rest_session) {
 void tools_select(const std::shared_ptr<restbed::Session>& rest_session) {
     auto request = rest_session->get_request();
     std::string tool_name = request->get_path_parameter("tool_name", "");
-    rema.set_last_selected_tool(tool_name);
+    
+    auto ret = rema.set_last_selected_tool(tool_name);
+    if (!ret) {
+        nlohmann::json res;
+        res["error"] = ret.error();
+        close_rest_session(rest_session, restbed::BAD_REQUEST, res);
+        return;
+    }
     close_rest_session(rest_session, restbed::OK);
 }
+
+void would_move_touch_probe(const std::shared_ptr<restbed::Session>& rest_session) {
+    auto request = rest_session->get_request();
+    std::string tool_name = request->get_path_parameter("tool_name", "");   
+    close_rest_session(rest_session, restbed::OK, rema.would_move_touch_probe(tool_name));
+}
+
 
 /**
  * Sessions related functions
@@ -856,6 +870,7 @@ void restfull_api_create_endpoints(restbed::Service &service) {
           } },
         { "tools/{tool_name: .*}", { { "DELETE", &tools_delete } } },
         { "tools/{tool_name: .*}/select", { { "POST", &tools_select } } },
+        { "tools/{tool_name: .*}/would_move_touch_probe", { { "POST", &would_move_touch_probe } } },
         {
             "sessions",
             {
