@@ -174,6 +174,9 @@
 							.attr(
 								'data-offset_z',
 								entry.offset.z)
+							.attr(
+                                'data-is_touch_probe',
+                                entry.is_touch_probe)
 							.text(
 								entry.name));
 				});
@@ -184,6 +187,8 @@
 					console.log(previous_tool.val());
 					show_tool_offsets($("option:selected", this))
 					var tool_name = $("option:selected", this).val();
+					current_tool_is_touch_probe = $("option:selected", this).data("is_touch_probe");
+
 					$.post('/REST/tools/' + tool_name + '/would_move_touch_probe')
 						.done(function (data) {
 							console.log(data);
@@ -213,6 +218,12 @@
 										add_notification(data.responseJSON.error.toUpperCase(), "Error");
 								});
 							}
+
+							if (current_tool_is_touch_probe) {
+								$("#brakes_mode_switch").val(0).trigger("input");               // OFF
+							} else {
+								$("#brakes_mode_switch").val(1).trigger("input");               // AUTO
+							}
 						});					
 					show_tool_offsets($("option:selected", tools_dropdown));
 				}
@@ -220,6 +231,7 @@
 
 			tools_dropdown.val(data.last_selected_tool).change();
 			tools_dropdown.data("prev", $("option:selected", tools_dropdown));
+			show_tool_offsets($("option:selected", tools_dropdown));
 		});
 	}
 
