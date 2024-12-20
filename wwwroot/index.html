@@ -195,6 +195,7 @@
 							if ("error" in data) {
 								add_notification(data.error, "Warning");
 								tools_dropdown.val(previous_tool.val());
+								show_tool_offsets($("option:selected", tools_dropdown));
 							}
 
 							if ("message" in data) {
@@ -208,6 +209,7 @@
 									});
 								} else {
 									tools_dropdown.val(previous_tool.val());
+									show_tool_offsets($("option:selected", tools_dropdown));
 								}
 							} else {
 								$.post('/REST/tools/' + tool_name + '/select')
