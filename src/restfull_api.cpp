@@ -13,7 +13,7 @@
 #include "HX.hpp"
 #include "circle_fns.hpp"
 #include "nlohmann/json.hpp"
-#include "magic_enum.hpp"
+#include "magic_enum/magic_enum.hpp"
 #include "misc_fns.hpp"
 #include "points.hpp"
 #include "rema.hpp"
