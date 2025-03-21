@@ -479,42 +479,44 @@
 		}
 
 		keysPressed[e.keyCode] = true;
+		
+		if (e.originalEvent.location === 3) {		// From the Numeric Pad with Numlock Off
+			switch (e.keyCode) {
+				case 36:			// 7 from keypad with numlock off
+					joystick_btn_pressed($('[data-dir="up_left"]'));
+					break;
+				case 38:			// 8 from keypad with numlock off
+					joystick_btn_pressed($('[data-dir="up"]'));
+					break;
+				case 33:			// 9 from keypad with numlock off
+					joystick_btn_pressed($('[data-dir="up_right"]'));
+					break;
+				case 37:			// 4 from keypad with numlock off
+					joystick_btn_pressed($('[data-dir="left"]'));
+					break;
+				case 39:			// 6 from keypad with numlock off
+					joystick_btn_pressed($('[data-dir="right"]'));
+					break;
+				case 35:			// 1 from keypad with numlock off
+					joystick_btn_pressed($('[data-dir="down_left"]'));
+					break;
+				case 40:			// 2 from keypad with numlock off
+					joystick_btn_pressed($('[data-dir="down"]'));
+					break;
+				case 34:			// 3 from keypad with numlock off
+					joystick_btn_pressed($('[data-dir="down_right"]'));
+					break;
 
-		switch (e.keyCode) {
-			case 36:			// 7 from keypad with numlock off
-				joystick_btn_pressed($('[data-dir="up_left"]'));
-				break;
-			case 38:			// 8 from keypad with numlock off
-				joystick_btn_pressed($('[data-dir="up"]'));
-				break;
-			case 33:			// 9 from keypad with numlock off
-				joystick_btn_pressed($('[data-dir="up_right"]'));
-				break;
-			case 37:			// 4 from keypad with numlock off
-				joystick_btn_pressed($('[data-dir="left"]'));
-				break;
-			case 39:			// 6 from keypad with numlock off
-				joystick_btn_pressed($('[data-dir="right"]'));
-				break;
-			case 35:			// 1 from keypad with numlock off
-				joystick_btn_pressed($('[data-dir="down_left"]'));
-				break;
-			case 40:			// 2 from keypad with numlock off
-				joystick_btn_pressed($('[data-dir="down"]'));
-				break;
-			case 34:			// 3 from keypad with numlock off
-				joystick_btn_pressed($('[data-dir="down_right"]'));
-				break;
+				case 107:			// + from keypad
+					joystick_btn_pressed($('[data-dir="z_in"]'));
+					break;
+				case 109:			// - from keypad
+					joystick_btn_pressed($('[data-dir="z_out"]'));
+					break;
 
-			case 107:			// + from keypad
-				joystick_btn_pressed($('[data-dir="z_in"]'));
-				break;
-			case 109:			// - from keypad
-				joystick_btn_pressed($('[data-dir="z_out"]'));
-				break;
-
-			default:
-				return true;
+				default:
+					return true;
+			}
 		}
 		e.preventDefault();
 	});
