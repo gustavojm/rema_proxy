@@ -127,31 +127,33 @@ svg .tube.highlight_cal_tube  {
 }
 
 .joystick-arrow {
-	width: 50px;
-	height: 50px;
-	margin: 0px;
-	height: auto;
+	width: 40px;
+	height: 40px;
+	padding: 5px;
 }
 
-.activated {
+.btn_activated {
 	opacity: 15%;
 }
 
+.btn_disabled {
+	opacity: 25%;
+}
+
 .joystick-arrow-home {
-	width: 50px;
-	height: 50px;
-	margin: 0px;
-	height: auto;
+	width: 40px;
+	height: 40px;
+	padding: 5px;
 }
 
 .joystick-limit-vertical {
 	width: 5px;
-	height: 50px;
+	height: 45px;
 	margin: 0px;
 }
 
 .joystick-limit-horizontal {
-	width: 50px;
+	width: 45px;
 	height: 5px;
 	margin: 0px;
 }

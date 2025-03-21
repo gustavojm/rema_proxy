@@ -684,7 +684,7 @@
 				switch (e.keyCode) {
 					case 32:			// SPACE BAR
 						if (e.ctrlKey) {
-							$("#emergency_stop").trigger("click");
+							$("#emergency_stop").trigger("mousedown");
 							e.preventDefault();
 							return false;
 							break;
@@ -702,6 +702,22 @@
 						tube_id = $("#tube_info_id").val() || "";
 						$("#home_xy").trigger("click", e);
 						break;
+				}
+			}
+		});
+
+		$(document).keyup(function (e) {
+			const formElements = ['INPUT', 'TEXTAREA', 'SELECT', 'OPTION'];
+			e = e || window.event;
+			if (!formElements.includes(e.target.tagName)) {
+				switch (e.keyCode) {
+					case 32:			// SPACE BAR
+						if (e.ctrlKey) {
+							$("#emergency_stop").removeClass("btn_activated");
+							e.preventDefault();							
+							return false;
+							break;
+						}
 				}
 			}
 		});
