@@ -320,7 +320,7 @@
             }
         });
 
-        $("#send_startup_commands_btn").click(function () {
+        $("#send_startup_commands_btn").on("click", function () {
             $.ajax({
                 url: "/REST/send-startup-commands",
                 type: "POST",

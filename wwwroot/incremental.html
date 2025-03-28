@@ -49,7 +49,7 @@
 </body>
 
 <script type="text/javascript">
-	$("#go_incremental_button_xy").click(
+	$("#go_incremental_button_xy").on("click",
 		function(e) {
 			e.preventDefault();
 			$.ajax({
@@ -68,7 +68,7 @@
 		}
 	);
 
-	$("#go_incremental_button_z").click(
+	$("#go_incremental_button_z").on("click", 
 		function(e) {
 			e.preventDefault();
 			$.ajax({

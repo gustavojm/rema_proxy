@@ -288,13 +288,13 @@
             draw_chart(chart_name);
         });
 
-        $("#reload_chart_btn").click(function () {
+        $("#reload_chart_btn").on("click", function () {
             get_previous_charts_list();
             var chart_name = $("#previous_charts").val();
             draw_chart(chart_name);
         });
 
-        $("#remove_chart_btn").click(function () {
+        $("#remove_chart_btn").on("click", function () {
             var chart_name = $("#previous_charts").val();
             if (chart_name != "last") {
                 var confirm_action = confirm("Are you sure you want to remove " + chart_name + " ?");

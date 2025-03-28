@@ -45,7 +45,7 @@
 
 <body>
 	<div id="outer"> <!--tabindex="0" outline: none to make the div selectable and receive keydown-->
-		<div id="up" style="display: flex; justify-content: center; align-items: center; outline: none; background-color: lightgray;" tabindex="0">
+		<div id="up" style="display: flex; justify-content: center; align-items: center;">
 			<div id="left" style="display: flex; margin: 2px; padding: 3px; background-color: transparent;">
 				<div class="joystick-container" style="float: left;">
 					<div class="row">
@@ -209,7 +209,7 @@
 		moving = true;
 	}
 
-	$(".joystick-arrow").mousedown(function () {
+	$(".joystick-arrow").on("mousedown", function () {
 		joystick_btn_pressed(this);
 	});
 
@@ -276,38 +276,46 @@
 		stop();
 	}
 
-	$(function () {
-		$("#up").on("focus", function() {
+
+	function joystick_btns_status(enabled) {
+		if (enabled) {
 			$(".joystick-arrow").removeClass('btn_disabled');
 			$("#home_xy").removeClass('btn_disabled');
 			$("#home_z").removeClass('btn_disabled');
-		});
-
-		$("#up").on("focusout", function() {			
+		} else {
 			$(".joystick-arrow").addClass('btn_disabled');
 			$("#home_xy").addClass('btn_disabled');
 			$("#home_z").addClass('btn_disabled');
+		}
+
+	}
+
+	$(function () {
+		$("#joystick_div").on("focus", function() {
+			joystick_btns_status(true);
 		});
 
-		$("#emergency_stop").mouseup(function () {
-			$(this).removeClass("btn_activated");
+		$("#joystick_div").on("focusout", function() {			
+			joystick_btns_status(false);
 		});
-
-		$(".joystick-arrow").mouseup(function () {
+		
+		$(".joystick-arrow").on("drag mouseup mouseout", (function () {
 			joystick_btn_released();
-		}).mouseout(function () {
-			joystick_btn_released();
-		});
+		}));
 		
 		$(".joystick-arrow").on('dragstart', function(event) {
 			event.preventDefault();
 		});
 
-		$(".joystick-arrow").on('drag', function(event) {
-			joystick_btn_released();
+		$("#emergency_stop").on('dragstart', function(event) {
+			event.preventDefault();
 		});
 
-		$("#emergency_stop").mousedown(function () {
+		$("#emergency_stop").on('drag mouseup mouseout', function(event) {
+			$("#emergency_stop").removeClass('btn_activated');
+		});
+
+		$("#emergency_stop").on("mousedown" ,function () {
 			$(this).addClass("btn_activated");
 			$.ajax({								// Do not send through AjaxQueue or sequences do not stop
 				url: "/REST/axes-hard-stop-all",
@@ -318,6 +326,10 @@
 				}
 			});
 			moving = false;
+		});
+
+		$("#brakes_mode_switch").on("click", function (e) {
+			joystick_btns_status(true);
 		});
 
 		var stall_switch = $('#stall_switch').rcSwitcher({
@@ -376,7 +388,7 @@
 		update_switches(); // brings current status from REMA
 
 
-		$("#home_xy").click(function (e, orig_event) {
+		$("#home_xy").on("click", function (e, orig_event) {
 			$(this).addClass("btn_activated");
 			setTimeout(() => {
 
@@ -419,7 +431,7 @@
 			}, 10);
 		});
 
-		$("#home_z").click(function (e, orig_event) {
+		$("#home_z").on("click", function (e, orig_event) {
 			$(this).addClass("btn_activated");
 			setTimeout(() => {
 
@@ -452,6 +464,10 @@
 			}, 10);
 		});
 
+		$("#brakes_mode_switch").on("keydown", function (e) {
+			e.preventDefault();
+		});
+
 		$("#brakes_mode_switch").on("input", function (e) {
 			$.ajaxREMA({
 				data: [{
@@ -472,7 +488,7 @@
 		return keysPressed[keyCode] === true;
 	}
 
-	$("#up").keydown(function (e) {			// for this to work the <div> element should have tabstop="0" 
+	$("#joystick_div").on("keydown", function (e) {			// for this to work the <div> element should have tabstop="0" 
 
 		if (isKeyDown(e.keyCode)) {			// Repeated event?
 			return;
@@ -521,7 +537,7 @@
 		e.preventDefault();
 	});
 
-	$("#up").keyup(function (e) {
+	$("#joystick_div").on("keyup", function (e) {
 		delete keysPressed[e.keyCode];
 		$(".joystick-arrow").trigger("mouseup");
 	});

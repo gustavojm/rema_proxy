@@ -118,7 +118,7 @@
 		var link = document.createElement('a');
 		link.href = URL.createObjectURL(blob);
 		link.download = 'logs.txt';
-		link.click();
+		link.trigger("click");
 		URL.revokeObjectURL(link.href);
 	}
 
@@ -135,11 +135,11 @@
 		get_current_network_log_level();		
 		get_logs();
 
-		$("#clear_logs").click(function () {
+		$("#clear_logs").on("click", function () {
 			$('#logViewer').empty();
 		});
 
-		$("#save_logs_to_file").click(function () {
+		$("#save_logs_to_file").on("click", function () {
 			saveToFile();
 		});
 

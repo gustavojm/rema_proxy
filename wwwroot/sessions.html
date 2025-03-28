@@ -125,7 +125,7 @@
 
 	$(function() {
 		load_sessions();
-		$("#new_session_btn").click(function() {
+		$("#new_session_btn").on("click", function() {
 			$("#new_session_div").dialog("open");
 		});
 	});

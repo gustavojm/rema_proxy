@@ -418,7 +418,7 @@
 						function() {
 							var tubes = $(
 									'#tubesheet_svg .tube_num, #tubesheet_svg circle')
-									.click(
+									.on("click", 
 											function() {
 												var g = $(this).parent();
 												show_tube_info(g);
@@ -579,7 +579,7 @@
 						$("#manage_plans_logs").val("");
 					}
 				});
-				$("#manage_plans_btn").click(function() {					
+				$("#manage_plans_btn").on("click", function() {					
 					manage_plans.dialog("open");
 				});
 			});
@@ -599,7 +599,7 @@
 			autoStick : true,
 		});
 		
-		$("#go_button").click(function() {
+		$("#go_button").on("click", function() {
 			tube_id = $("#tube_info_id").val();
 
 			$.ajax({
@@ -754,7 +754,7 @@
 				.getElementById("left_side_resizable"));
 							
 		
-		$("#calibration_plan_btn").click(function(e) {
+		$("#calibration_plan_btn").on("click", function(e) {
 			$("#tubesheet_tab").toggle();
 			$("#calibration_tab").toggle();
 			if ($(this).text() == "Calibration") {

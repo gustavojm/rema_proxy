@@ -183,7 +183,7 @@ function aligned_tubes_get() {
 			});
 			aligned_coords = data.is_aligned;
 			$('#tubesheet_svg > g > .aligned-tube')
-				.click(
+				.on("click",
 					function() {
 						var g = $(this).parent();
 						aligned_tube_id = replaceString("aligned_", "", g.prop("id"));
@@ -298,14 +298,14 @@ $(function() {
 		}
 	);
 	
-	$("#copy_center").click(function(e) {
+	$("#copy_center").on("click", function(e) {
 		e.preventDefault();
 		$("#determined_coords_x").val($("#ideal_coords_x").val());
 		$("#determined_coords_y").val($("#ideal_coords_y").val());
 		$("#determined_coords_z").val($("#ideal_coords_z").val());
 	}); 
 
-	$("#determine_center").click(function(e) {
+	$("#determine_center").on("click", function(e) {
 		e.preventDefault();
 		cal_point_id = $("#cal_point_tube_id").val();
 		
@@ -343,7 +343,7 @@ $(function() {
 			});			
 	});	
 
-	$("#determine_z").click(function(e, orig_event) {
+	$("#determine_z").on("click", function(e, orig_event) {
 		e.preventDefault();
 		$.ajaxQueue({
 			method : "GET",
@@ -365,7 +365,7 @@ $(function() {
 		});			
 	});
 
-	$("#cal_point_add_update").click(function(e) {
+	$("#cal_point_add_update").on("click", function(e) {
 		e.preventDefault();
 		cal_point_id = $("#cal_point_tube_id").val();
 		if (cal_point_id==="") {			
@@ -389,7 +389,7 @@ $(function() {
 		}
 	});
 
-	$("#show_hide_aligned_tubesheet").click(function(e) {
+	$("#show_hide_aligned_tubesheet").on("click", function(e) {
 		if (showing_aligned_tubeseet) {
 			$(".aligned-tube").remove();
 			showing_aligned_tubeseet = false;

@@ -63,7 +63,7 @@
           });
     });
 
-    $("#remove_plan_btn").click(function () {
+    $("#remove_plan_btn").on("click", function () {
       var plan_name = $("#loaded_plans").val();		
       var confirm_action = confirm("Are you sure you want to remove " + plan_name + " from this session?");
       if (confirm_action) {
