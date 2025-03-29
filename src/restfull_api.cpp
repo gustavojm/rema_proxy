@@ -22,8 +22,8 @@
 #include "chart.hpp"
 
 // These value goes into bresenham error determination that needs to be multiplied by 2
-constexpr int MAX_POSITIVE_SETPOINT = INT32_MAX / 2; 
-constexpr int MAX_NEGATIVE_SETPOINT = INT32_MIN / 2;
+constexpr int MAX_POSITIVE_SETPOINT = 999999999; 
+constexpr int MAX_NEGATIVE_SETPOINT = -MAX_POSITIVE_SETPOINT;
 
 
 void close_rest_session(const std::shared_ptr<restbed::Session>& rest_session, int status) {
