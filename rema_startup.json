@@ -22,7 +22,9 @@
 		"protection": true,
 		"counts_XY": 15,
 		"counts_Z": 5,
-		"debounce_time_ms" : 2000
+		"debounce_time_ms" : 2000,
+		"retract_angle" : 15,
+		"extend_angle" : 97
 		}
     },
 	{"cmd": "STALL_CONTROL_SETTINGS",
