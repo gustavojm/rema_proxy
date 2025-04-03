@@ -214,7 +214,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     auto resource_html_file = std::make_shared<restbed::Resource>();
 
     resource_html_file->set_paths({
-        "/static/{filename: ^.+\\.(html|jpg|png|svg|ico)$}",
+        "/static/{filename: ^.+\\.(html|jpg|png|svg|ico|csv|json)$}",
         "/static/css/{filename: ^.+\\.(css)$}",
         "/static/js/{filename: ^.+\\.(js)$}",
         "/static/css/images/{filename: ^.+\\.(jpg|png)$}",

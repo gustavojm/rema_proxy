@@ -559,13 +559,7 @@
 					modal: true,
 					width: 500,
 					title : "Manage Plans",
-					buttons : [{
-						text : "File Formats",
-						icon: "ui-icon-help",
-            click : function(event) {
-						  window. open ("/static/plans_fileformats.html", "_blank");
-					  }
-					},
+					buttons : [
 					{
 						text : "Close",
 						//icon: "ui-icon-heart",
@@ -577,6 +571,7 @@
 						// Clear form fields on close
 						$("#manage_plans_form")[0].reset();
 						$("#manage_plans_logs").val("");
+						window.location.reload();
 					}
 				});
 				$("#manage_plans_btn").on("click", function() {					
