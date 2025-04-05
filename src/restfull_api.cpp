@@ -653,6 +653,7 @@ void determine_tube_center(const std::shared_ptr<restbed::Session>& rest_session
 
             step.first_axis_setpoint = initial_center.x;    // Go back to initial center
             step.second_axis_setpoint = initial_center.y;
+            step.speed = speed::NORMAL;
             seq.push_back(step);
 
             vertex += 2;
@@ -718,6 +719,7 @@ void determine_tubesheet_z(const std::shared_ptr<restbed::Session>& rest_session
     nlohmann::json res;
     movement_cmd first_touch_search;
     first_touch_search.axes = "Z";
+    first_touch_search.speed = speed::SLOW;
     first_touch_search.first_axis_setpoint = MAX_POSITIVE_SETPOINT;
     first_touch_search.second_axis_setpoint = 0;
 
@@ -748,6 +750,7 @@ void determine_tubesheet_z(const std::shared_ptr<restbed::Session>& rest_session
 
     movement_cmd second_touch_search;
     second_touch_search.axes = "Z";
+    second_touch_search.speed = speed::SLOW;
     second_touch_search.first_axis_setpoint = first_touch_z + 0.1;
     second_touch_search.second_axis_setpoint = 0;
     second_touch_search.is_relevant = true;
@@ -784,6 +787,7 @@ void determine_tubesheet_z(const std::shared_ptr<restbed::Session>& rest_session
     int status = restbed::OK;
     movement_cmd goto_tubesheet;
     goto_tubesheet.axes = "Z";
+    goto_tubesheet.speed = speed::SLOW;
     goto_tubesheet.first_axis_setpoint = z;
     goto_tubesheet.second_axis_setpoint = 0;
 

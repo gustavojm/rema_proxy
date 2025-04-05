@@ -372,7 +372,7 @@
 				if (current_tab == TUBESHEET_VIEW_TAB && typeof (update_bullseye_position) === "function") {
 					update_bullseye_position(pos_x, pos_y);
 					if (do_first_zoom) {
-						zoom_svg($("#zoom_bar").slider("value"));
+						zoom_svg($("#zoom_bar").slider("value"), "bullseye");
 						do_first_zoom = false;
 					}
 
@@ -383,7 +383,7 @@
 							try {
 								zoom_value = $("#zoom_bar").slider("value")
 							} catch (e) { };
-							zoom_svg(zoom_value);
+							zoom_svg(zoom_value, "bullseye");
 						}
 						prev_pos_x = pos_x;
 						prev_pos_y = pos_y;
