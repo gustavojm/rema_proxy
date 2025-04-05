@@ -648,6 +648,7 @@ void determine_tube_center(const std::shared_ptr<restbed::Session>& rest_session
             step.first_axis_setpoint = point.x;
             step.second_axis_setpoint = point.y;
             step.is_relevant = true;
+            step.speed = speed::SLOW;
             seq.push_back(step);
 
             step.first_axis_setpoint = initial_center.x;    // Go back to initial center
@@ -683,6 +684,7 @@ void determine_tube_center(const std::shared_ptr<restbed::Session>& rest_session
         goto_center.axes = "XY";
         goto_center.first_axis_setpoint = circle.center.x;
         goto_center.second_axis_setpoint = circle.center.y;
+        goto_center.speed = speed::SLOW;
 
         res["center"] = { { "x", circle.center.x - tool.offset.x },
                             { "y", circle.center.y - tool.offset.y },

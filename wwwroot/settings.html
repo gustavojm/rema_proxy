@@ -50,13 +50,25 @@
                                 data-inputmask-alias="numeric" data-inputmask-greedy="false" data-inputmask-digits="0"
                                 data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">ms</label>
                     </div>
+                    <div class="row" style="position: relative; width:100%; justify-content: space-between;">Normal Speed</div>                    
                     <div class="row" style="position: relative; width:100%; justify-content: space-between;">
-                        <label>Maximum Frequency: <input type="text" name="max_freq" size="4"
+                        <label>Minimum Frequency: <input type="text" name="normal_min_freq" size="4"
                                 data-inputmask-alias="numeric" data-inputmask-greedy="false" data-inputmask-digits="0"
                                 data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">hz</label>
                     </div>
                     <div class="row" style="position: relative; width:100%; justify-content: space-between;">
-                        <label>Minimum Frequency: <input type="text" name="min_freq" size="4"
+                        <label>Maximum Frequency: <input type="text" name="normal_max_freq" size="4"
+                                data-inputmask-alias="numeric" data-inputmask-greedy="false" data-inputmask-digits="0"
+                                data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">hz</label>
+                    </div>
+                    <div class="row" style="position: relative; width:100%; justify-content: space-between;">Slow Speed (For Calibrations)</div>                    
+                    <div class="row" style="position: relative; width:100%; justify-content: space-between;">
+                        <label>Minimum Frequency: <input type="text" name="slow_min_freq" size="4"
+                                data-inputmask-alias="numeric" data-inputmask-greedy="false" data-inputmask-digits="0"
+                                data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">hz</label>
+                    </div>
+                    <div class="row" style="position: relative; width:100%; justify-content: space-between;">
+                        <label>Maximum Frequency: <input type="text" name="slow_max_freq" size="4"
                                 data-inputmask-alias="numeric" data-inputmask-greedy="false" data-inputmask-digits="0"
                                 data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">hz</label>
                     </div>
@@ -74,18 +86,30 @@
                                 data-inputmask-alias="numeric" data-inputmask-greedy="false" data-inputmask-digits="0"
                                 data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">%</label>
                     </div>
+                    <div class="row" style="position: relative; width:100%; justify-content: space-between;">Normal Speed</div>
                     <div class="row" style="position: relative; width:100%; justify-content: space-between;">
                         <label>Update Time: <input type="text" name="update_time" size="4"
                                 data-inputmask-alias="numeric" data-inputmask-greedy="false" data-inputmask-digits="0"
                                 data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">ms</label>
                     </div>
                     <div class="row" style="position: relative; width:100%; justify-content: space-between;">
-                        <label>Maximum Frequency: <input type="text" name="max_freq" size="4"
+                        <label>Minimum Frequency: <input type="text" name="normal_min_freq" size="4"
                                 data-inputmask-alias="numeric" data-inputmask-greedy="false" data-inputmask-digits="0"
                                 data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">hz</label>
                     </div>
                     <div class="row" style="position: relative; width:100%; justify-content: space-between;">
-                        <label>Minimum Frequency: <input type="text" name="min_freq" size="4"
+                        <label>Maximum Frequency: <input type="text" name="normal_max_freq" size="4"
+                                data-inputmask-alias="numeric" data-inputmask-greedy="false" data-inputmask-digits="0"
+                                data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">hz</label>
+                    </div>
+                    <div class="row" style="position: relative; width:100%; justify-content: space-between;">Slow Speed (For Calibrations)</div>
+                    <div class="row" style="position: relative; width:100%; justify-content: space-between;">
+                        <label>Minimum Frequency: <input type="text" name="slow_min_freq" size="4"
+                                data-inputmask-alias="numeric" data-inputmask-greedy="false" data-inputmask-digits="0"
+                                data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">hz</label>
+                    </div>
+                    <div class="row" style="position: relative; width:100%; justify-content: space-between;">
+                        <label>Maximum Frequency: <input type="text" name="slow_max_freq" size="4"
                                 data-inputmask-alias="numeric" data-inputmask-greedy="false" data-inputmask-digits="0"
                                 data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">hz</label>
                     </div>
@@ -170,13 +194,17 @@
                 axes_settings = data.AXES_SETTINGS
                 $('#x_axes_config [name="prop_gain"]').val(axes_settings.XY.prop_gain);
                 $('#x_axes_config [name="update_time"]').val(axes_settings.XY.update_time);
-                $('#x_axes_config [name="min_freq"]').val(axes_settings.XY.min_freq);
-                $('#x_axes_config [name="max_freq"]').val(axes_settings.XY.max_freq);
+                $('#x_axes_config [name="normal_min_freq"]').val(axes_settings.XY.normal_min_freq);
+                $('#x_axes_config [name="normal_max_freq"]').val(axes_settings.XY.normal_max_freq);
+                $('#x_axes_config [name="slow_min_freq"]').val(axes_settings.XY.slow_min_freq);
+                $('#x_axes_config [name="slow_max_freq"]').val(axes_settings.XY.slow_max_freq);
 
                 $('#z_axes_config [name="prop_gain"]').val(axes_settings.Z.prop_gain);
                 $('#z_axes_config [name="update_time"]').val(axes_settings.Z.update_time);
-                $('#z_axes_config [name="min_freq"]').val(axes_settings.Z.min_freq);
-                $('#z_axes_config [name="max_freq"]').val(axes_settings.Z.max_freq);
+                $('#z_axes_config [name="normal_min_freq"]').val(axes_settings.Z.normal_min_freq);
+                $('#z_axes_config [name="normal_max_freq"]').val(axes_settings.Z.normal_max_freq);
+                $('#z_axes_config [name="slow_min_freq"]').val(axes_settings.Z.slow_min_freq);
+                $('#z_axes_config [name="slow_max_freq"]').val(axes_settings.Z.slow_max_freq);
 
                 $("#uart_log_level").val(data.LOG_LEVEL.local_level).change();
                 get_network_settings();
@@ -230,8 +258,11 @@
         axes = $(div).data("axes");
         prop_gain = parseInt($(div).find('[name="prop_gain"]').val()) || 100;
         update_time = parseInt($(div).find('[name="update_time"]').val()) || 100;
-        max_freq = parseInt($(div).find('[name="max_freq"]').val()) || 125000;
-        min_freq = parseInt($(div).find('[name="min_freq"]').val()) || 10000;
+        normal_min_freq = parseInt($(div).find('[name="normal_min_freq"]').val()) || 10000;
+        normal_max_freq = parseInt($(div).find('[name="normal_max_freq"]').val()) || 125000;
+
+        slow_min_freq = parseInt($(div).find('[name="slow_min_freq"]').val()) || 1000;
+        slow_max_freq = parseInt($(div).find('[name="slow_max_freq"]').val()) || 25000;
 
         $.ajaxREMA({
             data: [{
@@ -240,8 +271,10 @@
                     axes: axes,
                     prop_gain: prop_gain,
                     update: update_time,
-                    min: min_freq,
-                    max: max_freq,
+                    normal_min: normal_min_freq,
+                    normal_max: normal_max_freq,
+                    slow_min: slow_min_freq,
+                    slow_max: slow_max_freq,
                 }
             }],
             success: function (data) {

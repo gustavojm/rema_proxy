@@ -224,6 +224,7 @@ nlohmann::json REMA::move_closed_loop(movement_cmd cmd) {
     return execute_command(
         "MOVE_CLOSED_LOOP",
         { { "axes", cmd.axes },
+          { "speed", magic_enum::enum_name(cmd.speed) },
           { "first_axis_setpoint", cmd.first_axis_setpoint },
           { "second_axis_setpoint", cmd.second_axis_setpoint } });
 }

@@ -14,6 +14,7 @@
 #include "tool.hpp"
 #include "telemetry.hpp"
 #include "log_pattern.hpp"
+#include "magic_enum/magic_enum.hpp"
 
 inline const std::filesystem::path config_file_path = "config.json";
 inline const std::filesystem::path rema_dir = std::filesystem::path("rema");
@@ -25,8 +26,11 @@ struct temps {
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(temps, x, y, z)
 
+enum speed {SLOW, NORMAL};
+
 struct movement_cmd {
     std::string axes;
+    enum speed speed = speed::NORMAL;
     double first_axis_setpoint;
     double second_axis_setpoint;
     bool is_relevant = false;

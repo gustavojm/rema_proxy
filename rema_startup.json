@@ -4,8 +4,10 @@
         "axes": "XY",
 		"prop_gain": 20,
 		"update": 100,
-		"min": 2500,
-		"max": 60000
+		"normal_min": 2500,
+		"normal_max": 60000,
+		"slow_min": 50,
+		"slow_max": 80
 	 }
     },
 	{"cmd": "AXES_SETTINGS",
@@ -13,8 +15,10 @@
         "axes": "Z",
 		"prop_gain": 20,
 		"update": 100,
-		"min": 2500,
-		"max": 60000
+		"normal_min": 2500,
+		"normal_max": 60000,
+		"slow_min": 25,
+		"slow_max": 60
 	 }
     },	
 	{"cmd": "TOUCH_PROBE_SETTINGS",
