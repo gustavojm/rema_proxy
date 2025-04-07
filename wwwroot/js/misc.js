@@ -144,6 +144,17 @@ function AjaxREMA(dataObject, successCallback, errorCallback) {
     });
 }
 
+function preventFocus(event) {
+    if (event.relatedTarget) {
+      // Revert focus back to previous blurring element
+      event.relatedTarget.focus();
+    } else {
+      // No previous focus target, blur instead
+      this.blur();
+      // Alternatively: event.currentTarget.blur();
+    }
+}
+
 (function($) {
     
     $.ajaxREMA = function (ajaxOpts) {

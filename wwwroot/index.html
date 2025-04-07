@@ -617,8 +617,11 @@
 				});
 			});
 
-			notifications_outer_left = $("#tabs").width() - $("#notifications_outer").width() - 20;
-			notifications_outer_top = $("#tabs").height() - $("#notifications_outer").height() + 5;
+			// notifications_outer_left = $("#tabs").width() - $("#notifications_outer").width() - 20;
+			// notifications_outer_top = $("#tabs").height() - $("#notifications_outer").height() + 5;
+
+			notifications_outer_left = 20;
+			notifications_outer_top = notifications_outer_top = $("#tabs").height() - $("#notifications_outer").height() - 40;
 
 			$("#notifications_outer").css("left", notifications_outer_left + 'px');
 			$("#notifications_outer").css("top", notifications_outer_top + 'px');

@@ -28,6 +28,7 @@
 				Row:<input type="text" id="tube_info_row" name="row" size="4" readonly>
 				X:<input type="text" id="tube_info_x" name="x" size="4" readonly>
 				Y:<input type="text" id="tube_info_y" name="y" size="4" readonly> <span class="unit">inch</span>
+				<input type="button" tabindex="-1" id="go_button" style="background-color: springgreen; width: 40px;" value="GO">
 			</form>
 			<div style="float: right; width: 20%;">
 				<span style="float:right; padding-left: 15px; padding-right: 10px;" id="leg_switch_span">
@@ -77,8 +78,6 @@
 				<div id="tableNavigationButtons" style="text-align: center; padding: 10px;">
 					<button id="previous_btn" class="nav-buttons">Previous</button>
 					<button id="next_btn" class="nav-buttons">Next</button>
-					<button id="go_button" class="nav-buttons"
-						style="background-color: springgreen; width: 40px;">GO</button>
 				</div>
 			</div>
 
@@ -606,6 +605,8 @@
 			autoFontSize: true,
 			autoStick: true,
 		});
+
+		$("#go_button").on("focus", preventFocus);
 
 		$("#go_button").on("click", function () {
 			tube_id = $("#tube_info_id").val();
