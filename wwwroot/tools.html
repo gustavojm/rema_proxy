@@ -3,8 +3,8 @@
 <script type="text/javascript" src="js/datatables.min.js"></script>
 
 
-<div id="new_tool_div" style="overflow: hidden; width: 100%;">
-	<form id="tool_create">
+<div id="add_edit_tool_div" style="overflow: hidden; width: 100%;">
+	<form id="add_edit_tool_form">
 		<div>
 			<div style="padding-bottom: 10px;">
 				<label>Tool Name: <input type="text" name="tool_name" /></label><input type="checkbox" name="is_touch_probe"> Is touch Probe
@@ -21,7 +21,7 @@
 		</div>
 	</form>
 	<div style="padding-bottom: 10px; padding-top: 10px;">
-		<textarea id="new_tool_logs" style="width: 100%" readonly="readonly"></textarea>
+		<textarea id="add_edit_tool_logs" style="width: 100%" readonly="readonly"></textarea>
 	</div>	
 </div>
 
@@ -79,7 +79,10 @@
 							{
 								data : null,
 								render : function(data, type, row) {
-									return '<a class="ui-icon ui-icon-trash" href="#" data-name="'
+									return '<a class="ui-icon ui-icon-pencil" href="#" data-name="'
+											+ row.name + '">' + row.name
+											+ '</a>' 
+											+ '<a class="ui-icon ui-icon-trash" href="#" data-name="'
 											+ row.name + '">' + row.name
 											+ '</a>';
 								}
@@ -95,6 +98,31 @@
 				});
 		
 		table.on('draw.dt', function(e, settings, json, xhr) {			
+			$(".ui-icon-pencil").on("click", function() {				
+				tool_name = $(this).data("name");
+				$.ajax({
+					url : "/REST/tools/" + tool_name,
+					type : "GET",
+					success: function(data) {						
+						$("input[name='tool_name']").val(data.name);
+						$("input[name='tool_name']").prop("readonly", true);
+						$("input[name='is_touch_probe']").prop("checked", data.is_touch_probe);
+						$("input[name='is_touch_probe']").prop("disabled", data.is_touch_probe);
+						
+						$("input[name='offset_x']").val(data.offset.x);
+						$("input[name='offset_y']").val(data.offset.y);
+						$("input[name='offset_z']").val(data.offset.z);
+						
+						$("input[name='offset_x']").prop("readonly", data.is_touch_probe);
+						$("input[name='offset_y']").prop("readonly", data.is_touch_probe);
+						$("input[name='offset_z']").prop("readonly", data.is_touch_probe);
+					}
+				});
+
+				$("#add_edit_tool_div").dialog("open");
+
+			});
+			
 			$(".ui-icon-trash").on("click", function() {
 				var tool_name = $(this).data("name");
 				
@@ -121,7 +149,14 @@
 	$(function() {
 		load_tools();
 		$("#new_tool_btn").on("click", function() {
-			$("#new_tool_div").dialog("open");
+			$("input[name='tool_name']").prop("readonly", false);
+			$("input[name='is_touch_probe']").prop("disabled", false);
+			
+			$("input[name='offset_x']").prop("readonly", false);
+			$("input[name='offset_y']").prop("readonly", false);
+			$("input[name='offset_z']").prop("readonly", false);
+
+			$("#add_edit_tool_div").dialog("open");
 		});
 
 		$("input[name='is_touch_probe']").change(function () {
@@ -138,28 +173,28 @@
 	});
 
 	function create_dialog() {
-		var dialog = $("#new_tool_div").dialog({
+		var dialog = $("#add_edit_tool_div").dialog({
 			autoOpen : false,
-			title : "New Tool",
+			title : "Add/Edit Tool",
 			//modal : true,
 			width: "450px",
 			buttons : [ {
-				text : "Create",
+				text : "Add/Update",
 				//icon: "ui-icon-heart",
 				click : function(event) {
 		        	$.ajax({
 						url : "/REST/tools",
 						type : "POST",
-						data: JSON.stringify(Object.fromEntries(new FormData(document.getElementById("tool_create")))),
+						data: JSON.stringify(Object.fromEntries(new FormData(document.getElementById("add_edit_tool_form")))),
 						success: function(data) {
-							$("#new_tool_logs").val(data);
+							$("#add_edit_tool_logs").val(data);
 							get_rema_info();	// To reload the Tools selector
 							table.ajax.reload();
 							$(event.target).hide(); // Hides the "Create" button
 						},
 						error: function(xhr, status, error) {							
 							console.log("Error", status, error);
-							$("#new_tool_logs").val(xhr.responseText);
+							$("#add_edit_tool_logs").val(xhr.responseText);
 
 						}						
 		        	});
@@ -169,14 +204,18 @@
 				text : "Close",
 				//icon: "ui-icon-heart",
 				click : function(event) {
-					dialog.find("form")[0].reset();
 					dialog.dialog("close");
-					dialog.dialog("destroy");
-					$("#new_tool_logs").val("");
-					create_dialog();
-					table.ajax.reload();
 				}
-			} ]
+			} ],
+			close: function () {
+				dialog.find("form")[0].reset();
+				dialog.dialog("close");
+				dialog.dialog("destroy");
+				$("#add_edit_tool_logs").val("");
+				create_dialog();
+				table.ajax.reload();
+			}
+
 		});
 	}
 

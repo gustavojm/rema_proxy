@@ -140,7 +140,13 @@ void tools_list(const std::shared_ptr<restbed::Session>& rest_session) {
     close_rest_session(rest_session, restbed::OK, REMA::tools);
 }
 
-void tools_create(const std::shared_ptr<restbed::Session> rest_session) {
+void tools_info(const std::shared_ptr<restbed::Session>& rest_session) {
+    const auto request = rest_session->get_request();
+    std::string tool_name = request->get_path_parameter("tool_name", "");
+    close_rest_session(rest_session, restbed::OK, REMA::tools.at(tool_name));
+}
+
+void tools_add_update(const std::shared_ptr<restbed::Session> rest_session) {
     const auto request = rest_session->get_request();
     size_t content_length = request->get_header("Content-Length", 0);
     rest_session->fetch(
@@ -166,7 +172,7 @@ void tools_create(const std::shared_ptr<restbed::Session> rest_session) {
                     Tool new_tool(tool_name, { offset_x, offset_y, offset_z }, is_touch_probe);
                     new_tool.save_to_disk();
                     REMA::add_tool(new_tool);
-                    res = "Tool created Successfully";
+                    res = "Tool Added/Updated Successfully";
                     status = restbed::CREATED;
                 }
             } catch (const std::invalid_argument &e) {
@@ -872,9 +878,9 @@ void restfull_api_create_endpoints(restbed::Service &service) {
         { "tools",
           {
               { "GET", &tools_list },
-              { "POST", &tools_create },
+              { "POST", &tools_add_update },
           } },
-        { "tools/{tool_name: .*}", { { "DELETE", &tools_delete } } },
+        { "tools/{tool_name: .*}", { { "GET", &tools_info }, { "DELETE", &tools_delete } } },
         { "tools/{tool_name: .*}/select", { { "POST", &tools_select } } },
         { "tools/{tool_name: .*}/would_move_touch_probe", { { "POST", &would_move_touch_probe } } },
         {
