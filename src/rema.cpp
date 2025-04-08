@@ -246,7 +246,7 @@ tl::expected<void, std::string> REMA::execute_step(movement_cmd& step) {
         return tl::make_unexpected(cmd_response["MOVE_CLOSED_LOOP"]["error"]);
     }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000)); // Wait for telemetry update...
+    std::this_thread::sleep_for(std::chrono::milliseconds(400)); // Wait for telemetry update...
 
     bool stopped_on_probe = false;
     bool stopped_on_condition = false;
@@ -301,7 +301,6 @@ tl::expected<void, std::string> REMA::execute_sequence(std::vector<movement_cmd>
     is_sequence_in_progress = true;
     execute_command("AXES_SOFT_STOP_ALL");
 
-    // Create an individual command object and add it to the array
     for (auto &step : sequence) {
         auto ret = execute_step(step);
         if (!ret) {
