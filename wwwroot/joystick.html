@@ -64,7 +64,8 @@
 					<div class="row">
 						<div class="joystick-limit-vertical off" data-limit="left"></div>
 						<img alt="" src="images/left.png" class="joystick-arrow" data-dir="left" title="KeyPad 4">
-						<img alt="" src="images/home.png" class="joystick-arrow-home" data-dir="none" id="home_xy" title="Shift to Detect Center">
+						<img alt="" src="images/home.png" class="joystick-arrow-home" data-dir="none" id="home_xy"
+							title="Shift to Detect Center">
 						<img alt="" src="images/right.png" class="joystick-arrow" data-dir="right" title="KeyPad 6">
 						<div class="joystick-limit-vertical off" data-limit="right"></div>
 					</div>
@@ -92,68 +93,70 @@
 					<div class="row">
 						<img alt="" src="images/z_up.png" class="joystick-arrow" data-dir="z_in" title="KeyPad +">
 					</div>
-					<img alt="" src="images/home.png" class="joystick-arrow-home" data-dir="none" id="home_z" title="Shift to Detect Tubesheet">
+					<img alt="" src="images/home.png" class="joystick-arrow-home" data-dir="none" id="home_z"
+						title="Shift to Detect Tubesheet">
 					<div class=" row">
-					<img alt="" src="images/z_down.png" class="joystick-arrow" data-dir="z_out" title="KeyPad -">
-				</div>
-				<div class="row">
-					<div class="joystick-limit-horizontal off" data-limit="out"></div>
+						<img alt="" src="images/z_down.png" class="joystick-arrow" data-dir="z_out" title="KeyPad -">
+					</div>
+					<div class="row">
+						<div class="joystick-limit-horizontal off" data-limit="out"></div>
+					</div>
 				</div>
 			</div>
 		</div>
-	</div>
-	<div>
-		<hr>
-	</div>
-	<div class="row" style="float: left; width: 100%;">
-		<div style="width: 50%; text-align: center;	align-items: center;
+		<div>
+			<hr>
+		</div>
+		<div class="row" style="float: left; width: 100%;">
+			<div style="width: 50%; text-align: center;	align-items: center;
 				display: flex;	flex-direction: column;">
-			<div>
-			</div>
-			<datalist id="steplist">
-				<option>0</option>
-				<option>1</option>
-				<option>2</option>
-			</datalist>
-			<div class="options">
-				<h1>Brakes</h1>
-				<input class="slider" type="range" min="0" max="2" step="1" list="steplist" id="brakes_mode_switch" />
-				<div class="ticks">
-					<span class="o_txt">OFF</span>
-					<span class="o_txt o_on">AUTO</span>
-					<span class="o_txt">ON</span>
-				</div>
-			</div>
-		</div>
-		<div style="float: left; width: 50%;">
-			<div style="text-align: center;">
 				<div>
-					<img alt="" src="images/stop_red.png" class="emergency-stop" id="emergency_stop"
-						title="Ctrl + Space">
+				</div>
+				<datalist id="steplist">
+					<option>0</option>
+					<option>1</option>
+					<option>2</option>
+				</datalist>
+				<div class="options">
+					<h1>Brakes</h1>
+					<input class="slider" type="range" min="0" max="2" step="1" list="steplist"
+						id="brakes_mode_switch" />
+					<div class="ticks">
+						<span class="o_txt">OFF</span>
+						<span class="o_txt o_on">AUTO</span>
+						<span class="o_txt">ON</span>
+					</div>
+				</div>
+			</div>
+			<div style="float: left; width: 50%;">
+				<div style="text-align: center;">
+					<div>
+						<img alt="" src="images/stop_red.png" class="emergency-stop" id="emergency_stop"
+							title="Ctrl + Space">
+					</div>
 				</div>
 			</div>
 		</div>
-	</div>
-	<div class="row" style="float: left; width: 100%;">
-		<div style="width: 50%; text-align: center;	align-items: center;
+		<div class="row" style="float: left; width: 100%;">
+			<div style="width: 50%; text-align: center;	align-items: center;
 				display: flex;	flex-direction: column;">
-			<div class="options">
-				<h1>Stall</h1>
-				<div style="margin-bottom: 5px;">
-					<input type="checkbox" name="stall_switch" id="stall_switch">
+				<div class="options">
+					<h1>Stall</h1>
+					<div style="margin-bottom: 5px;">
+						<input type="checkbox" name="stall_switch" id="stall_switch">
+					</div>
 				</div>
 			</div>
-		</div>
-		<div style="width: 50%; text-align: center;	align-items: center;
+			<div style="width: 50%; text-align: center;	align-items: center;
 				display: flex;	flex-direction: column;">
-			<div class="options">
-				<h1>Power</h1>
-				<div style="margin-bottom: 5px;">
-					<input type="checkbox" name="power_switch" id="power_switch">
+				<div class="options">
+					<h1>Power</h1>
+					<div style="margin-bottom: 5px;">
+						<input type="checkbox" name="power_switch" id="power_switch">
+					</div>
 				</div>
 			</div>
 		</div>
-	</div>
 	</div>
 
 </body>
@@ -290,31 +293,31 @@
 	}
 
 	$(function () {
-		$("#joystick_div").on("focus", function() {
+		$("#joystick_div").on("focus", function () {
 			joystick_btns_status(true);
 		});
 
-		$("#joystick_div").on("focusout", function() {			
+		$("#joystick_div").on("focusout", function () {
 			joystick_btns_status(false);
 		});
-		
+
 		$(".joystick-arrow").on("drag mouseup mouseout", (function () {
 			joystick_btn_released();
 		}));
-		
-		$(".joystick-arrow").on('dragstart', function(event) {
+
+		$(".joystick-arrow").on('dragstart', function (event) {
 			event.preventDefault();
 		});
 
-		$("#emergency_stop").on('dragstart', function(event) {
+		$("#emergency_stop").on('dragstart', function (event) {
 			event.preventDefault();
 		});
 
-		$("#emergency_stop").on('drag mouseup mouseout', function(event) {
+		$("#emergency_stop").on('drag mouseup mouseout', function (event) {
 			$("#emergency_stop").removeClass('btn_activated');
 		});
 
-		$("#emergency_stop").on("mousedown" ,function () {
+		$("#emergency_stop").on("mousedown", function () {
 			$(this).addClass("btn_activated");
 			$.ajax({								// Do not send through AjaxQueue or sequences do not stop
 				url: "/REST/axes-hard-stop-all",
@@ -374,12 +377,12 @@
 				success: function (data) {
 					control_enabled = data.CONTROL_ENABLE.status;
 					power_switch.prop('checked', control_enabled).trigger("change");
-					
+
 					var tools_dropdown = $('#tools');
 					tool_is_touch_probe = $("option:selected", tools_dropdown).data("is_touch_probe");
 					if (control_enabled && tool_is_touch_probe) {
 						$("#brakes_mode_switch").val(0).trigger("input");		// OFF
-					}					
+					}
 				}
 			});
 		});
@@ -404,21 +407,27 @@
 					if (tube_id == "") {
 						add_notification("PLEASE SELECT A TUBE");
 					} else {
-						if (confirm("Are you sure you want to determine current tube center and make it position X:" + toFixedIfNecessary(x, decimals) + ", Y:" + toFixedIfNecessary(y, decimals) + " ?")) {
-							$.ajax({
-								method: "GET",
-								url: "/REST/determine-tube-center/" + tube_id + "/true",
-								data: JSON.stringify(),
-								timeout: 50000,
-							})
-								.catch(function (e) {
-									if (e.statusText == 'timeout') {
-										// TODO Send a cancel command? 
-										add_notification("TIMEOUT: CENTER DETERMINATION TOOK TOO LONG", "Error");
-									} else {
-										add_notification(e.responseJSON.error.toUpperCase(), "Error");
-									}
-								});
+						var tools_dropdown = $('#tools');
+						tool_is_touch_probe = $("option:selected", tools_dropdown).data("is_touch_probe");
+						if (!tool_is_touch_probe) {
+							alert("This operation can only be performed with Touch Probe selected");
+						} else {
+							if (confirm("Are you sure you want to determine current tube center and make it position X:" + toFixedIfNecessary(x, decimals) + ", Y:" + toFixedIfNecessary(y, decimals) + " ?")) {
+								$.ajax({
+									method: "GET",
+									url: "/REST/determine-tube-center/" + tube_id + "/true",
+									data: JSON.stringify(),
+									timeout: 50000,
+								})
+									.catch(function (e) {
+										if (e.statusText == 'timeout') {
+											// TODO Send a cancel command? 
+											add_notification("TIMEOUT: CENTER DETERMINATION TOOK TOO LONG", "Error");
+										} else {
+											add_notification(e.responseJSON.error.toUpperCase(), "Error");
+										}
+									});
+							}
 						}
 					}
 				} else {
@@ -438,21 +447,27 @@
 					e = orig_event;
 				}
 				if (e.shiftKey) {
-					if (confirm("Are you sure you want to determine the position of the tubesheet and make it position Z:0 ?")) {
-						$.ajaxQueue({
-							method: "GET",
-							url: "/REST/determine-tubesheet-z/true",
-							data: JSON.stringify(),
-							timeout: 50000,
-						})
-							.catch(function (e) {
-								if (e.statusText == 'timeout') {
-									// TODO Send a cancel command? 
-									add_notification("TIMEOUT: TUBESHEET POSITION DETERMINATION TOOK TOO LONG", "Error");
-								} else {
-									add_notification(e.responseJSON.error.toUpperCase(), "Error");
-								}
-							});
+					var tools_dropdown = $('#tools');
+					tool_is_touch_probe = $("option:selected", tools_dropdown).data("is_touch_probe");
+					if (!tool_is_touch_probe) {
+						alert("This operation can only be performed with Touch Probe selected");
+					} else {
+						if (confirm("Are you sure you want to determine the position of the tubesheet and make it position Z:0 ?")) {
+							$.ajaxQueue({
+								method: "GET",
+								url: "/REST/determine-tubesheet-z/true",
+								data: JSON.stringify(),
+								timeout: 50000,
+							})
+								.catch(function (e) {
+									if (e.statusText == 'timeout') {
+										// TODO Send a cancel command? 
+										add_notification("TIMEOUT: TUBESHEET POSITION DETERMINATION TOOK TOO LONG", "Error");
+									} else {
+										add_notification(e.responseJSON.error.toUpperCase(), "Error");
+									}
+								});
+						}
 					}
 				} else {
 					if (confirm("Are you sure you want to make current position Z:0 ?")) {
@@ -494,7 +509,7 @@
 		}
 
 		keysPressed[e.keyCode] = true;
-		
+
 		if (e.originalEvent.location === 3) {		// From the Numeric Pad with Numlock Off
 			switch (e.keyCode) {
 				case 36:			// 7 from keypad with numlock off
