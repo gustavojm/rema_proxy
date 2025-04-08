@@ -191,7 +191,7 @@ function aligned_tubes_get() {
 						show_tube_info(ideal_tube_g);
 					});
 			
-			$("#aligned_position").prop("checked", aligned_coords).change();
+			$("#aligned_position").prop("checked", aligned_coords).trigger("change");
 		},
 		error: function(xhr, status, error) {
 			add_notification("ERROR", "Error");

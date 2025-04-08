@@ -64,8 +64,7 @@
 					<div class="row">
 						<div class="joystick-limit-vertical off" data-limit="left"></div>
 						<img alt="" src="images/left.png" class="joystick-arrow" data-dir="left" title="KeyPad 4">
-						<img alt="" src="images/home.png" class="joystick-arrow-home" data-dir="none" id="home_xy"
-							title="KeyPad 5">
+						<img alt="" src="images/home.png" class="joystick-arrow-home" data-dir="none" id="home_xy" title="Shift to Detect Center">
 						<img alt="" src="images/right.png" class="joystick-arrow" data-dir="right" title="KeyPad 6">
 						<div class="joystick-limit-vertical off" data-limit="right"></div>
 					</div>
@@ -93,7 +92,7 @@
 					<div class="row">
 						<img alt="" src="images/z_up.png" class="joystick-arrow" data-dir="z_in" title="KeyPad +">
 					</div>
-					<img alt="" src="images/home.png" class="joystick-arrow-home" data-dir="none" id="home_z" title="Z"">
+					<img alt="" src="images/home.png" class="joystick-arrow-home" data-dir="none" id="home_z" title="Shift to Detect Tubesheet">
 					<div class=" row">
 					<img alt="" src="images/z_down.png" class="joystick-arrow" data-dir="z_out" title="KeyPad -">
 				</div>
@@ -223,14 +222,14 @@
 			success: function (data) {
 				var power_switch = $('#power_switch');
 				control_enabled = data["CONTROL_ENABLE"].status;
-				power_switch.prop('checked', control_enabled).change();
+				power_switch.prop('checked', control_enabled).trigger("change");
 
 				if (control_enabled == true) {
 					$("#brakes_mode_switch").value = ON_AUTO_OFF.revGet(data["BRAKES_MODE"].status);
 				}
 
 				var stall_switch = $('#stall_switch');
-				stall_switch.prop('checked', data["STALL_CONTROL_SETTINGS"].status).change();
+				stall_switch.prop('checked', data["STALL_CONTROL_SETTINGS"].status).trigger("change");
 
 				touch_probe_protection_control(data["TOUCH_PROBE_SETTINGS"].protection);
 			}
@@ -350,7 +349,7 @@
 					pars: { enabled: stall_switch.is(':checked') },
 				}],
 				success: function (data) {
-					stall_switch.prop('checked', data.STALL_CONTROL_SETTINGS.status).change();
+					stall_switch.prop('checked', data.STALL_CONTROL_SETTINGS.status).trigger("change");
 				}
 			});
 		});
@@ -374,7 +373,7 @@
 				}],
 				success: function (data) {
 					control_enabled = data.CONTROL_ENABLE.status;
-					power_switch.prop('checked', control_enabled).change();
+					power_switch.prop('checked', control_enabled).trigger("change");
 					
 					var tools_dropdown = $('#tools');
 					tool_is_touch_probe = $("option:selected", tools_dropdown).data("is_touch_probe");

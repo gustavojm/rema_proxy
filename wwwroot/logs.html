@@ -126,7 +126,7 @@
 		$.ajaxREMA({
 			data: [{ cmd: "LOG_LEVEL" }],
 			success: function (data) {
-				$("#net_log_level").val(data.LOG_LEVEL.net_level).change();				
+				$("#net_log_level").val(data.LOG_LEVEL.net_level).trigger("change");
 			}
 		});
 	}
@@ -147,7 +147,7 @@
 			clearTimeout(timer_logs);
 		});
 
-		$("#net_log_level").change(function (e) {
+		$("#net_log_level").on("change", function (e) {
 			var level = $("option:selected", this).val();
 			if (level != "") {
 				var level_class = $("option:selected", this).attr("class");

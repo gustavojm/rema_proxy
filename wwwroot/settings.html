@@ -206,7 +206,7 @@
                 $('#z_axes_config [name="slow_min_freq"]').val(axes_settings.Z.slow_min_freq);
                 $('#z_axes_config [name="slow_max_freq"]').val(axes_settings.Z.slow_max_freq);
 
-                $("#uart_log_level").val(data.LOG_LEVEL.local_level).change();
+                $("#uart_log_level").val(data.LOG_LEVEL.local_level).trigger("change");
                 get_network_settings();
 
                 $('#touch_probe_settings_form [name="counts_XY"]').val(data.TOUCH_PROBE_SETTINGS.counts_XY);
@@ -329,7 +329,7 @@
 
         $(":input").inputmask();
 
-        $("#uart_log_level").change(function (e) {
+        $("#uart_log_level").on("change", function (e) {
             if (e.originalEvent) {
                 var level = $("option:selected", this).val();
                 if (level != "") {

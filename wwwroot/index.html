@@ -181,7 +181,7 @@
 								entry.name));
 				});
 
-			tools_dropdown.change(function (e) {
+			tools_dropdown.on("change", function (e) {
 				if (e.originalEvent) {
 					previous_tool = tools_dropdown.data("prev");
 					console.log(previous_tool.val());
@@ -224,14 +224,14 @@
 							if (current_tool_is_touch_probe) {
 								$("#brakes_mode_switch").val(0).trigger("input");               // OFF
 							} else {
-								$("#brakes_mode_switch").val(1).trigger("input");               // AUTO
+							//	$("#brakes_mode_switch").val(1).trigger("input");               // AUTO
 							}
 						});					
 					show_tool_offsets($("option:selected", tools_dropdown));
 				}
 			});
 
-			tools_dropdown.val(data.last_selected_tool).change();
+			tools_dropdown.val(data.last_selected_tool).trigger("change");
 			tools_dropdown.data("prev", $("option:selected", tools_dropdown));
 			show_tool_offsets($("option:selected", tools_dropdown));
 		});
@@ -343,7 +343,7 @@
 				$("#stalled_notification_text").html(stalled_message);
 				var power_switch = $('#power_switch');
 				if (power_switch.prop('checked') && !control_disabled_by_stall) {
-					power_switch.prop('checked', false).change();
+					power_switch.prop('checked', false).trigger("change");
 					control_disabled_by_stall = true;
 				}
 			} else {
@@ -587,7 +587,7 @@
 							aligned_position_checked = (sessionStorage.getItem("aligned_position") == "true");
 						}
 						$("#aligned_position").prop("checked", aligned_position_checked);
-						$("#aligned_position").change(function () {
+						$("#aligned_position").on("change", function () {
 							sessionStorage.setItem("aligned_position", $(this).prop("checked"));
 							if ($(this).prop("checked")) {
 								$("#position_x").addClass("aligned-coords");
@@ -686,9 +686,9 @@
 		});
 
 		$(document).on("keydown", function (e) {
-			const formElements = ['INPUT', 'TEXTAREA', 'SELECT', 'OPTION'];
+			//const formElements = ['INPUT', 'TEXTAREA', 'SELECT', 'OPTION'];
 			e = e || window.event;
-			if (!formElements.includes(e.target.tagName)) {
+			//if (!formElements.includes(e.target.tagName)) {
 				switch (e.keyCode) {
 					case 32:			// SPACE BAR
 						if (e.ctrlKey) {
@@ -697,21 +697,8 @@
 							return false;
 							break;
 						}
-					case 71:			// g
-						tube_id = $("#tube_info_id").val();
-						if (tube_id) {
-							$("#go_button").trigger("click");
-						}
-						break;
-					case 90:			// z
-						$("#home_z").trigger("click", e);
-						break;
-					case 12:			// 5 from keypad with numlock ofF
-						tube_id = $("#tube_info_id").val() || "";
-						$("#home_xy").trigger("click", e);
-						break;
 				}
-			}
+			//}
 		});
 
 		$(document).on("keyup", function (e) {
