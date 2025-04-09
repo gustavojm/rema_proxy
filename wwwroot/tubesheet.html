@@ -484,10 +484,10 @@
 					aligned_tubes = current_session.aligned_tubes;
 					var leg_switch = $('#leg_switch');
 					leg_switch.prop('checked', current_session.hx.leg == "cold" ? false : true);
+					leg_switch.trigger("change");
 					if (current_session.hx.leg != "both") {
 						leg_switch.prop('disabled', true);
 					}
-					leg_switch.trigger("change");
 
 					svg_url = "../HXs_svg";
 				}
@@ -767,13 +767,11 @@
 			$("#calibration_tab").toggle();
 			if ($(this).text() == "Calibration") {
 				$(this).text("Plan");
-				$("#leg_switch_span").hide();
 				$("#plans").hide();
 				$("#manage_plans_btn").hide();
 				$("#calibration_points_span").show();
 			} else {
 				$(this).text("Calibration");
-				$("#leg_switch_span").show();
 				$("#plans").show();
 				$("#manage_plans_btn").show();
 				$("#calibration_points_span").hide();
