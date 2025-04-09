@@ -155,7 +155,6 @@ void REMA::update_telemetry(std::vector<uint8_t>& stream) {
                 ui_telemetry.coords = current_session.from_rema_to_ui(rema.telemetry.coords, &tool);
                 ui_telemetry.targets = current_session.from_rema_to_ui(rema.telemetry.targets, &tool);
 
-
                 if (ui_telemetry.coords != old_telemetry.coords) {
                     chart.insertData({ui_telemetry.coords});
                     old_telemetry = ui_telemetry;

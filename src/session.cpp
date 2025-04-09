@@ -74,6 +74,7 @@ std::string Session::load_plans() {
         }
     }
     is_loaded = true;
+    out << "Session created" << "\n";
     return out.str();
 }
 
