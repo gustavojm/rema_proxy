@@ -3,6 +3,7 @@
 
 <head>
 	<link rel="stylesheet" href="css/rcswitcher.css" type="text/css" media="all" />
+	<script src="js/websocket_client.js"></script>
 
 	<style>
 		h1 {
@@ -55,26 +56,26 @@
 					</div>
 					<div class="row">
 						<div class="joystick-limit-vertical" data-limit="none"></div>
-						<img alt="" src="images/up_left.png" class="joystick-arrow" data-dir="up_left" title="KeyPad 7">
-						<img alt="" src="images/up.png" class="joystick-arrow" data-dir="up" title="KeyPad 8">
-						<img alt="" src="images/up_right.png" class="joystick-arrow" data-dir="up_right"
+						<img alt="" src="images/up_left.png" class="joystick-arrow" data-dir="LU" title="KeyPad 7">
+						<img alt="" src="images/up.png" class="joystick-arrow" data-dir="_U" title="KeyPad 8">
+						<img alt="" src="images/up_right.png" class="joystick-arrow" data-dir="RU"
 							title="KeyPad 9">
 						<div class="joystick-limit-vertical" data-limit="none"></div>
 					</div>
 					<div class="row">
 						<div class="joystick-limit-vertical off" data-limit="left"></div>
-						<img alt="" src="images/left.png" class="joystick-arrow" data-dir="left" title="KeyPad 4">
+						<img alt="" src="images/left.png" class="joystick-arrow" data-dir="L_" title="KeyPad 4">
 						<img alt="" src="images/home.png" class="joystick-arrow-home" data-dir="none" id="home_xy"
 							title="Shift to Detect Center">
-						<img alt="" src="images/right.png" class="joystick-arrow" data-dir="right" title="KeyPad 6">
+						<img alt="" src="images/right.png" class="joystick-arrow" data-dir="R_" title="KeyPad 6">
 						<div class="joystick-limit-vertical off" data-limit="right"></div>
 					</div>
 					<div class="row">
 						<div class="joystick-limit-vertical" data-limit="none"></div>
-						<img alt="" src="images/down_left.png" class="joystick-arrow" data-dir="down_left"
+						<img alt="" src="images/down_left.png" class="joystick-arrow" data-dir="LD"
 							title="KeyPad 1">
-						<img alt="" src="images/down.png" class="joystick-arrow" data-dir="down" title="KeyPad 2">
-						<img alt="" src="images/down_right.png" class="joystick-arrow" data-dir="down_right"
+						<img alt="" src="images/down.png" class="joystick-arrow" data-dir="_D" title="KeyPad 2">
+						<img alt="" src="images/down_right.png" class="joystick-arrow" data-dir="RD"
 							title="KeyPad 3">
 						<div class="joystick-limit-vertical" data-limit="none"></div>
 					</div>
@@ -91,12 +92,12 @@
 						<div class="joystick-limit-horizontal off" data-limit="in"></div>
 					</div>
 					<div class="row">
-						<img alt="" src="images/z_up.png" class="joystick-arrow" data-dir="z_in" title="KeyPad +">
+						<img alt="" src="images/z_up.png" class="joystick-arrow" data-dir="I_" title="KeyPad +">
 					</div>
 					<img alt="" src="images/home.png" class="joystick-arrow-home" data-dir="none" id="home_z"
 						title="Shift to Detect Tubesheet">
 					<div class=" row">
-						<img alt="" src="images/z_down.png" class="joystick-arrow" data-dir="z_out" title="KeyPad -">
+						<img alt="" src="images/z_down.png" class="joystick-arrow" data-dir="O_" title="KeyPad -">
 					</div>
 					<div class="row">
 						<div class="joystick-limit-horizontal off" data-limit="out"></div>
@@ -175,15 +176,16 @@
 
 		if (moving || forced) {
 
-			$.ajaxQueue({
-				url: "/REST/axes-soft-stop-all",
-				method: "GET",
-				contentType: "application/json",
-				dataType: "json",
-				success: function (data) {
+			wsClient.send("SS");
+			// $.ajaxQueue({
+			// 	url: "/REST/axes-soft-stop-all",
+			// 	method: "GET",
+			// 	contentType: "application/json",
+			// 	dataType: "json",
+			// 	success: function (data) {
 
-				}
-			});
+			// 	}
+			// });
 			moving = false;
 		}
 	}
@@ -197,17 +199,19 @@
 			return;
 		}
 
-		$.ajaxQueue({
-			url: "/REST/move-joystick/" + dir,
-			method: "GET",
-			contentType: "application/json",
-			dataType: "json",
-			success: function (data) {
-				if ("error" in data.MOVE_JOYSTICK) {
-					add_notification(data.MOVE_JOYSTICK.error.toUpperCase(), "Warning");
-				}
-			}
-		});
+		wsClient.send(dir);
+		// $.ajaxQueue({
+			
+			// url: "/REST/move-joystick/" + dir,
+			// method: "GET",
+			// contentType: "application/json",
+			// dataType: "json",
+			// success: function (data) {
+			// 	if ("error" in data.MOVE_JOYSTICK) {
+			// 		add_notification(data.MOVE_JOYSTICK.error.toUpperCase(), "Warning");
+			// 	}
+			// }
+		// });
 		moving = true;
 	}
 
@@ -513,35 +517,35 @@
 		if (e.originalEvent.location === 3) {		// From the Numeric Pad with Numlock Off
 			switch (e.keyCode) {
 				case 36:			// 7 from keypad with numlock off
-					joystick_btn_pressed($('[data-dir="up_left"]'));
+					joystick_btn_pressed($('[data-dir="LU"]'));
 					break;
 				case 38:			// 8 from keypad with numlock off
-					joystick_btn_pressed($('[data-dir="up"]'));
+					joystick_btn_pressed($('[data-dir="_U"]'));
 					break;
 				case 33:			// 9 from keypad with numlock off
-					joystick_btn_pressed($('[data-dir="up_right"]'));
+					joystick_btn_pressed($('[data-dir="RU"]'));
 					break;
 				case 37:			// 4 from keypad with numlock off
-					joystick_btn_pressed($('[data-dir="left"]'));
+					joystick_btn_pressed($('[data-dir="L_"]'));
 					break;
 				case 39:			// 6 from keypad with numlock off
-					joystick_btn_pressed($('[data-dir="right"]'));
+					joystick_btn_pressed($('[data-dir="R_"]'));
 					break;
 				case 35:			// 1 from keypad with numlock off
-					joystick_btn_pressed($('[data-dir="down_left"]'));
+					joystick_btn_pressed($('[data-dir="LD"]'));
 					break;
 				case 40:			// 2 from keypad with numlock off
-					joystick_btn_pressed($('[data-dir="down"]'));
+					joystick_btn_pressed($('[data-dir="_D"]'));
 					break;
 				case 34:			// 3 from keypad with numlock off
-					joystick_btn_pressed($('[data-dir="down_right"]'));
+					joystick_btn_pressed($('[data-dir="RD"]'));
 					break;
 
 				case 107:			// + from keypad
-					joystick_btn_pressed($('[data-dir="z_in"]'));
+					joystick_btn_pressed($('[data-dir="I_"]'));
 					break;
 				case 109:			// - from keypad
-					joystick_btn_pressed($('[data-dir="z_out"]'));
+					joystick_btn_pressed($('[data-dir="O_"]'));
 					break;
 
 				default:
@@ -556,6 +560,8 @@
 		$(".joystick-arrow").trigger("mouseup");
 	});
 
+    // Start WebSocket client
+    const wsClient = new WebSocketClient();
 </script>
 
 </html>
