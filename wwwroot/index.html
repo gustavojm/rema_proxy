@@ -66,7 +66,6 @@
 			<li><a href="charts.html">Charts</a></li>
 			<li><a href="logs.html">Logs</a></li>
 			<li><a href="about.html">About</a></li>
-			<!-- 			<li><a href="websocket.html">Websocket</a></li> -->
 			<li style="float: right;">
 				<div style="margin-top: 6; margin-right: 20">
 					Selected Tool: <select id="tools">
@@ -126,7 +125,8 @@
 	var decimals = 3
 	var unit = "inch"
 	var tabs_initialized = false;
-	var reconnect_dialog_shown = false;
+	var reconnect_dialog_shown = false;	
+
 	do_first_zoom = false;
 
 	function toFixedIfNecessary(value, dp) {
@@ -144,7 +144,7 @@
 	}
 
 	function get_rema_info() {
-		$.get('/REST/REMA/info', function (data) {
+		$.get('/REST/REMA/info', function (data) {			
 			var tools_dropdown = $('#tools');
 			reconnect_div_html = '<div class="row"><img src="images/disconnected.png" class="reconnect" id="disconnected_img" style="margin-right:10px;">' +
 				'REMA Host: ' + data.host + ":" + data.service
@@ -234,6 +234,12 @@
 			tools_dropdown.val(data.last_selected_tool).trigger("change");
 			tools_dropdown.data("prev", $("option:selected", tools_dropdown));
 			show_tool_offsets($("option:selected", tools_dropdown));
+			
+			// Start WebSocket client
+			Joystick_wsClient = new WebSocketClient(data.host, function(data) {
+				add_notification(data.toUpperCase(), "Info")
+			});
+
 		});
 	}
 

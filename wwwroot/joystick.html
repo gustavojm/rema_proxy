@@ -176,16 +176,7 @@
 
 		if (moving || forced) {
 
-			wsClient.send("SS");
-			// $.ajaxQueue({
-			// 	url: "/REST/axes-soft-stop-all",
-			// 	method: "GET",
-			// 	contentType: "application/json",
-			// 	dataType: "json",
-			// 	success: function (data) {
-
-			// 	}
-			// });
+			Joystick_wsClient.send("SS");
 			moving = false;
 		}
 	}
@@ -199,19 +190,7 @@
 			return;
 		}
 
-		wsClient.send(dir);
-		// $.ajaxQueue({
-			
-			// url: "/REST/move-joystick/" + dir,
-			// method: "GET",
-			// contentType: "application/json",
-			// dataType: "json",
-			// success: function (data) {
-			// 	if ("error" in data.MOVE_JOYSTICK) {
-			// 		add_notification(data.MOVE_JOYSTICK.error.toUpperCase(), "Warning");
-			// 	}
-			// }
-		// });
+		Joystick_wsClient.send(dir);
 		moving = true;
 	}
 
@@ -560,8 +539,6 @@
 		$(".joystick-arrow").trigger("mouseup");
 	});
 
-    // Start WebSocket client
-    const wsClient = new WebSocketClient();
 </script>
 
 </html>
