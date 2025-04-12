@@ -173,8 +173,7 @@
 
 		if (moving || forced) {
 
-			Joystick_wsClient.send("SS");
-			Joystick_wsClient.send("SS"); // Redundant for Safety
+			Joystick_wsClient.send("SS");			
 			moving = false;
 		}
 	}
