@@ -179,6 +179,19 @@
 		}
 	}
 
+	function emergency_stop(element) {
+		$(element).addClass("btn_activated");
+			$.ajax({								// Do not send through AjaxQueue or sequences do not stop
+				url: "/REST/axes-hard-stop-all",
+				method: "GET",
+				contentType: "application/json",
+				dataType: "json",
+				success: function (data) {
+				}
+			});
+			moving = false;
+	}
+
 	function joystick_btn_pressed(btn) {
 		var dir = $(btn).data("dir");
 		$(btn).addClass('btn_activated');
@@ -339,16 +352,7 @@
 		});
 
 		$("#emergency_stop").on("mousedown touchstart", function () {
-			$(this).addClass("btn_activated");
-			$.ajax({								// Do not send through AjaxQueue or sequences do not stop
-				url: "/REST/axes-hard-stop-all",
-				method: "GET",
-				contentType: "application/json",
-				dataType: "json",
-				success: function (data) {
-				}
-			});
-			moving = false;
+			emergency_stop(this);
 		});
 
 		$("#emergency_stop").on('mouseup touchend', function (event) {

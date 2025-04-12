@@ -698,7 +698,7 @@
 				switch (e.keyCode) {
 					case 32:			// SPACE BAR
 						if (e.ctrlKey) {
-							$("#emergency_stop").trigger("mousedown");
+							emergency_stop($("#emergency_stop"));
 							e.preventDefault();
 							return false;
 							break;
