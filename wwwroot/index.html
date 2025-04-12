@@ -692,7 +692,7 @@
 				switch (e.keyCode) {
 					case 32:			// SPACE BAR
 						if (e.ctrlKey) {
-							$("#emergency_stop").trigger("mousedown");
+							emergency_stop($("#emergency_stop"));
 							e.preventDefault();
 							return false;
 							break;
@@ -702,9 +702,9 @@
 		});
 
 		$(document).on("keyup", function (e) {
-			const formElements = ['INPUT', 'TEXTAREA', 'SELECT', 'OPTION'];
+			//const formElements = ['INPUT', 'TEXTAREA', 'SELECT', 'OPTION'];
 			e = e || window.event;
-			if (!formElements.includes(e.target.tagName)) {
+			//if (!formElements.includes(e.target.tagName)) {
 				switch (e.keyCode) {
 					case 32:			// SPACE BAR
 						if (e.ctrlKey) {
@@ -714,7 +714,7 @@
 							break;
 						}
 				}
-			}
+			//}
 		});
 
 		window.addEventListener('mousewheel', function (e) {
