@@ -58,8 +58,7 @@
 						<div class="joystick-limit-vertical" data-limit="none"></div>
 						<img alt="" src="images/up_left.png" class="joystick-arrow" data-dir="LU" title="KeyPad 7">
 						<img alt="" src="images/up.png" class="joystick-arrow" data-dir="_U" title="KeyPad 8">
-						<img alt="" src="images/up_right.png" class="joystick-arrow" data-dir="RU"
-							title="KeyPad 9">
+						<img alt="" src="images/up_right.png" class="joystick-arrow" data-dir="RU" title="KeyPad 9">
 						<div class="joystick-limit-vertical" data-limit="none"></div>
 					</div>
 					<div class="row">
@@ -72,11 +71,9 @@
 					</div>
 					<div class="row">
 						<div class="joystick-limit-vertical" data-limit="none"></div>
-						<img alt="" src="images/down_left.png" class="joystick-arrow" data-dir="LD"
-							title="KeyPad 1">
+						<img alt="" src="images/down_left.png" class="joystick-arrow" data-dir="LD" title="KeyPad 1">
 						<img alt="" src="images/down.png" class="joystick-arrow" data-dir="_D" title="KeyPad 2">
-						<img alt="" src="images/down_right.png" class="joystick-arrow" data-dir="RD"
-							title="KeyPad 3">
+						<img alt="" src="images/down_right.png" class="joystick-arrow" data-dir="RD" title="KeyPad 3">
 						<div class="joystick-limit-vertical" data-limit="none"></div>
 					</div>
 					<div class="row">
@@ -177,6 +174,7 @@
 		if (moving || forced) {
 
 			Joystick_wsClient.send("SS");
+			Joystick_wsClient.send("SS"); // Redundant for Safety
 			moving = false;
 		}
 	}
@@ -193,10 +191,6 @@
 		Joystick_wsClient.send(dir);
 		moving = true;
 	}
-
-	$(".joystick-arrow").on("mousedown", function () {
-		joystick_btn_pressed(this);
-	});
 
 	function update_switches() {
 		$.ajaxREMA({
@@ -257,10 +251,9 @@
 	}
 
 	function joystick_btn_released() {
+		stop();		
 		$(".joystick-arrow").removeClass('btn_activated');
-		stop();
 	}
-
 
 	function joystick_btns_status(enabled) {
 		if (enabled) {
@@ -275,6 +268,12 @@
 
 	}
 
+	// Helper function to check if mouse is currently down
+	function mouseIsCurrentlyDown() {
+		return document.mouseIsDown || false;
+	}
+
+
 	$(function () {
 		$("#joystick_div").on("focus", function () {
 			joystick_btns_status(true);
@@ -284,23 +283,62 @@
 			joystick_btns_status(false);
 		});
 
-		$(".joystick-arrow").on("drag mouseup mouseout", (function () {
-			joystick_btn_released();
-		}));
+		// Track button state
+		let joystickPressed = false;
 
+		// Handle press events
+		$(".joystick-arrow").on("mousedown touchstart", function (e) {
+			evt = e || window.event;
+    		if ("buttons" in evt) {
+        		if (evt.buttons == 1) {
+					joystickPressed = true;
+					joystick_btn_pressed(this);
+					e.preventDefault(); // Prevent default touch actions
+				}
+			}
+		});
+
+		// Handle release events at the document level - catches all releases
+		$(document).on("mouseup touchend", function () {
+			if (joystickPressed) {
+				joystickPressed = false;
+				joystick_btn_released();
+			}
+		});
+
+		// Additional safety - handle mouse leaving the window entirely
+		$(window).on("blur", function () {
+			if (joystickPressed) {
+				joystickPressed = false;
+				joystick_btn_released();
+			}
+		});
+
+		// Prevent drag behavior
 		$(".joystick-arrow").on('dragstart', function (event) {
 			event.preventDefault();
 		});
 
-		$("#emergency_stop").on('dragstart', function (event) {
-			event.preventDefault();
+		// Safety timer - check for stuck state every 500 milli seconds
+		setInterval(function () {
+			// If no mouse/touch interaction but still pressed, force release
+			if (joystickPressed && !mouseIsCurrentlyDown()) {
+				joystick_btn_released();
+				alert("JOYSTICK PROBLEM. Safety release triggered");
+				joystickPressed = false;
+			}
+		}, 200);
+
+		// Track mouse state globally
+		$(document).on("mousedown", function () {
+			document.mouseIsDown = true;
 		});
 
-		$("#emergency_stop").on('drag mouseup mouseout', function (event) {
-			$("#emergency_stop").removeClass('btn_activated');
+		$(document).on("mouseup", function () {
+			document.mouseIsDown = false;
 		});
 
-		$("#emergency_stop").on("mousedown", function () {
+		$("#emergency_stop").on("mousedown touchstart", function () {
 			$(this).addClass("btn_activated");
 			$.ajax({								// Do not send through AjaxQueue or sequences do not stop
 				url: "/REST/axes-hard-stop-all",
@@ -312,6 +350,16 @@
 			});
 			moving = false;
 		});
+
+		$("#emergency_stop").on('mouseup touchend', function (event) {
+			$("#emergency_stop").removeClass('btn_activated');
+		});
+
+		// Prevent drag behavior
+		$("#emergency_stop").on('dragstart', function (event) {
+			event.preventDefault();
+		});
+
 
 		$("#brakes_mode_switch").on("click", function (e) {
 			joystick_btns_status(true);
@@ -535,8 +583,8 @@
 	});
 
 	$("#joystick_div").on("keyup", function (e) {
+		joystick_btn_released();
 		delete keysPressed[e.keyCode];
-		$(".joystick-arrow").trigger("mouseup");
 	});
 
 </script>
