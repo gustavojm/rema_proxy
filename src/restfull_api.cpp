@@ -648,7 +648,7 @@ void determine_tube_center(const std::shared_ptr<restbed::Session>& rest_session
         std::vector<movement_cmd> seq;
         int vertex = 0;
         for (int n = 0; n < points_number; n++) {
-            Point3D point = points[vertex % points_number]; // To touch the tube boundary following a star pattern
+            Point3D point = points[vertex % points_number]; // To touch the tube boundary following a Y pattern
             movement_cmd step;
             step.axes = "XY";
             step.first_axis_setpoint = point.x;
@@ -694,8 +694,13 @@ void determine_tube_center(const std::shared_ptr<restbed::Session>& rest_session
         goto_center.speed = speed::SLOW;
 
         res["center"] = { { "x", circle.center.x - tool.offset.x },
-                            { "y", circle.center.y - tool.offset.y },
-                            { "z", circle.center.z } };
+                          { "y", circle.center.y - tool.offset.y },
+                          { "z", circle.center.z } };
+
+        res["aligned_center"] = current_session.from_ui_to_rema(current_session.transform_point_if_aligned(current_session.from_rema_to_ui(Point3D((circle.center.x - tool.offset.x),
+                            (circle.center.y - tool.offset.y),
+                            (circle.center.z))), true));
+
         res["radius"] = circle.radius + touch_probe_radius_inch;
 
         seq_execution_response = rema.execute_sequence(goto_center);

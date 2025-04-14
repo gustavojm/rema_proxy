@@ -323,15 +323,22 @@ $(function() {
 				timeout: 50000,
 			}))
 			.then(function(data) {
+				let center = {}
 				var svg = $("#tubesheet_svg").svg("get");
-				data.center.x *= scale;
-				data.center.y *= scale;
-				data.center.z *= scale;
-				drawCircle(svg, data.center, data.radius, scale);
+				if ($("#aligned_position").prop("checked")) {
+					center.x = data.aligned_center.x * scale;
+					center.y = data.aligned_center.y * scale;
+					center.z = data.aligned_center.z * scale;
+				} else {
+					center.x = data.center.x * scale;
+					center.y = data.center.y * scale;
+					center.z = data.center.z * scale;
+				}	
+				drawCircle(svg, center, data.radius, scale);
 				
-				$("#determined_coords_x").val(toFixedIfNecessary(data.center.x, decimals));
-				$("#determined_coords_y").val(toFixedIfNecessary(data.center.y, decimals));
-				$("#determined_coords_z").val(toFixedIfNecessary(data.center.z, decimals));			
+				$("#determined_coords_x").val(toFixedIfNecessary(data.center.x * scale, decimals));
+				$("#determined_coords_y").val(toFixedIfNecessary(data.center.y * scale, decimals));
+				$("#determined_coords_z").val(toFixedIfNecessary(data.center.z * scale, decimals));			
 			})
 			.catch(function(e) {
 				if(e.statusText == 'timeout') {     

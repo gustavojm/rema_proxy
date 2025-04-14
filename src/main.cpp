@@ -55,6 +55,7 @@ void event_stream_handler() {
     try {
         res["TELEMETRY"] = rema.ui_telemetry;
         res["TELEMETRY"]["aligned_coords"] = current_session.transform_point_if_aligned(rema.ui_telemetry.coords, true);
+        res["TELEMETRY"]["aligned_targets"] = current_session.transform_point_if_aligned(rema.ui_telemetry.targets, true);
         res["TELEMETRY"]["show_target"] = rema.is_sequence_in_progress;
 
         if (rema.new_temps_available) {

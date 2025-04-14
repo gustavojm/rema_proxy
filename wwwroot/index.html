@@ -265,8 +265,13 @@
 
 		function update_ui(telemetry) {
 			if (target_x === undefined || target_y === undefined) {
-				target_x = telemetry.targets.x;
-				target_y = telemetry.targets.y
+				if ($("#aligned_position").prop("checked")) {
+					target_x = telemetry.aligned_targets.x;
+					target_y = telemetry.aligned_targets.y
+				} else {
+					target_x = telemetry.targets.x;
+					target_y = telemetry.targets.y;
+				}
 			}
 			if (tabs_initialized) {
 				var current_tab = $("#tabs").tabs('option', 'active');
@@ -314,7 +319,12 @@
 			});
 
 			if (current_tab == TUBESHEET_VIEW_TAB && typeof (update_destination_cross_position) === "function") {
-				var difs = findDifferencesShallow(old_telemetry.targets, telemetry.targets);
+				if ($("#aligned_position").prop("checked")) {
+					var difs = findDifferencesShallow(old_telemetry.aligned_targets, telemetry.aligned_targets);					
+				} else {
+					var difs = findDifferencesShallow(old_telemetry.targets, telemetry.targets);					
+				}
+
 				$.each(difs, function (id, value) {
 					key = Object.keys(value)[0];
 					if (key == "x") {
