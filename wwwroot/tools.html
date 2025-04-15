@@ -112,10 +112,10 @@
 						$("input[name='offset_x']").val(data.offset.x);
 						$("input[name='offset_y']").val(data.offset.y);
 						$("input[name='offset_z']").val(data.offset.z);
-						
-						$("input[name='offset_x']").prop("readonly", data.is_touch_probe);
-						$("input[name='offset_y']").prop("readonly", data.is_touch_probe);
-						$("input[name='offset_z']").prop("readonly", data.is_touch_probe);
+
+						$("input[name='offset_x'], input[name='offset_y'], input[name='offset_z']")
+  							.prop("readonly", data.is_touch_probe);
+
 					}
 				});
 
@@ -152,9 +152,8 @@
 			$("input[name='tool_name']").prop("readonly", false);
 			$("input[name='is_touch_probe']").prop("disabled", false);
 			
-			$("input[name='offset_x']").prop("readonly", false);
-			$("input[name='offset_y']").prop("readonly", false);
-			$("input[name='offset_z']").prop("readonly", false);
+			$("input[name='offset_x'], input[name='offset_y'], input[name='offset_z']")
+			  	.prop("readonly", false);
 
 			$("#add_edit_tool_div").dialog("open");
 		});
@@ -162,13 +161,11 @@
 		$("input[name='is_touch_probe']").on("change", function () {
 			is_touch_probe = $(this).prop("checked")
 			if (is_touch_probe) {
-				$("input[name='offset_x']").val(0);
-				$("input[name='offset_y']").val(0);
-				$("input[name='offset_z']").val(0);
+				$("input[name='offset_x'], input[name='offset_y'], input[name='offset_z']")
+  					.val(0);
 			}
-			$("input[name='offset_x']").prop("readonly", is_touch_probe);
-			$("input[name='offset_y']").prop("readonly", is_touch_probe);
-			$("input[name='offset_z']").prop("readonly", is_touch_probe);
+			$("input[name='offset_x'], input[name='offset_y'], input[name='offset_z']")
+				.prop("readonly", is_touch_probe);
 		});
 	});
 

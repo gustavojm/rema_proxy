@@ -269,13 +269,9 @@
 
 	function joystick_btns_status(enabled) {
 		if (enabled) {
-			$(".joystick-arrow").removeClass('btn_disabled');
-			$("#home_xy").removeClass('btn_disabled');
-			$("#home_z").removeClass('btn_disabled');
+			$(".joystick-arrow, #home_xy, #home_z").removeClass('btn_disabled');
 		} else {
-			$(".joystick-arrow").addClass('btn_disabled');
-			$("#home_xy").addClass('btn_disabled');
-			$("#home_z").addClass('btn_disabled');
+			$(".joystick-arrow, #home_xy, #home_z").addClass('btn_disabled');
 		}
 
 	}
@@ -300,6 +296,7 @@
 
 		// Handle press events
 		$(".joystick-arrow").on("mousedown touchstart", function (e) {
+			joystick_btns_status(true);
 			evt = e || window.event;
     		if ("buttons" in evt) {
         		if (evt.buttons == 1) {

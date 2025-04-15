@@ -606,13 +606,9 @@
 						$("#aligned_position").on("change", function () {
 							sessionStorage.setItem("aligned_position", $(this).prop("checked"));
 							if ($(this).prop("checked")) {
-								$("#position_x").addClass("aligned-coords");
-								$("#position_y").addClass("aligned-coords");
-								$("#position_z").addClass("aligned-coords");
+								$("#position_x, #position_y, #position_z").addClass("aligned-coords");
 							} else {
-								$("#position_x").removeClass("aligned-coords");
-								$("#position_y").removeClass("aligned-coords");
-								$("#position_z").removeClass("aligned-coords");
+								$("#position_x, #position_y, #position_z").removeClass("aligned-coords");
 							}
 						});
 
