@@ -296,7 +296,7 @@
 
 		// Handle press events
 		$(".joystick-arrow").on("mousedown touchstart", function (e) {
-			joystick_btns_status(true);
+			$("#joystick_div").trigger("focus");	// Force focus on joystick_div to receive key inputs
 			evt = e || window.event;
     		if ("buttons" in evt) {
         		if (evt.buttons == 1) {
