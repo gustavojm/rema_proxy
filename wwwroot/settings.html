@@ -155,6 +155,12 @@
                             data-inputmask-alias="numeric" data-inputmask-greedy="false" data-inputmask-digits="0"
                             data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">ms</label>
                 </div>
+                <div class="row" style="position: relative; width:100%; justify-content: space-between;">
+                    <label>Retract Angle: <input type="text" name="retract_angle" size="4" data-inputmask-alias="numeric"
+                            data-inputmask-greedy="false" data-inputmask-digits="0">º</label>
+                    <label>Extend Angle: <input type="text" name="extend_angle" size="4" data-inputmask-alias="numeric"
+                            data-inputmask-greedy="false" data-inputmask-digits="0">º</label>
+                </div>
                 <div class="row" style="position: relative; width:100%; text-align: center;">
                     <button type="submit">Save</button>
                 </div>
@@ -212,6 +218,8 @@
                 $('#touch_probe_settings_form [name="counts_XY"]').val(data.TOUCH_PROBE_SETTINGS.counts_XY);
                 $('#touch_probe_settings_form [name="counts_Z"]').val(data.TOUCH_PROBE_SETTINGS.counts_Z);
                 $('#touch_probe_settings_form [name="debounce_time_ms"]').val(data.TOUCH_PROBE_SETTINGS.debounce_time_ms);
+                $('#touch_probe_settings_form [name="retract_angle"]').val(data.TOUCH_PROBE_SETTINGS.retract_angle);
+                $('#touch_probe_settings_form [name="extend_angle"]').val(data.TOUCH_PROBE_SETTINGS.extend_angle);
 
                 $('#stall_settings_form [name="counts_X"]').val(data.STALL_CONTROL_SETTINGS.counts_X);
                 $('#stall_settings_form [name="counts_Y"]').val(data.STALL_CONTROL_SETTINGS.counts_Y);
