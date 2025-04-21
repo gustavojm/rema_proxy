@@ -307,8 +307,15 @@ $(function() {
 
 	$("#determine_center").on("click", function(e) {
 		e.preventDefault();
-		cal_point_id = $("#cal_point_tube_id").val();
 		
+		var tools_dropdown = $('#tools');
+		tool_is_touch_probe = $("option:selected", tools_dropdown).data("is_touch_probe");
+		if (!tool_is_touch_probe) {
+			alert("This operation can only be performed with Touch Probe selected");
+			return;
+		}
+
+		cal_point_id = $("#cal_point_tube_id").val();
 		if (cal_point_id === "") {			
 			add_notification("PLEASE SELECT A TUBE");
 			return;
@@ -352,6 +359,14 @@ $(function() {
 
 	$("#determine_z").on("click", function(e, orig_event) {
 		e.preventDefault();
+
+		var tools_dropdown = $('#tools');
+		tool_is_touch_probe = $("option:selected", tools_dropdown).data("is_touch_probe");
+		if (!tool_is_touch_probe) {
+			alert("This operation can only be performed with Touch Probe selected");
+			return;
+		}
+		
 		$.ajaxQueue({
 			method : "GET",
 			url : "/REST/determine-tubesheet-z/false",
