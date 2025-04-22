@@ -277,10 +277,11 @@
 			table.rows().deselect();
 			$("#tube_info_coord input[type=text]")
 				.val("");
-			show_cal_point_info(null);
+			show_cal_point_info(null);			
 			update_location_pin_position(
-				0, 0);
+				0, 0);				
 			$("#set_as_cal_point").prop('disabled', true);
+			$("#tube_info_id, #tube_info_col, #tube_info_row, #tube_info_x, #tube_info_y").val("");
 		} else {
 			tubes
 				.not(g)
@@ -610,17 +611,19 @@
 		$("#go_button").on("click", function () {
 			tube_id = $("#tube_info_id").val();
 
-			$.ajax({
-				method: "GET",
-				url: "/REST/go-to-tube/" + tube_id,
-				contentType: "application/json",
-				dataType: "json",
-				success: function (data) {
-					if ("error" in data.MOVE_CLOSED_LOOP) {
-						add_notification(data.MOVE_CLOSED_LOOP.error.toUpperCase(), "Warning");
+			if (tube_id.length > 0) {
+				$.ajax({
+					method: "GET",
+					url: "/REST/go-to-tube/" + tube_id,
+					contentType: "application/json",
+					dataType: "json",
+					success: function (data) {
+						if ("error" in data.MOVE_CLOSED_LOOP) {
+							add_notification(data.MOVE_CLOSED_LOOP.error.toUpperCase(), "Warning");
+						}
 					}
-				}
-			});
+				});
+			}
 		});
 
 		var plans_dropdown = $('#plans');
