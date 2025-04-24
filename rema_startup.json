@@ -8,8 +8,8 @@
 		"normal_max": 60000,
 		"slow_min": 1250,
 		"slow_max": 30000,
-		"soft_stop_min_steps": 80,
-		"soft_stop_max_steps": 1000
+		"soft_stop_min_counts": 80,
+		"soft_stop_max_counts": 1000
 	 }
     },
 	{"cmd": "AXES_SETTINGS",
@@ -21,8 +21,8 @@
 		"normal_max": 60000,
 		"slow_min": 2500,
 		"slow_max": 60000,
-		"soft_stop_min_steps": 40,
-		"soft_stop_max_steps": 500
+		"soft_stop_min_counts": 40,
+		"soft_stop_max_counts": 500
 	 }
     },	
 	{"cmd": "TOUCH_PROBE_SETTINGS",

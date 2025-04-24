@@ -74,14 +74,14 @@
                     </div>
                     <div class="row" style="position: relative; width:100%; justify-content: space-between;">Soft Stop</div>
                     <div class="row" style="position: relative; width:100%; justify-content: space-between;">
-                        <label>Minimum: <input type="text" name="soft_stop_min_steps" size="4"
+                        <label>Minimum: <input type="text" name="soft_stop_min_counts" size="4"
                                 data-inputmask-alias="numeric" data-inputmask-greedy="false" data-inputmask-digits="0"
-                                data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">steps</label>
+                                data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">counts</label>
                     </div>
                     <div class="row" style="position: relative; width:100%; justify-content: space-between;">
-                        <label>Maximum: <input type="text" name="soft_stop_max_steps" size="4"
+                        <label>Maximum: <input type="text" name="soft_stop_max_counts" size="4"
                                 data-inputmask-alias="numeric" data-inputmask-greedy="false" data-inputmask-digits="0"
-                                data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">steps</label>
+                                data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">counts</label>
                     </div>
                     <div class="row" style="position: relative; width:100%; text-align: center;">
                         <input type="button" onclick=save($(this)) value="Save">
@@ -126,14 +126,14 @@
                     </div>
                     <div class="row" style="position: relative; width:100%; justify-content: space-between;">Soft Stop</div>
                     <div class="row" style="position: relative; width:100%; justify-content: space-between;">
-                        <label>Minimum: <input type="text" name="soft_stop_min_steps" size="4"
+                        <label>Minimum: <input type="text" name="soft_stop_min_counts" size="4"
                                 data-inputmask-alias="numeric" data-inputmask-greedy="false" data-inputmask-digits="0"
-                                data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">steps</label>
+                                data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">counts</label>
                     </div>
                     <div class="row" style="position: relative; width:100%; justify-content: space-between;">
-                        <label>Maximum: <input type="text" name="soft_stop_max_steps" size="4"
+                        <label>Maximum: <input type="text" name="soft_stop_max_counts" size="4"
                                 data-inputmask-alias="numeric" data-inputmask-greedy="false" data-inputmask-digits="0"
-                                data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">steps</label>
+                                data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">counts</label>
                     </div>
                     <div class="row" style="position: relative; width:100%; text-align: center;">
                         <input type="button" onclick=save($(this)) value="Save">
@@ -226,8 +226,8 @@
                 $('#x_axes_config [name="normal_max_freq"]').val(axes_settings.XY.normal_max_freq);
                 $('#x_axes_config [name="slow_min_freq"]').val(axes_settings.XY.slow_min_freq);
                 $('#x_axes_config [name="slow_max_freq"]').val(axes_settings.XY.slow_max_freq);
-                $('#x_axes_config [name="soft_stop_min_steps"]').val(axes_settings.XY.soft_stop_min_steps);
-                $('#x_axes_config [name="soft_stop_max_steps"]').val(axes_settings.XY.soft_stop_max_steps);
+                $('#x_axes_config [name="soft_stop_min_counts"]').val(axes_settings.XY.soft_stop_min_counts);
+                $('#x_axes_config [name="soft_stop_max_counts"]').val(axes_settings.XY.soft_stop_max_counts);
 
 
                 $('#z_axes_config [name="prop_gain"]').val(axes_settings.Z.prop_gain);
@@ -236,8 +236,8 @@
                 $('#z_axes_config [name="normal_max_freq"]').val(axes_settings.Z.normal_max_freq);
                 $('#z_axes_config [name="slow_min_freq"]').val(axes_settings.Z.slow_min_freq);
                 $('#z_axes_config [name="slow_max_freq"]').val(axes_settings.Z.slow_max_freq);
-                $('#z_axes_config [name="soft_stop_min_steps"]').val(axes_settings.Z.soft_stop_min_steps);
-                $('#z_axes_config [name="soft_stop_max_steps"]').val(axes_settings.Z.soft_stop_max_steps);
+                $('#z_axes_config [name="soft_stop_min_counts"]').val(axes_settings.Z.soft_stop_min_counts);
+                $('#z_axes_config [name="soft_stop_max_counts"]').val(axes_settings.Z.soft_stop_max_counts);
 
                 $("#uart_log_level").val(data.LOG_LEVEL.local_level).trigger("change");
                 get_network_settings();
@@ -299,8 +299,8 @@
         slow_min_freq = parseInt($(div).find('[name="slow_min_freq"]').val()) || 1000;
         slow_max_freq = parseInt($(div).find('[name="slow_max_freq"]').val()) || 25000;
 
-        soft_stop_min_steps = parseInt($(div).find('[name="soft_stop_min_steps"]').val()) || 50;
-        soft_stop_max_steps = parseInt($(div).find('[name="soft_stop_max_steps"]').val()) || 1000;
+        soft_stop_min_counts = parseInt($(div).find('[name="soft_stop_min_counts"]').val()) || 50;
+        soft_stop_max_counts = parseInt($(div).find('[name="soft_stop_max_counts"]').val()) || 1000;
         
         $.ajaxREMA({
             data: [{
@@ -313,8 +313,8 @@
                     normal_max: normal_max_freq,
                     slow_min: slow_min_freq,
                     slow_max: slow_max_freq,
-                    soft_stop_min_steps: soft_stop_min_steps,
-                    soft_stop_max_steps: soft_stop_max_steps
+                    soft_stop_min_counts: soft_stop_min_counts,
+                    soft_stop_max_counts: soft_stop_max_counts
                 }
             }],
             success: function (data) {
