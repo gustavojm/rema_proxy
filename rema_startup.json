@@ -7,7 +7,9 @@
 		"normal_min": 2500,
 		"normal_max": 60000,
 		"slow_min": 1250,
-		"slow_max": 30000
+		"slow_max": 30000,
+		"soft_stop_min_steps": 80,
+		"soft_stop_max_steps": 1000
 	 }
     },
 	{"cmd": "AXES_SETTINGS",
@@ -18,7 +20,9 @@
 		"normal_min": 2500,
 		"normal_max": 60000,
 		"slow_min": 2500,
-		"slow_max": 60000
+		"slow_max": 60000,
+		"soft_stop_min_steps": 40,
+		"soft_stop_max_steps": 500
 	 }
     },	
 	{"cmd": "TOUCH_PROBE_SETTINGS",
@@ -26,9 +30,9 @@
 		"protection": true,
 		"counts_XY": 15,
 		"counts_Z": 5,
-		"debounce_time_ms" : 2000,
-		"retract_angle" : -20,
-		"extend_angle" : 69
+		"debounce_time_ms": 2000,
+		"retract_angle": -20,
+		"extend_angle": 69
 		}
     },
 	{"cmd": "STALL_CONTROL_SETTINGS",
