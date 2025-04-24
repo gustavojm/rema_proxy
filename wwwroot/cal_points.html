@@ -49,7 +49,7 @@
 						<tr>
 							<td>X:</td>
 							<td><input type="text" size="6" id="ideal_coords_x" name="ideal_coords_x" readonly></td>
-							<td><input type="text" size="6" id="determined_coords_x" name="determined_coords_x" maxlength="8" data-inputmask-alias="decimal" data-inputmask-digits="3"></td>
+							<td><input type="text" size="6" id="determined_coords_x" name="determined_coords_x" maxlength="8" data-inputmask-alias="decimal" data-inputmask-digits="3" title="Double click to copy current X coordinate"></td>
 							<td rowspan="2"><button id="determine_center" title="Determine XY Center"><img src="images/determine_center.png" style="height: 36px; width: 36px;"></button></td>
 							<td rowspan="3">
 								<div class="column">
@@ -61,12 +61,12 @@
 						<tr>
 							<td>Y:</td>
 				            <td><input type="text" size="6" id="ideal_coords_y" name="ideal_coords_y" readonly></td>
-				            <td><input type="text" size="6" id="determined_coords_y" name="determined_coords_y" maxlength="8" data-inputmask-alias="decimal" data-inputmask-digits="3"></td>							
+				            <td><input type="text" size="6" id="determined_coords_y" name="determined_coords_y" maxlength="8" data-inputmask-alias="decimal" data-inputmask-digits="3" title="Double click to copy current Y coordinate"></td>
 						</tr>
 						<tr>
 							<td>Z:</td>
 							<td><input type="text" size="6" id="ideal_coords_z" name="ideal_coords_z" readonly></td>
-							<td><input type="text" size="6" id="determined_coords_z" name="determined_coords_z" maxlength="8" data-inputmask-alias="decimal" data-inputmask-digits="3"></td>
+							<td><input type="text" size="6" id="determined_coords_z" name="determined_coords_z" maxlength="8" data-inputmask-alias="decimal" data-inputmask-digits="3" title="Double click to copy current Z coordinate"></td>
 							<td><button id="determine_z" title="Determine Z"><img src="images/determine_z.png" style="height: 18px; width: 36px;"></button></td>
 							</td>	
 						</tr>
@@ -304,6 +304,18 @@ $(function() {
 		$("#determined_coords_y").val($("#ideal_coords_y").val());
 		$("#determined_coords_z").val($("#ideal_coords_z").val());
 	}); 
+
+	$("#determined_coords_x").on("dblclick", function() {
+		$("#determined_coords_x").val($("#position_x").val());
+	});
+
+	$("#determined_coords_y").on("dblclick", function() {
+		$("#determined_coords_y").val($("#position_y").val());
+	});
+
+	$("#determined_coords_z").on("dblclick", function() {
+		$("#determined_coords_z").val($("#position_z").val());
+	});
 
 	$("#determine_center").on("click", function(e) {
 		e.preventDefault();
