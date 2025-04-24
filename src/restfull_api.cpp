@@ -635,7 +635,7 @@ void determine_tube_center(const std::shared_ptr<restbed::Session>& rest_session
 
     if (!tube_id.empty()) {
         double tube_radius = current_session.hx.tube_od / 2;
-        Point3D ideal_center = current_session.get_tube_coordinates(tube_id, true);
+        Point3D ideal_center = current_session.get_tube_coordinates(tube_id, false);
         Point3D initial_center = rema.telemetry.coords;
 
         constexpr int points_number = 3;
