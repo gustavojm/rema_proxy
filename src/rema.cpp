@@ -66,6 +66,7 @@ void REMA::delete_tool(const std::string &tool) {
 void REMA::cancel_sequence_in_progress() {
     while (is_sequence_in_progress) {
         cancel_sequence = true;
+        std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Avoid hogging the processor
     }
 }
 
@@ -282,7 +283,7 @@ tl::expected<void, std::string> REMA::execute_sequence(movement_cmd& step) {
     cancel_sequence_in_progress();
     cancel_sequence = false;
     is_sequence_in_progress = true;
-    execute_command("AXES_SOFT_STOP_ALL");
+    execute_command("AXES_HARD_STOP_ALL");
 
     auto ret = execute_step(step);
     if (!ret) {
@@ -298,7 +299,7 @@ tl::expected<void, std::string> REMA::execute_sequence(std::vector<movement_cmd>
     cancel_sequence_in_progress();
     cancel_sequence = false;
     is_sequence_in_progress = true;
-    execute_command("AXES_SOFT_STOP_ALL");
+    execute_command("AXES_HARD_STOP_ALL");
 
     for (auto &step : sequence) {
         auto ret = execute_step(step);
