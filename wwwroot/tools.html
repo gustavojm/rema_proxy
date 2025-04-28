@@ -10,13 +10,13 @@
 				<label>Tool Name: <input type="text" name="tool_name" /></label><input type="checkbox" name="is_touch_probe"> Is touch Probe
 			</div>
 			<div style="padding-bottom: 10px;">
-				<label>Offset X: <input type="text" name="offset_x" size="4" maxlength="6" data-inputmask-alias="decimal" data-inputmask-digits="3"/>inch</label>
+				<label>Offset X: <input type="text" name="offset_x" size="4" maxlength="9" data-inputmask-alias="decimal" data-inputmask-digits="3"/><span class="unit">inch</span></label>
 			</div>
 			<div style="padding-bottom: 10px;">
-				<label>Offset Y: <input type="text" name="offset_y" size="4" maxlength="6" data-inputmask-alias="decimal" data-inputmask-digits="3"/>inch</label>
+				<label>Offset Y: <input type="text" name="offset_y" size="4" maxlength="9" data-inputmask-alias="decimal" data-inputmask-digits="3"/><span class="unit">inch</span></label>
 			</div>
 			<div style="padding-bottom: 10px;">
-				<label>Offset Z: <input type="text" name="offset_z" size="4" maxlength="6" data-inputmask-alias="decimal" data-inputmask-digits="3"/>inch</label>
+				<label>Offset Z: <input type="text" name="offset_z" size="4" maxlength="9" data-inputmask-alias="decimal" data-inputmask-digits="3"/><span class="unit">inch</span></label>
 			</div>			
 		</div>
 	</form>
@@ -55,7 +55,7 @@
 						method : "GET",
 						url : "/REST/tools",
 						dataSrc :function ( data ) {
-							var array_data = [];
+							let array_data = [];
 							$.each(data, function(id, tool) {
 								tool.file_name = id;
 								array_data.push(tool);
@@ -90,7 +90,7 @@
 					],
 					columnDefs: [
 						{render: function (data, type, row) {
-								return (toFixedIfNecessary(data, decimals) + " inch");
+								return (toFixedIfNecessary(data, decimals) + " " + unit);
 							},
 							target: [1, 2, 3]						
 						}	
@@ -98,7 +98,7 @@
 				});
 		
 		table.on('draw.dt', function(e, settings, json, xhr) {			
-			$(".ui-icon-pencil").on("click", function() {				
+			$(".ui-icon-pencil").on("click", function() {
 				tool_name = $(this).data("name");
 				$.ajax({
 					url : "/REST/tools/" + tool_name,
@@ -124,9 +124,9 @@
 			});
 			
 			$(".ui-icon-trash").on("click", function() {
-				var tool_name = $(this).data("name");
+				let tool_name = $(this).data("name");
 				
-				var confirm_action = confirm("Are you sure you want to delete " + tool_name + " ?");
+				let confirm_action = confirm("Are you sure you want to delete " + tool_name + " ?");
 		        if (confirm_action) {
 		        	$.ajax({
 						url : "/REST/tools/" + tool_name,
@@ -169,15 +169,16 @@
 		});
 	});
 
-	function create_dialog() {
-		var dialog = $("#add_edit_tool_div").dialog({
+	function create_add_edit_tool_dialog() {
+		$(".unit").text(unit);
+
+		let dialog = $("#add_edit_tool_div").dialog({
 			autoOpen : false,
 			title : "Add/Edit Tool",
 			//modal : true,
 			width: "450px",
 			buttons : [ {
 				text : "Add/Update",
-				//icon: "ui-icon-heart",
 				click : function(event) {
 		        	$.ajax({
 						url : "/REST/tools",
@@ -201,15 +202,11 @@
 				text : "Close",
 				//icon: "ui-icon-heart",
 				click : function(event) {
-					dialog.dialog("close");
+					$(this).dialog("close");
 				}
 			} ],
 			close: function () {
-				dialog.find("form")[0].reset();
-				dialog.dialog("close");
-				dialog.dialog("destroy");
-				$("#add_edit_tool_logs").val("");
-				create_dialog();
+				$(this).dialog("close");
 				table.ajax.reload();
 			}
 
@@ -218,6 +215,16 @@
 
 	$(function() {
 		$(":input").inputmask();
-		create_dialog();
+		create_add_edit_tool_dialog();
+
+		$("#add_edit_tool_div").on("dialogopen", function (event, ui) {
+			$(this).find("form")[0].reset();
+			$("#add_edit_tool_logs").val("");
+			var buttons = $(this).dialog("option", "buttons");
+			buttons[0].visible = true; // Make Add/Update button visible
+			$(this).dialog("option", "buttons", buttons);
+
+		});
 	});
+
 </script>
