@@ -137,13 +137,20 @@ void plans_delete(const std::shared_ptr<restbed::Session>& rest_session) {
  **/
 
 void tools_list(const std::shared_ptr<restbed::Session>& rest_session) {
-    close_rest_session(rest_session, restbed::OK, REMA::tools);
+    std::map<std::string, Tool> tools_to_ui;
+    for (auto [id, tool] : REMA::tools) {
+        tools_to_ui[id] = Tool(id, (tool.offset * current_session.hx.scale), tool.is_touch_probe);
+    }
+    close_rest_session(rest_session, restbed::OK, tools_to_ui);
 }
 
 void tools_info(const std::shared_ptr<restbed::Session>& rest_session) {
     const auto request = rest_session->get_request();
     std::string tool_name = request->get_path_parameter("tool_name", "");
-    close_rest_session(rest_session, restbed::OK, REMA::tools.at(tool_name));
+
+    auto tool_to_ui = REMA::tools.at(tool_name);
+    tool_to_ui.offset *= current_session.hx.scale;
+    close_rest_session(rest_session, restbed::OK, tool_to_ui);
 }
 
 void tools_add_update(const std::shared_ptr<restbed::Session> rest_session) {
@@ -169,7 +176,10 @@ void tools_add_update(const std::shared_ptr<restbed::Session> rest_session) {
                     double offset_y = to_double(form_data.value("offset_y", "0"));
                     double offset_z = to_double(form_data.value("offset_z", "0"));
                     bool is_touch_probe = form_data.value("is_touch_probe", "off") == "on";
-                    Tool new_tool(tool_name, { offset_x, offset_y, offset_z }, is_touch_probe);
+                    
+                    Point3D offsets = Point3D(offset_x, offset_y, offset_z) / current_session.hx.scale;
+
+                    Tool new_tool(tool_name, offsets, is_touch_probe);
                     new_tool.save_to_disk();
                     REMA::add_tool(new_tool);
                     res = "Tool Added/Updated Successfully";
