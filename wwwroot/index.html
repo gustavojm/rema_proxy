@@ -138,9 +138,9 @@
 	}
 
 	function show_tool_offsets(selected_tool) {
-		$("#offset_x").val(selected_tool.data("offset_x"));
-		$("#offset_y").val(selected_tool.data("offset_y"));
-		$("#offset_z").val(selected_tool.data("offset_z"));
+		$("#offset_x").val(toFixedIfNecessary(selected_tool.data("offset_x"), decimals));
+		$("#offset_y").val(toFixedIfNecessary(selected_tool.data("offset_y"), decimals));
+		$("#offset_z").val(toFixedIfNecessary(selected_tool.data("offset_z"), decimals));
 	}
 
 	function get_rema_info() {
