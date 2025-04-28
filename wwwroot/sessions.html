@@ -94,6 +94,7 @@
 							$("#tabs").tabs({
 								active: TUBESHEET_VIEW_TAB
 							});
+							get_rema_info();	// To reload the Tools selector
 						},
 						error: function (xhr, status, error) {
 							console.log(xhr, status, error);
@@ -130,8 +131,8 @@
 		});
 	});
 
-	function create_dialog() {
-		var dialog = $("#new_session_div").dialog({
+	function create_new_session_dialog() {
+		let dialog = $("#new_session_div").dialog({
 			autoOpen : false,
 			title : "New Session",
 			//modal : true,
@@ -157,15 +158,10 @@
 				text : "Close",
 				//icon: "ui-icon-heart",
 				click : function(event) {
-					dialog.dialog("close");
+					$(this).dialog("close");
 				}
 			} ],
 			close : function(event) {
-				dialog.find("form")[0].reset();
-				dialog.dialog("close");
-				dialog.dialog("destroy");
-				$("#new_session_logs").val("");
-				create_dialog();
 				table.ajax.reload();
 			}
 
@@ -173,7 +169,7 @@
 	}
 
 	$(function() {
-		create_dialog();
+		create_new_session_dialog();
 
 		var hx_dropdown = $('#heat_exchangers');
 
@@ -192,5 +188,11 @@
 
 		$(":input").inputmask();
 
+		$("#new_session_div").on("dialogopen", function (event, ui) {
+			$(this).find("form")[0].reset();
+			$("#new_session_logs").val("");
+		});
+
 	});
+
 </script>
