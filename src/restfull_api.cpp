@@ -812,6 +812,7 @@ void determine_tubesheet_z(const std::shared_ptr<restbed::Session>& rest_session
     goto_tubesheet.first_axis_setpoint = z;
     goto_tubesheet.second_axis_setpoint = 0;
 
+    double retract_from_tubesheet_z;
     seq_execution_response = rema.execute_sequence(goto_tubesheet);
     if (!seq_execution_response) {
         res["error"] = seq_execution_response.error();
@@ -822,11 +823,21 @@ void determine_tubesheet_z(const std::shared_ptr<restbed::Session>& rest_session
         if (goto_tubesheet.executed) {
             if (set_home) {
                 rema.set_home_z(0);
-            } else {
+                retract_from_tubesheet_z = 0;
+            } else {                                
                 res["z"] = current_session.from_rema_to_ui(z) + tool.offset.z;
+                retract_from_tubesheet_z = z + tool.offset.z;
             }
         }
     }
+
+    movement_cmd retract_from_tubesheet;
+    retract_from_tubesheet.axes = "Z";
+    retract_from_tubesheet.speed = speed::SLOW;
+    retract_from_tubesheet.first_axis_setpoint = retract_from_tubesheet_z - 0.3937;    // retract from tubesheet approx 10mm.
+    retract_from_tubesheet.second_axis_setpoint = 0;
+
+    seq_execution_response = rema.execute_sequence(retract_from_tubesheet);
 
     close_rest_session(rest_session, status, res);
 }
