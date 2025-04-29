@@ -59,11 +59,19 @@ void Chart::init(std::string type) {
 std::vector<std::string> Chart::list() {
     std::vector<std::string> res;
 
-    for (const auto &entry : std::filesystem::directory_iterator(charts_dir)) {
+    std::vector<std::pair<std::filesystem::file_time_type, std::filesystem::path>> entries;
+    for (const auto& entry : std::filesystem::directory_iterator(charts_dir)) {
         if (entry.is_regular_file()) {
-            res.push_back(entry.path().filename().replace_extension());
+            entries.push_back({entry.last_write_time(), entry.path()});
         }
     }
+
+    std::sort(entries.begin(), entries.end(), std::greater<>());
+
+    for (const auto& entry : entries) {
+        res.push_back(entry.second.filename().replace_extension());
+    }
+
     return res;
 }
 
