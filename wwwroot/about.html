@@ -1,6 +1,5 @@
-<div id="about_tab" style="overflow: hidden; width: 100%;">
-	<h1>REMA CONTROL</h1>
-
+<div id="about_tab" style="overflow: auto; height: 92%; width: 100%; float: left; position: relative; ">
+	<h1 style="display: flex; justify-content: center;">REMA CONTROL</h1>
 	<h2>Overview</h2>
 	Control interface for REMA II, three axis cartesian robot.
 
@@ -8,25 +7,91 @@
 	<a href="https://github.com/GMalano-NASA/REMA_Proxy" target="_blank">https://github.com/GMalano-NASA/REMA_Proxy</a>
 
 	<h3>Thanks to the developers of the following open source projects:</h3>
-	<li>Corvusoft/restbed</li>
-	<li>OpenSSL</li>
-	<li>Open3D</li>
-    <li>Boost</li>
-	<li>Eigen3</li>
-    <li>SpdLog</li>
-    <li>Nlohmann-json</li>
-    <li>RapidXML</li>
-	
-	<li>JQuery</li>
-	<li>Chart.js</li>
-	<li>DataTables.net</li>
+	<ul style="height:22%; overflow-y: auto;">
+		<li>Corvusoft/restbed</li>
+		<li>OpenSSL</li>
+		<li>Open3D</li>
+		<li>Boost</li>
+		<li>Eigen3</li>
+		<li>SpdLog</li>
+		<li>Nlohmann-json</li>
+		<li>RapidXML</li>
+		<li>JQuery</li>
+		<li>Chart.js</li>
+		<li>DataTables.net</li>
+	</ul>
 
-	<h2>GSPC - NA-SA</h2>
+	<h2>Changelog</h2>
+	<ul style="height:33%; overflow-y: auto;">
+		<li>
+			Agregado un registro de cambios.
+		</li>
+		<li>
+			La secuencia de determinación de la posición de la placa-tubo finaliza retrayendo el eje Z 10mm para
+			permitir los desplazamientos sin tocar la placa tubo.
+		</li>
+		<li>
+			Las herramientas pueden ser creadas y modificadas en la unidad de la sesión actual, ya sean mm o pulgadas.
+		</li>
+		<li>
+			Agregada función de doble click sobre las coordenadas determinadas en la interfaz de puntos de calibración
+			para copiar las coordenadas actuales.
+		</li>
+		<li>
+			Agregado cuentas mínimas y máximas para el frenado suave en la interfaz de configuración.
+		</li>
+		<li>
+			No permitir calibraciones o determinación del centro de un tubo o distancia a la placa tubo si la
+			herramienta seleccionada no es el palpador.
+		</li>
+		<li>
+			Agregado ángulos de retraer y extender el palpador a la interfaz de configuración.
+		</li>
+		<li>
+			Creados intercambiadores QK01 y QK02 con sus respectivas placas tubo Inlet y Outlet.
+		</li>
+		<li>
+			Cambio en la implementación del Joystick, ahora responde más ágilmente.
+		</li>
+		<li>
+			Las herramientas son editables.
+		</li>
+		<li>
+			Cambiados los íconos de HOME en el joystick por la imágen de una casa.
+		</li>
+		<li>
+			Agregado opción de búsqueda de tubos por su identificación.
+		</li>
+		<li>
+			Los movimientos de calibración ahora se hacen a una velocidad reducida. Parámetros de frecuencia mínima y
+			máxima para los movimientos lentos agregados a la interfaz de configuración.
+		</li>
+		<li>
+			Se provee un archivo de ejemplo para generar planes de trabajo a partir del mismo.
+		</li>
+		<li>
+			Ctrl + rueda del mouse cambia el nivel de zoom de la vista de la placa tubo.
+		</li>
+		<li>
+			Cambiado el patrón de detección de centros de una forma de "estrella" a una "Y". Trabaja mejor con la
+			estructura interna del palpador que tiene tres apoyos.
+		</li>
+		<li>
+			Generados gráficos de posición, velocidad y aceleración para los movimientos.
+		</li>
+	</ul>
+
+
+	<div style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
+		<img src="images/logo nasa.png">
+		<h3 style="margin: 0px;">GSPC - NA-SA</h3>
+	</div>
+
 
 </div>
 
 <script type="text/javascript">
-	$(function() {
+	$(function () {
 
 	});
 </script>

@@ -6,12 +6,13 @@
 	<script src="js/websocket_client.js"></script>
 
 	<style>
-		h1 {
+		.button-label {
 			font-size: 1em;
 			text-transform: uppercase;
 			color: darkgray;
 			letter-spacing: .1em;
 			margin: 0.1em;
+			font-weight: 700;
 		}
 
 		.options {
@@ -116,7 +117,7 @@
 					<option>2</option>
 				</datalist>
 				<div class="options">
-					<h1>Brakes</h1>
+					<span class="button-label">Brakes</span>
 					<input class="slider" type="range" min="0" max="2" step="1" list="steplist"
 						id="brakes_mode_switch" />
 					<div class="ticks">
@@ -139,7 +140,7 @@
 			<div style="width: 50%; text-align: center;	align-items: center;
 				display: flex;	flex-direction: column;">
 				<div class="options">
-					<h1>Stall</h1>
+					<span class="button-label">Stall</span>
 					<div style="margin-bottom: 5px;">
 						<input type="checkbox" name="stall_switch" id="stall_switch">
 					</div>
@@ -148,7 +149,7 @@
 			<div style="width: 50%; text-align: center;	align-items: center;
 				display: flex;	flex-direction: column;">
 				<div class="options">
-					<h1>Power</h1>
+					<span class="button-label">Power</span>
 					<div style="margin-bottom: 5px;">
 						<input type="checkbox" name="power_switch" id="power_switch">
 					</div>
