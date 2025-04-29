@@ -28,7 +28,7 @@
 	{"cmd": "TOUCH_PROBE_SETTINGS",
 	 "pars": {
 		"protection": true,
-		"counts_XY": 15,
+		"counts_XY": 5,
 		"counts_Z": 5,
 		"debounce_time_ms": 2000,
 		"retract_angle": -20,

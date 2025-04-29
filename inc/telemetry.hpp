@@ -32,6 +32,7 @@ struct telemetry {
     struct Point3D coords;
     struct Point3D targets;
     struct compound_axes on_condition;
+    struct compound_axes joystick_movement;
     struct compound_axes probe;
     struct individual_axes stalled;
     struct limits limits;
@@ -45,6 +46,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     coords,
     targets,
     on_condition,
+    joystick_movement,
     probe,
     stalled,
     limits,

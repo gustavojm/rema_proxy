@@ -156,10 +156,18 @@ void REMA::update_telemetry(std::vector<uint8_t>& stream) {
                 ui_telemetry.coords = current_session.from_rema_to_ui(rema.telemetry.coords, &tool);
                 ui_telemetry.targets = current_session.from_rema_to_ui(rema.telemetry.targets, &tool);
 
+                if (ui_telemetry.joystick_movement.x_y != old_telemetry.joystick_movement.x_y && ui_telemetry.joystick_movement.x_y) {
+                    chart.init("joystick_movement_XY");
+                }
+
+                if (ui_telemetry.joystick_movement.z != old_telemetry.joystick_movement.z && ui_telemetry.joystick_movement.z) {
+                    chart.init("joystick_movement_Z");
+                }
+
                 if (ui_telemetry.coords != old_telemetry.coords) {
                     chart.insertData({ui_telemetry.coords});
-                    old_telemetry = ui_telemetry;
                 }
+                old_telemetry = ui_telemetry;
             }
 
             if (json.contains("temps")) {
