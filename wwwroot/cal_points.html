@@ -17,9 +17,8 @@
 				<thead>
 					<tr>
 						<th>ID</th>
-						<th>Col</th>
 						<th>Row</th>
-						<th>Calibrated</th>
+						<th>Col</th>
 						<th>Options</th>
 					</tr>
 				</thead>
@@ -33,9 +32,9 @@
 		<div>
 			<form id="cal_point_info">			
 				<div class="row" style="padding-bottom: 10px;">
-				Tube Id:<input type="text" size="4" id="cal_point_tube_id" name="tube_id" readonly> 
-					Col:<input type="text" size="4" id="cal_tube_info_col" name="col" readonly> 
-					Row:<input type="text" size="4" id="cal_tube_info_row" name="row" readonly> 
+				Tube Id:<input type="text" size="4" id="cal_point_tube_id" name="tube_id" readonly> 					
+					Row:<input type="text" size="4" id="cal_tube_info_row" name="row" readonly>
+					Col:<input type="text" size="4" id="cal_tube_info_col" name="col" readonly>
 				</div>
 				<div class="row border" style="margin-left: 5px;">
 					<table class="ui-widget">
@@ -95,8 +94,8 @@ function show_cal_point_info(data, from_table = false) {
 		$("#cal_point_info input[type=text]").val("");	
 	} else {
 		$("#cal_point_tube_id").val(data.tube_id);
-		$("#cal_tube_info_col").val(data.col);
 		$("#cal_tube_info_row").val(data.row);
+		$("#cal_tube_info_col").val(data.col);
 		$("#ideal_coords_x").val(toFixedIfNecessary(data.ideal_coords.x, decimals));
 		$("#ideal_coords_y").val(toFixedIfNecessary(data.ideal_coords.y, decimals));
 		$("#ideal_coords_z").val(toFixedIfNecessary(data.ideal_coords.z, decimals));
@@ -151,7 +150,7 @@ function drawAlignedCircle(svg, id, aligned_tube, radius, scale) {
 		id : "aligned_" + id,				
 	});
 
-	svg.title(g, "Id=" + id + " Col=" + aligned_tube.x_label + " Row=" + aligned_tube.y_label);
+	svg.title(g, "Id=" + id + " Row=" + aligned_tube.y_label + " Col=" + aligned_tube.x_label);
 
 	svg.circle(g, aligned_tube.coords.x, aligned_tube.coords.y, radius * scale, {
 		fill : 'white',
@@ -234,19 +233,10 @@ $(function() {
 							data : 'tube_id'
 						},
 						{
-							data : 'col'
-						},
-						{
 							data : 'row'
 						},
 						{
-							data : 'determined',
-							render : function(data, type, row) {
-								return '<input type="checkbox" onclick="return false;" value='
-										+ row.tube_id
-										+ (data == true ? ' checked'
-												: '') + '>';
-							}
+							data : 'col'
 						},
 						{
 							data : null,

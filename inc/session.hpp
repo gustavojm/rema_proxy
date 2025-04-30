@@ -25,13 +25,12 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(PlanEntry, seq, row, col, executed)
 
 class CalPointEntry {
   public:
-    std::string col;
     std::string row;
+    std::string col;
     Point3D ideal_coords;
     Point3D determined_coords;
-    bool determined;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(CalPointEntry, col, row, ideal_coords, determined_coords, determined)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(CalPointEntry, row, col, ideal_coords, determined_coords)
 
 class Session {
   public:

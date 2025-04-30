@@ -70,7 +70,7 @@ add_tube(rapidxml::xml_document<char>* doc, TubeEntry tube, std::string id, floa
     append_attributes(
         doc,
         tube_group_node,
-        { { "id", doc->allocate_string(id.c_str()) }, { "data-col", tube.x_label }, { "data-row", tube.y_label } });
+        { { "id", doc->allocate_string(id.c_str()) }, { "data-row", tube.y_label }, { "data-col", tube.x_label } });
 
     auto tube_node = doc->allocate_node(rapidxml::node_type::node_element, "circle");
     append_attributes(
@@ -84,7 +84,7 @@ add_tube(rapidxml::xml_document<char>* doc, TubeEntry tube, std::string id, floa
         });
 
     auto tooltip_node = doc->allocate_node(rapidxml::node_type::node_element, "title");
-    tooltip_node->value(doc->allocate_string((std::string("Id=") + id + " Col=" + tube.x_label + " Row=" + tube.y_label).c_str()));
+    tooltip_node->value(doc->allocate_string((std::string("Id=") + id + " Row=" + tube.y_label + " Col=" + tube.x_label).c_str()));
     tube_group_node->append_node(tooltip_node);
     tube_group_node->append_node(tube_node);
     auto number_node = doc->allocate_node(rapidxml::node_type::node_element, "text", doc->allocate_string(id.substr(3).c_str()));

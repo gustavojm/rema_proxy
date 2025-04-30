@@ -24,8 +24,8 @@
 			class="left-side">
 			<form id="tube_info" style="width: 55%;">
 				Tube Id:<input type="text" id="tube_info_id" name="tube_id" size="4" readonly>
-				Col:<input type="text" id="tube_info_col" name="col" size="4" readonly>
 				Row:<input type="text" id="tube_info_row" name="row" size="4" readonly>
+				Col:<input type="text" id="tube_info_col" name="col" size="4" readonly>
 				X:<input type="text" id="tube_info_x" name="x" size="4" readonly>
 				Y:<input type="text" id="tube_info_y" name="y" size="4" readonly> <span class="unit">inch</span>
 				<input type="button" tabindex="-1" id="go_button" style="background-color: springgreen; width: 40px;" value="GO">
@@ -65,9 +65,9 @@
 						<thead>
 							<tr>
 								<th>Seq</th>
-								<th>ID</th>
-								<th>Col</th>
+								<th>ID</th>								
 								<th>Row</th>
+								<th>Col</th>
 								<th>Executed</th>
 							</tr>
 						</thead>
@@ -281,7 +281,7 @@
 			update_location_pin_position(
 				0, 0);				
 			$("#set_as_cal_point").prop('disabled', true);
-			$("#tube_info_id, #tube_info_col, #tube_info_row, #tube_info_x, #tube_info_y").val("");
+			$("#tube_info_id, #tube_info_row, #tube_info_col, #tube_info_x, #tube_info_y").val("");
 		} else {
 			tubes
 				.not(g)
@@ -301,16 +301,16 @@
 					"cy");
 			var id = $(g)
 				.attr("id");
-			var col = $(g).data(
-				"col");
 			var row = $(g).data(
 				"row");
+			var col = $(g).data(
+				"col");
 			$("#tube_info_id").val(
 				id);
-			$("#tube_info_col")
-				.val(col);
 			$("#tube_info_row")
 				.val(row);
+			$("#tube_info_col")
+				.val(col);
 			$("#tube_info_x").val(toFixedIfNecessary(ideal_tubes[id].coords.x, decimals));
 			$("#tube_info_y").val(toFixedIfNecessary(ideal_tubes[id].coords.y, decimals));
 			highligt_aligned_coords(aligned_coords);
@@ -344,8 +344,8 @@
 
 			var data = {
 				"tube_id": id,
-				"col": col,
 				"row": row,
+				"col": col,
 				"ideal_coords": {
 					"x": parseFloat(cx),
 					"y": parseFloat(cy),
@@ -661,10 +661,10 @@
 							data: 'tube_id'
 						},
 						{
-							data: 'col'
+							data: 'row'
 						},
 						{
-							data: 'row'
+							data: 'col'
 						},
 						{
 							data: 'executed',

@@ -186,7 +186,7 @@ void Session::cal_points_add_update(
     Point3D& ideal_coords,
     Point3D& determined_coords) {
     CalPointEntry cpe = {
-        col, row, ideal_coords, determined_coords, true,
+        row, col, ideal_coords, determined_coords
     };
     cal_points[tube_id] = cpe;
     is_changed = true;
@@ -235,21 +235,19 @@ std::map<std::string, TubeEntry> Session::calculate_aligned_tubes() {
     open3d::geometry::PointCloud source_cloud;
     open3d::geometry::PointCloud target_cloud;
 
-    int used_points = 0;
+    int points = 0;
     for (const auto& cal_point : cal_points) {
-        if (cal_point.second.determined) {
-            source_cloud.points_.emplace_back(Eigen::Vector3d(
-                cal_point.second.ideal_coords.x, cal_point.second.ideal_coords.y, cal_point.second.ideal_coords.z));
+        source_cloud.points_.emplace_back(Eigen::Vector3d(
+            cal_point.second.ideal_coords.x, cal_point.second.ideal_coords.y, cal_point.second.ideal_coords.z));
 
-            target_cloud.points_.emplace_back(Eigen::Vector3d(
-                cal_point.second.determined_coords.x,
-                cal_point.second.determined_coords.y,
-                cal_point.second.determined_coords.z));
-            used_points++;
-        }
+        target_cloud.points_.emplace_back(Eigen::Vector3d(
+            cal_point.second.determined_coords.x,
+            cal_point.second.determined_coords.y,
+            cal_point.second.determined_coords.z));
+        points++;
     }
 
-    if (used_points < 3) {
+    if (points < 3) {
         SPDLOG_ERROR("At least 3 alignment points are required");
         return aligned_tubes;
     }
