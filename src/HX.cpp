@@ -6,7 +6,8 @@
 
 const std::filesystem::path HX::hxs_path = "./HXs";
 
-void HX::process_csv_from_disk(std::string hx) {
+void HX::process_csv_from_disk(std::string hx_name) {
+    hx = hx_name;
     load_config_from_disk(hx);
     std::filesystem::path csv_file = hxs_path / hx / "tubesheet.csv";
     SPDLOG_INFO("Reading {}", csv_file.string());
@@ -69,7 +70,7 @@ void HX::generate_svg() {
         ".tube_num { text-anchor: middle; alignment-baseline: middle; font-family: sans-serif; font-size: " + svg.font_size +
         "px; fill: black;}"
         ".label { text-anchor: middle; alignment-baseline: middle; font-family: sans-serif; font-size: " +
-        svg.font_size + "; fill: red;}";
+        svg.font_size + "px; fill: red;}";
 
     style_node->value(style.c_str());
 
@@ -121,17 +122,19 @@ void HX::generate_svg() {
         cartesian_g_node->append_node(tube_node);
     }
 
-    // Write the SVG document to a file
-    // std::filesystem::path svg_path = hxs_path / hx / "tubesheet.svg";
-    // std::ofstream file(svg_path);
-    // file << document;
-
     std::ostringstream stream;
     stream << document;
     tubesheet_svg = stream.str();
+
+    // Write the SVG document to a file
+    std::filesystem::path svg_path = hxs_path / hx / "tubesheet.svg";
+    std::ofstream file(svg_path);
+    file << document;
+
 }
 
-void HX::load_config_from_disk(std::string hx) {
+void HX::load_config_from_disk(std::string hx_name) {
+    hx = hx_name;
     std::filesystem::path tubesheet_csv = hxs_path / hx / "tubesheet.csv";
 
     try {

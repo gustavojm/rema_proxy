@@ -31,6 +31,7 @@ class HX {
 
     static bool erase(std::string hx_name);
 
+    std::string hx;
     std::string tubesheet_svg;
     float tube_od;
     std::string leg = "both";
