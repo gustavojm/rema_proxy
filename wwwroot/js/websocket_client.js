@@ -1,14 +1,18 @@
 
 class WebSocketClient {
-    constructor(host, received_msg_handler) {
+    constructor(host) {
         this.path = ""
         this.host = host;
         this.port = 8765
         this.maxReconnectAttempts = 1000;
         this.reconnectAttempts = 0;
         this.socket = null;
-        this.received_msg_handler = received_msg_handler;
-        this.connect();
+        this.onReceivedMsgHandler = null;
+        this.onErrorHandler = null;
+        this.onOpenHandler = null;
+        this.onOpenHandler = null;
+        this.onCloseHandler = null;
+        this.connect();        
     }
 
     connect() {
@@ -20,19 +24,30 @@ class WebSocketClient {
 
         this.socket.addEventListener("open", () => {
             console.log("Connected to WebSocket server");
+            if (typeof this.onOpenHandler === 'function') {
+                this.onOpenHandler();
+            }
             this.reconnectAttempts = 0; // Reset on successful connection
         });
 
         this.socket.addEventListener("message", (event) => {
-            this.received_msg_handler(event.data);
+            if (typeof this.onReceivedMsgHandler === 'function') {
+                this.onReceivedMsgHandler(event.data);
+            }
         });
 
         this.socket.addEventListener("error", (error) => {
             console.error("WebSocket error:", error);
+            if (typeof this.onOpenHandler === 'function') {
+                this.onErrorHandler();
+            }
         });
 
         this.socket.addEventListener("close", (event) => {
             console.log(`WebSocket closed (code: ${event.code}, reason: ${event.reason})`);
+            if (typeof this.onOpenHandler === 'function') {
+                this.onCloseHandler();
+            }
             this.reconnect();
         });
     }

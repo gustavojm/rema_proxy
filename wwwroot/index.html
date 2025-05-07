@@ -236,10 +236,23 @@
 			show_tool_offsets($("option:selected", tools_dropdown));
 			
 			// Start WebSocket client
-			Joystick_wsClient = new WebSocketClient(data.host, function(data) {
-				add_notification(data.toUpperCase(), "Info")
-			});
+			Joystick_wsClient = new WebSocketClient(data.host);
 
+			Joystick_wsClient.onReceivedMsgHandler = function(data) {
+				add_notification(data.toUpperCase(), "Info")
+			};
+
+			Joystick_wsClient.onOpenHandler = function() {
+				$("#joystick_div").dialog("option", "title", "Joystick");
+			};
+
+			Joystick_wsClient.onErrorHandler = function() {
+				$("#joystick_div").dialog("option", "title", "❌ Joystick - Error ❌");
+			};
+
+			Joystick_wsClient.onCloseHandler = function() {
+				$("#joystick_div").dialog("option", "title", "⚠️ Joystick - Disconnected ⚠️");
+			};
 		});
 	}
 
@@ -521,7 +534,7 @@
 			).done(function () {
 				var joystick = $("#joystick_div").dialog({
 					autoOpen: true,
-					title: "Joystick",
+					title: "⚠️ Joystick - Disconnected ⚠️",
 					position: { my: "right bottom", at: "right-500 bottom-150", of: $("#tabs") },
 					//modal : true,
 					open: function (event, ui) {
