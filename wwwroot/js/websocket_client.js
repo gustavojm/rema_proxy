@@ -38,14 +38,14 @@ class WebSocketClient {
 
         this.socket.addEventListener("error", (error) => {
             console.error("WebSocket error:", error);
-            if (typeof this.onOpenHandler === 'function') {
+            if (typeof this.onErrorHandler === 'function') {
                 this.onErrorHandler();
             }
         });
 
         this.socket.addEventListener("close", (event) => {
             console.log(`WebSocket closed (code: ${event.code}, reason: ${event.reason})`);
-            if (typeof this.onOpenHandler === 'function') {
+            if (typeof this.onCloseHandler === 'function') {
                 this.onCloseHandler();
             }
             this.reconnect();
