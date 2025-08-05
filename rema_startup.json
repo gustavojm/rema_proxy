@@ -4,9 +4,9 @@
         "axes": "XY",
 		"prop_gain": 20,
 		"update": 100,
-		"normal_min": 2500,
+		"normal_min": 650,
 		"normal_max": 60000,
-		"slow_min": 1250,
+		"slow_min": 650,
 		"slow_max": 30000,
 		"soft_stop_min_counts": 80,
 		"soft_stop_max_counts": 1000
@@ -31,8 +31,8 @@
 		"counts_XY": 5,
 		"counts_Z": 5,
 		"debounce_time_ms": 2000,
-		"retract_angle": -20,
-		"extend_angle": 69
+		"retract_angle": 170,
+		"extend_angle": 73
 		}
     },
 	{"cmd": "STALL_CONTROL_SETTINGS",
