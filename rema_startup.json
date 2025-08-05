@@ -5,7 +5,7 @@
 		"prop_gain": 20,
 		"update": 100,
 		"normal_min": 650,
-		"normal_max": 60000,
+		"normal_max": 50000,
 		"slow_min": 650,
 		"slow_max": 30000,
 		"soft_stop_min_counts": 80,
@@ -18,9 +18,9 @@
 		"prop_gain": 20,
 		"update": 100,
 		"normal_min": 2500,
-		"normal_max": 60000,
+		"normal_max": 50000,
 		"slow_min": 2500,
-		"slow_max": 60000,
+		"slow_max": 50000,
 		"soft_stop_min_counts": 40,
 		"soft_stop_max_counts": 500
 	 }
