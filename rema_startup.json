@@ -3,6 +3,7 @@
 	 "pars": {
         "axes": "XY",
 		"prop_gain": 20,
+		"ramp_steps": 50,
 		"update": 100,
 		"normal_min": 650,
 		"normal_max": 50000,
@@ -16,6 +17,7 @@
 	 "pars": {
         "axes": "Z",
 		"prop_gain": 20,
+		"ramp_steps": 50,
 		"update": 100,
 		"normal_min": 2500,
 		"normal_max": 50000,

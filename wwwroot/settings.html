@@ -46,6 +46,11 @@
                                 data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">%</label>
                     </div>
                     <div class="row" style="position: relative; width:100%; justify-content: space-between;">
+                        <label>Attenuation Steps: <input type="text" name="ramp_steps" size="4"
+                                data-inputmask-alias="numeric" data-inputmask-greedy="false" data-inputmask-digits="0"
+                                data-inputmask-allowPlus="false" data-inputmask-allowMinus="false"></label>
+                    </div>
+                    <div class="row" style="position: relative; width:100%; justify-content: space-between;">
                         <label>Update Time: <input type="text" name="update_time" size="4"
                                 data-inputmask-alias="numeric" data-inputmask-greedy="false" data-inputmask-digits="0"
                                 data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">ms</label>
@@ -96,6 +101,11 @@
                         <label>Proportional Gain: <input type="text" name="prop_gain" size="4"
                                 data-inputmask-alias="numeric" data-inputmask-greedy="false" data-inputmask-digits="0"
                                 data-inputmask-allowPlus="false" data-inputmask-allowMinus="false">%</label>
+                    </div>
+                    <div class="row" style="position: relative; width:100%; justify-content: space-between;">
+                        <label>Attenuation Steps: <input type="text" name="ramp_steps" size="4"
+                                data-inputmask-alias="numeric" data-inputmask-greedy="false" data-inputmask-digits="0"
+                                data-inputmask-allowPlus="false" data-inputmask-allowMinus="false"></label>
                     </div>
                     <div class="row" style="position: relative; width:100%; justify-content: space-between;">Normal Speed</div>
                     <div class="row" style="position: relative; width:100%; justify-content: space-between;">
@@ -221,6 +231,7 @@
             success: function (data) {
                 axes_settings = data.AXES_SETTINGS
                 $('#x_axes_config [name="prop_gain"]').val(axes_settings.XY.prop_gain);
+                $('#x_axes_config [name="ramp_steps"]').val(axes_settings.XY.ramp_steps);
                 $('#x_axes_config [name="update_time"]').val(axes_settings.XY.update_time);
                 $('#x_axes_config [name="normal_min_freq"]').val(axes_settings.XY.normal_min_freq);
                 $('#x_axes_config [name="normal_max_freq"]').val(axes_settings.XY.normal_max_freq);
@@ -231,6 +242,7 @@
 
 
                 $('#z_axes_config [name="prop_gain"]').val(axes_settings.Z.prop_gain);
+                $('#z_axes_config [name="ramp_steps"]').val(axes_settings.Z.ramp_steps);
                 $('#z_axes_config [name="update_time"]').val(axes_settings.Z.update_time);
                 $('#z_axes_config [name="normal_min_freq"]').val(axes_settings.Z.normal_min_freq);
                 $('#z_axes_config [name="normal_max_freq"]').val(axes_settings.Z.normal_max_freq);
@@ -292,6 +304,7 @@
         div = btn.closest(".axes-div");
         axes = $(div).data("axes");
         prop_gain = parseInt($(div).find('[name="prop_gain"]').val()) || 100;
+        ramp_steps = parseInt($(div).find('[name="ramp_steps"]').val()) || 50;
         update_time = parseInt($(div).find('[name="update_time"]').val()) || 100;
         normal_min_freq = parseInt($(div).find('[name="normal_min_freq"]').val()) || 10000;
         normal_max_freq = parseInt($(div).find('[name="normal_max_freq"]').val()) || 125000;
@@ -308,6 +321,7 @@
                 pars: {
                     axes: axes,
                     prop_gain: prop_gain,
+                    ramp_steps: ramp_steps,
                     update: update_time,
                     normal_min: normal_min_freq,
                     normal_max: normal_max_freq,
