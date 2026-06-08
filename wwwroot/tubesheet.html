@@ -371,56 +371,47 @@
 	}
 
 	function zoom_svg(zoom, element) {
-		var tubesheet_svg = document.getElementById('tubesheet_svg');
-		if (tubesheet_svg) {
-			var box = tubesheet_svg.viewBox.baseVal;
+		var svg = document.getElementById('tubesheet_svg');
+		if (!svg) return;
 
-			aspectRatio = box.width / box.height;
-			if (aspectRatio > 1) {
-				$('#hx_svg').css("width", 100 * zoom * aspectRatio + "%");
-				$('#hx_svg').css("height", 100 * zoom + "%");
-			} else {
-				$('#hx_svg').css("width", 100 * zoom + "%");
-				$('#hx_svg').css("height", 100 * zoom * aspectRatio + "%");
+		var box = svg.viewBox.baseVal;
+		var ar = box.width / box.height;
+
+		if (ar > 1) {
+			$('#hx_svg').css("width", 100 * zoom * ar + "%");
+			$('#hx_svg').css("height", 100 * zoom + "%");
+		} else {
+			$('#hx_svg').css("width", 100 * zoom + "%");
+			$('#hx_svg').css("height", 100 * zoom * ar + "%");
+		}
+
+		var objDiv = document.getElementById("left_side_resizable");
+		var el = element && document.getElementById(element);
+		if (!el) return;
+
+		var transform = el.getAttribute("transform");
+		if (transform) {
+			var m = transform.match(/translate\(([^,]+),([^)]+)\)/);
+			if (m) {
+				var tx = parseFloat(m[1]);
+				var ty = parseFloat(m[2]);
+
+				var pctX = (tx - box.x) / box.width;
+				var pctY = (-ty - box.y) / box.height;
+
+				var factorX = objDiv.scrollWidth / box.width;
+				var factorY = objDiv.scrollHeight / box.height;
+				var factor = Math.min(factorX, factorY);
+
+				var padX = (objDiv.scrollWidth - (box.width * factor));
+				var padY = (objDiv.scrollHeight - (box.height * factor));
+
+				objDiv.scrollLeft = ((objDiv.scrollWidth - padX - objDiv.clientWidth) * pctX) + (padX / 2);
+				objDiv.scrollTop = ((objDiv.scrollHeight - padY - objDiv.clientHeight) * pctY) + (padY / 2);
 			}
-
-			var objDiv = document.getElementById("left_side_resizable");
-
-			var tubesheet_svg = document.getElementById('tubesheet_svg');
-			var box = tubesheet_svg.viewBox.baseVal;
-
-			if (document.getElementById(element)) {
-				const transform = $("#" + element).attr("transform")
-
-				if (transform) {
-					const translateMatch = transform.match(/translate\(([^,]+),([^)]+)\)/);
-					if (translateMatch) {
-
-						// Coordinates of the translation done on element
-						const translateX = parseFloat(translateMatch[1]);	// translateMatch[1] contains the x-coordinate	 		    
-						const translateY = parseFloat(translateMatch[2]);	// translateMatch[2] contains the y-coordinate
-
-						// percentage related to the real coordinates of the HX
-						percentage_x = (((1 / (box.width)) * (translateX - box.x)));
-						percentage_y = (((1 / (box.height)) * (-translateY - box.y)));
-
-						factor_x = objDiv.scrollWidth / box.width;
-						factor_y = objDiv.scrollHeight / box.height;
-
-						var factor = Math.min(factor_x, factor_y);
-
-						padding_x = (objDiv.scrollWidth - (box.width * factor));
-						padding_y = (objDiv.scrollHeight - (box.height * factor));
-
-						objDiv.scrollLeft = ((objDiv.scrollWidth - padding_x - objDiv.clientWidth) * (percentage_x)) + (padding_x / 2);
-						objDiv.scrollTop = ((objDiv.scrollHeight - padding_y - objDiv.clientHeight) * (percentage_y)) + (padding_y / 2);
-					}
-				} else {
-					// allways goes to the middle of the SVG
-					objDiv.scrollTop = (objDiv.scrollHeight - objDiv.clientHeight) / 2;
-					objDiv.scrollLeft = (objDiv.scrollWidth - objDiv.clientWidth) / 2;
-				}
-			}
+		} else {
+			objDiv.scrollTop = (objDiv.scrollHeight - objDiv.clientHeight) / 2;
+			objDiv.scrollLeft = (objDiv.scrollWidth - objDiv.clientWidth) / 2;
 		}
 	}
 
