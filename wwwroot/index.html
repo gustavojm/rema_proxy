@@ -144,7 +144,7 @@
 	}
 
 	function get_rema_info() {
-		$.get('/REST/REMA/info', function (data) {			
+		return $.get('/REST/REMA/info', function (data) {			
 			var tools_dropdown = $('#tools');
 			reconnect_div_html = '<div class="row"><img src="images/disconnected.png" class="reconnect" id="disconnected_img" style="margin-right:10px;">' +
 				'REMA Host: ' + data.host + ":" + data.service
@@ -234,25 +234,6 @@
 			tools_dropdown.val(data.last_selected_tool).trigger("change");
 			tools_dropdown.data("prev", $("option:selected", tools_dropdown));
 			show_tool_offsets($("option:selected", tools_dropdown));
-			
-			// Start WebSocket client
-			Joystick_wsClient = new WebSocketClient(data.host);
-
-			Joystick_wsClient.onReceivedMsgHandler = function(data) {
-				add_notification(data.toUpperCase(), "Info")
-			};
-
-			Joystick_wsClient.onOpenHandler = function() {
-				$("#joystick_div").dialog("option", "title", "Joystick");
-			};
-
-			Joystick_wsClient.onErrorHandler = function() {
-				$("#joystick_div").dialog("option", "title", "❌ Joystick - Error ❌");
-			};
-
-			Joystick_wsClient.onCloseHandler = function() {
-				$("#joystick_div").dialog("option", "title", "⚠️ Joystick - Disconnected ⚠️");
-			};
 		});
 	}
 
@@ -609,7 +590,22 @@
 							}
 						});
 
-						get_rema_info();
+						get_rema_info().done(function(data) {
+							Joystick_wsClient = new WebSocketClient(data.host, {
+								onReceivedMsg: function(data) {
+									add_notification(data.toUpperCase(), "Info")
+								},
+								onOpen: function() {
+									$("#joystick_div").dialog("option", "title", "Joystick");
+								},
+								onError: function() {
+									$("#joystick_div").dialog("option", "title", "❌ Joystick - Error ❌");
+								},
+								onClose: function() {
+									$("#joystick_div").dialog("option", "title", "⚠️ Joystick - Disconnected ⚠️");
+								}
+							});
+						});
 
 						var aligned_position_checked = false;
 						if ((current_session.is_aligned) && (sessionStorage.getItem("aligned_position") != null)) {

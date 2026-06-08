@@ -18,6 +18,9 @@ CMakeFiles/*
 # Ignore all local history of files
 .history
 
+# Clangd
+.cache
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
@@ -34,3 +37,4 @@ bld/
 
 charts/
 logs/
+

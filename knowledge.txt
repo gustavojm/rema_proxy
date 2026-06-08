@@ -1,0 +1,85 @@
+WebSocket Client (websocket_client.js)
+=======================================
+
+Server only accepts ONE client at a time
+----------------------------------------
+When reconnecting, never create a new WebSocket while the old one is still
+OPEN or CONNECTING. The old socket must be fully closed (close event fired)
+before attempting a new connection, otherwise the server rejects both.
+
+Implementation: In connect(), if the old socket is OPEN or CONNECTING,
+add a one-shot close listener that calls _createSocket(), then call
+close() on the old socket and return without creating a new one.
+
+Stale socket handlers
+---------------------
+When a socket is replaced, its addEventListener close handler must NOT
+trigger reconnect. Guard with: if (this.socket === ws)
+
+Setting property handlers (onopen = null) does NOT remove handlers
+registered via addEventListener. They remain active on the old socket
+object and can fire after the socket is replaced.
+
+Reconnect timer guard
+---------------------
+Use a flag (_reconnectTimer) to prevent multiple concurrent reconnect
+timers. Only one pending reconnect should exist at a time.
+
+Command queuing
+---------------
+Commands sent while WebSocket is CONNECTING should be queued and flushed
+on the open event. Queue as array, clear after flush.
+
+Handlers before connect
+-----------------------
+Always set onOpen/onClose/onError/onReceivedMsg handlers BEFORE calling
+connect(). The constructor should accept a handlers object parameter to
+guarantee they are in place when events fire.
+
+Joystick startup race (joystick.html / index.html)
+==================================================
+The joystick dialog opens with autoOpen:true before the WebSocket client
+is created (which happens deep inside nested async callbacks:
+get_session_info().done() -> get_rema_info().done()). Guard all
+Joystick_wsClient.send() calls with a check for undefined/null.
+
+Duplicate WebSocketClient instances (critical for one-client server)
+--------------------------------------------------------------------
+get_rema_info() was accidentally creating a new WebSocketClient every
+time it ran. But get_rema_info() is called from multiple places:
+index.html (startup), sessions.html, tools.html (twice), HXs.html —
+each call creates a new client. The server accepts only one connection,
+so the second client's connection displaces the first, triggering a
+reconnect loop.
+
+Fix: Keep WebSocket creation OUTSIDE get_rema_info(). The function
+should only reload tools/switches. Create the WebSocket client once in
+the startup chain: get_rema_info().done(function(data) { ... }).
+
+Also: make get_rema_info() return the $.get() promise so callers can
+chain .done() off it. Tab reload callers (sessions.html etc.) call
+get_rema_info() without chaining and don't affect the WebSocket.
+
+SVG Zoom (tubesheet.html)
+=========================
+zoom_svg function does two things: (1) resizes #hx_svg CSS width/height
+to >100% to create the zoom effect, (2) scrolls the container to center
+on a target element by parsing its translate(x,y) from the transform
+attribute.
+
+The Y coordinate is negated because the SVG uses scale(1 -1) to flip to
+Cartesian coordinates. getCTM() on the element returns a matrix where
+ctm.e = translateX and ctm.f = -translateY (already accounting for the
+flip), so no manual negation is needed.
+
+The SVG has a nested structure: <div #left_side_resizable> > <svg #hx_svg>
+> <svg #tubesheet_svg>. The inner SVG's viewBox defines user coordinates,
+and getCTM() returns positions in the viewport coordinate system of the
+nearest viewport (tubesheet_svg).
+
+Git
+===
+Use git merge-base to find divergence point between branches.
+Use git rev-list --count main..branch to count commits ahead.
+Use git branch -d for merged local branches.
+Use git push origin --delete name for remote branches.
