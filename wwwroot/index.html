@@ -181,7 +181,7 @@
 								entry.name));
 				});
 
-			tools_dropdown.on("change", function (e) {
+			tools_dropdown.off("change").on("change", function (e) {
 				if (e.originalEvent) {
 					previous_tool = tools_dropdown.data("prev");
 					console.log(previous_tool.val());
