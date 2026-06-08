@@ -10,7 +10,6 @@ class WebSocketClient {
         this.onReceivedMsgHandler = null;
         this.onErrorHandler = null;
         this.onOpenHandler = null;
-        this.onOpenHandler = null;
         this.onCloseHandler = null;
         this.connect();        
     }
@@ -27,7 +26,9 @@ class WebSocketClient {
             if (typeof this.onOpenHandler === 'function') {
                 this.onOpenHandler();
             }
-            this.reconnectAttempts = 0; // Reset on successful connection
+            this.reconnectAttempts = 0;
+            (this._pending || []).forEach(msg => this.socket.send(JSON.stringify(msg)));
+            this._pending = [];
         });
 
         this.socket.addEventListener("message", (event) => {
@@ -55,6 +56,9 @@ class WebSocketClient {
     send(data) {
         if (this.socket.readyState === WebSocket.OPEN) {
             this.socket.send(JSON.stringify(data));
+        } else if (this.socket.readyState === WebSocket.CONNECTING) {
+            this._pending = this._pending || [];
+            this._pending.push(data);
         } else {
             console.warn("WebSocket is not open. Message not sent.");
         }

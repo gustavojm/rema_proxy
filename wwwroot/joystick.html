@@ -170,13 +170,12 @@
 	});
 
 	function stop(forced) {
-		var cmds = [];
+		if (!(moving || forced)) return;
 
-		if (moving || forced) {
-
-			Joystick_wsClient.send("SS");			
-			moving = false;
+		if (typeof Joystick_wsClient !== 'undefined' && Joystick_wsClient) {
+			Joystick_wsClient.send("SS");
 		}
+		moving = false;
 	}
 
 	function emergency_stop(element) {
@@ -201,6 +200,10 @@
 			return;
 		}
 
+		if (typeof Joystick_wsClient === 'undefined' || !Joystick_wsClient) {
+			console.warn("Joystick: WebSocket client not ready");
+			return;
+		}
 		Joystick_wsClient.send(dir);
 		moving = true;
 	}
